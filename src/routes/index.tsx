@@ -165,8 +165,19 @@ function Index() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setMuted((m) => !m)}
+            aria-label={muted ? "Unmute page-turn sound" : "Mute page-turn sound"}
+            aria-pressed={muted}
+            className="ml-4 rounded-full p-2 transition-opacity hover:opacity-70"
+            style={{ color: "var(--color-ink)", border: "1px dashed var(--color-edge)" }}
+            title={muted ? "Sound off" : "Sound on"}
+          >
+            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
         </div>
       </nav>
+
 
       {/* page stage */}
       <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12" style={{ perspective: 2000 }}>
