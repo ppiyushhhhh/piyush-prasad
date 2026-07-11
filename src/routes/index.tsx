@@ -600,9 +600,11 @@ const TIMELINE = [
     org: "Credence Infotech",
     period: "Feb 2022 – Oct 2024",
     bullets: [
-      "Delivered ITSM operations aligned with ITIL best practices.",
-      "Coordinated between technical teams and stakeholders; kept SLAs green.",
-      "Contributed to process improvement initiatives.",
+      "Delivered ITSM operations aligned with ITIL best practices, supporting incident, problem, and change management processes.",
+      "Acted as a coordination point between technical teams and stakeholders to ensure smooth and efficient service delivery.",
+      "Monitored service performance and maintained adherence to defined operational standards and client SLAs.",
+      "Contributed to process improvement initiatives to enhance service efficiency and overall customer satisfaction.",
+      "Provided operational support and consultation to improve IT service quality and system reliability.",
     ],
   },
   {
@@ -611,9 +613,11 @@ const TIMELINE = [
     org: "Runtime Solutions",
     period: "Dec 2024 – Present",
     bullets: [
-      "Owned ITSM ticket lifecycle across locations in ManageEngine ServiceDesk Plus.",
-      "Administered lifecycle of laptops, desktops, APs, biometric devices.",
-      "Coordinated with vendors to resolve HW/network/system issues within SLA.",
+      "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
+      "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
+      "Administered IT asset lifecycle for laptops, desktops, access points, and biometric devices with accurate tracking and documentation.",
+      "Coordinated with internal teams and external vendors to resolve hardware, network, and system issues within defined SLAs.",
+      "Supported daily IT operations including ticket logging, categorization, escalation handling, and documentation to ensure service continuity.",
     ],
   },
   {
