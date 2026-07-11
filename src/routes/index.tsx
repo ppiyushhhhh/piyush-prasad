@@ -9,7 +9,7 @@ function Index() {
     <main className="min-h-screen bg-gray-100 text-gray-900">
       <div className="mx-auto my-8 max-w-2xl border border-gray-300 bg-white px-8 py-12 leading-relaxed sm:px-12 sm:my-12 [&>section]:mb-8 [&>section]:pb-8 [&>section]:border-b [&>section]:border-gray-200 [&>section:last-child]:border-b-0 [&>section:last-child]:pb-0 [&>section:last-child]:mb-0">
 
-        <header className="mb-10">
+        <header className="mb-8 pb-8 border-b border-gray-200">
           <h1 className="text-3xl font-semibold">Piyush Prasad</h1>
           <p className="mt-1 text-lg text-gray-700">Aspiring Cloud & DevOps Engineer</p>
           <p className="mt-3 text-sm text-gray-700">
