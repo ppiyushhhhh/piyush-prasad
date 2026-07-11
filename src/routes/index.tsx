@@ -78,26 +78,24 @@ function Index() {
               </a>
             </h3>
             <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li>Designed and implemented a CI/CD pipeline using GitHub Actions to automate deployment of a React application.</li>
-              <li>Deployed and hosted the application on AWS EC2 (Ubuntu).</li>
-              <li>Configured Nginx as a reverse proxy and production web server.</li>
-              <li>Managed domain routing and DNS using Cloudflare.</li>
-              <li>Automated deployments on every GitHub push using SSH authentication and GitHub Secrets.</li>
-              <li>Implemented domain-based email system using Cloudflare Email Routing and Gmail SMTP.</li>
-              <li>Configured SPF, DKIM, and DMARC records for secure email delivery.</li>
+              <li>Designed and implemented a CI/CD pipeline using GitHub Actions to automate deployment of a React application on every push, with SSH authentication and GitHub Secrets.</li>
+              <li>Deployed and hosted the application on AWS EC2 (Ubuntu), with Nginx configured as a reverse proxy and production web server.</li>
+              <li>Managed domain routing and DNS through Cloudflare, and set up a domain-based email system using Cloudflare Email Routing and Gmail SMTP.</li>
+              <li>Configured SPF, DKIM, and DMARC records to ensure secure and authenticated email delivery.</li>
             </ul>
+            <p className="mt-2 text-sm text-gray-700"><span className="font-semibold">Tech used:</span> AWS EC2, Ubuntu, Nginx, GitHub Actions, Cloudflare, React, SSH, Gmail SMTP.</p>
           </div>
 
           <div>
             <h3 className="font-semibold">Production-Ready Deployment on AWS EC2 with Monitoring & Security</h3>
             <p className="text-sm text-gray-700">Feb 2026 – April 2026 · Live Project</p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li>Deployed a production-grade React and Node.js application on AWS EC2 using Nginx reverse proxy with HTTPS via Certbot SSL.</li>
-              <li>Implemented server security using UFW Firewall, Basic Authentication, Nginx return 444, rate limiting, and DDoS protection.</li>
-              <li>Built a monitoring stack using Prometheus, Grafana, and Node Exporter for CPU, memory, disk, uptime, and network metrics.</li>
-              <li>Integrated Trivy vulnerability scanning within CI/CD workflows.</li>
-              <li>Gained hands-on experience in DevSecOps, reverse proxy architecture, Linux server hardening, and production troubleshooting.</li>
+              <li>Deployed a production-grade React and Node.js application on AWS EC2 with Nginx reverse proxy and HTTPS enabled via Certbot SSL.</li>
+              <li>Hardened the server with UFW Firewall, Basic Authentication, Nginx return 444, rate limiting, and DDoS protection.</li>
+              <li>Built a monitoring stack using Prometheus, Grafana, and Node Exporter to track CPU, memory, disk, uptime, and network metrics.</li>
+              <li>Integrated Trivy vulnerability scanning into CI/CD workflows, gaining hands-on DevSecOps and Linux server hardening experience.</li>
             </ul>
+            <p className="mt-2 text-sm text-gray-700"><span className="font-semibold">Tech used:</span> AWS EC2, Nginx, Certbot, UFW, Prometheus, Grafana, Node Exporter, Trivy, GitHub Actions, React, Node.js.</p>
           </div>
         </section>
 
