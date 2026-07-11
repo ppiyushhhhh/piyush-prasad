@@ -236,32 +236,43 @@ function CoverPage({ go }: { go: (id: PageId) => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-12 max-w-md">
-        <p className="font-[family-name:var(--font-hand)] text-3xl mb-4" style={{ color: "var(--color-ink)" }}>
+      <nav aria-labelledby="toc-heading" className="mx-auto mt-12 max-w-md">
+        <h2 id="toc-heading" className="font-[family-name:var(--font-hand)] text-3xl mb-4" style={{ color: "var(--color-ink)" }}>
           Contents
-        </p>
-        <ul className="space-y-3 font-[family-name:var(--font-hand-alt)] text-xl">
-          {CHAPTERS.slice(1).map((c, i) => (
-            <motion.li
-              key={c.id}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.25 + i * 0.06 }}
-            >
-              <button
-                onClick={() => go(c.id)}
-                className="group flex w-full items-baseline gap-3 text-left"
-                style={{ color: "var(--color-ink)" }}
+        </h2>
+        <ol className="space-y-3 font-[family-name:var(--font-hand-alt)] text-xl">
+          {CHAPTERS.slice(1).map((c, i) => {
+            const pageLabel = String(i + 1).padStart(2, "0");
+            return (
+              <motion.li
+                key={c.id}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25 + i * 0.06 }}
               >
-                <span style={{ color: "var(--color-accent)" }}>{c.num}</span>
-                <span className="group-hover:marker-hi transition-all">{c.label}</span>
-                <span className="flex-1 border-b border-dotted" style={{ borderColor: "var(--color-ink)", opacity: 0.4 }} />
-                <span style={{ color: "var(--color-accent)" }}>p. {String(i + 1).padStart(2, "0")}</span>
-              </button>
-            </motion.li>
-          ))}
-        </ul>
-      </div>
+                <button
+                  onClick={() => go(c.id)}
+                  aria-label={`Go to chapter ${c.num}, ${c.label}, page ${pageLabel}`}
+                  className="group flex w-full items-baseline gap-3 rounded-sm px-1 py-0.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={
+                    {
+                      color: "var(--color-ink)",
+                      "--tw-ring-color": "var(--color-accent)",
+                      "--tw-ring-offset-color": "var(--color-paper)",
+                    } as React.CSSProperties
+                  }
+                >
+                  <span aria-hidden="true" style={{ color: "var(--color-accent)" }}>{c.num}</span>
+                  <span className="group-hover:marker-hi transition-all">{c.label}</span>
+                  <span aria-hidden="true" className="flex-1 border-b border-dotted" style={{ borderColor: "var(--color-ink)", opacity: 0.4 }} />
+                  <span aria-hidden="true" style={{ color: "var(--color-accent)" }}>p. {pageLabel}</span>
+                </button>
+              </motion.li>
+            );
+          })}
+        </ol>
+      </nav>
+
 
       {/* doodles */}
       <svg className="pointer-events-none absolute bottom-8 left-24 opacity-40" width="90" height="60" viewBox="0 0 90 60" fill="none" style={{ color: "var(--color-accent)" }}>
