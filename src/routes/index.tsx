@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import runtimeLogo from "@/assets/runtime-solutions.png.asset.json";
+import credenceLogo from "@/assets/credence-infotech.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
+
 
 function Index() {
   return (
