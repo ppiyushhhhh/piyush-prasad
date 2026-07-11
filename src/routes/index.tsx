@@ -75,6 +75,7 @@ function Index() {
   const next = idx < CHAPTERS.length - 1 ? CHAPTERS[idx + 1] : null;
 
   return (
+    <MotionConfig reducedMotion="user">
     <main className="min-h-screen w-full" style={{ backgroundColor: "var(--color-desk)" }}>
       <DeskBackdrop />
 
