@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AnimatePresence, motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView, MotionConfig } from "framer-motion";
 import { useRef, useState } from "react";
 import {
   Cloud,
@@ -75,6 +75,7 @@ function Index() {
   const next = idx < CHAPTERS.length - 1 ? CHAPTERS[idx + 1] : null;
 
   return (
+    <MotionConfig reducedMotion="user">
     <main className="min-h-screen w-full" style={{ backgroundColor: "var(--color-desk)" }}>
       <DeskBackdrop />
 
@@ -149,6 +150,7 @@ function Index() {
         )}
       </div>
     </main>
+    </MotionConfig>
   );
 }
 
