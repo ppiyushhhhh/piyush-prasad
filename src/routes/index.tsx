@@ -62,17 +62,74 @@ const SKILLS: { name: string; Icon: React.ComponentType<{ size?: number; classNa
 function Index() {
   const [page, setPage] = useState<PageId>("cover");
   const [dir, setDir] = useState<1 | -1>(1);
+  const [muted, setMuted] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playPageTurn = () => {
+    if (muted) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      let ctx = audioCtxRef.current;
+      if (!ctx) {
+        ctx = new Ctx();
+        audioCtxRef.current = ctx;
+      }
+      if (ctx.state === "suspended") ctx.resume();
+      const now = ctx.currentTime;
+      const dur = 0.32;
+
+      // white noise buffer for the paper "shhh"
+      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        // fade in then out, slight envelope
+        const t = i / data.length;
+        const env = Math.sin(Math.PI * t) ** 1.6;
+        data[i] = (Math.random() * 2 - 1) * env;
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      // bandpass to shape it like paper, not TV static
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.setValueAtTime(1800, now);
+      bp.frequency.exponentialRampToValueAtTime(600, now + dur);
+      bp.Q.value = 0.9;
+
+      const hp = ctx.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = 400;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      noise.connect(bp).connect(hp).connect(gain).connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + dur);
+    } catch {
+      /* audio not available — silent fail */
+    }
+  };
 
   const go = (id: PageId) => {
     const from = CHAPTERS.findIndex((c) => c.id === page);
     const to = CHAPTERS.findIndex((c) => c.id === id);
+    if (id === page) return;
     setDir(to >= from ? 1 : -1);
     setPage(id);
+    playPageTurn();
   };
 
   const idx = CHAPTERS.findIndex((c) => c.id === page);
   const prev = idx > 0 ? CHAPTERS[idx - 1] : null;
   const next = idx < CHAPTERS.length - 1 ? CHAPTERS[idx + 1] : null;
+
 
   return (
     <MotionConfig reducedMotion="user">
