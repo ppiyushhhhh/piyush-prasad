@@ -143,7 +143,7 @@ function Index() {
             <button
               onClick={() => go(prev.id)}
               aria-label={`Previous page: ${prev.label}`}
-              className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold shadow-[3px_3px_0_0_var(--color-accent)] transition-transform hover:translate-x-[-1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0_0_var(--color-accent)]"
+              className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold transition-transform hover:translate-x-[-1px] hover:translate-y-[1px] hover:bg-black hover:text-white hover:shadow-[2px_2px_0_0_var(--color-ink)] focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", backgroundColor: "var(--color-paper)", boxShadow: "3px 3px 0 0 var(--color-ink)" }}
             >
               <ArrowLeft size={18} /> ← Prev {prev.label}
@@ -152,7 +152,8 @@ function Index() {
           {next ? (
             <button
               onClick={() => go(next.id)}
-              className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold shadow-[3px_3px_0_0_var(--color-accent)] transition-transform hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0_0_var(--color-accent)]"
+              aria-label={`Next page: ${next.label}`}
+              className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold transition-transform hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-black hover:text-white hover:shadow-[2px_2px_0_0_var(--color-ink)] focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", backgroundColor: "var(--color-paper)", boxShadow: "3px 3px 0 0 var(--color-ink)" }}
             >
               Next → {next.label} <ArrowRight size={18} />
