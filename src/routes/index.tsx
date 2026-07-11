@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, Phone, Linkedin, Github } from "lucide-react";
-import runtimeLogo from "@/assets/runtime-solutions.png.asset.json";
-import credenceLogo from "@/assets/credence-infotech.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -42,9 +40,7 @@ function Index() {
         <section className="mb-10">
           <h2 className="mb-3 text-xl font-semibold">Experience</h2>
 
-          <div className="mb-5 flex gap-4">
-            <img src={runtimeLogo.url} alt="Runtime Solutions logo" className="h-12 w-12 flex-shrink-0 object-contain transition-transform duration-200 hover:scale-110 hover:rotate-3 cursor-pointer" />
-            <div className="flex-1">
+          <div className="mb-5">
             <h3 className="font-semibold">IT Office Assistant — Runtime Solutions</h3>
             <p className="text-sm text-gray-700">Dec 2024 – Present</p>
 
@@ -55,12 +51,9 @@ function Index() {
               <li>Coordinated with internal teams and external vendors to resolve hardware, network, and system issues within SLAs.</li>
               <li>Supported daily IT operations including ticket logging, categorization, and escalation handling.</li>
             </ul>
-            </div>
           </div>
 
-          <div className="flex gap-4">
-            <img src={credenceLogo.url} alt="Credence Infotech logo" className="h-12 w-12 flex-shrink-0 object-contain transition-transform duration-200 hover:scale-110 hover:rotate-3 cursor-pointer" />
-            <div className="flex-1">
+          <div>
             <h3 className="font-semibold">IT Service Management Consultant — Credence Infotech</h3>
             <p className="text-sm text-gray-700">Feb 2022 – Oct 2024</p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -70,7 +63,6 @@ function Index() {
               <li>Contributed to process improvement initiatives.</li>
               <li>Provided operational support to improve IT service quality and reliability.</li>
             </ul>
-            </div>
           </div>
 
         </section>
