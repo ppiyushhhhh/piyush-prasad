@@ -142,7 +142,7 @@ function Index() {
           {prev ? (
             <button
               onClick={() => go(prev.id)}
-              aria-label={`Previous page: ${prev.label}`}
+              
               className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold transition-transform hover:translate-x-[-1px] hover:translate-y-[1px] hover:bg-black hover:text-white hover:shadow-[2px_2px_0_0_var(--color-ink)] focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", backgroundColor: "var(--color-paper)", boxShadow: "3px 3px 0 0 var(--color-ink)" }}
             >
@@ -152,7 +152,7 @@ function Index() {
           {next ? (
             <button
               onClick={() => go(next.id)}
-              aria-label={`Next page: ${next.label}`}
+              
               className="inline-flex items-center gap-2 rounded-sm border-2 px-4 py-1.5 font-bold transition-transform hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-black hover:text-white hover:shadow-[2px_2px_0_0_var(--color-ink)] focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", backgroundColor: "var(--color-paper)", boxShadow: "3px 3px 0 0 var(--color-ink)" }}
             >
@@ -267,7 +267,6 @@ function CoverPage({ go }: { go: (id: PageId) => void }) {
               >
                 <button
                   onClick={() => go(c.id)}
-                  aria-label={`Go to chapter ${c.num}, ${c.label}, page ${pageLabel}`}
                   className="group flex w-full items-baseline gap-3 rounded-sm px-1 py-0.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   style={
                     {
@@ -277,10 +276,10 @@ function CoverPage({ go }: { go: (id: PageId) => void }) {
                     } as React.CSSProperties
                   }
                 >
-                  <span aria-hidden="true" style={{ color: "var(--color-accent)" }}>{c.num}</span>
+                  <span style={{ color: "var(--color-accent)" }}>{c.num}</span>
                   <span className="group-hover:marker-hi transition-all">{c.label}</span>
                   <span aria-hidden="true" className="flex-1 border-b border-dotted" style={{ borderColor: "var(--color-ink)", opacity: 0.4 }} />
-                  <span aria-hidden="true" style={{ color: "var(--color-accent)" }}>p. {pageLabel}</span>
+                  <span style={{ color: "var(--color-accent)" }}>p. {pageLabel}</span>
                 </button>
               </motion.li>
             );
