@@ -86,14 +86,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
       { name: "twitter:description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Nginx, and DevSecOps." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f0a9b913-3c77-4799-8179-f8a01e6b2d86" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f0a9b913-3c77-4799-8179-f8a01e6b2d86" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/48d4e8c3-191a-407c-ade9-cfc93dd8c573" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/48d4e8c3-191a-407c-ade9-cfc93dd8c573" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
     ],
     scripts: [
       {
