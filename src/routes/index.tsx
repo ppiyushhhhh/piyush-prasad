@@ -620,9 +620,9 @@ function Certifications() {
                   viewport={{ once: true }}
                   className="flex items-center gap-5 py-5"
                 >
-                  <div className="mono flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] text-cobalt text-[10px]">
+                  <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
                     {c.logo ? (
-                      <img src={c.logo} alt={`${c.issuer} logo`} className="h-full w-full object-cover" />
+                      <img src={c.logo} alt={`${c.issuer} logo`} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
                     ) : (
                       c.issuer.slice(0, 2).toUpperCase()
                     )}
