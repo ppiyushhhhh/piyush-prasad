@@ -103,7 +103,7 @@ const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "Docker Foundations Professional Certificate", issuer: "Docker, Inc", logo: dockerLogo.url, url: "https://www.linkedin.com/learning/certificates/3f8f006fe458d2f993ddba0bd0f3c357f3caf92a5e15bad0718a01e1709241e0" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub", logo: githubLogo.url, url: "https://www.linkedin.com/learning/certificates/9a7cce8c73b57d5e8629e5ac94a454a78c5fda6957c901ca4854a7c93e13a3e7" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services" },
-  { name: "Linux System Upgrade and Patch Management", issuer: "LinkedIn Learning" },
+  
   { name: "DNS", issuer: "Packt", logo: packtLogo.url, url: "https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS" },
 ];
 
