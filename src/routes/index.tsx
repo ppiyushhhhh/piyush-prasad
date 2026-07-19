@@ -63,6 +63,7 @@ const EXPERIENCE = [
   {
     company: "Runtime Solutions",
     logo: runtimeLogo,
+    url: "https://www.runtimesolutions.in/",
     role: "IT Office Assistant",
     type: "Full-Time",
     period: "Dec 2024 — Present",
@@ -455,11 +456,28 @@ function Experience() {
                     >
                       <div className="flex items-center gap-3">
                         {(e as any).logo ? (
-                          <img
-                            src={(e as any).logo}
-                            alt={`${e.company} logo`}
-                            className="h-8 w-8 shrink-0 rounded-sm bg-white object-contain p-1"
-                          />
+                          (e as any).url ? (
+                            <a
+                              href={(e as any).url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(ev) => ev.stopPropagation()}
+                              aria-label={`Visit ${e.company} website`}
+                              className="shrink-0 rounded-sm transition-transform hover:scale-110 hover:ring-2 hover:ring-cobalt"
+                            >
+                              <img
+                                src={(e as any).logo}
+                                alt={`${e.company} logo`}
+                                className="h-8 w-8 rounded-sm bg-white object-contain p-1"
+                              />
+                            </a>
+                          ) : (
+                            <img
+                              src={(e as any).logo}
+                              alt={`${e.company} logo`}
+                              className="h-8 w-8 shrink-0 rounded-sm bg-white object-contain p-1"
+                            />
+                          )
                         ) : (
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/15 bg-white/[0.04]">
                             <span className="mono text-[10px] text-white/60">
