@@ -702,9 +702,20 @@ function Certifications() {
                   className="border border-[#D1D1CB] bg-white/50 p-5"
                 >
                   <div className="mono text-cobalt text-[10px]">{e.period}</div>
-                  <div className="mt-3 font-semibold">{e.degree}</div>
-                  <div className="mt-1 text-sm text-carbon/80">{e.school}</div>
-                  <div className="mono mt-2 text-[10px] text-carbon/60">{e.extra}</div>
+                  <div className="mt-3 flex items-start gap-3">
+                    {(e as any).logo && (
+                      <img
+                        src={(e as any).logo}
+                        alt={`${e.school} logo`}
+                        className="h-10 w-10 shrink-0 rounded-sm bg-white object-contain p-0.5 ring-1 ring-[#D1D1CB]"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-semibold">{e.degree}</div>
+                      <div className="mt-1 text-sm text-carbon/80">{e.school}</div>
+                      <div className="mono mt-2 text-[10px] text-carbon/60">{e.extra}</div>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
