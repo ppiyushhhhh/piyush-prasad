@@ -97,7 +97,7 @@ const SKILL_CATS = [
 const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "DevOps Complete Course Specialization", issuer: "Packt (Coursera)", url: "https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK", logo: packtLogo.url },
   { name: "Google AI Essentials Specialization", issuer: "Google (Coursera)", logo: googleLogo.url, url: "https://www.coursera.org/account/accomplishments/specialization/EZS8GLRIG535" },
-  { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical" },
+  { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical", logo: canonicalLogo.url, url: "https://www.linkedin.com/learning/certificates/9d7f2b805f126a9612c6b1be485f14f90d4362bb9f0c6875bcb7702bc1274dbf" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services" },
   { name: "Linux System Upgrade and Patch Management", issuer: "LinkedIn Learning" },
