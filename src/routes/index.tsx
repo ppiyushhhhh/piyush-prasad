@@ -701,7 +701,7 @@ function Certifications() {
                   initial="hidden"
                   whileInView="show"
                   viewport={{ once: true }}
-                  className="border border-[#D1D1CB] bg-white/50 p-5"
+                  className="group border border-[#D1D1CB] bg-white/50 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-cobalt hover:bg-white hover:shadow-[0_8px_24px_-12px_rgba(26,75,255,0.35)]"
                 >
                   <div className="mono text-cobalt text-[10px]">{e.period}</div>
                   <div className="mt-3 flex items-start gap-3">
@@ -709,7 +709,7 @@ function Certifications() {
                       <img
                         src={(e as any).logo}
                         alt={`${e.school} logo`}
-                        className="h-10 w-10 shrink-0 rounded-sm bg-white object-contain p-0.5 ring-1 ring-[#D1D1CB]"
+                        className="h-10 w-10 shrink-0 rounded-sm bg-white object-contain p-0.5 ring-1 ring-[#D1D1CB] transition-all duration-300 group-hover:scale-110 group-hover:ring-cobalt group-hover:shadow-md"
                       />
                     )}
                     <div className="min-w-0">
