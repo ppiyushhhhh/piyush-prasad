@@ -440,7 +440,7 @@ function Experience() {
         <SectionLabel n="002" label="EXPERIENCE" dark />
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-4">
-            <h2 className="display text-[56px] leading-[0.88] md:text-[80px]">
+            <h2 className="display text-[40px] leading-[0.88] sm:text-[56px] md:text-[80px]">
               WORK
               <br />
               <span className="text-cobalt">HISTORY</span>
