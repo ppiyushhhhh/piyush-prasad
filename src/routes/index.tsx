@@ -100,7 +100,7 @@ const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services" },
   { name: "Linux System Upgrade and Patch Management", issuer: "LinkedIn Learning" },
-  { name: "DNS", issuer: "Packt", logo: packtLogo.url },
+  { name: "DNS", issuer: "Packt", logo: packtLogo.url, url: "https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS" },
 ];
 
 const EDUCATION = [
