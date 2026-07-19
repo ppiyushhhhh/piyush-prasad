@@ -91,7 +91,8 @@ const SKILL_CATS = [
   { label: "ITSM", tags: ["ManageEngine ServiceDesk Plus", "ITIL Practices", "SLA Management"] },
 ];
 
-const CERTS = [
+const CERTS: { name: string; issuer: string; url?: string }[] = [
+  { name: "DevOps Complete Course Specialization", issuer: "Packt (Coursera)", url: "https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK" },
   { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services" },
@@ -614,8 +615,19 @@ function Certifications() {
                   <div className="mono flex h-10 w-10 flex-shrink-0 items-center justify-center border border-[#D1D1CB] text-cobalt text-[10px]">
                     {c.issuer.slice(0, 2).toUpperCase()}
                   </div>
-                  <div>
-                    <div className="font-medium">{c.name}</div>
+                  <div className="flex-1">
+                    {c.url ? (
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium underline decoration-cobalt/40 underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
+                      >
+                        {c.name} ↗
+                      </a>
+                    ) : (
+                      <div className="font-medium">{c.name}</div>
+                    )}
                     <div className="mono mt-1 text-cobalt text-[10px]">{c.issuer}</div>
                   </div>
                 </motion.li>
