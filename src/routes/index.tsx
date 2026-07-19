@@ -376,13 +376,13 @@ function Projects() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
-              className={`group relative grid grid-cols-1 gap-6 border-t border-[#D1D1CB] py-12 lg:grid-cols-12 lg:gap-10 lg:py-16 ${
+              className={`group relative grid grid-cols-1 gap-6 border-t border-[#D1D1CB] py-12 transition-all duration-500 hover:bg-cobalt/5 hover:px-6 lg:grid-cols-12 lg:gap-10 lg:py-16 ${
                 i === PROJECTS.length - 1 ? "border-b" : ""
               }`}
             >
-              <div className="mono text-cobalt text-[12px] lg:col-span-1">{p.idx}</div>
+              <div className="mono text-cobalt text-[12px] transition-transform duration-500 group-hover:translate-x-2 lg:col-span-1">{p.idx}</div>
               <div className="lg:col-span-6">
-                <h3 className="display text-[40px] leading-[0.9] transition-colors group-hover:text-cobalt md:text-[64px] lg:text-[80px]">
+                <h3 className="display text-[40px] leading-[0.9] transition-all duration-500 group-hover:translate-x-2 group-hover:text-cobalt md:text-[64px] lg:text-[80px]">
                   {p.title}
                 </h3>
                 <p className="mono mt-4 text-cobalt text-[11px]">{p.subtitle}</p>
@@ -394,12 +394,13 @@ function Projects() {
                   {p.tech.map((t) => (
                     <span
                       key={t}
-                      className="mono border border-[#D1D1CB] px-2.5 py-1 text-[10px] text-carbon/80"
+                      className="mono border border-[#D1D1CB] px-2.5 py-1 text-[10px] text-carbon/80 transition-colors duration-300 hover:border-cobalt hover:bg-cobalt hover:text-white"
                     >
                       {t}
                     </span>
                   ))}
                 </div>
+
                 {p.link && (
                   <a
                     href={p.link.href}
