@@ -76,6 +76,7 @@ const EXPERIENCE = [
   },
   {
     company: "Credence Infotech",
+    logo: credenceLogo,
     role: "IT Support Coordinator",
     type: "Full-Time",
     period: "Feb 2022 — Oct 2024",
