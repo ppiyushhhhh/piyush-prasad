@@ -61,6 +61,7 @@ const PROJECTS = [
 const EXPERIENCE = [
   {
     company: "Runtime Solutions",
+    logo: runtimeLogo,
     role: "IT Office Assistant",
     type: "Full-Time",
     period: "Dec 2024 — Present",
