@@ -95,7 +95,7 @@ const SKILL_CATS = [
 
 const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "DevOps Complete Course Specialization", issuer: "Packt (Coursera)", url: "https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK", logo: packtLogo.url },
-  { name: "Google AI Essentials Specialization", issuer: "Google (Coursera)", logo: googleLogo.url },
+  { name: "Google AI Essentials Specialization", issuer: "Google (Coursera)", logo: googleLogo.url, url: "https://www.coursera.org/account/accomplishments/specialization/EZS8GLRIG535" },
   { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services" },
