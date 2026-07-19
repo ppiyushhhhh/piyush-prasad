@@ -22,6 +22,7 @@ import dockerLogo from "@/assets/docker-logo.jpg";
 import githubLogo from "@/assets/github-logo.jpg";
 import awsLogo from "@/assets/aws-logo.jpg";
 import runtimeLogo from "@/assets/runtime-logo.png";
+import credenceLogo from "@/assets/credence-logo.png";
 
 export const Route = createFileRoute("/")({
   component: PortfolioPage,
