@@ -575,22 +575,23 @@ function Skills() {
                   initial="hidden"
                   whileInView="show"
                   viewport={{ once: true, margin: "-40px" }}
-                  className="border border-[#D1D1CB] bg-white/50 p-6"
+                  className="group border border-[#D1D1CB] bg-white/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cobalt hover:bg-white hover:shadow-[0_8px_24px_-12px_rgba(26,75,255,0.35)]"
                 >
-                  <div className="mono mb-4 flex items-center gap-2 text-[10px] text-carbon/70">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+                  <div className="mono mb-4 flex items-center gap-2 text-[10px] text-carbon/70 transition-colors group-hover:text-cobalt">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cobalt transition-transform group-hover:scale-150" />
                     {cat.label.toUpperCase()}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {cat.tags.map((t) => (
                       <span
                         key={t}
-                        className="mono border border-[#D1D1CB] bg-white px-2.5 py-1 text-[10px] text-carbon/80"
+                        className="mono border border-[#D1D1CB] bg-white px-2.5 py-1 text-[10px] text-carbon/80 transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
                       >
                         {t}
                       </span>
                     ))}
                   </div>
+
                 </motion.div>
               ))}
             </div>
