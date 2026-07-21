@@ -173,7 +173,7 @@ async function collect() {
       value: b.computes?.c0 ?? 0,
     }));
 
-  return {
+  const data = {
     generatedAt: new Date(),
     domain: SITE_DOMAIN,
     availability: {
@@ -212,26 +212,19 @@ async function collect() {
 
 function computeHealthScore(d) {
   let score = 100;
-  const notes = [];
-  if (d.availability.uptime != null) {
-    if (d.availability.uptime < 99.9) score -= Math.min(40, (99.9 - d.availability.uptime) * 10);
-  } else notes.push("uptime unknown");
+  if (d.availability.uptime != null && d.availability.uptime < 99.9) {
+    score -= Math.min(40, (99.9 - d.availability.uptime) * 10);
+  }
   if (d.availability.failedChecks > 0) score -= Math.min(15, d.availability.failedChecks * 2);
-  if (d.performance.avg != null) {
-    if (d.performance.avg > 500) score -= Math.min(20, (d.performance.avg - 500) / 50);
+  if (d.performance.avg != null && d.performance.avg > 500) {
+    score -= Math.min(20, (d.performance.avg - 500) / 50);
   }
   if (d.security.sslDays != null && d.security.sslDays < 30) score -= 10;
   if (d.appHealth.jsErrors) score -= Math.min(15, d.appHealth.jsErrors);
   score = Math.max(0, Math.min(100, Math.round(score)));
-  const grade = score >= 95 ? "Excellent" : score >= 85 ? "Healthy" : score >= 70 ? "Fair" : score >= 50 ? "At Risk" : "Critical";
-  const summary = notes.length ? notes.join(", ") : "Based on uptime, latency, SSL, and errors";
-  return { value: score, grade, summary };
-}
-
-// Wrap the earlier return object so we can attach the score post-hoc
-async function collectWrapper() {
-  const data = await collect();
-  return data;
+  const grade =
+    score >= 95 ? "Excellent" : score >= 85 ? "Healthy" : score >= 70 ? "Fair" : score >= 50 ? "At Risk" : "Critical";
+  return { value: score, grade, summary: "Based on uptime, latency, SSL, and errors" };
 }
 
 // -------- PDF rendering --------
