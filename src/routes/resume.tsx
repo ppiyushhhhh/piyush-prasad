@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/resume")({
   head: () => ({
@@ -11,6 +12,8 @@ export const Route = createFileRoute("/resume")({
 });
 
 function ResumeViewer() {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <div
       className="fixed inset-0 bg-[#1a1a1a] flex flex-col h-[100dvh]"
@@ -24,17 +27,31 @@ function ResumeViewer() {
           View Only
         </div>
       </header>
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="relative flex-1 min-h-0 overflow-hidden">
+        {!loaded && (
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#1a1a1a] text-white/70"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
+            <div className="font-mono text-[10px] uppercase tracking-widest text-white/50">
+              Loading resume…
+            </div>
+          </div>
+        )}
         <object
           data="/resume.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
           type="application/pdf"
           className="w-full h-full border-0 block"
           aria-label="Piyush Prasad Resume"
+          onLoad={() => setLoaded(true)}
         >
           <iframe
             src="/resume.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
             title="Piyush Prasad Resume"
             className="w-full h-full border-0 block"
+            onLoad={() => setLoaded(true)}
           />
         </object>
       </div>
