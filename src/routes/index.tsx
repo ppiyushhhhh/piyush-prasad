@@ -1044,28 +1044,19 @@ function CvDock() {
         </div>
         <div className="mono mt-3 text-[9px] text-carbon/70">CLOUD &amp; DEVOPS ENGINEER</div>
         <div className="mt-3 border-t border-[#D1D1CB] pt-3 text-[11px] text-carbon/70">
-          Preview inline or download the PDF.
+          Preview inline in a new tab.
         </div>
       </motion.div>
       <div className="flex items-center gap-2">
         <a
-          href="/resume.pdf"
+          href="/resume.pdf#toolbar=0&navpanes=0"
           target="_blank"
           rel="noreferrer"
           aria-label="View resume in new tab"
-          className="mono inline-flex items-center gap-2 border border-carbon bg-white px-4 py-3 text-carbon text-[11px] shadow-lg transition-colors hover:bg-carbon hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-carbon focus-visible:ring-offset-2"
-        >
-          <Eye className="h-3.5 w-3.5" />
-          VIEW
-        </a>
-        <a
-          href="/resume.pdf"
-          download="Piyush-Prasad-Resume.pdf"
-          aria-label="Download resume PDF"
           className="mono inline-flex items-center gap-2 bg-carbon px-4 py-3 text-white text-[11px] shadow-lg transition-colors hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2"
         >
-          <Download className="h-3.5 w-3.5" />
-          DOWNLOAD CV
+          <Eye className="h-3.5 w-3.5" />
+          VIEW RESUME
         </a>
       </div>
 
