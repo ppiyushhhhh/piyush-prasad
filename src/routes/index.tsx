@@ -1049,7 +1049,7 @@ function CvDock() {
       </motion.div>
       <div className="flex items-center justify-end gap-2">
         <a
-          href="/resume.pdf#toolbar=0&navpanes=0"
+          href="/resume"
           target="_blank"
           rel="noreferrer"
           aria-label="View resume in new tab"
