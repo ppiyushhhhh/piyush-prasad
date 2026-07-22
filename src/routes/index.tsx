@@ -339,16 +339,6 @@ function Hero() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.8 }}
-          className="mono mt-24 flex items-center gap-4 text-[11px] text-carbon/60"
-        >
-          <span className="h-px w-16 bg-carbon/40" />
-          <span>SCROLL TO EXPLORE</span>
-          <ChevronDown className="h-3.5 w-3.5" />
-        </motion.div>
       </div>
     </section>
   );
