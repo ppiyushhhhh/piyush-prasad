@@ -400,6 +400,22 @@ function drawHeader(doc, data) {
 function drawFooter(doc, data, pageNum, total) {
   const y = PAGE.h - 28;
   const w = PAGE.w - MARGIN * 2;
+
+  // Contact row (clickable) above the footer rule
+  const cy = y - 18;
+  const linkOpts = (href) => ({
+    link: href, underline: true, lineBreak: false, continued: true,
+  });
+  const sepOpts = { link: null, underline: false, lineBreak: false, continued: true };
+  doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.cobalt);
+  doc.text(CONTACT.email, MARGIN, cy, linkOpts(`mailto:${CONTACT.email}`));
+  doc.fillColor(COLORS.muted).text("  ·  ", sepOpts).fillColor(COLORS.cobalt);
+  doc.text(CONTACT.phone, linkOpts(`tel:${CONTACT.phone.replace(/\s/g, "")}`));
+  doc.fillColor(COLORS.muted).text("  ·  ", sepOpts).fillColor(COLORS.cobalt);
+  doc.text(CONTACT.linkedinLabel, linkOpts(CONTACT.linkedin));
+  doc.fillColor(COLORS.muted).text("  ·  ", sepOpts).fillColor(COLORS.cobalt);
+  doc.text(CONTACT.githubLabel, { link: CONTACT.github, underline: true, lineBreak: false });
+
   doc.strokeColor(COLORS.line).lineWidth(0.5)
     .moveTo(MARGIN, y - 6).lineTo(PAGE.w - MARGIN, y - 6).stroke();
   const repo = data.git?.repoUrl ? ` · ${data.git.repoUrl}` : "";
