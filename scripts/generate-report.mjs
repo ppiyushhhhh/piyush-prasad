@@ -551,8 +551,40 @@ function generatePdf(data, outPath) {
 
     drawFooter(doc, data, 2, 2);
 
+    // Assert exactly 2 pages before finalising — catches layout overflow
+    // (PDFKit auto-adds a page when content spills past page height) and any
+    // stray addPage() calls that would produce blanks.
+    const range = doc.bufferedPageRange();
+    if (range.count !== 2) {
+      doc.end();
+      reject(new Error(
+        `PDF layout assertion failed: expected exactly 2 pages, got ${range.count}. ` +
+        `A section overflowed page height or a blank page was added. ` +
+        `Reduce content in Recommendations / Performance / Summary or shrink card heights.`,
+      ));
+      return;
+    }
+
     doc.end();
-    stream.on("finish", resolve);
+    stream.on("finish", () => {
+      // Post-write verification: parse the emitted PDF and count /Type /Page
+      // objects. Guards against silent PDFKit output changes.
+      try {
+        const buf = fs.readFileSync(outPath);
+        const text = buf.toString("latin1");
+        const pageMatches = text.match(/\/Type\s*\/Page(?![a-zA-Z])/g) || [];
+        if (pageMatches.length !== 2) {
+          reject(new Error(
+            `PDF post-write assertion failed: expected 2 pages in ${outPath}, ` +
+            `found ${pageMatches.length}. The file may contain blank or overflow pages.`,
+          ));
+          return;
+        }
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
     stream.on("error", reject);
   });
 }
