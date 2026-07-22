@@ -1,7 +1,7 @@
-# Daily Website Health Report (Datadog-free)
+# Daily Website Health Report
 
 Free, self-contained daily monitoring for **https://piyushprasad.in**.
-No Datadog, no paid APIs — everything runs inside GitHub Actions.
+No third-party monitoring service — everything runs inside GitHub Actions.
 
 ## What it collects
 
