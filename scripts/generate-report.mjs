@@ -379,7 +379,7 @@ function drawHeader(doc, data) {
   doc.fillColor(COLORS.ink).font("Helvetica-Bold").fontSize(12)
     .text(BRAND, x + 52, y + 4);
   doc.fillColor(COLORS.cobalt).font("Helvetica").fontSize(9)
-    .text(data.url, x + 52, y + 20);
+    .text(data.url, x + 52, y + 20, { link: data.url, underline: true, lineBreak: false });
   doc.fillColor(COLORS.muted).font("Helvetica").fontSize(8)
     .text(BRAND_TAGLINE, x + 52, y + 32);
 
