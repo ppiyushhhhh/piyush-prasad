@@ -368,12 +368,23 @@ function drawHeader(doc, data) {
   const y = MARGIN;
   const w = PAGE.w - MARGIN * 2;
 
+  // Logo sits inside a fixed 44x44 slot so it never pushes the header rule
+  // (at y+50) and cannot affect the 2-page layout regardless of source size.
+  const LOGO_SLOT = 44;
+  const LOGO_MAX = 36; // rendered size — leaves 4px top/left padding within the slot
+  const LOGO_PAD_X = 2;
+  const LOGO_PAD_Y = 4;
   if (LOGO_EXISTS) {
-    doc.image(LOGO_PATH, x, y, { fit: [40, 40], align: "center", valign: "center" });
+    doc.save();
+    doc.rect(x, y, LOGO_SLOT, LOGO_SLOT).clip();
+    doc.image(LOGO_PATH, x + LOGO_PAD_X, y + LOGO_PAD_Y, {
+      fit: [LOGO_MAX, LOGO_MAX], align: "center", valign: "center",
+    });
+    doc.restore();
   } else {
-    doc.roundedRect(x, y, 40, 40, 8).fill(COLORS.navy);
-    doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(15)
-      .text("PP", x, y + 12, { width: 40, align: "center" });
+    doc.roundedRect(x + LOGO_PAD_X, y + LOGO_PAD_Y, LOGO_MAX, LOGO_MAX, 8).fill(COLORS.navy);
+    doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(14)
+      .text("PP", x + LOGO_PAD_X, y + LOGO_PAD_Y + 10, { width: LOGO_MAX, align: "center" });
   }
 
   doc.fillColor(COLORS.ink).font("Helvetica-Bold").fontSize(12)
