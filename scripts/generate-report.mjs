@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Daily Website Health Report — Datadog-free edition
+ * Daily Website Health Report
  * ---------------------------------------------------
  * Collects uptime, HTTP status, response time, SSL, DNS, common asset
  * availability (robots.txt / sitemap.xml / favicon), and Lighthouse audit
