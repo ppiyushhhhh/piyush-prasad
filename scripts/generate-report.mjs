@@ -25,7 +25,7 @@ import path from "node:path";
 import tls from "node:tls";
 import dns from "node:dns/promises";
 import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import PDFDocument from "pdfkit";
 import nodemailer from "nodemailer";
 
