@@ -47,6 +47,15 @@ const SITE_URL = `https://${SITE_DOMAIN}`;
 const BRAND = "Piyush Prasad";
 const BRAND_TAGLINE = "Automated Website Health Monitoring";
 
+const CONTACT = {
+  email: "piyush@piyushprasad.in",
+  phone: "+91 9324236673",
+  linkedin: "https://linkedin.com/in/ppiyushhhh",
+  linkedinLabel: "linkedin.com/in/ppiyushhhh",
+  github: "https://github.com/ppiyushhhhh",
+  githubLabel: "github.com/ppiyushhhhh",
+};
+
 const COLORS = {
   navy: "#0B1F3A",
   cobalt: "#1E4EE8",
