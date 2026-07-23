@@ -288,8 +288,9 @@ function Hero() {
               transition={{ duration: 0.8, delay: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
               className="display text-[64px] leading-[0.88] md:text-[96px] lg:text-[128px]"
             >
-              <span className="block">PIYUSH</span>
-              <span className="block text-cobalt">PRASAD</span>
+              <span className="sr-only">Piyush Prasad — Cloud & DevOps Engineer</span>
+              <span className="block" aria-hidden="true">PIYUSH</span>
+              <span className="block text-cobalt" aria-hidden="true">PRASAD</span>
             </motion.h1>
 
             <motion.p
@@ -579,6 +580,7 @@ function Skills() {
                 <button
                   onClick={() => setToggle((t) => !t)}
                   aria-pressed={toggle}
+                  aria-label={`Toggle system status, currently ${toggle ? "active" : "idle"}`}
                   className={`relative h-6 w-11 rounded-full border transition-colors ${
                     toggle ? "border-cobalt bg-cobalt" : "border-[#D1D1CB] bg-[#EAEAE4]"
                   }`}
@@ -593,13 +595,18 @@ function Skills() {
               </div>
 
               <div className="mt-6">
+                <label htmlFor="skills-utilization" className="mono block text-[10px] text-carbon/70">
+                  UTILIZATION SLIDER
+                </label>
                 <input
+                  id="skills-utilization"
                   type="range"
                   min={0}
                   max={100}
                   value={util}
                   onChange={(e) => setUtil(Number(e.target.value))}
-                  className="w-full accent-[#1A4BFF]"
+                  aria-label="Adjust utilization percentage"
+                  className="mt-2 w-full accent-[#1A4BFF]"
                 />
                 <div className="mono mt-2 text-[10px] text-carbon/70">
                   UTILIZATION: <span className="text-cobalt">{util}%</span>
