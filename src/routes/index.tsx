@@ -26,6 +26,7 @@ import credenceLogo from "@/assets/credence-logo.png";
 import jkCollegeLogo from "@/assets/jk-college-logo.png";
 import allenSwamiLogo from "@/assets/allen-swami-logo.jpg";
 import tilakGlobalLogo from "@/assets/tilak-global-logo.png";
+import ppLogo from "@/assets/pp-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: PortfolioPage,
@@ -200,7 +201,9 @@ function TopNav() {
       }`}
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
-        <a href="#hero" className="mono font-medium text-carbon">PP</a>
+        <a href="#hero" className="flex items-center" aria-label="Piyush Prasad — home">
+          <img src={ppLogo.url} alt="Piyush Prasad logo" className="h-8 w-auto md:h-9" />
+        </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Section navigation">
           {NAV.map((n) => {
             const isActive = active === n.id;
