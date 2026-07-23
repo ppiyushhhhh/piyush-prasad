@@ -1031,7 +1031,14 @@ function Contact() {
           <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
             GUIDE · BUILDING A SECURE CI/CD PIPELINE
           </a>
-          <span>NAVI MUMBAI · IN</span>
+          <a
+            href="https://www.google.com/maps/place/Mahavir+Varsha+Residence/@19.1213383,73.0014191,17z"
+            target="_blank"
+            rel="noreferrer"
+            className="text-white/70 hover:text-cobalt underline underline-offset-4"
+          >
+            NAVI MUMBAI · IN
+          </a>
         </div>
       </div>
     </section>
