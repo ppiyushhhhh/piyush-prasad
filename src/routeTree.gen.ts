@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -28,35 +29,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
+  id: '/guides/devsecops-pipeline',
+  path: '/guides/devsecops-pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/resume' | '/sitemap.xml'
+  fullPaths: '/' | '/resume' | '/sitemap.xml' | '/guides/devsecops-pipeline'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/resume' | '/sitemap.xml'
-  id: '__root__' | '/' | '/resume' | '/sitemap.xml'
+  to: '/' | '/resume' | '/sitemap.xml' | '/guides/devsecops-pipeline'
+  id:
+    | '__root__'
+    | '/'
+    | '/resume'
+    | '/sitemap.xml'
+    | '/guides/devsecops-pipeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ResumeRoute: typeof ResumeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +97,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/devsecops-pipeline': {
+      id: '/guides/devsecops-pipeline'
+      path: '/guides/devsecops-pipeline'
+      fullPath: '/guides/devsecops-pipeline'
+      preLoaderRoute: typeof GuidesDevsecopsPipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ResumeRoute: ResumeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
