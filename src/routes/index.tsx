@@ -595,13 +595,18 @@ function Skills() {
               </div>
 
               <div className="mt-6">
+                <label htmlFor="skills-utilization" className="mono block text-[10px] text-carbon/70">
+                  UTILIZATION SLIDER
+                </label>
                 <input
+                  id="skills-utilization"
                   type="range"
                   min={0}
                   max={100}
                   value={util}
                   onChange={(e) => setUtil(Number(e.target.value))}
-                  className="w-full accent-[#1A4BFF]"
+                  aria-label="Adjust utilization percentage"
+                  className="mt-2 w-full accent-[#1A4BFF]"
                 />
                 <div className="mono mt-2 text-[10px] text-carbon/70">
                   UTILIZATION: <span className="text-cobalt">{util}%</span>
