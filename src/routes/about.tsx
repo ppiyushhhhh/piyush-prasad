@@ -18,8 +18,17 @@ export const Route = createFileRoute("/about")({
           "The story behind the stack: from IT service management to building resilient cloud infrastructure.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://simply-profile-plain.lovable.app/about" },
       { name: "twitter:card", content: "summary_large_image" },
-      { rel: "canonical", href: "https://piyushprasad.in/about" } as never,
+      { name: "twitter:title", content: "About — Piyush Prasad" },
+      {
+        name: "twitter:description",
+        content:
+          "The story behind the stack: from IT service management to building resilient cloud infrastructure.",
+      },
+    ],
+    links: [
+      { rel: "canonical", href: "https://simply-profile-plain.lovable.app/about" },
     ],
   }),
   component: AboutPage,
