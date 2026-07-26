@@ -1158,6 +1158,7 @@ function PortfolioPage() {
       <TopNav />
       <main className="relative z-10">
         <Hero />
+        <About />
         <Projects />
         <Experience />
         <Skills />
