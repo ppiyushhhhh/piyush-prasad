@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResumeRoute = ResumeRouteImport.update({
@@ -31,30 +37,34 @@ const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/resume': typeof ResumeRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/resume': typeof ResumeRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/resume': typeof ResumeRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/resume' | '/guides/devsecops-pipeline'
+  fullPaths: '/' | '/about' | '/resume' | '/guides/devsecops-pipeline'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/resume' | '/guides/devsecops-pipeline'
-  id: '__root__' | '/' | '/resume' | '/guides/devsecops-pipeline'
+  to: '/' | '/about' | '/resume' | '/guides/devsecops-pipeline'
+  id: '__root__' | '/' | '/about' | '/resume' | '/guides/devsecops-pipeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   ResumeRoute: typeof ResumeRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resume': {
@@ -87,19 +104,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   ResumeRoute: ResumeRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
