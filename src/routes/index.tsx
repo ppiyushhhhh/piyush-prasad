@@ -1026,36 +1026,19 @@ function Contact() {
             </div>
           </div>
         </div>
-        <div className="mt-24 border-t border-white/10 pt-8">
+        <div className="mono mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] text-white/75">
+          <span>© 2026 PIYUSH PRASAD — ALL RIGHTS RESERVED</span>
+          <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
+            GUIDE · BUILDING A SECURE CI/CD PIPELINE
+          </a>
           <a
             href="https://www.google.com/maps/place/Mahavir+Varsha+Residence/@19.1213383,73.0014191,17z"
             target="_blank"
             rel="noreferrer"
-            aria-label="Open location in Google Maps"
-            className="group relative block overflow-hidden rounded border border-white/10 hover:border-cobalt/60 transition-colors"
+            className="text-white/70 hover:text-cobalt underline underline-offset-4"
           >
-            <iframe
-              title="Location map — Navi Mumbai"
-              src="https://www.google.com/maps?q=Mahavir+Varsha+Residence,Navi+Mumbai&z=15&output=embed"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="pointer-events-none block h-40 w-full grayscale contrast-125 sm:h-56"
-              tabIndex={-1}
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 sm:p-4">
-              <span className="mono text-[10px] text-white/90">NAVI MUMBAI · IN</span>
-              <span className="mono inline-flex items-center gap-1 rounded-sm bg-cobalt px-2 py-1 text-[10px] text-white transition-transform group-hover:-translate-y-0.5">
-                TAP TO OPEN <ArrowUpRight className="h-3 w-3" />
-              </span>
-            </div>
+            NAVI MUMBAI · IN
           </a>
-          <div className="mono mt-6 flex flex-wrap items-center justify-between gap-4 text-[10px] text-white/75">
-            <span>© 2026 PIYUSH PRASAD — ALL RIGHTS RESERVED</span>
-            <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
-              GUIDE · BUILDING A SECURE CI/CD PIPELINE
-            </a>
-          </div>
         </div>
       </div>
     </section>
