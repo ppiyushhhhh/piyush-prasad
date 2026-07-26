@@ -209,13 +209,6 @@ function TopNav() {
           <img src={ppLogo.url} alt="Piyush Prasad logo" className="h-8 w-auto md:h-9" />
         </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Section navigation">
-          <Link
-            to="/about"
-            className="mono relative text-[11px] text-carbon transition-colors hover:text-cobalt"
-          >
-            About
-            <span aria-hidden className="absolute -bottom-1.5 left-0 h-[2px] w-0 bg-cobalt transition-all duration-300 group-hover:w-full" />
-          </Link>
           {NAV.map((n) => {
             const isActive = active === n.id;
             return (
