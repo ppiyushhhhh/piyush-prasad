@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -128,7 +128,6 @@ const EDUCATION = [
 ];
 
 const NAV = [
-  { id: "about", label: "About" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "skills", label: "Skills" },
@@ -371,82 +370,6 @@ function SectionLabel({ n, label, dark = false }: { n: string; label: string; da
       <span>/ {label}</span>
       <span className={`ml-4 h-px flex-1 ${dark ? "bg-white/20" : "bg-[#D1D1CB]"}`} />
     </div>
-  );
-}
-
-/* ---------- About ---------- */
-
-const ABOUT_FACTS = [
-  { label: "CURRENTLY", value: "IT Service Management Consultant, Runtime Solutions" },
-  { label: "FOCUS", value: "Cloud, CI/CD, DevSecOps, Observability" },
-  { label: "BASED IN", value: "Navi Mumbai, India" },
-  { label: "STATUS", value: "Open to opportunities" },
-];
-
-const ABOUT_PRINCIPLES = [
-  { n: "01", title: "Reliability is a feature", body: "Systems earn trust by staying up under pressure. Every deploy, alert, and rollback is designed with that trust in mind." },
-  { n: "02", title: "Automate the boring, review the risky", body: "Pipelines handle repetition. Humans handle judgement — code review, incident response, and architectural calls." },
-  { n: "03", title: "Observability before optimisation", body: "You cannot improve what you cannot see. Logs, metrics, and traces come first — tuning follows evidence, not intuition." },
-  { n: "04", title: "Security is a default, not a phase", body: "Secrets management, least-privilege IAM, and dependency scanning belong in the pipeline — not in a post-launch checklist." },
-];
-
-function About() {
-  return (
-    <section id="about" className="relative px-6 py-24 md:px-10 md:py-32">
-      <div className="mx-auto max-w-[1400px]">
-        <SectionLabel n="001.5" label="ABOUT" />
-        <div className="mt-8 max-w-[1100px]">
-          <p className="mono text-[11px] text-cobalt">THE HUMAN BEHIND THE STACK</p>
-          <h2 className="mt-6 text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-            I build systems <br className="hidden md:block" />
-            that <span className="text-cobalt">don&apos;t break</span>.
-          </h2>
-
-          <div className="mt-10 grid gap-6 text-base leading-relaxed text-carbon/80 md:text-lg">
-            <p>
-              I&apos;m a Cloud &amp; DevOps engineer who started in IT service management — triaging tickets, defending SLAs, and keeping end-users unblocked. That ground-level view shaped how I now build infrastructure: obsessed with reliability, security, and the small operational details others overlook.
-            </p>
-            <p>
-              Today I automate deployments, harden servers, and stand up full observability stacks — bridging the gap between ITSM discipline and modern DevSecOps practice so production stays predictable.
-            </p>
-          </div>
-
-          <div className="mt-14 grid grid-cols-1 gap-x-10 gap-y-8 border-t border-[#D1D1CB] pt-10 md:grid-cols-2">
-            {ABOUT_FACTS.map((f) => (
-              <div key={f.label}>
-                <div className="mono text-[11px] text-cobalt">{f.label}</div>
-                <div className="mt-2 text-lg font-medium">{f.value}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-20">
-            <p className="mono text-[11px] text-cobalt">OPERATING PRINCIPLES</p>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">
-              How I approach the work.
-            </h3>
-            <div className="mt-8 grid gap-8 md:grid-cols-2">
-              {ABOUT_PRINCIPLES.map((p) => (
-                <motion.div
-                  key={p.n}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5 }}
-                  className="group border-t border-[#D1D1CB] pt-6"
-                >
-                  <div className="mono text-[11px] text-cobalt">{p.n}</div>
-                  <h4 className="mt-2 text-lg font-semibold group-hover:text-cobalt transition-colors">
-                    {p.title}
-                  </h4>
-                  <p className="mt-3 text-base leading-relaxed text-carbon/80">{p.body}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -1158,7 +1081,6 @@ function PortfolioPage() {
       <TopNav />
       <main className="relative z-10">
         <Hero />
-        <About />
         <Projects />
         <Experience />
         <Skills />
