@@ -1040,6 +1040,9 @@ function Contact() {
             NAVI MUMBAI · IN
           </a>
         </div>
+        <div className="mono mt-4 text-center text-[10px] text-white/60">
+          WEBSITE CREATED BY PIYUSH PRASAD
+        </div>
       </div>
     </section>
   );
