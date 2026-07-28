@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio Template — Standalone Demo</title>
+    <meta
+      name="description"
+      content="A standalone HTML portfolio template demonstrating a clean, blueprint-inspired layout. Not used by the application."
+    />
+    <link rel="stylesheet" href="../styles/portfolio-template.css" />
+  </head>
+  <body class="theme-light">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="Home">
+          <span class="brand-mark" aria-hidden="true">PP</span>
+          <span class="brand-name">Portfolio Template</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#skills">Skills</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <button
+          class="btn btn-ghost"
+          type="button"
+          data-toggle-theme
+          aria-label="Toggle dark mode"
+        >
+          Toggle theme
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="top" class="hero container">
+        <p class="eyebrow">DEMO · STANDALONE HTML</p>
+        <h1 class="hero-title">
+          A minimal, blueprint-inspired portfolio template.
+        </h1>
+        <p class="hero-lede">
+          This file lives under <code>docs/examples/</code> as a reference
+          artifact. It is not imported, routed, or bundled by the application.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#projects">View projects</a>
+          <a class="btn btn-outline" href="#contact">Get in touch</a>
+        </div>
+      </section>
+
+      <section id="about" class="section container">
+        <header class="section-head">
+          <h2>About</h2>
+          <p>Short paragraph describing the person and their focus.</p>
+        </header>
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Background</h3>
+            <p>
+              Cloud &amp; DevOps engineering, with a background in IT service
+              management and a bias toward calm, well-documented systems.
+            </p>
+          </article>
+          <article class="card">
+            <h3>What I enjoy</h3>
+            <p>
+              Small automations, tidy pipelines, clear runbooks, and interfaces
+              that make infrastructure legible.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="projects" class="section container">
+        <header class="section-head">
+          <h2>Projects</h2>
+          <p>Selected work — each card is a static example.</p>
+        </header>
+        <div class="grid grid-3">
+          <article class="card project">
+            <h3>CI/CD on AWS</h3>
+            <p>GitHub Actions → EC2 → Nginx with zero-downtime restarts.</p>
+            <ul class="tag-list">
+              <li>AWS</li><li>Nginx</li><li>Actions</li>
+            </ul>
+          </article>
+          <article class="card project">
+            <h3>Observability Stack</h3>
+            <p>Prometheus + Grafana dashboards with alerting basics.</p>
+            <ul class="tag-list">
+              <li>Prometheus</li><li>Grafana</li>
+            </ul>
+          </article>
+          <article class="card project">
+            <h3>Hardening Baseline</h3>
+            <p>UFW, Certbot, Trivy scans, and a small SSH audit script.</p>
+            <ul class="tag-list">
+              <li>Linux</li><li>Security</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="skills" class="section container">
+        <header class="section-head">
+          <h2>Skills</h2>
+        </header>
+        <ul class="chip-grid">
+          <li class="chip">Linux</li>
+          <li class="chip">AWS</li>
+          <li class="chip">Docker</li>
+          <li class="chip">GitHub Actions</li>
+          <li class="chip">Nginx</li>
+          <li class="chip">Bash</li>
+          <li class="chip">Python</li>
+          <li class="chip">Terraform</li>
+        </ul>
+      </section>
+
+      <section id="contact" class="section container">
+        <header class="section-head">
+          <h2>Contact</h2>
+          <p>Demo form — does not submit anywhere.</p>
+        </header>
+        <form class="contact-form" onsubmit="event.preventDefault()">
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            <span>Message</span>
+            <textarea name="message" rows="4" required></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>© <span data-year></span> Portfolio Template · Standalone demo.</p>
+        <p>Not used by the application.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.querySelectorAll("[data-year]").forEach((el) => {
+        el.textContent = String(new Date().getFullYear());
+      });
+      const toggle = document.querySelector("[data-toggle-theme]");
+      toggle?.addEventListener("click", () => {
+        document.body.classList.toggle("theme-light");
+        document.body.classList.toggle("theme-dark");
+      });
+    </script>
+  </body>
+</html>
