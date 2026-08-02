@@ -52,7 +52,7 @@ const PROJECTS = [
     body:
       "Designed and implemented a full CI/CD pipeline using GitHub Actions to automate deployment of a React application. Deployed on AWS EC2 (Ubuntu), configured Nginx as a reverse proxy. Managed domain routing with Cloudflare and implemented secure domain-based email via SPF, DKIM, and DMARC.",
     tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
-    link: { label: "kamleshprasad.xyz", href: "https://kamleshprasad.xyz" },
+    link: { label: "kamleshprasad.com", href: "https://kamleshprasad.com" },
   },
   {
     idx: "02",
