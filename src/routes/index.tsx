@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import portraitAsset from "@/assets/piyush-portrait.jpg.asset.json";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -323,6 +324,15 @@ function Hero() {
             transition={{ delay: 1.2 }}
             className="lg:col-span-4 lg:pt-24"
           >
+            <div className="mb-8 relative w-[160px] md:w-[200px]">
+              <div aria-hidden className="absolute -inset-2 border border-cobalt/30" />
+              <img
+                src={portraitAsset.url}
+                alt="Portrait of Piyush Prasad, Cloud & DevOps Engineer"
+                loading="lazy"
+                className="relative w-full aspect-square object-cover grayscale transition-all duration-500 hover:grayscale-0"
+              />
+            </div>
             <ul className="mono space-y-3 text-[12px]">
               <li>
                 <a href={`mailto:${EMAIL}`} className="group inline-flex items-center gap-2 hover:text-cobalt">
