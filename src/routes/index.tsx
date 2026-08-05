@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import portraitAsset from "@/assets/piyush-portrait.jpg.asset.json";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
