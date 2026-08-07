@@ -23,7 +23,9 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
         content:
           "Practical DevSecOps pipeline: Trivy, GitHub Actions, SBOMs, secrets management, and hardening.",
       },
+      { property: "og:url", content: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" },
     ],
+    links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" }],
   }),
   component: GuidePage,
 });
