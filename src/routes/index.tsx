@@ -30,8 +30,18 @@ const ppLogo = { url: "/pp-logo.png" };
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    meta: [
+      { title: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
+      { name: "description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Docker, Nginx, GitHub Actions, and DevSecOps." },
+      { property: "og:title", content: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
+      { property: "og:description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Docker, Nginx, GitHub Actions, and DevSecOps." },
+      { property: "og:url", content: "https://simply-profile-plain.lovable.app/" },
+      { name: "twitter:title", content: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
+      { name: "twitter:description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Docker, Nginx, GitHub Actions, and DevSecOps." },
+    ],
     links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/" }],
   }),
+
   component: PortfolioPage,
 });
 

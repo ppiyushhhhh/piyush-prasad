@@ -9,7 +9,9 @@ export const Route = createFileRoute("/resume")({
       { property: "og:title", content: "Resume — Piyush Prasad" },
       { property: "og:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
       { property: "og:url", content: "https://simply-profile-plain.lovable.app/resume" },
+      { name: "twitter:title", content: "Resume — Piyush Prasad" },
       { name: "twitter:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
+
       { name: "robots", content: "noindex" },
     ],
     links: [
