@@ -2,7 +2,7 @@
 
 > Portfolio of Piyush Prasad, an aspiring Cloud & DevOps engineer based in Navi Mumbai, India — with hands-on work in AWS, CI/CD, containers, monitoring, and DevSecOps.
 
-Piyush's site is a single-page portfolio covering experience, projects, certifications, education, and a technical guide on secure CI/CD pipelines. Contact: piyush@piyushprasad.in.
+Piyush's site is a single-page portfolio covering experience, projects, certifications, education, and a technical guide on secure CI/CD pipelines. Contact: hello@piyushprasad.in.
 
 ## Pages
 
