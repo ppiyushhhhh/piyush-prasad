@@ -46,7 +46,7 @@ export const Route = createFileRoute("/")({
 });
 
 const GH_USER = "ppiyushhhhh";
-const EMAIL = "piyush@piyushprasad.in";
+const EMAIL = "hello@piyushprasad.in";
 const PHONE = "+91 9324236673";
 const LINKEDIN = "https://linkedin.com/in/ppiyushhhh";
 const GITHUB = "https://github.com/ppiyushhhhh";
