@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 export const Route = createFileRoute("/resume")({
   head: () => ({
     meta: [
-      { title: "Resume — Piyush Prasad" },
+      { title: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
       { name: "description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
-      { property: "og:title", content: "Resume — Piyush Prasad" },
+      { property: "og:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
       { property: "og:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
       { property: "og:url", content: "https://simply-profile-plain.lovable.app/resume" },
-      { name: "twitter:title", content: "Resume — Piyush Prasad" },
+      { property: "og:type", content: "profile" },
+      { name: "twitter:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
       { name: "twitter:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
-
-      { name: "robots", content: "noindex" },
+      { name: "robots", content: "index, follow" },
     ],
     links: [
       { rel: "canonical", href: "https://simply-profile-plain.lovable.app/resume" },
@@ -26,7 +26,26 @@ export const Route = createFileRoute("/resume")({
         crossOrigin: "anonymous",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "DigitalDocument",
+          name: "Piyush Prasad — Resume",
+          description: "Resume of Piyush Prasad, Cloud & DevOps Engineer.",
+          url: "https://simply-profile-plain.lovable.app/resume",
+          encodingFormat: "application/pdf",
+          author: {
+            "@type": "Person",
+            name: "Piyush Prasad",
+            url: "https://simply-profile-plain.lovable.app",
+          },
+        }),
+      },
+    ],
   }),
+
   component: ResumeViewer,
 });
 
