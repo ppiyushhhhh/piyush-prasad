@@ -210,6 +210,13 @@ jobs:
               the basics are boring. The best security work is invisible.
             </p>
             <p className="mt-6 text-sm text-neutral-700">
+              Also see the{" "}
+              <Link to="/guides/devsecops-tools" className="underline">
+                DevSecOps tools stack guide
+              </Link>
+              .
+            </p>
+            <p className="mt-6 text-sm text-neutral-700">
               Written by Piyush Prasad — Cloud &amp; DevOps Engineer.{" "}
               <Link to="/" className="underline">Back to portfolio</Link>.
             </p>
