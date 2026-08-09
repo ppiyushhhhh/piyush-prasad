@@ -63,6 +63,7 @@ const PROJECTS = [
       "Designed and implemented a full CI/CD pipeline using GitHub Actions to automate deployment of a React application. Deployed on AWS EC2 (Ubuntu), configured Nginx as a reverse proxy. Managed domain routing with Cloudflare and implemented secure domain-based email via SPF, DKIM, and DMARC.",
     tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
     link: { label: "kamleshprasad.com", href: "https://kamleshprasad.com" },
+    repo: { label: "github.com/ppiyushhhhh/Kamlesh-Prasad", href: "https://github.com/ppiyushhhhh/Kamlesh-Prasad" },
   },
   {
     idx: "02",
@@ -73,6 +74,8 @@ const PROJECTS = [
       "Deployed a production-grade React + Node.js application on AWS EC2 using Nginx reverse proxy with HTTPS via Certbot SSL. Implemented server hardening: UFW Firewall, rate limiting, and DDoS protection. Built a full monitoring stack with Prometheus, Grafana, and Node Exporter. Integrated Trivy vulnerability scanning in CI/CD.",
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
     link: null,
+    repo: { label: "github.com/ppiyushhhhh/onixmall", href: "https://github.com/ppiyushhhhh/onixmall" },
+
   },
   {
     idx: "03",
