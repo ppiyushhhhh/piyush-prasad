@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { ContactForm } from "@/components/ContactForm";
+
 import {
   ArrowUpRight,
   Copy,
