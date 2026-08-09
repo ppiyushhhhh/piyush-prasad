@@ -104,17 +104,57 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Person",
-          name: "Piyush Prasad",
-          jobTitle: "Cloud & DevOps Engineer",
-          url: "https://simply-profile-plain.lovable.app",
-          sameAs: [
-            "https://github.com/ppiyushhhhh",
-            "https://linkedin.com/in/ppiyushhhh",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://simply-profile-plain.lovable.app/#person",
+              name: "Piyush Prasad",
+              alternateName: "Piyush",
+              jobTitle: "Cloud & DevOps Engineer",
+              description:
+                "Aspiring Cloud & DevOps engineer working with AWS, CI/CD, Docker, Nginx, GitHub Actions and DevSecOps.",
+              url: "https://simply-profile-plain.lovable.app",
+              email: "mailto:hello@piyushprasad.in",
+              image:
+                "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c909e907-efb4-401c-9b45-48a20e30711a",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Navi Mumbai",
+                addressRegion: "Maharashtra",
+                addressCountry: "IN",
+              },
+              knowsAbout: [
+                "Amazon Web Services",
+                "DevOps",
+                "DevSecOps",
+                "CI/CD",
+                "Docker",
+                "Nginx",
+                "GitHub Actions",
+                "Linux",
+                "Cloudflare",
+              ],
+              sameAs: [
+                "https://github.com/ppiyushhhhh",
+                "https://linkedin.com/in/ppiyushhhh",
+              ],
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://simply-profile-plain.lovable.app/#website",
+              url: "https://simply-profile-plain.lovable.app",
+              name: "Piyush Prasad — Portfolio",
+              description:
+                "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer.",
+              inLanguage: "en",
+              publisher: { "@id": "https://simply-profile-plain.lovable.app/#person" },
+              about: { "@id": "https://simply-profile-plain.lovable.app/#person" },
+            },
           ],
         }),
       },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
