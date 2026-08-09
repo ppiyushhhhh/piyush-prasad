@@ -77,8 +77,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
-      { name: "description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Docker, Nginx, GitHub Actions, and DevSecOps." },
+      { title: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
+      { name: "description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
       { name: "author", content: "Piyush Prasad" },
       { name: "keywords", content: "Piyush Prasad, Cloud Engineer, DevOps Engineer, AWS, CI/CD, Docker, Nginx, GitHub Actions, Linux, DevSecOps, Portfolio" },
       { name: "robots", content: "index, follow" },
