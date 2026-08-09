@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { ContactForm } from "@/components/ContactForm";
+
 import {
   ArrowUpRight,
   Copy,
@@ -1003,7 +1005,9 @@ function Contact() {
               <br />
               TOGETHER
             </h2>
+            <ContactForm />
           </div>
+
           <div className="lg:col-span-5">
             <p className="text-white/70">
               Open to Cloud, DevOps, and DevSecOps opportunities. Let&apos;s connect and build something scalable, secure, and observable.
