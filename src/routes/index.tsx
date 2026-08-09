@@ -63,6 +63,7 @@ const PROJECTS = [
       "Designed and implemented a full CI/CD pipeline using GitHub Actions to automate deployment of a React application. Deployed on AWS EC2 (Ubuntu), configured Nginx as a reverse proxy. Managed domain routing with Cloudflare and implemented secure domain-based email via SPF, DKIM, and DMARC.",
     tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
     link: { label: "kamleshprasad.com", href: "https://kamleshprasad.com" },
+    repo: { label: "github.com/ppiyushhhhh/Kamlesh-Prasad", href: "https://github.com/ppiyushhhhh/Kamlesh-Prasad" },
   },
   {
     idx: "02",
@@ -73,7 +74,9 @@ const PROJECTS = [
       "Deployed a production-grade React + Node.js application on AWS EC2 using Nginx reverse proxy with HTTPS via Certbot SSL. Implemented server hardening: UFW Firewall, rate limiting, and DDoS protection. Built a full monitoring stack with Prometheus, Grafana, and Node Exporter. Integrated Trivy vulnerability scanning in CI/CD.",
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
     link: null,
+    repo: { label: "github.com/ppiyushhhhh/onixmall", href: "https://github.com/ppiyushhhhh/onixmall" },
   },
+
   {
     idx: "03",
     title: "CloudOps Sentinel",
@@ -82,7 +85,9 @@ const PROJECTS = [
     body:
       "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a login gate. Delivers live server metrics, Docker status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident and alert management, activity logs, and automated PDF reporting. Backed by SQLite persistence with scheduled cron backups, served via Nginx reverse proxy with PM2 process management and GitHub Actions CI/CD.",
     tech: ["React", "Node.js", "Express", "SQLite", "PM2", "Nginx", "Trivy", "GitHub Actions"],
-    link: { label: "github.com/ppiyushhhhh/sentinel-cloud-view", href: "https://github.com/ppiyushhhhh/sentinel-cloud-view" },
+    link: null,
+    repo: { label: "github.com/ppiyushhhhh/sentinel-cloud-view", href: "https://github.com/ppiyushhhhh/sentinel-cloud-view" },
+
   },
 ];
 
@@ -434,16 +439,29 @@ function Projects() {
                   ))}
                 </div>
 
-                {p.link && (
-                  <a
-                    href={p.link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mono mt-6 inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
-                  >
-                    <ArrowUpRight className="h-4 w-4" /> {p.link.label}
-                  </a>
-                )}
+                <div className="mt-6 flex flex-col gap-3">
+                  {p.link && (
+                    <a
+                      href={p.link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mono inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
+                    >
+                      <ArrowUpRight className="h-4 w-4" /> {p.link.label}
+                    </a>
+                  )}
+                  {p.repo && (
+                    <a
+                      href={p.repo.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mono inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
+                    >
+                      <ArrowUpRight className="h-4 w-4" /> {p.repo.label}
+                    </a>
+                  )}
+                </div>
+
               </div>
             </motion.li>
           ))}
