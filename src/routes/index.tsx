@@ -75,8 +75,8 @@ const PROJECTS = [
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
     link: null,
     repo: { label: "github.com/ppiyushhhhh/onixmall", href: "https://github.com/ppiyushhhhh/onixmall" },
-
   },
+
   {
     idx: "03",
     title: "CloudOps Sentinel",
