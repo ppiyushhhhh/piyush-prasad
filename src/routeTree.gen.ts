@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResumeRouteImport } from './routes/resume'
+import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const ResumeRoute = ResumeRouteImport.update({
   id: '/resume',
   path: '/resume',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThankYouRoute = ThankYouRouteImport.update({
+  id: '/thank-you',
+  path: '/thank-you',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
@@ -38,12 +44,14 @@ const GuidesDevsecopsToolsRoute = GuidesDevsecopsToolsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
+  '/thank-you': typeof ThankYouRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
+  '/thank-you': typeof ThankYouRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
@@ -51,6 +59,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
+  '/thank-you': typeof ThankYouRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
@@ -59,14 +68,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/resume'
+    | '/thank-you'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/resume' | '/guides/devsecops-pipeline' | '/guides/devsecops-tools'
+  to:
+    | '/'
+    | '/resume'
+    | '/thank-you'
+    | '/guides/devsecops-pipeline'
+    | '/guides/devsecops-tools'
   id:
     | '__root__'
     | '/'
     | '/resume'
+    | '/thank-you'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
   fileRoutesById: FileRoutesById
@@ -74,6 +90,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ResumeRoute: typeof ResumeRoute
+  ThankYouRoute: typeof ThankYouRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
 }
@@ -92,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/resume'
       fullPath: '/resume'
       preLoaderRoute: typeof ResumeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/thank-you': {
+      id: '/thank-you'
+      path: '/thank-you'
+      fullPath: '/thank-you'
+      preLoaderRoute: typeof ThankYouRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guides/devsecops-pipeline': {
@@ -114,9 +138,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ResumeRoute: ResumeRoute,
+  ThankYouRoute: ThankYouRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
