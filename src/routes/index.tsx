@@ -74,7 +74,18 @@ const PROJECTS = [
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
     link: null,
   },
+  {
+    idx: "03",
+    title: "CloudOps Sentinel",
+    subtitle: "React · Node.js · SQLite · Nginx · PM2",
+    year: "2026",
+    body:
+      "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a login gate. Delivers live server metrics, Docker status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident and alert management, activity logs, and automated PDF reporting. Backed by SQLite persistence with scheduled cron backups, served via Nginx reverse proxy with PM2 process management and GitHub Actions CI/CD.",
+    tech: ["React", "Node.js", "Express", "SQLite", "PM2", "Nginx", "Trivy", "GitHub Actions"],
+    link: { label: "github.com/ppiyushhhhh/sentinel-cloud-view", href: "https://github.com/ppiyushhhhh/sentinel-cloud-view" },
+  },
 ];
+
 
 const EXPERIENCE = [
   {
