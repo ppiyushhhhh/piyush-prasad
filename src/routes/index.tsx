@@ -439,16 +439,29 @@ function Projects() {
                   ))}
                 </div>
 
-                {p.link && (
-                  <a
-                    href={p.link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mono mt-6 inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
-                  >
-                    <ArrowUpRight className="h-4 w-4" /> {p.link.label}
-                  </a>
-                )}
+                <div className="mt-6 flex flex-col gap-3">
+                  {p.link && (
+                    <a
+                      href={p.link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mono inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
+                    >
+                      <ArrowUpRight className="h-4 w-4" /> {p.link.label}
+                    </a>
+                  )}
+                  {p.repo && (
+                    <a
+                      href={p.repo.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mono inline-flex items-center gap-2 text-cobalt text-[11px] hover:underline"
+                    >
+                      <ArrowUpRight className="h-4 w-4" /> {p.repo.label}
+                    </a>
+                  )}
+                </div>
+
               </div>
             </motion.li>
           ))}
