@@ -416,7 +416,7 @@ function Projects() {
               <div className="lg:col-span-6">
                 <h2 className="display text-[32px] leading-[0.9] sm:text-[40px] md:text-[64px] lg:text-[80px]">
                   {p.title}
-                </h3>
+                </h2>
                 <p className="mono mt-4 text-cobalt text-[11px]">{p.subtitle}</p>
               </div>
               <div className="lg:col-span-5">

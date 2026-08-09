@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/guides/devsecops-pipeline")({
   head: () => ({
     meta: [
-      { title: "Building a Secure CI/CD Pipeline with GitHub Actions and Trivy — DevSecOps Guide" },
+      { title: "Secure CI/CD with GitHub Actions & Trivy — DevSecOps" },
       {
         name: "description",
         content:
@@ -26,6 +26,25 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
       { property: "og:url", content: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" },
     ],
     links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: "Building a Secure CI/CD Pipeline with GitHub Actions and Trivy",
+          description:
+            "A practical DevSecOps guide to building a secure CI/CD pipeline with GitHub Actions, Trivy vulnerability scanning, secrets management, and container hardening.",
+          datePublished: "2026",
+          author: {
+            "@type": "Person",
+            name: "Piyush Prasad",
+            url: "https://simply-profile-plain.lovable.app",
+          },
+          mainEntityOfPage: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline",
+        }),
+      },
+    ],
   }),
   component: GuidePage,
 });
