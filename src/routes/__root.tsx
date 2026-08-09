@@ -77,8 +77,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Piyush Prasad — Aspiring Cloud & DevOps Engineer" },
-      { name: "description", content: "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer with experience in AWS, CI/CD, Docker, Nginx, GitHub Actions, and DevSecOps." },
+      { title: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
+      { name: "description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
       { name: "author", content: "Piyush Prasad" },
       { name: "keywords", content: "Piyush Prasad, Cloud Engineer, DevOps Engineer, AWS, CI/CD, Docker, Nginx, GitHub Actions, Linux, DevSecOps, Portfolio" },
       { name: "robots", content: "index, follow" },
@@ -112,7 +112,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               alternateName: "Piyush",
               jobTitle: "Cloud & DevOps Engineer",
               description:
-                "Aspiring Cloud & DevOps engineer working with AWS, CI/CD, Docker, Nginx, GitHub Actions and DevSecOps.",
+                "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions.",
               url: "https://simply-profile-plain.lovable.app",
               email: "mailto:hello@piyushprasad.in",
               image:
@@ -145,7 +145,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               url: "https://simply-profile-plain.lovable.app",
               name: "Piyush Prasad — Portfolio",
               description:
-                "Portfolio of Piyush Prasad, aspiring Cloud & DevOps engineer.",
+                "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions.",
               inLanguage: "en",
               publisher: { "@id": "https://simply-profile-plain.lovable.app/#person" },
               about: { "@id": "https://simply-profile-plain.lovable.app/#person" },
