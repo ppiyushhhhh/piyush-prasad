@@ -66,9 +66,9 @@ function ResumeViewer() {
       onContextMenu={(e) => e.preventDefault()}
     >
       <header className="flex items-center justify-between gap-3 border-b border-white/10 bg-black px-4 py-3 text-white sm:px-6">
-        <div className="min-w-0 truncate font-mono text-[10px] uppercase tracking-widest sm:text-[11px]">
-          Piyush Prasad · Resume
-        </div>
+        <h1 className="min-w-0 truncate font-mono text-[10px] font-normal uppercase tracking-widest sm:text-[11px]">
+          Piyush Prasad — Resume
+        </h1>
         <div className="shrink-0 font-mono text-[9px] uppercase tracking-wider text-white/75 sm:text-[10px]">
           View Only
         </div>

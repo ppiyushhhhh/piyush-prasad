@@ -31,13 +31,7 @@ const ppLogo = { url: "/pp-logo.png" };
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
-      { name: "description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
-      { property: "og:title", content: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
-      { property: "og:description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
       { property: "og:url", content: "https://simply-profile-plain.lovable.app/" },
-      { name: "twitter:title", content: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
-      { name: "twitter:description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
     ],
     links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/" }],
   }),
@@ -231,7 +225,7 @@ function TopNav() {
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
         <a href="#hero" className="flex items-center" aria-label="Piyush Prasad — home">
-          <img src={ppLogo.url} alt="Piyush Prasad logo" className="h-8 w-auto md:h-9" />
+          <img src={ppLogo.url} alt="Piyush Prasad monogram" className="h-8 w-auto md:h-9" />
         </a>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Section navigation">
           {NAV.map((n) => {
@@ -420,9 +414,9 @@ function Projects() {
             >
               <div className="mono text-cobalt text-[12px] lg:col-span-1">{p.idx}</div>
               <div className="lg:col-span-6">
-                <h3 className="display text-[32px] leading-[0.9] sm:text-[40px] md:text-[64px] lg:text-[80px]">
+                <h2 className="display text-[32px] leading-[0.9] sm:text-[40px] md:text-[64px] lg:text-[80px]">
                   {p.title}
-                </h3>
+                </h2>
                 <p className="mono mt-4 text-cobalt text-[11px]">{p.subtitle}</p>
               </div>
               <div className="lg:col-span-5">
@@ -514,14 +508,14 @@ function Experience() {
                             >
                               <img
                                 src={(e as any).logo}
-                                alt={`${e.company} logo`}
+                                alt={e.company}
                                 className="h-8 w-8 rounded-sm bg-white object-contain p-1"
                               />
                             </a>
                           ) : (
                             <img
                               src={(e as any).logo}
-                              alt={`${e.company} logo`}
+                              alt={e.company}
                               className="h-8 w-8 shrink-0 rounded-sm bg-white object-contain p-1"
                             />
                           )
@@ -716,7 +710,7 @@ function Certifications() {
                 >
                   <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
                     {c.logo ? (
-                      <img src={c.logo} alt={`${c.issuer} logo`} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                      <img src={c.logo} alt={c.issuer} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
                     ) : (
                       c.issuer.slice(0, 2).toUpperCase()
                     )}
@@ -757,7 +751,7 @@ function Certifications() {
                     {(e as any).logo && (
                       <img
                         src={(e as any).logo}
-                        alt={`${e.school} logo`}
+                        alt={e.school}
                         className="h-10 w-10 shrink-0 rounded-sm bg-white object-contain p-0.5 ring-1 ring-[#D1D1CB] transition-all duration-300 group-hover:scale-110 group-hover:ring-cobalt group-hover:shadow-md"
                       />
                     )}
