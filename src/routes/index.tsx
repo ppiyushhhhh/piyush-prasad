@@ -141,6 +141,7 @@ const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub", logo: githubLogo, url: "https://www.linkedin.com/learning/certificates/9a7cce8c73b57d5e8629e5ac94a454a78c5fda6957c901ca4854a7c93e13a3e7" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services", logo: awsLogo, url: "https://www.credly.com/badges/1d7245e6-ebba-4b7b-970f-ad1d214a1c91/linked_in_profile" },
   
+  { name: "Foundation Course on AI Readiness — in partnership with Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
   { name: "DNS", issuer: "Packt", logo: packtLogo, url: "https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS" },
 ];
 
