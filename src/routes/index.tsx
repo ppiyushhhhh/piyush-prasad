@@ -134,13 +134,13 @@ const SKILL_CATS = [
 ];
 
 const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
+  { name: "Foundation Course on AI Readiness — Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
   { name: "DevOps Complete Course Specialization", issuer: "Packt (Coursera)", url: "https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK", logo: packtLogo },
   { name: "Google AI Essentials Specialization", issuer: "Google (Coursera)", logo: googleLogo, url: "https://www.coursera.org/account/accomplishments/specialization/EZS8GLRIG535" },
   { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical", logo: canonicalLogo, url: "https://www.linkedin.com/learning/certificates/9d7f2b805f126a9612c6b1be485f14f90d4362bb9f0c6875bcb7702bc1274dbf" },
   { name: "Docker Foundations Professional Certificate", issuer: "Docker, Inc", logo: dockerLogo, url: "https://www.linkedin.com/learning/certificates/3f8f006fe458d2f993ddba0bd0f3c357f3caf92a5e15bad0718a01e1709241e0" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub", logo: githubLogo, url: "https://www.linkedin.com/learning/certificates/9a7cce8c73b57d5e8629e5ac94a454a78c5fda6957c901ca4854a7c93e13a3e7" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services", logo: awsLogo, url: "https://www.credly.com/badges/1d7245e6-ebba-4b7b-970f-ad1d214a1c91/linked_in_profile" },
-  { name: "Foundation Course on AI Readiness — Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
   { name: "DNS", issuer: "Packt", logo: packtLogo, url: "https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS" },
 ];
 
@@ -694,6 +694,8 @@ function Skills() {
 /* ---------- Certifications & Education ---------- */
 
 function Certifications() {
+  const [showAllCerts, setShowAllCerts] = useState(false);
+  const visibleCerts = showAllCerts ? CERTS : CERTS.slice(0, 5);
   return (
     <section id="certifications" className="relative px-6 py-24 md:px-10 md:py-32">
       <div className="mx-auto max-w-[1400px]">
@@ -702,7 +704,7 @@ function Certifications() {
           <div className="lg:col-span-7">
             <h2 className="display text-[32px] leading-[0.9] sm:text-[48px] md:text-[72px]">CREDENTIALS</h2>
             <ul className="mt-10 divide-y divide-[#D1D1CB] border-t border-b border-[#D1D1CB]">
-              {CERTS.map((c) => (
+              {visibleCerts.map((c) => (
                 <motion.li
                   key={c.name}
                   variants={fadeUp}
@@ -736,6 +738,15 @@ function Certifications() {
                 </motion.li>
               ))}
             </ul>
+            {CERTS.length > 5 && (
+              <button
+                type="button"
+                onClick={() => setShowAllCerts((v) => !v)}
+                className="mono mt-6 border border-[#D1D1CB] px-4 py-2 text-cobalt transition-all duration-300 hover:border-cobalt hover:bg-white"
+              >
+                {showAllCerts ? "Show less" : `Show ${CERTS.length - 5} more`}
+              </button>
+            )}
           </div>
           <div className="lg:col-span-5">
             <h2 className="display text-[40px] leading-[0.9] sm:text-[48px] md:text-[72px]">EDUCATION</h2>
