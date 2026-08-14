@@ -140,8 +140,7 @@ const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
   { name: "Docker Foundations Professional Certificate", issuer: "Docker, Inc", logo: dockerLogo, url: "https://www.linkedin.com/learning/certificates/3f8f006fe458d2f993ddba0bd0f3c357f3caf92a5e15bad0718a01e1709241e0" },
   { name: "Career Essentials in GitHub Professional Certificate", issuer: "GitHub", logo: githubLogo, url: "https://www.linkedin.com/learning/certificates/9a7cce8c73b57d5e8629e5ac94a454a78c5fda6957c901ca4854a7c93e13a3e7" },
   { name: "AWS Knowledge: Cloud Essentials — Training Badge", issuer: "Amazon Web Services", logo: awsLogo, url: "https://www.credly.com/badges/1d7245e6-ebba-4b7b-970f-ad1d214a1c91/linked_in_profile" },
-  
-  { name: "Foundation Course on AI Readiness — in partnership with Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
+  { name: "Foundation Course on AI Readiness — Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
   { name: "DNS", issuer: "Packt", logo: packtLogo, url: "https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS" },
 ];
 
@@ -710,29 +709,29 @@ function Certifications() {
                   initial="hidden"
                   whileInView="show"
                   viewport={{ once: true }}
-                  className="flex items-center gap-5 py-5"
+                  className="flex items-start gap-5 py-5"
                 >
-                  <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
+                  <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] bg-white text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
                     {c.logo ? (
                       <img src={c.logo} alt={c.issuer} className={`h-full w-full transition-transform duration-300 group-hover:scale-110 ${c.logo === mibLogo ? "object-contain p-1" : "object-cover"}`} />
                     ) : (
                       c.issuer.slice(0, 2).toUpperCase()
                     )}
                   </div>
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     {c.url ? (
                       <a
                         href={c.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium underline decoration-cobalt/40 underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
+                        className="block text-[15px] font-medium leading-[1.35] underline decoration-cobalt/40 underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
                       >
                         {c.name} ↗
                       </a>
                     ) : (
-                      <div className="font-medium">{c.name}</div>
+                      <div className="text-[15px] font-medium leading-[1.35]">{c.name}</div>
                     )}
-                    <div className="mono mt-1 text-cobalt text-[10px]">{c.issuer}</div>
+                    <div className="mono mt-1.5 text-cobalt text-[10px]">{c.issuer}</div>
                   </div>
                 </motion.li>
               ))}
