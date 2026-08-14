@@ -714,7 +714,7 @@ function Certifications() {
                 >
                   <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
                     {c.logo ? (
-                      <img src={c.logo} alt={c.issuer} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                      <img src={c.logo} alt={c.issuer} className={`h-full w-full transition-transform duration-300 group-hover:scale-110 ${c.logo === mibLogo ? "object-contain p-1" : "object-cover"}`} />
                     ) : (
                       c.issuer.slice(0, 2).toUpperCase()
                     )}
