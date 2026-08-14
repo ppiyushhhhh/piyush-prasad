@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import packtLogo from "@/assets/packt-logo.jpg";
 import googleLogo from "@/assets/google-logo.jpg";
+import mibLogo from "@/assets/mib-logo.svg";
 import canonicalLogo from "@/assets/canonical-logo.jpg";
 import dockerLogo from "@/assets/docker-logo.jpg";
 import githubLogo from "@/assets/github-logo.jpg";
