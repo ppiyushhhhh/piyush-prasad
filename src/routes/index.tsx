@@ -983,33 +983,6 @@ function Contact() {
   );
 }
 
-/* ---------- CV Dock ---------- */
-
-function CvDock() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div
-      className="fixed bottom-4 right-4 z-30 sm:bottom-6 sm:right-6"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <div className="flex items-center justify-end gap-2">
-        <a
-          href="/resume"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="View resume in new tab"
-          className="mono inline-flex shrink-0 items-center gap-2 whitespace-nowrap bg-carbon px-3 py-2.5 text-[10px] text-white shadow-lg transition-colors hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 sm:px-4 sm:py-3 sm:text-[11px]"
-        >
-          <Eye className="h-3.5 w-3.5 shrink-0" />
-          <span>VIEW RESUME</span>
-        </a>
-      </div>
-    </div>
-
-  );
-}
-
 /* ---------- Page ---------- */
 
 function PortfolioPage() {
@@ -1026,7 +999,6 @@ function PortfolioPage() {
         <GithubActivity />
         <Contact />
       </main>
-      <CvDock />
       <AskPiyushAI />
     </div>
   );
