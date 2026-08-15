@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ContactForm } from "@/components/ContactForm";
 
@@ -695,7 +695,37 @@ function Skills() {
 
 function Certifications() {
   const [showAllCerts, setShowAllCerts] = useState(false);
-  const visibleCerts = showAllCerts ? CERTS : CERTS.slice(0, 5);
+  const reduceMotion = useReducedMotion();
+  const baseCerts = CERTS.slice(0, 5);
+  const extraCerts = CERTS.slice(5);
+
+  const renderRow = (c: (typeof CERTS)[number]) => (
+    <>
+      <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] bg-white text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
+        {c.logo ? (
+          <img src={c.logo} alt={c.issuer} className={`h-full w-full transition-transform duration-300 group-hover:scale-110 ${c.logo === mibLogo ? "object-contain p-1" : "object-cover"}`} />
+        ) : (
+          c.issuer.slice(0, 2).toUpperCase()
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        {c.url ? (
+          <a
+            href={c.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-[15px] font-medium leading-[1.35] underline decoration-cobalt/40 underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
+          >
+            {c.name} ↗
+          </a>
+        ) : (
+          <div className="text-[15px] font-medium leading-[1.35]">{c.name}</div>
+        )}
+        <div className="mono mt-1.5 text-cobalt text-[10px]">{c.issuer}</div>
+      </div>
+    </>
+  );
+
   return (
     <section id="certifications" className="relative px-6 py-24 md:px-10 md:py-32">
       <div className="mx-auto max-w-[1400px]">
@@ -704,7 +734,7 @@ function Certifications() {
           <div className="lg:col-span-7">
             <h2 className="display text-[32px] leading-[0.9] sm:text-[48px] md:text-[72px]">CREDENTIALS</h2>
             <ul id="certifications-list" className="mt-10 divide-y divide-[#D1D1CB] border-t border-b border-[#D1D1CB]">
-              {visibleCerts.map((c) => (
+              {baseCerts.map((c) => (
                 <motion.li
                   key={c.name}
                   variants={fadeUp}
@@ -713,31 +743,31 @@ function Certifications() {
                   viewport={{ once: true }}
                   className="flex items-start gap-5 py-5"
                 >
-                  <div className="mono group flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden border border-[#D1D1CB] bg-white text-cobalt text-[10px] transition-all duration-300 hover:scale-110 hover:border-cobalt hover:shadow-md">
-                    {c.logo ? (
-                      <img src={c.logo} alt={c.issuer} className={`h-full w-full transition-transform duration-300 group-hover:scale-110 ${c.logo === mibLogo ? "object-contain p-1" : "object-cover"}`} />
-                    ) : (
-                      c.issuer.slice(0, 2).toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {c.url ? (
-                      <a
-                        href={c.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-[15px] font-medium leading-[1.35] underline decoration-cobalt/40 underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
-                      >
-                        {c.name} ↗
-                      </a>
-                    ) : (
-                      <div className="text-[15px] font-medium leading-[1.35]">{c.name}</div>
-                    )}
-                    <div className="mono mt-1.5 text-cobalt text-[10px]">{c.issuer}</div>
-                  </div>
+                  {renderRow(c)}
                 </motion.li>
               ))}
+              <AnimatePresence initial={false}>
+                {showAllCerts &&
+                  extraCerts.map((c, i) => (
+                    <motion.li
+                      key={c.name}
+                      layout={!reduceMotion}
+                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, height: 0, y: -6 }}
+                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto", y: 0 }}
+                      exit={reduceMotion ? { opacity: 1 } : { opacity: 0, height: 0, y: -6 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: i * 0.05 }
+                      }
+                      className="flex items-start gap-5 overflow-hidden py-5"
+                    >
+                      {renderRow(c)}
+                    </motion.li>
+                  ))}
+              </AnimatePresence>
             </ul>
+
             {CERTS.length > 5 && (
               <>
                 <button
