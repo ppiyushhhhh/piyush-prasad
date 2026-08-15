@@ -85,7 +85,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="false"
       aria-label="Piyush AI assistant"
-      className="fixed inset-x-3 bottom-3 z-[60] flex h-[min(78dvh,560px)] flex-col border border-aluminum bg-white shadow-[0_20px_60px_-20px_rgba(15,17,21,0.45)] sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[400px]"
+      className="fixed inset-x-3 bottom-3 z-[60] flex h-[min(78dvh,560px)] flex-col border border-aluminum bg-white shadow-[0_20px_60px_-20px_rgba(15,17,21,0.45)] sm:inset-x-auto sm:right-6 sm:bottom-[8.5rem] sm:w-[400px]"
     >
       {/* Header */}
       <header className="flex items-start justify-between gap-3 border-b border-aluminum bg-carbon px-4 py-3">
