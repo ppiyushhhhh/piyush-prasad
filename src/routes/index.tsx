@@ -11,7 +11,7 @@ import {
   ArrowUpRight,
   Copy,
   Check,
-  Eye,
+  
   Github,
   Linkedin,
   ChevronDown,
