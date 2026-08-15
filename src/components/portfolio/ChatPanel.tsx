@@ -132,10 +132,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
 
         <ul className="space-y-4">
           {messages.map((m, i) => (
-            <li
-              key={i}
-              className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
-            >
+            <li key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
               <div
                 className={
                   m.role === "user"

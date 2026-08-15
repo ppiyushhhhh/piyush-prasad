@@ -7,7 +7,7 @@ import { SYSTEM_INSTRUCTION } from "./portfolio-knowledge.server";
 export type ChatRole = "user" | "assistant";
 export type ChatMessage = { role: ChatRole; content: string };
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
 
@@ -39,7 +39,12 @@ export async function generateReply(messages: ChatMessage[]): Promise<GeminiResu
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     })),
-    generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 1024,
+      // Keep latency low: this is a short factual Q&A over a fixed knowledge base.
+      thinkingConfig: { thinkingLevel: "low" },
+    },
   };
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
