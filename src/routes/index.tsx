@@ -955,9 +955,20 @@ function Contact() {
         </div>
         <div className="mono mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] text-white/75">
           <span>© 2026 PIYUSH PRASAD — ALL RIGHTS RESERVED</span>
+          <a
+            href="/resume"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View resume in new tab"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-cobalt underline underline-offset-4"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            VIEW RESUME
+          </a>
           <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
             GUIDE · BUILDING A SECURE CI/CD PIPELINE
           </a>
+
           <a
             href="https://www.google.com/maps/place/Mahavir+Varsha+Residence/@19.1213383,73.0014191,17z"
             target="_blank"
