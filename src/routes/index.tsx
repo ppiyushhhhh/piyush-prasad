@@ -703,7 +703,7 @@ function Certifications() {
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <h2 className="display text-[32px] leading-[0.9] sm:text-[48px] md:text-[72px]">CREDENTIALS</h2>
-            <ul className="mt-10 divide-y divide-[#D1D1CB] border-t border-b border-[#D1D1CB]">
+            <ul id="certifications-list" className="mt-10 divide-y divide-[#D1D1CB] border-t border-b border-[#D1D1CB]">
               {visibleCerts.map((c) => (
                 <motion.li
                   key={c.name}
