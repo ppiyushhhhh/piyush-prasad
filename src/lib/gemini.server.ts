@@ -7,7 +7,7 @@ import { SYSTEM_INSTRUCTION } from "./portfolio-knowledge.server";
 export type ChatRole = "user" | "assistant";
 export type ChatMessage = { role: ChatRole; content: string };
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
 
