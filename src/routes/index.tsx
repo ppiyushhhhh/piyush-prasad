@@ -571,19 +571,51 @@ function Experience() {
             transition={{ duration: 0.5 }}
             className="lg:col-span-8"
           >
-            <span className="mono inline-block border border-cobalt px-3 py-1 text-cobalt text-[10px]">
-              {job.type}
-            </span>
-            <h3 className="display mt-6 text-[32px] leading-[0.95] sm:text-[40px] md:text-[56px]">{job.role.toUpperCase()}</h3>
-            <p className="mono mt-3 text-cobalt text-[11px]">{job.period}</p>
-            <ul className="mt-10 space-y-6">
-              {job.bullets.map((b, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="mono mt-1 text-cobalt text-[11px]">→</span>
-                  <span className="text-white/85">{b}</span>
-                </li>
-              ))}
-            </ul>
+            {(job as any).positions ? (
+              <>
+                <h3 className="display text-[32px] leading-[0.95] sm:text-[40px] md:text-[56px]">
+                  {job.company.toUpperCase()}
+                </h3>
+                <p className="mono mt-3 text-cobalt text-[11px]">{job.period}</p>
+                <ol className="mt-10 space-y-12 border-l border-white/15 pl-6 md:pl-8">
+                  {(job as any).positions.map((p: any) => (
+                    <li key={p.role} className="relative">
+                      <span className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-cobalt md:-left-[37px]" />
+                      <span className="mono inline-block border border-cobalt px-3 py-1 text-cobalt text-[10px]">
+                        {p.type}
+                      </span>
+                      <h4 className="mt-4 text-[18px] font-medium text-white sm:text-[22px]">{p.role}</h4>
+                      <p className="mono mt-2 text-white/60 text-[11px]">{p.period}</p>
+                      <ul className="mt-5 space-y-4">
+                        {p.bullets.map((b: string, i: number) => (
+                          <li key={i} className="flex gap-4">
+                            <span className="mono mt-1 text-cobalt text-[11px]">→</span>
+                            <span className="text-white/85">{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ) : (
+              <>
+                <span className="mono inline-block border border-cobalt px-3 py-1 text-cobalt text-[10px]">
+                  {job.type}
+                </span>
+                <h3 className="display mt-6 text-[32px] leading-[0.95] sm:text-[40px] md:text-[56px]">{job.role.toUpperCase()}</h3>
+                <p className="mono mt-3 text-cobalt text-[11px]">{job.period}</p>
+                <ul className="mt-10 space-y-6">
+                  {job.bullets.map((b, i) => (
+                    <li key={i} className="flex gap-4">
+                      <span className="mono mt-1 text-cobalt text-[11px]">→</span>
+                      <span className="text-white/85">{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
           </motion.div>
         </div>
       </div>
