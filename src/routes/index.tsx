@@ -955,9 +955,20 @@ function Contact() {
         </div>
         <div className="mono mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] text-white/75">
           <span>© 2026 PIYUSH PRASAD — ALL RIGHTS RESERVED</span>
+          <a
+            href="/resume"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View resume in new tab"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-cobalt underline underline-offset-4"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            VIEW RESUME
+          </a>
           <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
             GUIDE · BUILDING A SECURE CI/CD PIPELINE
           </a>
+
           <a
             href="https://www.google.com/maps/place/Mahavir+Varsha+Residence/@19.1213383,73.0014191,17z"
             target="_blank"
@@ -969,33 +980,6 @@ function Contact() {
         </div>
       </div>
     </section>
-  );
-}
-
-/* ---------- CV Dock ---------- */
-
-function CvDock() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div
-      className="fixed bottom-4 right-4 z-30 sm:bottom-6 sm:right-6"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <div className="flex items-center justify-end gap-2">
-        <a
-          href="/resume"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="View resume in new tab"
-          className="mono inline-flex shrink-0 items-center gap-2 whitespace-nowrap bg-carbon px-3 py-2.5 text-[10px] text-white shadow-lg transition-colors hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 sm:px-4 sm:py-3 sm:text-[11px]"
-        >
-          <Eye className="h-3.5 w-3.5 shrink-0" />
-          <span>VIEW RESUME</span>
-        </a>
-      </div>
-    </div>
-
   );
 }
 
@@ -1015,7 +999,6 @@ function PortfolioPage() {
         <GithubActivity />
         <Contact />
       </main>
-      <CvDock />
       <AskPiyushAI />
     </div>
   );
