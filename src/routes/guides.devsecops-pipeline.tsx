@@ -23,9 +23,9 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
         content:
           "Practical DevSecOps pipeline: Trivy, GitHub Actions, SBOMs, secrets management, and hardening.",
       },
-      { property: "og:url", content: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" },
+      { property: "og:url", content: "https://www.piyushprasad.in/guides/devsecops-pipeline" },
     ],
-    links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline" }],
+    links: [{ rel: "canonical", href: "https://www.piyushprasad.in/guides/devsecops-pipeline" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -39,9 +39,9 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
           author: {
             "@type": "Person",
             name: "Piyush Prasad",
-            url: "https://simply-profile-plain.lovable.app",
+            url: "https://www.piyushprasad.in",
           },
-          mainEntityOfPage: "https://simply-profile-plain.lovable.app/guides/devsecops-pipeline",
+          mainEntityOfPage: "https://www.piyushprasad.in/guides/devsecops-pipeline",
         }),
       },
     ],

@@ -8,14 +8,14 @@ export const Route = createFileRoute("/resume")({
       { name: "description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
       { property: "og:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
       { property: "og:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
-      { property: "og:url", content: "https://simply-profile-plain.lovable.app/resume" },
+      { property: "og:url", content: "https://www.piyushprasad.in/resume" },
       { property: "og:type", content: "profile" },
       { name: "twitter:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
       { name: "twitter:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
       { name: "robots", content: "index, follow" },
     ],
     links: [
-      { rel: "canonical", href: "https://simply-profile-plain.lovable.app/resume" },
+      { rel: "canonical", href: "https://www.piyushprasad.in/resume" },
       // Kick off the PDF fetch in parallel with the JS bundle so the viewer
       // has bytes ready the moment it mounts.
       {
@@ -34,12 +34,12 @@ export const Route = createFileRoute("/resume")({
           "@type": "DigitalDocument",
           name: "Piyush Prasad — Resume",
           description: "Resume of Piyush Prasad, Cloud & DevOps Engineer.",
-          url: "https://simply-profile-plain.lovable.app/resume",
+          url: "https://www.piyushprasad.in/resume",
           encodingFormat: "application/pdf",
           author: {
             "@type": "Person",
             name: "Piyush Prasad",
-            url: "https://simply-profile-plain.lovable.app",
+            url: "https://www.piyushprasad.in",
           },
         }),
       },

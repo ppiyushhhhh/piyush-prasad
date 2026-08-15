@@ -41,19 +41,34 @@ const {
   REPORT_FROM,
   ALERT_TO,
   SKIP_EMAIL,
+  REPORT_BRAND_NAME,
+  REPORT_BRAND_TAGLINE,
+  REPORT_CONTACT_EMAIL,
+  REPORT_CONTACT_PHONE,
+  REPORT_LINKEDIN,
+  REPORT_GITHUB,
 } = process.env;
 
 const SITE_URL = `https://${SITE_DOMAIN}`;
-const BRAND = "Piyush Prasad";
-const BRAND_TAGLINE = "Automated Website Health Monitoring";
+const HTTP_TIMEOUT_MS = 20_000;
+const SSL_WARN_DAYS = 30;
+const SSL_CRITICAL_DAYS = 14;
+
+// Branding is configurable via env; the fallbacks keep local runs working.
+const BRAND = REPORT_BRAND_NAME || "Piyush Prasad";
+const BRAND_TAGLINE = REPORT_BRAND_TAGLINE || "Automated Website Health Monitoring";
+
+const stripScheme = (u) => u.replace(/^https?:\/\//, "").replace(/\/$/, "");
+const linkedin = REPORT_LINKEDIN || "https://linkedin.com/in/ppiyushhhh";
+const github = REPORT_GITHUB || "https://github.com/ppiyushhhhh";
 
 const CONTACT = {
-  email: "piyush@piyushprasad.in",
-  phone: "+91 9324236673",
-  linkedin: "https://linkedin.com/in/ppiyushhhh",
-  linkedinLabel: "linkedin.com/in/ppiyushhhh",
-  github: "https://github.com/ppiyushhhhh",
-  githubLabel: "github.com/ppiyushhhhh",
+  email: REPORT_CONTACT_EMAIL || "hello@piyushprasad.in",
+  phone: REPORT_CONTACT_PHONE || "+91 9324236673",
+  linkedin,
+  linkedinLabel: stripScheme(linkedin),
+  github,
+  githubLabel: stripScheme(github),
 };
 
 const COLORS = {
@@ -79,6 +94,7 @@ async function checkHttp(url) {
       method: "GET",
       redirect: "follow",
       headers: { "User-Agent": "PortfolioHealthBot/1.0" },
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
     });
     return {
       ok: res.ok,
@@ -105,6 +121,7 @@ async function checkAsset(url) {
       method: "GET",
       redirect: "follow",
       headers: { "User-Agent": "PortfolioHealthBot/1.0" },
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
     });
     return { url, ok: res.ok, status: res.status };
   } catch (err) {
@@ -124,41 +141,85 @@ async function checkDns(hostname) {
   }
 }
 
+/**
+ * TLS certificate inspection.
+ * Returns a `state` describing exactly what happened:
+ *   valid | expiring_soon | expired | hostname_mismatch | chain_error |
+ *   connection_error | no_certificate
+ */
 function checkSsl(hostname, port = 443) {
   return new Promise((resolve) => {
-    const socket = tls.connect(
-      { host: hostname, port, servername: hostname, timeout: 10000 },
-      () => {
-        const cert = socket.getPeerCertificate();
-        const authorized = socket.authorized;
-        socket.end();
-        if (!cert || !cert.valid_to) {
-          resolve({ ok: false, error: "No certificate returned" });
-          return;
-        }
-        const validTo = new Date(cert.valid_to);
-        const validFrom = new Date(cert.valid_from);
-        const daysRemaining = Math.floor(
-          (validTo.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-        );
-        resolve({
-          ok: authorized && daysRemaining > 0,
-          authorized,
-          issuer: cert.issuer?.O || cert.issuer?.CN || "Unknown",
-          subject: cert.subject?.CN || hostname,
-          validFrom: validFrom.toISOString(),
-          validTo: validTo.toISOString(),
-          daysRemaining,
-        });
-      },
-    );
-    socket.on("error", (err) => resolve({ ok: false, error: err.message }));
+    const finish = (state, extra = {}) =>
+      resolve({
+        ok: state === "valid" || state === "expiring_soon",
+        state,
+        label: SSL_STATE_LABELS[state] || state,
+        ...extra,
+      });
+
+    let socket;
+    try {
+      socket = tls.connect(
+        { host: hostname, port, servername: hostname, timeout: 10000 },
+        () => {
+          const cert = socket.getPeerCertificate();
+          const authorized = socket.authorized;
+          const authError = socket.authorizationError
+            ? String(socket.authorizationError)
+            : null;
+          socket.end();
+
+          if (!cert || !cert.valid_to) {
+            finish("no_certificate", { error: "No certificate returned" });
+            return;
+          }
+
+          const validTo = new Date(cert.valid_to);
+          const validFrom = new Date(cert.valid_from);
+          const daysRemaining = Math.floor(
+            (validTo.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+          );
+          const base = {
+            authorized,
+            issuer: cert.issuer?.O || cert.issuer?.CN || "Unknown",
+            subject: cert.subject?.CN || hostname,
+            validFrom: validFrom.toISOString(),
+            validTo: validTo.toISOString(),
+            daysRemaining,
+            error: authError,
+          };
+
+          if (daysRemaining <= 0) return finish("expired", base);
+          if (!authorized) {
+            const mismatch = /hostname|altname|common name/i.test(authError || "");
+            return finish(mismatch ? "hostname_mismatch" : "chain_error", base);
+          }
+          if (daysRemaining < SSL_WARN_DAYS) return finish("expiring_soon", base);
+          return finish("valid", base);
+        },
+      );
+    } catch (err) {
+      finish("connection_error", { error: err.message });
+      return;
+    }
+
+    socket.on("error", (err) => finish("connection_error", { error: err.message }));
     socket.on("timeout", () => {
       socket.destroy();
-      resolve({ ok: false, error: "TLS timeout" });
+      finish("connection_error", { error: "TLS handshake timed out" });
     });
   });
 }
+
+const SSL_STATE_LABELS = {
+  valid: "Valid",
+  expiring_soon: "Expiring soon",
+  expired: "Expired",
+  hostname_mismatch: "Hostname mismatch",
+  chain_error: "Certificate chain not trusted",
+  connection_error: "TLS connection failed",
+  no_certificate: "No certificate",
+};
 
 function runLighthouse(url) {
   return new Promise((resolve) => {
@@ -279,45 +340,105 @@ function collectGitInfo() {
   };
 }
 
+/**
+ * Health scoring
+ * ---------------------------------------------------------------
+ * Five independent 0–100 categories, then a weighted overall score.
+ * Each category starts at 100 and loses points for concrete failures,
+ * so the report can say *where* the site is weak, not just "87".
+ *
+ *   Availability (30%) : HTTP reachability + response time
+ *   Performance  (25%) : Lighthouse performance score
+ *   Security     (20%) : TLS certificate state + Lighthouse best practices
+ *   SEO          (15%) : Lighthouse SEO + robots.txt / sitemap.xml presence
+ *   Accessibility(10%) : Lighthouse accessibility score
+ *
+ * Missing inputs (e.g. Lighthouse failed) are skipped rather than
+ * penalised, and the remaining weights are re-normalised.
+ */
+const SCORE_WEIGHTS = {
+  availability: 0.3,
+  performance: 0.25,
+  security: 0.2,
+  seo: 0.15,
+  accessibility: 0.1,
+};
+
+const clampScore = (n) => Math.max(0, Math.min(100, Math.round(n)));
+
 function computeHealthScore(d) {
-  let score = 100;
-  if (!d.http.ok) score -= 40;
-  else if (d.http.responseTimeMs > 2000) score -= 15;
-  else if (d.http.responseTimeMs > 1000) score -= 8;
+  const lh = d.lighthouse.ok ? d.lighthouse.scores : {};
 
-  if (!d.ssl.ok) score -= 20;
-  else if (d.ssl.daysRemaining != null && d.ssl.daysRemaining < 15) score -= 10;
-  else if (d.ssl.daysRemaining != null && d.ssl.daysRemaining < 30) score -= 5;
-
-  if (!d.dns.ok) score -= 10;
-  if (!d.assets.robots.ok) score -= 3;
-  if (!d.assets.sitemap.ok) score -= 3;
-  if (!d.assets.favicon.ok) score -= 2;
-
-  if (d.lighthouse.ok) {
-    const s = d.lighthouse.scores;
-    const penalty = (v) => (v == null ? 0 : Math.max(0, (90 - v) / 4));
-    score -= penalty(s.performance);
-    score -= penalty(s.accessibility) / 2;
-    score -= penalty(s.bestPractices) / 2;
-    score -= penalty(s.seo) / 2;
+  // --- Availability ---
+  let availability = 100;
+  if (!d.http.ok) availability -= 70;
+  if (!d.dns.ok) availability -= 30;
+  if (d.http.ok) {
+    if (d.http.responseTimeMs > 3000) availability -= 25;
+    else if (d.http.responseTimeMs > 2000) availability -= 15;
+    else if (d.http.responseTimeMs > 1000) availability -= 7;
   }
 
-  score = Math.max(0, Math.min(100, Math.round(score)));
+  // --- Security (TLS state + Lighthouse best practices) ---
+  let security = 100;
+  switch (d.ssl.state) {
+    case "valid":
+      break;
+    case "expiring_soon":
+      security -= d.ssl.daysRemaining < SSL_CRITICAL_DAYS ? 25 : 10;
+      break;
+    case "expired":
+    case "hostname_mismatch":
+    case "chain_error":
+      security -= 60;
+      break;
+    default:
+      security -= 50;
+  }
+  if (lh.bestPractices != null) security = (security + lh.bestPractices) / 2;
+
+  // --- SEO (Lighthouse SEO + crawlability assets) ---
+  let seo = lh.seo != null ? lh.seo : 100;
+  if (!d.assets.robots.ok) seo -= 10;
+  if (!d.assets.sitemap.ok) seo -= 10;
+  if (!d.assets.favicon.ok) seo -= 3;
+
+  const categories = {
+    availability: clampScore(availability),
+    performance: lh.performance == null ? null : clampScore(lh.performance),
+    security: clampScore(security),
+    seo: clampScore(seo),
+    accessibility: lh.accessibility == null ? null : clampScore(lh.accessibility),
+  };
+
+  let weighted = 0;
+  let totalWeight = 0;
+  for (const [key, weight] of Object.entries(SCORE_WEIGHTS)) {
+    const v = categories[key];
+    if (v == null) continue;
+    weighted += v * weight;
+    totalWeight += weight;
+  }
+  const value = totalWeight > 0 ? clampScore(weighted / totalWeight) : 0;
+
   const grade =
-    score >= 95 ? "Excellent" :
-    score >= 85 ? "Healthy" :
-    score >= 70 ? "Fair" :
-    score >= 50 ? "At Risk" : "Critical";
-  return { value: score, grade };
+    value >= 95 ? "Excellent" :
+    value >= 85 ? "Healthy" :
+    value >= 70 ? "Fair" :
+    value >= 50 ? "At Risk" : "Critical";
+
+  return { value, grade, categories };
 }
 
 function buildRecommendations(d) {
   const recs = [];
   if (!d.http.ok) recs.push(`Site returned status ${d.http.status || "0"} — investigate hosting or DNS immediately.`);
   if (d.http.ok && d.http.responseTimeMs > 1500) recs.push(`Response time is ${d.http.responseTimeMs} ms; consider caching, CDN edge tuning, or reducing server work.`);
-  if (d.ssl.ok && d.ssl.daysRemaining != null && d.ssl.daysRemaining < 30) recs.push(`SSL certificate expires in ${d.ssl.daysRemaining} days — schedule renewal.`);
-  if (!d.ssl.ok) recs.push(`SSL check failed (${d.ssl.error || "invalid certificate"}); browsers may block visitors.`);
+  if (d.ssl.state === "expiring_soon") recs.push(`SSL certificate expires in ${d.ssl.daysRemaining} days — schedule renewal now.`);
+  if (d.ssl.state === "expired") recs.push("SSL certificate has EXPIRED — visitors will see a browser security warning.");
+  if (d.ssl.state === "hostname_mismatch") recs.push("SSL certificate does not cover this hostname — reissue with the correct SAN/CN.");
+  if (d.ssl.state === "chain_error") recs.push(`SSL chain is not trusted (${d.ssl.error || "authorization failed"}) — check intermediate certificates.`);
+  if (d.ssl.state === "connection_error" || d.ssl.state === "no_certificate") recs.push(`TLS connection failed (${d.ssl.error || "unknown error"}) — verify port 443 and the TLS configuration.`);
   if (!d.dns.ok) recs.push("DNS resolution failed — verify nameserver and A/AAAA records.");
   if (!d.assets.robots.ok) recs.push("robots.txt is missing or unreachable; add it at /robots.txt for crawler control.");
   if (!d.assets.sitemap.ok) recs.push("sitemap.xml is missing; publish one at /sitemap.xml to improve indexing.");
@@ -522,6 +643,30 @@ function drawLighthouseCard(doc, label, score, x, y, w, h) {
     .text("/ 100", x, y + 46, { width: w, align: "center" });
 }
 
+/** Compact 5-up grid of the category scores that make up the overall score. */
+function drawCategoryGrid(doc, categories, x, y, w) {
+  const items = [
+    ["Availability", categories.availability],
+    ["Performance", categories.performance],
+    ["Security", categories.security],
+    ["SEO", categories.seo],
+    ["Accessibility", categories.accessibility],
+  ];
+  const gap = 8;
+  const cardW = (w - gap * (items.length - 1)) / items.length;
+  const cardH = 48;
+  items.forEach(([label, score], i) => {
+    const cx = x + i * (cardW + gap);
+    const color = scoreCatColor(score);
+    doc.roundedRect(cx, y, cardW, cardH, 6).fill(COLORS.bg);
+    doc.fillColor(COLORS.muted).font("Helvetica").fontSize(7)
+      .text(label.toUpperCase(), cx, y + 7, { width: cardW, align: "center", characterSpacing: 0.5 });
+    doc.fillColor(color).font("Helvetica-Bold").fontSize(16)
+      .text(score == null ? "—" : `${score}`, cx, y + 20, { width: cardW, align: "center" });
+  });
+  return y + cardH;
+}
+
 function drawLighthouseGrid(doc, lh, x, y, w) {
   const cols = 4;
   const gap = 8;
@@ -617,9 +762,12 @@ function generatePdf(data, outPath) {
       { label: "HTTP Status", value: `${data.http.status || "—"}`, color: statusColor(data.http.ok) },
       { label: "Response Time", value: `${data.http.responseTimeMs} ms`,
         color: data.http.responseTimeMs > 2000 ? COLORS.bad : data.http.responseTimeMs > 1000 ? COLORS.warn : COLORS.good },
-      { label: "SSL Status", value: data.ssl.ok ? "Valid" : "Invalid", color: statusColor(data.ssl.ok) },
-      { label: "SSL Expiry", value: data.ssl.ok && data.ssl.daysRemaining != null ? `${data.ssl.daysRemaining} days` : "N/A",
-        color: data.ssl.ok ? ((data.ssl.daysRemaining ?? 0) < 30 ? COLORS.warn : COLORS.good) : COLORS.bad },
+      { label: "SSL Status", value: data.ssl.label || (data.ssl.ok ? "Valid" : "Invalid"),
+        color: data.ssl.state === "valid" ? COLORS.good : data.ssl.state === "expiring_soon" ? COLORS.warn : COLORS.bad },
+      { label: "SSL Expiry", value: data.ssl.daysRemaining != null ? `${data.ssl.daysRemaining} days` : "N/A",
+        color: data.ssl.daysRemaining == null ? COLORS.bad
+          : data.ssl.daysRemaining < SSL_CRITICAL_DAYS ? COLORS.bad
+          : data.ssl.daysRemaining < SSL_WARN_DAYS ? COLORS.warn : COLORS.good },
       { label: "DNS Status", value: data.dns.ok ? "Resolved" : "Failed", color: statusColor(data.dns.ok) },
     ];
     const rCols = 3;
@@ -635,6 +783,9 @@ function generatePdf(data, outPath) {
         rCardW, rCardH, c.color);
     });
     y += badgeH + 18;
+
+    y = sectionTitle(doc, "Category Scores", MARGIN, y, contentW);
+    y = drawCategoryGrid(doc, data.healthScore.categories, MARGIN, y, contentW) + 14;
 
     y = sectionTitle(doc, "Lighthouse Summary", MARGIN, y, contentW);
     if (data.lighthouse.ok) {
@@ -779,6 +930,11 @@ Please find attached today's Website Health Report for ${data.url}.
 This report contains uptime, response time, SSL status, DNS, asset availability, and Lighthouse audit scores.
 
 Overall Health Score: ${data.healthScore.value}/100 (${data.healthScore.grade})
+
+Category breakdown:
+${Object.entries(data.healthScore.categories)
+  .map(([k, v]) => `  - ${k.charAt(0).toUpperCase() + k.slice(1)}: ${v == null ? "n/a" : `${v}/100`}`)
+  .join("\n")}
 
 Regards,
 Automated Monitoring System`;
