@@ -2,7 +2,7 @@
 
 A single-page, dark-themed engineering portfolio for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from an IT Service Management background. Built with a "blueprint grid" motif to reinforce the infrastructure/DevOps aesthetic — clean, minimal, and information-dense without feeling cluttered.
 
-**Live site:** [piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume)
+**Live site:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TanStack Start](https://img.shields.io/badge/TanStack%20Start-SSR-FF4154?logo=react-query&logoColor=white)
@@ -10,7 +10,6 @@ A single-page, dark-themed engineering portfolio for **Piyush Prasad**, an aspir
 ![Framer Motion](https://img.shields.io/badge/Framer%20Motion-Animations-0055FF?logo=framer&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-Build-646CFF?logo=vite&logoColor=white)
 ![Bun](https://img.shields.io/badge/Bun-Package%20Manager-000000?logo=bun&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -24,9 +23,10 @@ A single-page, dark-themed engineering portfolio for **Piyush Prasad**, an aspir
 - [Getting Started](#getting-started)
 - [Available Scripts](#available-scripts)
 - [Environment Variables](#environment-variables)
-- [Deployment](#deployment)
+- [Contact Form](#contact-form)
+- [Daily Website Health Report](#daily-website-health-report)
+- [CI/CD & Security](#cicd--security)
 - [SEO & Performance](#seo--performance)
-- [Roadmap](#roadmap)
 - [Contact](#contact)
 - [License](#license)
 
@@ -34,61 +34,67 @@ A single-page, dark-themed engineering portfolio for **Piyush Prasad**, an aspir
 
 ## Overview
 
-This repository contains the source for my personal portfolio — a single-scroll site with anchor navigation that showcases my DevOps projects, work experience, skills, certifications, education, and live GitHub activity. It's built as a technical portfolio meant to read like an engineering artifact: thin grid lines, monospace section labels, restrained color palette, and scroll-triggered motion.
+This repository contains the source for my personal portfolio — a single-scroll site with anchor navigation that showcases my DevOps projects, work experience, skills, certifications, education, and live GitHub activity. It is built as a technical portfolio meant to read like an engineering artifact: thin grid lines, monospace section labels, a restrained cobalt-on-carbon palette, and scroll-triggered motion.
+
+There is **no backend and no database**. Every dynamic element is either static content, a public read-only API call (GitHub), or a third-party form endpoint (Web3Forms).
 
 ## Tech Stack
 
-| Layer            | Technology                                    |
-|-------------------|------------------------------------------------|
-| Framework         | React 19 + TanStack Start (SSR, file-based routing) |
-| Styling           | Tailwind CSS v4 + shadcn/ui (Radix primitives) |
-| Animation         | Framer Motion                                  |
-| Icons             | lucide-react                                   |
-| Data Fetching     | TanStack Query (live GitHub API)               |
-| Forms/Validation  | React Hook Form + Zod                          |
-| Build Tool        | Vite                                           |
-| Package Manager   | Bun                                            |
-| Hosting           | Vercel (auto-deploy on push to `main`)         |
+| Layer            | Technology                                          |
+| ---------------- | --------------------------------------------------- |
+| Framework        | React 19 + TanStack Start (SSR, file-based routing) |
+| Styling          | Tailwind CSS v4 + shadcn/ui (Radix primitives)      |
+| Animation        | Framer Motion                                        |
+| Icons            | lucide-react                                         |
+| Data Fetching    | TanStack Query (public GitHub REST API)             |
+| Forms            | Web3Forms (no custom backend)                        |
+| Build Tool       | Vite                                                 |
+| Package Manager  | Bun                                                  |
+| Monitoring       | Node.js + Lighthouse via GitHub Actions (PDF report)|
 
 ## Sections
 
 The site is organized as a single scrollable page with a sticky anchor nav:
 
-1. **Hero** — name, role, one-line pitch, contact quick-actions (copy-to-clipboard email, phone, LinkedIn, GitHub), animated SVG blueprint-grid background
-2. **Projects** — flagship DevOps projects (CI/CD pipeline on AWS EC2 + Nginx + Cloudflare; production AWS EC2 app with DevSecOps: Certbot SSL, UFW, Prometheus/Grafana, Trivy)
-3. **Experience** — reverse-chronological work history (Runtime Solutions, Credence Infotech)
+1. **Hero** — name, role, one-line pitch, contact quick-actions, animated blueprint-grid background
+2. **Projects** — flagship DevOps work with repo links (CI/CD on AWS EC2 + Nginx + Cloudflare, a hardened production EC2 deployment, and CloudOps Sentinel)
+3. **Experience** — reverse-chronological history with a nested timeline for multiple roles at one company
 4. **Skills** — categorized tags (Cloud, OS, DevOps Tools, Web Server, CI/CD, Monitoring, Security, ITSM)
-5. **Certifications** — grid of certs with issuer and verification links
-6. **Education** — reverse-chronological academic history
-7. **GitHub** — live data pulled from the GitHub REST API (recently pushed repos + latest commit per repo)
-8. **Contact** — email, phone, LinkedIn, GitHub as clear CTAs
+5. **Certifications** — top 5 shown by default with an accessible, animated "show more" toggle
+6. **Education** — reverse-chronological academic history with linked institution logos
+7. **GitHub** — live public activity (recently pushed repos + latest commit per repo)
+8. **Contact** — quick actions plus a validated contact form
 
-A dedicated `/resume` route serves a styled PDF viewer, and `/sitemap.xml` is generated dynamically for SEO.
+Additional routes: `/resume` (view-only PDF), `/thank-you`, and two long-form DevSecOps guides.
 
 ## Project Structure
 
 ```
 .
-├── app/
-│   ├── routes/
-│   │   ├── index.tsx          # Main portfolio page
-│   │   ├── resume.tsx         # Resume viewer route
-│   │   └── sitemap[.]xml.ts   # Dynamic sitemap
-│   ├── components/
-│   │   ├── sections/          # Hero, Projects, Experience, Skills, etc.
-│   │   ├── ui/                 # shadcn/ui primitives
-│   │   └── layout/             # Nav, footer, blueprint-grid background
-│   ├── hooks/                  # useActiveSection, useGithubRepos, etc.
-│   ├── lib/                    # Utilities, Zod schemas, API clients
-│   └── styles/                 # Tailwind config & global styles
+├── .github/workflows/
+│   ├── ci.yml                 # Lint, typecheck, build on every push/PR
+│   ├── codeql.yml             # CodeQL security analysis
+│   └── daily-report.yml       # Scheduled website health report
 ├── public/
 │   ├── resume.pdf
-│   └── robots.txt
+│   ├── robots.txt
+│   ├── sitemap.xml
+│   └── llms.txt
+├── scripts/
+│   ├── generate-report.mjs    # Health checks -> scoring -> PDF -> email
+│   ├── assets/                # Report branding assets
+│   └── python/                # Standalone maintenance utilities
+├── src/
+│   ├── components/
+│   │   ├── ContactForm.tsx    # Web3Forms-backed contact form
+│   │   ├── portfolio/         # GithubActivity, SectionLabel
+│   │   └── ui/                # shadcn/ui primitives
+│   ├── lib/
+│   │   └── site.ts            # Single source of truth for site identity
+│   ├── routes/                # File-based routes (index, resume, guides, …)
+│   └── styles.css             # Tailwind v4 theme tokens
 ├── vite.config.ts
-├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
+└── package.json
 ```
 
 ## Getting Started
@@ -96,69 +102,94 @@ A dedicated `/resume` route serves a styled PDF viewer, and `/sitemap.xml` is ge
 ### Prerequisites
 
 - [Bun](https://bun.sh) v1.1+
-- Node.js 20+ (for tooling compatibility)
-
-### Installation
+- Node.js 20+ (required for the report scripts)
 
 ```bash
-# Clone the repository
 git clone https://github.com/ppiyushhhhh/portfolio.git
 cd portfolio
-
-# Install dependencies
 bun install
-
-# Start the dev server
 bun run dev
 ```
 
-The site will be available at `http://localhost:3000`.
-
 ## Available Scripts
 
-| Command          | Description                              |
-|-------------------|-------------------------------------------|
-| `bun run dev`     | Start the local development server        |
-| `bun run build`   | Build the app for production              |
-| `bun run start`   | Serve the production build locally        |
-| `bun run lint`    | Run ESLint checks                         |
-| `bun run format`  | Format code with Prettier                 |
-| `bun run typecheck` | Run TypeScript type checking            |
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `bun run dev`       | Start the local development server |
+| `bun run build`     | Build the app for production       |
+| `bun run preview`   | Serve the production build locally |
+| `bun run lint`      | Run ESLint checks                  |
+| `bun run typecheck` | Run TypeScript type checking       |
+| `bun run format`    | Format code with Prettier          |
 
 ## Environment Variables
 
-No secrets are required — all external calls (GitHub REST API) use public, unauthenticated read-only endpoints. Optional variables:
+The website itself requires **no secrets**. All external calls use public, unauthenticated endpoints. `.env.example` documents the optional variable names; never commit a real `.env`.
 
-```env
-# .env
-PUBLIC_SITE_URL=https://www.piyushprasad.in
-PUBLIC_GITHUB_USERNAME=ppiyushhhhh
-```
+The health report workflow reads its configuration from GitHub Actions secrets and variables:
 
-## Deployment
+| Name                                     | Type     | Purpose                          |
+| ---------------------------------------- | -------- | -------------------------------- |
+| `SITE_DOMAIN`                            | secret   | Domain to audit                  |
+| `SMTP_HOST` / `SMTP_PORT`                | secret   | Mail transport                   |
+| `SMTP_USER` / `SMTP_PASS`                | secret   | SMTP credentials                 |
+| `REPORT_TO` / `REPORT_FROM` / `ALERT_TO` | secret   | Recipients                       |
+| `REPORT_BRAND_NAME` / `REPORT_BRAND_TAGLINE` | variable | Report branding              |
+| `REPORT_CONTACT_*`, `REPORT_LINKEDIN`, `REPORT_GITHUB` | variable | Report footer contact details |
 
-The site auto-deploys to **Vercel** on every push to `main`:
+## Contact Form
 
-1. Connect the repository in the Vercel dashboard
-2. Set the framework preset to **Vite / TanStack Start**
-3. Add the environment variables above (if used)
-4. Push to `main` — Vercel builds and deploys automatically
+Submissions post directly to the [Web3Forms](https://web3forms.com) API — there is no server component. The form includes:
+
+- Client-side validation for every field, plus email format and minimum message length
+- A hidden honeypot field to absorb naive bots
+- An `AbortController` timeout so a hung request cannot leave the button spinning
+- Explicit loading, success, and error states announced via `aria-live`
+
+The Web3Forms access key is a publishable, write-only submission key — it is safe in client code and cannot read past submissions.
+
+## Daily Website Health Report
+
+`scripts/generate-report.mjs` runs on a schedule (19:00 IST) and can be triggered manually from the Actions tab. It performs:
+
+- **HTTP** reachability, status code, and response time
+- **TLS** inspection with explicit states: valid, expiring soon, expired, hostname mismatch, untrusted chain, or connection failure
+- **DNS** resolution
+- **Asset** checks for `robots.txt`, `sitemap.xml`, and the favicon
+- **Lighthouse** performance, accessibility, best practices, and SEO audits
+
+Results feed a weighted scoring model that produces five independent category scores plus one overall grade:
+
+| Category      | Weight | Inputs                                     |
+| ------------- | ------ | ------------------------------------------ |
+| Availability  | 30%    | HTTP status, DNS, response time            |
+| Performance   | 25%    | Lighthouse performance                      |
+| Security      | 20%    | TLS state, Lighthouse best practices        |
+| SEO           | 15%    | Lighthouse SEO, robots.txt, sitemap.xml     |
+| Accessibility | 10%    | Lighthouse accessibility                    |
+
+Missing inputs (for example, a failed Lighthouse run) are skipped rather than penalised, and the remaining weights are re-normalised. The output is a branded, exactly two-page PDF emailed to the configured recipient and uploaded as a workflow artifact.
+
+## CI/CD & Security
+
+- **CI** (`ci.yml`) runs typecheck, lint, and a production build on every push and pull request to `main`.
+- **CodeQL** (`codeql.yml`) scans JavaScript/TypeScript and workflow definitions on push, PR, and weekly.
+- No secrets are shipped to the browser; the client bundle contains only public endpoints.
+- Dependencies are pinned via `bun.lock`, and CI installs with `--frozen-lockfile`.
 
 ## SEO & Performance
 
-- Proper meta tags and Open Graph tags on every route
-- Dynamically generated `sitemap.xml` and static `robots.txt`
-- Optimized for Lighthouse across Performance, Accessibility, Best Practices, and SEO
-- Mobile-first, fully responsive — grid/animation effects degrade gracefully on smaller viewports
-
-## Roadmap
-
-- [ ] Self-hosted **daily website health report**: scheduled GitHub Actions script checking HTTP status/response time, SSL certificate validity, DNS records, and Lighthouse score, emailed as a branded PDF with a computed 0–100 health grade
+- Page-specific `<title>`, meta description, canonical, Open Graph, and Twitter tags on every route
+- Person + WebSite JSON-LD structured data, plus DigitalDocument data on `/resume`
+- `sitemap.xml`, `robots.txt`, and `llms.txt` for crawlers and AI assistants
+- Semantic headings, ARIA labels, and reduced-motion support throughout
+- Mobile-first and fully responsive; grid and animation effects degrade gracefully
 
 ## Contact
 
 **Piyush Prasad**
 
+- Email: [hello@piyushprasad.in](mailto:hello@piyushprasad.in)
 - GitHub: [@ppiyushhhhh](https://github.com/ppiyushhhhh)
 - LinkedIn: [linkedin.com/in/ppiyushhhh](https://linkedin.com/in/ppiyushhhh)
 
