@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { GithubActivity } from "@/components/portfolio/GithubActivity";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
 import { SectionLabel } from "@/components/portfolio/SectionLabel";
-import { EMAIL, GH_USER, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
+import { EMAIL, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
 
 import {
   ArrowUpRight,
@@ -292,7 +292,7 @@ function TopNav() {
 
 function Hero() {
   return (
-    <section id="hero" className="relative min-h-screen px-6 pt-32 pb-20 md:px-10 md:pt-40">
+    <section id="hero" className="relative overflow-hidden px-6 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -306,10 +306,10 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mono flex flex-wrap items-center gap-3 text-cobalt text-[11px]"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mono flex flex-wrap items-center gap-x-3 gap-y-2 text-cobalt text-[10px] sm:text-[11px]"
         >
-          <span>Piyush Prasad</span>
+          <span>PIYUSH PRASAD</span>
           <span className="text-[#D1D1CB]">—</span>
           <span>NAVI MUMBAI, INDIA</span>
           <span className="text-[#D1D1CB]">—</span>
@@ -322,74 +322,62 @@ function Hero() {
           </span>
         </motion.div>
 
-        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-8">
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-              className="display text-[64px] leading-[0.88] md:text-[96px] lg:text-[128px]"
-            >
-              <span className="sr-only">Piyush Prasad — Cloud & DevOps Engineer</span>
-              <span className="block" aria-hidden="true">PIYUSH</span>
-              <span className="block text-cobalt" aria-hidden="true">PRASAD</span>
-            </motion.h1>
+        <div className="mt-8 max-w-4xl">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
+            className="display text-[clamp(44px,12vw,96px)] leading-[0.9]"
+          >
+            <span className="sr-only">Piyush Prasad — Cloud & DevOps Engineer</span>
+            <span className="block" aria-hidden="true">PIYUSH</span>
+            <span className="block text-cobalt" aria-hidden="true">PRASAD</span>
+          </motion.h1>
 
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="show"
-              transition={{ delay: 0.9 }}
-              className="mono mt-8 text-[12px]"
-            >
-              CLOUD &amp; DEVOPS ENGINEER
-            </motion.p>
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="show"
-              transition={{ delay: 1.05 }}
-              className="mt-4 max-w-xl text-[17px] text-carbon/80"
-            >
-              Building scalable, secure, and observable infrastructure systems. Bridging ITSM and DevSecOps — from ticket queues to production pipelines.
-            </motion.p>
-          </div>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: 0.75 }}
+            className="mono mt-6 text-[15px] font-semibold tracking-[0.18em] text-carbon sm:text-[18px] md:text-[22px]"
+          >
+            CLOUD &amp; DEVOPS ENGINEER
+          </motion.p>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: 0.9 }}
+            className="mt-4 max-w-xl text-[16px] leading-relaxed text-carbon/80 sm:text-[17px]"
+          >
+            Building scalable, secure, and observable infrastructure systems. Bridging ITSM and DevSecOps — from ticket queues to production pipelines.
+          </motion.p>
 
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            transition={{ delay: 1.2 }}
-            className="lg:col-span-4 lg:pt-24"
+            transition={{ delay: 1.05 }}
+            className="mt-8"
           >
-            <ul className="mono space-y-3 text-[12px]">
-              <li>
-                <a href={`mailto:${EMAIL}`} className="group inline-flex items-center gap-2 hover:text-cobalt">
-                  <ArrowUpRight className="h-3.5 w-3.5 text-cobalt transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  {EMAIL}
-                </a>
-              </li>
-              <li>
-                <a href={LINKEDIN} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2 hover:text-cobalt">
-                  <ArrowUpRight className="h-3.5 w-3.5 text-cobalt transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  linkedin.com/in/ppiyushhhh
-                </a>
-              </li>
-              <li>
-                <a href={GITHUB} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2 hover:text-cobalt">
-                  <ArrowUpRight className="h-3.5 w-3.5 text-cobalt transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  github.com/{GH_USER}
-                </a>
-              </li>
-            </ul>
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="mono inline-flex items-center gap-2 border border-carbon bg-carbon px-6 py-3 text-[11px] tracking-[0.18em] text-[#FAFAF8] transition-colors hover:bg-cobalt hover:border-cobalt"
+            >
+              VIEW RESUME
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
           </motion.div>
         </div>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.8 }}
-          className="mono mt-24 flex items-center gap-4 text-[11px] text-carbon/60"
+          transition={{ delay: 1.3, duration: 0.8 }}
+          className="mono mt-14 flex items-center gap-4 text-[11px] text-carbon/60"
         >
           <span className="h-px w-16 bg-carbon/40" />
           <span>SCROLL TO EXPLORE</span>
