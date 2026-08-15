@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    timeout-minutes: 20
 
     steps:
       - name: Checkout Repository
@@ -28,7 +29,7 @@ jobs:
 
       - name: Install Report Dependencies
         working-directory: scripts
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Generate and Email Report
         working-directory: scripts
@@ -41,6 +42,12 @@ jobs:
           REPORT_TO: ${{ secrets.REPORT_TO }}
           REPORT_FROM: ${{ secrets.REPORT_FROM }}
           ALERT_TO: ${{ secrets.ALERT_TO }}
+          REPORT_BRAND_NAME: ${{ vars.REPORT_BRAND_NAME }}
+          REPORT_BRAND_TAGLINE: ${{ vars.REPORT_BRAND_TAGLINE }}
+          REPORT_CONTACT_EMAIL: ${{ vars.REPORT_CONTACT_EMAIL }}
+          REPORT_CONTACT_PHONE: ${{ vars.REPORT_CONTACT_PHONE }}
+          REPORT_LINKEDIN: ${{ vars.REPORT_LINKEDIN }}
+          REPORT_GITHUB: ${{ vars.REPORT_GITHUB }}
           CHROME_PATH: /opt/hostedtoolcache/setup-chrome/chromium/stable/x64/chrome
         run: node generate-report.mjs
 
