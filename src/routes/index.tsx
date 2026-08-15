@@ -739,13 +739,27 @@ function Certifications() {
               ))}
             </ul>
             {CERTS.length > 5 && (
-              <button
-                type="button"
-                onClick={() => setShowAllCerts((v) => !v)}
-                className="mono mt-6 border border-[#D1D1CB] px-4 py-2 text-cobalt transition-all duration-300 hover:border-cobalt hover:bg-white"
-              >
-                {showAllCerts ? "Show less" : `Show ${CERTS.length - 5} more`}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowAllCerts((v) => !v)}
+                  aria-expanded={showAllCerts}
+                  aria-controls="certifications-list"
+                  aria-label={
+                    showAllCerts
+                      ? `Show fewer certifications, collapse back to 5 of ${CERTS.length}`
+                      : `Show ${CERTS.length - 5} more certifications, ${CERTS.length} total`
+                  }
+                  className="mono mt-6 min-h-11 border border-[#D1D1CB] px-4 py-2 text-cobalt transition-all duration-300 hover:border-cobalt hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2"
+                >
+                  {showAllCerts ? "Show less" : `Show ${CERTS.length - 5} more`}
+                </button>
+                <p aria-live="polite" className="sr-only">
+                  {showAllCerts
+                    ? `Showing all ${CERTS.length} certifications`
+                    : `Showing 5 of ${CERTS.length} certifications`}
+                </p>
+              </>
             )}
           </div>
           <div className="lg:col-span-5">
