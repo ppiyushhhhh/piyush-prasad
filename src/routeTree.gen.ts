@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
 
@@ -30,6 +31,11 @@ const ThankYouRoute = ThankYouRouteImport.update({
   path: '/thank-you',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
   id: '/guides/devsecops-pipeline',
   path: '/guides/devsecops-pipeline',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
+  '/api/chat': typeof ApiChatRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
+  '/api/chat': typeof ApiChatRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
+  '/api/chat': typeof ApiChatRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
 }
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/resume'
     | '/thank-you'
+    | '/api/chat'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/resume'
     | '/thank-you'
+    | '/api/chat'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
   id:
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/resume'
     | '/thank-you'
+    | '/api/chat'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
   fileRoutesById: FileRoutesById
@@ -91,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ResumeRoute: typeof ResumeRoute
   ThankYouRoute: typeof ThankYouRoute
+  ApiChatRoute: typeof ApiChatRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
 }
@@ -118,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ThankYouRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guides/devsecops-pipeline': {
       id: '/guides/devsecops-pipeline'
       path: '/guides/devsecops-pipeline'
@@ -139,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ResumeRoute: ResumeRoute,
   ThankYouRoute: ThankYouRoute,
+  ApiChatRoute: ApiChatRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
 }
