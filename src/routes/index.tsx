@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { GithubActivity } from "@/components/portfolio/GithubActivity";
+import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
 import { SectionLabel } from "@/components/portfolio/SectionLabel";
 import { EMAIL, GH_USER, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
 
@@ -1015,6 +1016,7 @@ function PortfolioPage() {
         <Contact />
       </main>
       <CvDock />
+      <AskPiyushAI />
     </div>
   );
 }
