@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { GithubActivity } from "@/components/portfolio/GithubActivity";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
 import { SectionLabel } from "@/components/portfolio/SectionLabel";
-import { EMAIL, GH_USER, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
+import { EMAIL, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
 
 import {
   ArrowUpRight,
