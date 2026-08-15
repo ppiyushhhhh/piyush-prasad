@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 
+// Web3Forms access keys are public client-side identifiers by design (they are
+// visible in any browser request). They are NOT privileged secrets — no SMTP
+// or backend credentials are used in the browser.
 const ACCESS_KEY = "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
+const SUBMIT_TIMEOUT_MS = 15_000;
+const MIN_MESSAGE_LENGTH = 10;
 const ENDPOINT = "https://api.web3forms.com/submit";
 
 type Fields = { name: string; email: string; subject: string; message: string };
@@ -17,6 +22,8 @@ function validate(values: Fields): Errors {
     errors.email = "Please enter a valid email address.";
   if (!values.subject.trim()) errors.subject = "Please enter a subject.";
   if (!values.message.trim()) errors.message = "Please enter a message.";
+  else if (values.message.trim().length < MIN_MESSAGE_LENGTH)
+    errors.message = `Please write at least ${MIN_MESSAGE_LENGTH} characters.`;
   return errors;
 }
 
@@ -27,6 +34,8 @@ export function ContactForm() {
   const [values, setValues] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  // Honeypot: real users never see or fill this field; bots usually do.
+  const [botField, setBotField] = useState("");
 
   const set = (key: keyof Fields) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -43,33 +52,53 @@ export function ContactForm() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
+    // Silently accept-and-drop honeypot hits so bots get no useful signal.
+    if (botField.trim() !== "") {
+      setValues(EMPTY);
+      setStatus("success");
+      return;
+    }
+
     setStatus("sending");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           access_key: ACCESS_KEY,
+          botcheck: "",
+          from_name: "Portfolio Contact Form",
           name: values.name.trim(),
           email: values.email.trim(),
           subject: values.subject.trim(),
           message: values.message.trim(),
         }),
       });
-      const data = (await res.json()) as { success?: boolean };
+      let data: { success?: boolean } = {};
+      try {
+        data = (await res.json()) as { success?: boolean };
+      } catch {
+        // Non-JSON response — fall through to the generic error below.
+      }
       if (!res.ok || !data.success) throw new Error("Submission failed");
       setValues(EMPTY);
       setStatus("success");
       setTimeout(() => setStatus((s) => (s === "success" ? "idle" : s)), 8000);
     } catch {
+      // Never surface internal error details to the visitor.
       setStatus("error");
+    } finally {
+      clearTimeout(timer);
     }
   };
 
   const sending = status === "sending";
 
   return (
-    <form onSubmit={onSubmit} noValidate className="mt-12 max-w-[560px]">
+    <form onSubmit={onSubmit} noValidate className="relative mt-12 max-w-[560px]">
       <div className="mono text-cobalt text-[10px]">SEND A MESSAGE</div>
 
       <div className="mt-6 space-y-5">
@@ -165,6 +194,20 @@ export function ContactForm() {
         </div>
       </div>
 
+      {/* Honeypot — hidden from users and assistive tech, attractive to bots. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="cf-company">Company (leave this field empty)</label>
+        <input
+          id="cf-company"
+          name="botcheck"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={botField}
+          onChange={(e) => setBotField(e.target.value)}
+        />
+      </div>
+
       <button
         type="submit"
         disabled={sending}
@@ -181,7 +224,9 @@ export function ContactForm() {
           </span>
         )}
         {status === "error" && (
-          <span className="text-red-300">Something went wrong. Please try again.</span>
+          <span className="text-red-300">
+            Something went wrong sending your message. Please try again, or email me directly.
+          </span>
         )}
       </p>
     </form>

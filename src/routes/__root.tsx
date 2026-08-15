@@ -107,13 +107,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "Person",
-              "@id": "https://simply-profile-plain.lovable.app/#person",
+              "@id": "https://www.piyushprasad.in/#person",
               name: "Piyush Prasad",
               alternateName: "Piyush",
               jobTitle: "Cloud & DevOps Engineer",
               description:
                 "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions.",
-              url: "https://simply-profile-plain.lovable.app",
+              url: "https://www.piyushprasad.in",
               email: "mailto:hello@piyushprasad.in",
               image:
                 "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c909e907-efb4-401c-9b45-48a20e30711a",
@@ -141,14 +141,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             },
             {
               "@type": "WebSite",
-              "@id": "https://simply-profile-plain.lovable.app/#website",
-              url: "https://simply-profile-plain.lovable.app",
+              "@id": "https://www.piyushprasad.in/#website",
+              url: "https://www.piyushprasad.in",
               name: "Piyush Prasad — Portfolio",
               description:
                 "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions.",
               inLanguage: "en",
-              publisher: { "@id": "https://simply-profile-plain.lovable.app/#person" },
-              about: { "@id": "https://simply-profile-plain.lovable.app/#person" },
+              publisher: { "@id": "https://www.piyushprasad.in/#person" },
+              about: { "@id": "https://www.piyushprasad.in/#person" },
             },
           ],
         }),

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-const URL = "https://simply-profile-plain.lovable.app/guides/devsecops-tools";
+const URL = "https://www.piyushprasad.in/guides/devsecops-tools";
 const TITLE = "DevSecOps Tools: A Practical Stack Guide";
 const DESC =
   "A practical guide to DevSecOps tools — SAST, SCA, container scanning, secrets detection, and monitoring — with how Trivy, GitHub Actions, and Prometheus fit together.";
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/guides/devsecops-tools")({
           author: {
             "@type": "Person",
             name: "Piyush Prasad",
-            url: "https://simply-profile-plain.lovable.app",
+            url: "https://www.piyushprasad.in",
           },
           mainEntityOfPage: URL,
         }),

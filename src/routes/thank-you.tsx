@@ -16,7 +16,7 @@ export const Route = createFileRoute("/thank-you")({
         content:
           "Thank you for reaching out to Piyush Prasad. Your message has been received and will get a reply shortly.",
       },
-      { property: "og:url", content: "https://simply-profile-plain.lovable.app/thank-you" },
+      { property: "og:url", content: "https://www.piyushprasad.in/thank-you" },
       { property: "og:type", content: "website" },
       { name: "twitter:title", content: "Message Sent — Piyush Prasad" },
       {
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/thank-you")({
       },
       { name: "robots", content: "noindex, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://simply-profile-plain.lovable.app/thank-you" }],
+    links: [{ rel: "canonical", href: "https://www.piyushprasad.in/thank-you" }],
   }),
   component: ThankYouPage,
 });
