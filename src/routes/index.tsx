@@ -11,7 +11,7 @@ import {
   ArrowUpRight,
   Copy,
   Check,
-  Eye,
+  
   Github,
   Linkedin,
   ChevronDown,
@@ -962,8 +962,8 @@ function Contact() {
             aria-label="View resume in new tab"
             className="inline-flex items-center gap-2 text-white/70 hover:text-cobalt underline underline-offset-4"
           >
-            <Eye className="h-3.5 w-3.5" />
             VIEW RESUME
+
           </a>
           <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
             GUIDE · BUILDING A SECURE CI/CD PIPELINE
