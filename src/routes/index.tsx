@@ -96,30 +96,36 @@ const EXPERIENCE = [
     url: "https://www.runtimesolutions.in/",
     role: "I.T. Office Assistant",
     type: "Full-Time",
-    period: "Jun 2025 — Present",
-    bullets: [
-      "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
-      "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
-      "Administered IT asset lifecycle for laptops, desktops, access points, and biometric devices with accurate tracking and documentation.",
-      "Coordinated with internal teams and external vendors to resolve hardware, network, and system issues within defined SLAs.",
-      "Supported daily IT operations including ticket logging, categorization, escalation handling, and documentation.",
+    period: "Dec 2024 — Present",
+    positions: [
+      {
+        role: "I.T. Office Assistant",
+        type: "Full-Time",
+        period: "Jun 2025 — Present",
+        bullets: [
+          "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
+          "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
+          "Administered IT asset lifecycle for laptops, desktops, access points, and biometric devices with accurate tracking and documentation.",
+          "Coordinated with internal teams and external vendors to resolve hardware, network, and system issues within defined SLAs.",
+          "Supported daily IT operations including ticket logging, categorization, escalation handling, and documentation.",
+        ],
+      },
+      {
+        role: "I.T. Office Assistant — Intern",
+        type: "Internship",
+        period: "Dec 2024 — Jun 2025",
+        bullets: [
+          "Assisted the IT support desk with first-level troubleshooting of desktops, laptops, printers, and peripherals across office locations.",
+          "Logged, categorized, and tracked support tickets in ManageEngine ServiceDesk Plus, escalating complex issues to senior engineers.",
+          "Supported user onboarding including system setup, account provisioning, software installation, and access configuration.",
+          "Helped maintain IT asset inventory and documentation, keeping hardware records and warranty details up to date.",
+          "Performed routine checks on network connectivity, access points, and biometric devices to keep daily operations running smoothly.",
+        ],
+      },
     ],
+    bullets: [],
   },
-  {
-    company: "Runtime Solutions",
-    logo: runtimeLogo,
-    url: "https://www.runtimesolutions.in/",
-    role: "I.T. Office Assistant — Intern",
-    type: "Internship",
-    period: "Dec 2024 — Jun 2025",
-    bullets: [
-      "Assisted the IT support desk with first-level troubleshooting of desktops, laptops, printers, and peripherals across office locations.",
-      "Logged, categorized, and tracked support tickets in ManageEngine ServiceDesk Plus, escalating complex issues to senior engineers.",
-      "Supported user onboarding activities including system setup, account provisioning, software installation, and access configuration.",
-      "Helped maintain IT asset inventory and documentation, keeping hardware records and warranty details up to date.",
-      "Performed routine checks on network connectivity, access points, and biometric devices to keep daily operations running smoothly.",
-    ],
-  },
+
 
   {
     company: "Credence Infotech",
