@@ -150,7 +150,7 @@ const SKILL_CATS = [
 ];
 
 const CERTS: { name: string; issuer: string; url?: string; logo?: string }[] = [
-  { name: "Foundation Course on AI Readiness — Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo },
+  { name: "Foundation Course on AI Readiness — Google & YouTube", issuer: "Ministry of Information and Broadcasting", logo: mibLogo, url: "https://mail.google.com/mail/u/0?ui=2&ik=92fc8b7d0a&attid=0.1&permmsgid=msg-f:1873347528811387669&th=19ff77a6eba89b15&view=att&zw&disp=inline" },
   { name: "DevOps Complete Course Specialization", issuer: "Packt (Coursera)", url: "https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK", logo: packtLogo },
   { name: "Google AI Essentials Specialization", issuer: "Google (Coursera)", logo: googleLogo, url: "https://www.coursera.org/account/accomplishments/specialization/EZS8GLRIG535" },
   { name: "Ubuntu Linux Professional Certificate", issuer: "Canonical", logo: canonicalLogo, url: "https://www.linkedin.com/learning/certificates/9d7f2b805f126a9612c6b1be485f14f90d4362bb9f0c6875bcb7702bc1274dbf" },
