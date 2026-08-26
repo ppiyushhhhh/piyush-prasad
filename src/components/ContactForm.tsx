@@ -76,19 +76,23 @@ export function ContactForm() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
     try {
+      // FormData (multipart) keeps this a "simple" CORS request. Sending JSON
+      // adds a Content-Type header that triggers a preflight Web3Forms rejects,
+      // which is why submissions previously failed with "Failed to fetch".
+      const payload = new FormData();
+      payload.append("access_key", ACCESS_KEY);
+      payload.append("from_name", "Portfolio Contact Form");
+      payload.append("subject", values.subject.trim());
+      payload.append("name", values.name.trim());
+      payload.append("email", values.email.trim());
+      payload.append("message", values.message.trim());
+      payload.append("replyto", values.email.trim());
+
       const res = await fetch(ENDPOINT, {
         method: "POST",
         signal: controller.signal,
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          from_name: "Portfolio Contact Form",
-          subject: values.subject.trim(),
-          name: values.name.trim(),
-          email: values.email.trim(),
-          message: values.message.trim(),
-          replyto: values.email.trim(),
-        }),
+        headers: { Accept: "application/json" },
+        body: payload,
       });
 
       const raw = await res.text();
