@@ -4,7 +4,11 @@ import { Send } from "lucide-react";
 // Web3Forms access keys are public client-side identifiers by design (they are
 // visible in any browser request). They are NOT privileged secrets — no SMTP
 // or backend credentials are used in the browser.
-const ACCESS_KEY = "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
+// Vite inlines VITE_* vars at build time; the literal is the deploy-safe fallback
+// so the form keeps working even if the env var is missing on Vercel.
+const ACCESS_KEY =
+  (import.meta.env['VITE_WEB3FORMS_ACCESS_KEY'] as string | undefined)?.trim() ||
+  "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
 const SUBMIT_TIMEOUT_MS = 15_000;
 const MIN_MESSAGE_LENGTH = 10;
 const ENDPOINT = "https://api.web3forms.com/submit";
