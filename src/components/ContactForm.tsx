@@ -4,7 +4,11 @@ import { Send } from "lucide-react";
 // Web3Forms access keys are public client-side identifiers by design (they are
 // visible in any browser request). They are NOT privileged secrets — no SMTP
 // or backend credentials are used in the browser.
-const ACCESS_KEY = "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
+// Vite inlines VITE_* vars at build time; the literal is the deploy-safe fallback
+// so the form keeps working even if the env var is missing on Vercel.
+const ACCESS_KEY =
+  (import.meta.env['VITE_WEB3FORMS_ACCESS_KEY'] as string | undefined)?.trim() ||
+  "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
 const SUBMIT_TIMEOUT_MS = 15_000;
 const MIN_MESSAGE_LENGTH = 10;
 const ENDPOINT = "https://api.web3forms.com/submit";
@@ -34,6 +38,7 @@ export function ContactForm() {
   const [values, setValues] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   // Honeypot: real users never see or fill this field; bots usually do.
   const [botField, setBotField] = useState("");
 
@@ -59,36 +64,67 @@ export function ContactForm() {
       return;
     }
 
+    if (!ACCESS_KEY) {
+      console.error("[ContactForm] Missing Web3Forms access key (VITE_WEB3FORMS_ACCESS_KEY).");
+      setErrorMessage("The contact form isn't configured yet. Please email me directly.");
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
+    setErrorMessage("");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
     try {
+      // FormData (multipart) keeps this a "simple" CORS request. Sending JSON
+      // adds a Content-Type header that triggers a preflight Web3Forms rejects,
+      // which is why submissions previously failed with "Failed to fetch".
+      const payload = new FormData();
+      payload.append("access_key", ACCESS_KEY);
+      payload.append("from_name", "Portfolio Contact Form");
+      payload.append("subject", values.subject.trim());
+      payload.append("name", values.name.trim());
+      payload.append("email", values.email.trim());
+      payload.append("message", values.message.trim());
+      payload.append("replyto", values.email.trim());
+
       const res = await fetch(ENDPOINT, {
         method: "POST",
         signal: controller.signal,
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          botcheck: "",
-          from_name: "Portfolio Contact Form",
-          name: values.name.trim(),
-          email: values.email.trim(),
-          subject: values.subject.trim(),
-          message: values.message.trim(),
-        }),
+        headers: { Accept: "application/json" },
+        body: payload,
       });
-      let data: { success?: boolean } = {};
+
+      const raw = await res.text();
+      let data: { success?: boolean; message?: string } = {};
       try {
-        data = (await res.json()) as { success?: boolean };
+        data = JSON.parse(raw) as { success?: boolean; message?: string };
       } catch {
-        // Non-JSON response — fall through to the generic error below.
+        // Non-JSON response — keep the raw text for the console log below.
       }
-      if (!res.ok || !data.success) throw new Error("Submission failed");
+      console.log("[ContactForm] Web3Forms response", { status: res.status, body: data.message ? data : raw });
+
+      if (!res.ok || !data.success) {
+        setErrorMessage(
+          data.message
+            ? `Couldn't send your message: ${data.message}`
+            : "Something went wrong sending your message. Please try again, or email me directly.",
+        );
+        setStatus("error");
+        return;
+      }
+
       setValues(EMPTY);
       setStatus("success");
       setTimeout(() => setStatus((s) => (s === "success" ? "idle" : s)), 8000);
-    } catch {
-      // Never surface internal error details to the visitor.
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      console.error("[ContactForm] Submission failed", err);
+      setErrorMessage(
+        aborted
+          ? "The request timed out. Please check your connection and try again."
+          : "Network error — your message couldn't be sent. Please try again, or email me directly.",
+      );
       setStatus("error");
     } finally {
       clearTimeout(timer);
@@ -225,7 +261,8 @@ export function ContactForm() {
         )}
         {status === "error" && (
           <span className="text-red-300">
-            Something went wrong sending your message. Please try again, or email me directly.
+            {errorMessage ||
+              "Something went wrong sending your message. Please try again, or email me directly."}
           </span>
         )}
       </p>
