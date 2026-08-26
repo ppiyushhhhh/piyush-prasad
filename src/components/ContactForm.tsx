@@ -63,7 +63,15 @@ export function ContactForm() {
       return;
     }
 
+    if (!ACCESS_KEY) {
+      console.error("[ContactForm] Missing Web3Forms access key (VITE_WEB3FORMS_ACCESS_KEY).");
+      setErrorMessage("The contact form isn't configured yet. Please email me directly.");
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
+    setErrorMessage("");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
     try {
@@ -73,26 +81,45 @@ export function ContactForm() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           access_key: ACCESS_KEY,
-          botcheck: "",
           from_name: "Portfolio Contact Form",
+          subject: values.subject.trim(),
           name: values.name.trim(),
           email: values.email.trim(),
-          subject: values.subject.trim(),
           message: values.message.trim(),
+          replyto: values.email.trim(),
         }),
       });
-      let data: { success?: boolean } = {};
+
+      const raw = await res.text();
+      let data: { success?: boolean; message?: string } = {};
       try {
-        data = (await res.json()) as { success?: boolean };
+        data = JSON.parse(raw) as { success?: boolean; message?: string };
       } catch {
-        // Non-JSON response — fall through to the generic error below.
+        // Non-JSON response — keep the raw text for the console log below.
       }
-      if (!res.ok || !data.success) throw new Error("Submission failed");
+      console.log("[ContactForm] Web3Forms response", { status: res.status, body: data.message ? data : raw });
+
+      if (!res.ok || !data.success) {
+        setErrorMessage(
+          data.message
+            ? `Couldn't send your message: ${data.message}`
+            : "Something went wrong sending your message. Please try again, or email me directly.",
+        );
+        setStatus("error");
+        return;
+      }
+
       setValues(EMPTY);
       setStatus("success");
       setTimeout(() => setStatus((s) => (s === "success" ? "idle" : s)), 8000);
-    } catch {
-      // Never surface internal error details to the visitor.
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      console.error("[ContactForm] Submission failed", err);
+      setErrorMessage(
+        aborted
+          ? "The request timed out. Please check your connection and try again."
+          : "Network error — your message couldn't be sent. Please try again, or email me directly.",
+      );
       setStatus("error");
     } finally {
       clearTimeout(timer);
