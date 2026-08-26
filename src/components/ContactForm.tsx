@@ -257,7 +257,8 @@ export function ContactForm() {
         )}
         {status === "error" && (
           <span className="text-red-300">
-            Something went wrong sending your message. Please try again, or email me directly.
+            {errorMessage ||
+              "Something went wrong sending your message. Please try again, or email me directly."}
           </span>
         )}
       </p>
