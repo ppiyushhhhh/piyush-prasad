@@ -38,6 +38,7 @@ export function ContactForm() {
   const [values, setValues] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   // Honeypot: real users never see or fill this field; bots usually do.
   const [botField, setBotField] = useState("");
 
