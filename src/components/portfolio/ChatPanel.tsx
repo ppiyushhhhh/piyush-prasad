@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Send, X, RotateCcw, Loader2 } from "lucide-react";
+import { Send, X, RotateCcw, Loader2, FileText } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
