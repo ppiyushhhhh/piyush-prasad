@@ -215,6 +215,18 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             )}
           </button>
         </div>
+        <div className="mt-2 flex items-center justify-between gap-3">
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[12px] text-carbon transition-colors hover:text-cobalt focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:outline-none"
+          >
+            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+            View Resume
+          </a>
+          <span className="text-[11px] text-muted-foreground">Press Enter to send</span>
+        </div>
       </form>
     </div>
   );
