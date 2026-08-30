@@ -24,7 +24,7 @@ import dockerLogo from "@/assets/docker-logo.jpg";
 import githubLogo from "@/assets/github-logo.jpg";
 import awsLogo from "@/assets/aws-logo.jpg";
 import runtimeLogo from "@/assets/runtime-logo.png";
-import credenceLogo from "@/assets/credence-logo.png";
+import credenceLogo from "@/assets/credence-logo.webp.asset.json";
 import jkCollegeLogo from "@/assets/jk-college-logo.png";
 import allenSwamiLogo from "@/assets/allen-swami-logo.jpg";
 import tilakGlobalLogo from "@/assets/tilak-global-logo.png";
@@ -496,7 +496,7 @@ function Experience() {
                         {(e as any).logo ? (
                           <span className="shrink-0 rounded-sm transition-transform hover:scale-110 hover:ring-2 hover:ring-cobalt">
                             <img
-                              src={(e as any).logo}
+                              src={(e as any).logo?.url ?? (e as any).logo}
                               alt={e.company}
                               className="h-8 w-8 rounded-sm bg-white object-contain p-1"
                             />
