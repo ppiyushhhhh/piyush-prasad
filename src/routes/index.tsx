@@ -496,7 +496,7 @@ function Experience() {
                         {(e as any).logo ? (
                           <span className="shrink-0 rounded-sm transition-transform hover:scale-110 hover:ring-2 hover:ring-cobalt">
                             <img
-                              src={(e as any).logo}
+                              src={(e as any).logo?.url ?? (e as any).logo}
                               alt={e.company}
                               className="h-8 w-8 rounded-sm bg-white object-contain p-1"
                             />
