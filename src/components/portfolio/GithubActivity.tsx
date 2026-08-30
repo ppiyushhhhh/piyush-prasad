@@ -169,6 +169,7 @@ function RepoCard({ repo }: { repo: Repo }) {
 }
 
 export function GithubActivity() {
+  const [showAll, setShowAll] = useState(false);
   const { data, isLoading, error, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ["repos", GH_USER],
     queryFn: fetchRepos,
@@ -180,6 +181,8 @@ export function GithubActivity() {
 
   const showError = !!error && !data;
   const showStaleNotice = !!error && !!data;
+  const visibleRepos = showAll ? data : data?.slice(0, 4);
+  const hasMore = (data?.length ?? 0) > 4;
   return (
     <section id="github" className="relative px-6 py-24 md:px-10 md:py-32">
       <div className="mx-auto max-w-[1400px]">
@@ -220,10 +223,29 @@ export function GithubActivity() {
         {data && (
           <>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {data.map((r) => (
+              {visibleRepos?.map((r) => (
                 <RepoCard key={r.id} repo={r} />
               ))}
             </div>
+            {hasMore && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowAll((s) => !s)}
+                  className="mono inline-flex items-center gap-2 border border-[#D1D1CB] bg-white/50 px-6 py-3 text-[11px] tracking-[0.12em] text-carbon transition-colors hover:border-cobalt hover:text-cobalt"
+                >
+                  {showAll ? (
+                    <>
+                      SHOW LESS <Minus className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      VIEW MORE <Plus className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
             {dataUpdatedAt > 0 && (
               <div className="mono mt-6 flex items-center gap-2 text-[10px] text-carbon/50">
                 {isFetching && <Loader2 className="h-3 w-3 animate-spin" />}
