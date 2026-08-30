@@ -494,28 +494,13 @@ function Experience() {
                     >
                       <div className="flex items-center gap-3">
                         {(e as any).logo ? (
-                          (e as any).url ? (
-                            <a
-                              href={(e as any).url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(ev) => ev.stopPropagation()}
-                              aria-label={`Visit ${e.company} website`}
-                              className="shrink-0 rounded-sm transition-transform hover:scale-110 hover:ring-2 hover:ring-cobalt"
-                            >
-                              <img
-                                src={(e as any).logo}
-                                alt={e.company}
-                                className="h-8 w-8 rounded-sm bg-white object-contain p-1"
-                              />
-                            </a>
-                          ) : (
+                          <span className="shrink-0 rounded-sm transition-transform hover:scale-110 hover:ring-2 hover:ring-cobalt">
                             <img
                               src={(e as any).logo}
                               alt={e.company}
-                              className="h-8 w-8 shrink-0 rounded-sm bg-white object-contain p-1"
+                              className="h-8 w-8 rounded-sm bg-white object-contain p-1"
                             />
-                          )
+                          </span>
                         ) : (
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/15 bg-white/[0.04]">
                             <span className="mono text-[10px] text-white/80">
