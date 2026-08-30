@@ -24,7 +24,7 @@ import dockerLogo from "@/assets/docker-logo.jpg";
 import githubLogo from "@/assets/github-logo.jpg";
 import awsLogo from "@/assets/aws-logo.jpg";
 import runtimeLogo from "@/assets/runtime-logo.png";
-import credenceLogo from "@/assets/credence-logo.png";
+import credenceLogo from "@/assets/credence-logo.webp.asset.json";
 import jkCollegeLogo from "@/assets/jk-college-logo.png";
 import allenSwamiLogo from "@/assets/allen-swami-logo.jpg";
 import tilakGlobalLogo from "@/assets/tilak-global-logo.png";
