@@ -102,7 +102,7 @@ const EXPERIENCE = [
         ],
       },
       {
-        role: "I.T. Office Assistant",
+        role: "IT Support & Service Management",
         type: "Full-Time",
         period: "Jun 2025 — Sep 2025",
         bullets: [
@@ -114,7 +114,7 @@ const EXPERIENCE = [
         ],
       },
       {
-        role: "I.T. Office Assistant — Intern",
+        role: "IT Support & Service Management — Intern",
         type: "Internship",
         period: "Dec 2024 — Jun 2025",
         bullets: [
