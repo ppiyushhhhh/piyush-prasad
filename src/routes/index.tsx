@@ -88,14 +88,23 @@ const EXPERIENCE = [
     company: "Runtime Solutions",
     logo: runtimeLogo,
     url: "https://www.runtimesolutions.in/",
-    role: "I.T. Office Assistant",
+    role: "Junior Cloud Engineer",
     type: "Full-Time",
     period: "Dec 2024 — Present",
     positions: [
       {
+        role: "Junior Cloud Engineer",
+        type: "Full-Time",
+        period: "Sep 2025 — Present",
+        bullets: [
+          "Administer Google Workspace for organizational users, including creating and deleting user accounts, configuring email, and managing groups, aliases, and access permissions.",
+          "Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub, Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain renewals for client Runwal.",
+        ],
+      },
+      {
         role: "I.T. Office Assistant",
         type: "Full-Time",
-        period: "Jun 2025 — Present",
+        period: "Jun 2025 — Sep 2025",
         bullets: [
           "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
           "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
