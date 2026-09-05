@@ -66,7 +66,13 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 # EXPERIENCE
 
 ## Runtime Solutions — Dec 2024 — Present (https://www.runtimesolutions.in/)
-### I.T. Office Assistant (Full-Time) — Jun 2025 — Present
+### Junior Cloud Engineer (Full-Time) — Sep 2025 — Present
+- Administer Google Workspace for organizational users, including creating and deleting user
+  accounts, configuring email, and managing groups, aliases, and access permissions.
+- Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub,
+  Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain
+  renewals for client Runwal.
+### IT Support & Service Management (Full-Time) — Jun 2025 — Sep 2025
 - Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and
   escalations across multiple locations using ManageEngine ServiceDesk Plus.
 - Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and
@@ -77,7 +83,7 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
   system issues within defined SLAs.
 - Supported daily IT operations including ticket logging, categorization, escalation
   handling, and documentation.
-### I.T. Office Assistant — Intern — Dec 2024 — Jun 2025
+### I.T Office Assistant - Intern — Dec 2024 — Jun 2025
 - Assisted the IT support desk with first-level troubleshooting of desktops, laptops,
   printers, and peripherals across office locations.
 - Logged, categorized, and tracked support tickets in ManageEngine ServiceDesk Plus,
