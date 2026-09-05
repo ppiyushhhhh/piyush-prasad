@@ -114,7 +114,7 @@ const EXPERIENCE = [
         ],
       },
       {
-        role: "IT Support & Service Management — Intern",
+        role: "I.T Office Assistant - Intern",
         type: "Internship",
         period: "Dec 2024 — Jun 2025",
         bullets: [
