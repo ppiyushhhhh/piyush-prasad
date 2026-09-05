@@ -145,7 +145,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                     Piyush AI
                   </span>
                 )}
-                {m.content}
+                {m.content.replace(/\*/g, "")}
               </div>
             </li>
           ))}
