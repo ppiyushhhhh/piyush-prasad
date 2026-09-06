@@ -104,7 +104,7 @@ const EXPERIENCE = [
       {
         role: "IT Support & Service Management",
         type: "Full-Time",
-        period: "Jun 2025 — Sep 2025",
+        period: "JUL 2025 — AUG 2026",
         bullets: [
           "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
           "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
