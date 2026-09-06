@@ -228,7 +228,7 @@ export function GithubActivity() {
               ))}
             </div>
             {hasMore && (
-              <div className="mt-8 flex justify-center">
+              <div className="mt-8 flex justify-start">
                 <button
                   type="button"
                   onClick={() => setShowAll((s) => !s)}
