@@ -95,7 +95,7 @@ const EXPERIENCE = [
       {
         role: "Junior Cloud Engineer",
         type: "Full-Time",
-        period: "Sep 2025 — Present",
+        period: "Sep 2026 — PRESENT",
         bullets: [
           "Administer Google Workspace for organizational users, including creating and deleting user accounts, configuring email, and managing groups, aliases, and access permissions.",
           "Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub, Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain renewals for client Runwal.",
