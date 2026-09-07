@@ -10,15 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
+import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
+import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
+import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResumeRoute = ResumeRouteImport.update({
@@ -36,6 +47,31 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardGithubRoute = DashboardGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardHealthRoute = DashboardHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLoginRoute = DashboardLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
   id: '/guides/devsecops-pipeline',
   path: '/guides/devsecops-pipeline',
@@ -49,58 +85,93 @@ const GuidesDevsecopsToolsRoute = GuidesDevsecopsToolsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
+  '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
+  '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
+  '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
+    | '/dashboard/health'
+    | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
+    | '/dashboard/health'
+    | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
+    | '/dashboard/health'
+    | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   ResumeRoute: typeof ResumeRoute
   ThankYouRoute: typeof ThankYouRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -115,6 +186,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resume': {
@@ -138,6 +216,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/github': {
+      id: '/dashboard/github'
+      path: '/github'
+      fullPath: '/dashboard/github'
+      preLoaderRoute: typeof DashboardGithubRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/health': {
+      id: '/dashboard/health'
+      path: '/health'
+      fullPath: '/dashboard/health'
+      preLoaderRoute: typeof DashboardHealthRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/login': {
+      id: '/dashboard/login'
+      path: '/login'
+      fullPath: '/dashboard/login'
+      preLoaderRoute: typeof DashboardLoginRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/performance': {
+      id: '/dashboard/performance'
+      path: '/performance'
+      fullPath: '/dashboard/performance'
+      preLoaderRoute: typeof DashboardPerformanceRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/guides/devsecops-pipeline': {
       id: '/guides/devsecops-pipeline'
       path: '/guides/devsecops-pipeline'
@@ -155,8 +268,29 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardGithubRoute: typeof DashboardGithubRoute
+  DashboardHealthRoute: typeof DashboardHealthRoute
+  DashboardLoginRoute: typeof DashboardLoginRoute
+  DashboardPerformanceRoute: typeof DashboardPerformanceRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardGithubRoute: DashboardGithubRoute,
+  DashboardHealthRoute: DashboardHealthRoute,
+  DashboardLoginRoute: DashboardLoginRoute,
+  DashboardPerformanceRoute: DashboardPerformanceRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   ResumeRoute: ResumeRoute,
   ThankYouRoute: ThankYouRoute,
   ApiChatRoute: ApiChatRoute,
