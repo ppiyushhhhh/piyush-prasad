@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
@@ -43,6 +44,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardLoginRoute = DashboardLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -68,16 +74,17 @@ export interface FileRoutesByFullPath {
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +96,7 @@ export interface FileRoutesById {
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,16 +109,17 @@ export interface FileRouteTypes {
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -170,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/login': {
       id: '/dashboard/login'
       path: '/login'
@@ -196,10 +213,12 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardLoginRoute: typeof DashboardLoginRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardLoginRoute: DashboardLoginRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
