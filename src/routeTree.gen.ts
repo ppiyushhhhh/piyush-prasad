@@ -17,6 +17,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
+import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
 
@@ -60,6 +61,11 @@ const DashboardLoginRoute = DashboardLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
   id: '/guides/devsecops-pipeline',
   path: '/guides/devsecops-pipeline',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/performance': typeof DashboardPerformanceRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/performance'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLoginRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/performance': {
+      id: '/dashboard/performance'
+      path: '/performance'
+      fullPath: '/dashboard/performance'
+      preLoaderRoute: typeof DashboardPerformanceRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/guides/devsecops-pipeline': {
       id: '/guides/devsecops-pipeline'
       path: '/guides/devsecops-pipeline'
@@ -233,12 +252,14 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardHealthRoute: typeof DashboardHealthRoute
   DashboardLoginRoute: typeof DashboardLoginRoute
+  DashboardPerformanceRoute: typeof DashboardPerformanceRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardHealthRoute: DashboardHealthRoute,
   DashboardLoginRoute: DashboardLoginRoute,
+  DashboardPerformanceRoute: DashboardPerformanceRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
