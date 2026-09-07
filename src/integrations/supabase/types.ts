@@ -14,16 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_activity: {
+        Row: {
+          error_code: string | null
+          event_type: string
+          id: string
+          latency_ms: number | null
+          message_count: number | null
+          occurred_at: string
+        }
+        Insert: {
+          error_code?: string | null
+          event_type: string
+          id?: string
+          latency_ms?: number | null
+          message_count?: number | null
+          occurred_at?: string
+        }
+        Update: {
+          error_code?: string | null
+          event_type?: string
+          id?: string
+          latency_ms?: number | null
+          message_count?: number | null
+          occurred_at?: string
+        }
+        Relationships: []
+      }
+      deployment_history: {
+        Row: {
+          commit_sha: string | null
+          conclusion: string | null
+          duration_seconds: number | null
+          id: string
+          occurred_at: string
+          provider: string | null
+          status: string | null
+          url: string | null
+          workflow_name: string | null
+        }
+        Insert: {
+          commit_sha?: string | null
+          conclusion?: string | null
+          duration_seconds?: number | null
+          id?: string
+          occurred_at?: string
+          provider?: string | null
+          status?: string | null
+          url?: string | null
+          workflow_name?: string | null
+        }
+        Update: {
+          commit_sha?: string | null
+          conclusion?: string | null
+          duration_seconds?: number | null
+          id?: string
+          occurred_at?: string
+          provider?: string | null
+          status?: string | null
+          url?: string | null
+          workflow_name?: string | null
+        }
+        Relationships: []
+      }
+      health_reports: {
+        Row: {
+          created_at: string
+          health_score: number | null
+          id: string
+          lighthouse_score: number | null
+          pdf_url: string | null
+          report_date: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          lighthouse_score?: number | null
+          pdf_url?: string | null
+          report_date: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          lighthouse_score?: number | null
+          pdf_url?: string | null
+          report_date?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      performance_history: {
+        Row: {
+          accessibility: number | null
+          best_practices: number | null
+          details: Json | null
+          id: string
+          measured_at: string
+          performance: number | null
+          seo: number | null
+          url: string
+        }
+        Insert: {
+          accessibility?: number | null
+          best_practices?: number | null
+          details?: Json | null
+          id?: string
+          measured_at?: string
+          performance?: number | null
+          seo?: number | null
+          url: string
+        }
+        Update: {
+          accessibility?: number | null
+          best_practices?: number | null
+          details?: Json | null
+          id?: string
+          measured_at?: string
+          performance?: number | null
+          seo?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      website_health_checks: {
+        Row: {
+          checked_at: string
+          details: Json | null
+          dns_ok: boolean | null
+          favicon_ok: boolean | null
+          health_score: number | null
+          http_status: number | null
+          id: string
+          response_time_ms: number | null
+          robots_ok: boolean | null
+          sitemap_ok: boolean | null
+          ssl_expires_at: string | null
+          ssl_valid: boolean | null
+          url: string
+        }
+        Insert: {
+          checked_at?: string
+          details?: Json | null
+          dns_ok?: boolean | null
+          favicon_ok?: boolean | null
+          health_score?: number | null
+          http_status?: number | null
+          id?: string
+          response_time_ms?: number | null
+          robots_ok?: boolean | null
+          sitemap_ok?: boolean | null
+          ssl_expires_at?: string | null
+          ssl_valid?: boolean | null
+          url: string
+        }
+        Update: {
+          checked_at?: string
+          details?: Json | null
+          dns_ok?: boolean | null
+          favicon_ok?: boolean | null
+          health_score?: number | null
+          http_status?: number | null
+          id?: string
+          response_time_ms?: number | null
+          robots_ok?: boolean | null
+          sitemap_ok?: boolean | null
+          ssl_expires_at?: string | null
+          ssl_valid?: boolean | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_admin: { Args: never; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +351,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
