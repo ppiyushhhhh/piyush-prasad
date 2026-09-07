@@ -15,6 +15,7 @@ import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
@@ -51,6 +52,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardGithubRoute = DashboardGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardHealthRoute = DashboardHealthRouteImport.update({
   id: '/health',
   path: '/health',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
@@ -211,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/github': {
+      id: '/dashboard/github'
+      path: '/github'
+      fullPath: '/dashboard/github'
+      preLoaderRoute: typeof DashboardGithubRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/health': {
       id: '/dashboard/health'
       path: '/health'
@@ -250,6 +269,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
   DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
@@ -257,6 +277,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,
   DashboardLoginRoute: DashboardLoginRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
