@@ -15,6 +15,7 @@ import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
@@ -49,6 +50,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardHealthRoute = DashboardHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardLoginRoute = DashboardLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/health'
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/health'
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/health'
     | '/dashboard/login'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -187,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/health': {
+      id: '/dashboard/health'
+      path: '/health'
+      fullPath: '/dashboard/health'
+      preLoaderRoute: typeof DashboardHealthRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/login': {
       id: '/dashboard/login'
       path: '/login'
@@ -212,11 +231,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardHealthRoute: typeof DashboardHealthRoute
   DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardHealthRoute: DashboardHealthRoute,
   DashboardLoginRoute: DashboardLoginRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
