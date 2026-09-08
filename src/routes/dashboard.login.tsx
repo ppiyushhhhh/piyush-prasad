@@ -123,10 +123,15 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-slate-200">
       <div className="w-full max-w-sm">
         <p className="font-mono text-sm font-semibold text-slate-100">PP · OPS</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Admin sign in</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          {bootstrap ? "Create admin account" : "Admin sign in"}
+        </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Private monitoring console. Authorised access only.
+          {bootstrap
+            ? "No admin account exists yet. The first account created here becomes the admin."
+            : "Private monitoring console. Authorised access only."}
         </p>
+
 
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <div>
