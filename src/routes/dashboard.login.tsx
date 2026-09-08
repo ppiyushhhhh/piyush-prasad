@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { adminBootstrapNeeded, claimAdmin } from "@/lib/admin-bootstrap.functions";
 
 export const Route = createFileRoute("/dashboard/login")({
   head: () => ({
@@ -20,29 +21,103 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const { session, loading } = useAuth();
+  const [bootstrap, setBootstrap] = useState(false);
+  const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && session) void navigate({ to: "/dashboard" });
-  }, [loading, session, navigate]);
+    let active = true;
+    void adminBootstrapNeeded()
+      .then((r) => active && setBootstrap(r.needed))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (loading || !session) return;
+    if (isAdmin) void navigate({ to: "/dashboard" });
+    else
+      setError(
+        "Signed in, but this account does not have admin access to the monitoring dashboard.",
+      );
+  }, [loading, session, isAdmin, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     setBusy(true);
+
+    if (bootstrap) {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/dashboard/login` },
+      });
+      if (signUpError) {
+        setBusy(false);
+        setError(signUpError.message);
+        return;
+      }
+      if (!data.session) {
+        setBusy(false);
+        setNotice(
+          "Account created. Check your email and confirm the address, then sign in here to finish setup.",
+        );
+        setBootstrap(false);
+        return;
+      }
+      try {
+        await claimAdmin();
+        setBusy(false);
+        void navigate({ to: "/dashboard" });
+      } catch (err) {
+        setBusy(false);
+        setError(err instanceof Error ? err.message : "Could not grant admin access.");
+      }
+      return;
+    }
+
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
-    setBusy(false);
     if (signInError) {
-      setError(signInError.message);
+      setBusy(false);
+      const msg = signInError.message.toLowerCase();
+      if (msg.includes("invalid login credentials")) {
+        setError("Incorrect email or password. No account matches these details.");
+      } else if (msg.includes("confirm")) {
+        setError("This email address has not been confirmed yet. Check your inbox first.");
+      } else {
+        setError(signInError.message);
+      }
+      return;
+    }
+
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData.user?.id;
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", uid ?? "")
+      .eq("role", "admin")
+      .maybeSingle();
+    setBusy(false);
+
+    if (!roleRow) {
+      setError(
+        "Signed in, but this account does not have admin access to the monitoring dashboard.",
+      );
       return;
     }
     void navigate({ to: "/dashboard" });
   }
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-slate-200">
