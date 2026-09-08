@@ -15,10 +15,14 @@ import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
+import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
 import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
+import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
 
@@ -52,6 +56,16 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAiChatRoute = DashboardAiChatRouteImport.update({
+  id: '/ai-chat',
+  path: '/ai-chat',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCicdRoute = DashboardCicdRouteImport.update({
+  id: '/cicd',
+  path: '/cicd',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardGithubRoute = DashboardGithubRouteImport.update({
   id: '/github',
   path: '/github',
@@ -72,6 +86,16 @@ const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
   path: '/performance',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardReportsRoute = DashboardReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
   id: '/guides/devsecops-pipeline',
   path: '/guides/devsecops-pipeline',
@@ -89,10 +113,14 @@ export interface FileRoutesByFullPath {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -102,10 +130,14 @@ export interface FileRoutesByTo {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -117,10 +149,14 @@ export interface FileRoutesById {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -133,10 +169,14 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/ai-chat'
+    | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
+    | '/dashboard/reports'
+    | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
@@ -146,10 +186,14 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/ai-chat'
+    | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
+    | '/dashboard/reports'
+    | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard'
@@ -160,10 +204,14 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/dashboard/ai-chat'
+    | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
     | '/dashboard/performance'
+    | '/dashboard/reports'
+    | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
@@ -223,6 +271,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/ai-chat': {
+      id: '/dashboard/ai-chat'
+      path: '/ai-chat'
+      fullPath: '/dashboard/ai-chat'
+      preLoaderRoute: typeof DashboardAiChatRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/cicd': {
+      id: '/dashboard/cicd'
+      path: '/cicd'
+      fullPath: '/dashboard/cicd'
+      preLoaderRoute: typeof DashboardCicdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/github': {
       id: '/dashboard/github'
       path: '/github'
@@ -251,6 +313,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPerformanceRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/reports': {
+      id: '/dashboard/reports'
+      path: '/reports'
+      fullPath: '/dashboard/reports'
+      preLoaderRoute: typeof DashboardReportsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/guides/devsecops-pipeline': {
       id: '/guides/devsecops-pipeline'
       path: '/guides/devsecops-pipeline'
@@ -269,18 +345,26 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardAiChatRoute: typeof DashboardAiChatRoute
+  DashboardCicdRoute: typeof DashboardCicdRoute
   DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
   DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
+  DashboardReportsRoute: typeof DashboardReportsRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAiChatRoute: DashboardAiChatRoute,
+  DashboardCicdRoute: DashboardCicdRoute,
   DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,
   DashboardLoginRoute: DashboardLoginRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
+  DashboardReportsRoute: DashboardReportsRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
