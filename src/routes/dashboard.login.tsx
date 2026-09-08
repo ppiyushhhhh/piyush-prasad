@@ -159,7 +159,8 @@ function LoginPage() {
               id="password"
               type="password"
               required
-              autoComplete="current-password"
+              minLength={8}
+              autoComplete={bootstrap ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-slate-600"
@@ -171,6 +172,11 @@ function LoginPage() {
               {error}
             </p>
           ) : null}
+          {notice ? (
+            <p role="status" className="text-xs text-emerald-400">
+              {notice}
+            </p>
+          ) : null}
 
           <button
             type="submit"
@@ -178,9 +184,10 @@ function LoginPage() {
             className="flex w-full items-center justify-center gap-2 rounded bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            Sign in
+            {bootstrap ? "Create admin account" : "Sign in"}
           </button>
         </form>
+
 
         <Link
           to="/"
