@@ -45,7 +45,10 @@ const NAV = [
 
 function DashboardLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isLogin = pathname.startsWith("/dashboard/login");
+  const isLogin =
+    pathname.startsWith("/dashboard/login") ||
+    pathname.startsWith("/dashboard/signup") ||
+    pathname.startsWith("/dashboard/reset-password");
   const { loading, session, isAdmin } = useAuth();
   const navigate = useNavigate();
 

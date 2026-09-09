@@ -24,6 +24,8 @@ function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [bootstrap, setBootstrap] = useState(false);
+  const [forgot, setForgot] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
 
