@@ -120,9 +120,97 @@ function LoginPage() {
     void navigate({ to: "/dashboard" });
   }
 
+  async function onReset(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setNotice(null);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail.trim())) {
+      setError("Enter a valid email address.");
+      return;
+    }
+
+    setBusy(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+      redirectTo: `${window.location.origin}/dashboard/reset-password`,
+    });
+    setBusy(false);
+
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setNotice("If an account exists for that email, a password reset link is on its way.");
+  }
+
+  if (forgot) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-slate-200">
+        <div className="w-full max-w-sm">
+          <p className="font-mono text-sm font-semibold text-slate-100">PP · OPS</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight">Reset your password</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Enter your registered email and we will send a reset link.
+          </p>
+
+          <form onSubmit={onReset} className="mt-8 space-y-4">
+            <div>
+              <label
+                htmlFor="reset-email"
+                className="text-[10px] uppercase tracking-[0.18em] text-slate-500"
+              >
+                Email
+              </label>
+              <input
+                id="reset-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-slate-600"
+              />
+            </div>
+
+            {error ? (
+              <p role="alert" className="text-xs text-red-400">
+                {error}
+              </p>
+            ) : null}
+            {notice ? (
+              <p role="status" className="text-xs text-emerald-400">
+                {notice}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-2 rounded bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+              Send reset link
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={() => {
+              setForgot(false);
+              setError(null);
+              setNotice(null);
+            }}
+            className="mt-8 text-xs uppercase tracking-[0.18em] text-slate-500 hover:text-slate-300"
+          >
+            ← Back to login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-slate-200">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-slate-200">
       <div className="w-full max-w-sm">
         <p className="font-mono text-sm font-semibold text-slate-100">PP · OPS</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">
