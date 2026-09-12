@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
 
 export const Route = createFileRoute("/dashboard/health")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: HealthPage,
 });
 
