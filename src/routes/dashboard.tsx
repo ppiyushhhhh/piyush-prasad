@@ -1,11 +1,4 @@
-import { useEffect } from "react";
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  useNavigate,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import {
   Activity,
   BarChart3,
@@ -13,19 +6,15 @@ import {
   FileText,
   Gauge,
   Github,
-  LogOut,
   Rocket,
   Settings,
 } from "lucide-react";
 
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Admin Dashboard — Piyush Prasad" },
-      { name: "description", content: "Private DevOps monitoring dashboard." },
+      { title: "Monitoring Dashboard — Piyush Prasad" },
+      { name: "description", content: "Internal DevOps monitoring dashboard." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
