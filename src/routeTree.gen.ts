@@ -19,10 +19,8 @@ import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
 import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
-import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
-import { Route as DashboardResetPasswordRouteImport } from './routes/dashboard.reset-password'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
@@ -77,11 +75,6 @@ const DashboardHealthRoute = DashboardHealthRouteImport.update({
   path: '/health',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardLoginRoute = DashboardLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
   id: '/performance',
   path: '/performance',
@@ -90,11 +83,6 @@ const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
 const DashboardReportsRoute = DashboardReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardResetPasswordRoute = DashboardResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
@@ -123,10 +111,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/reset-password': typeof DashboardResetPasswordRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -141,10 +127,8 @@ export interface FileRoutesByTo {
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/reset-password': typeof DashboardResetPasswordRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -161,10 +145,8 @@ export interface FileRoutesById {
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/reset-password': typeof DashboardResetPasswordRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
@@ -182,10 +164,8 @@ export interface FileRouteTypes {
     | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
-    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
-    | '/dashboard/reset-password'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -200,10 +180,8 @@ export interface FileRouteTypes {
     | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
-    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
-    | '/dashboard/reset-password'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -219,10 +197,8 @@ export interface FileRouteTypes {
     | '/dashboard/cicd'
     | '/dashboard/github'
     | '/dashboard/health'
-    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
-    | '/dashboard/reset-password'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
@@ -311,13 +287,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardHealthRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/login': {
-      id: '/dashboard/login'
-      path: '/login'
-      fullPath: '/dashboard/login'
-      preLoaderRoute: typeof DashboardLoginRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/performance': {
       id: '/dashboard/performance'
       path: '/performance'
@@ -330,13 +299,6 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/dashboard/reports'
       preLoaderRoute: typeof DashboardReportsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/reset-password': {
-      id: '/dashboard/reset-password'
-      path: '/reset-password'
-      fullPath: '/dashboard/reset-password'
-      preLoaderRoute: typeof DashboardResetPasswordRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/settings': {
@@ -368,10 +330,8 @@ interface DashboardRouteChildren {
   DashboardCicdRoute: typeof DashboardCicdRoute
   DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
-  DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
   DashboardReportsRoute: typeof DashboardReportsRoute
-  DashboardResetPasswordRoute: typeof DashboardResetPasswordRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -381,10 +341,8 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCicdRoute: DashboardCicdRoute,
   DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,
-  DashboardLoginRoute: DashboardLoginRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
   DashboardReportsRoute: DashboardReportsRoute,
-  DashboardResetPasswordRoute: DashboardResetPasswordRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }

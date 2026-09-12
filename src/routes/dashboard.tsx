@@ -1,11 +1,4 @@
-import { useEffect } from "react";
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  useNavigate,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import {
   Activity,
   BarChart3,
@@ -13,19 +6,15 @@ import {
   FileText,
   Gauge,
   Github,
-  LogOut,
   Rocket,
   Settings,
 } from "lucide-react";
 
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Admin Dashboard — Piyush Prasad" },
-      { name: "description", content: "Private DevOps monitoring dashboard." },
+      { title: "Monitoring Dashboard — Piyush Prasad" },
+      { name: "description", content: "Internal DevOps monitoring dashboard." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -44,49 +33,6 @@ const NAV = [
 ] as const;
 
 function DashboardLayout() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isLogin =
-    pathname.startsWith("/dashboard/login") ||
-    pathname.startsWith("/dashboard/reset-password");
-  const { loading, session, isAdmin } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isLogin || loading) return;
-    if (!session) void navigate({ to: "/dashboard/login" });
-  }, [isLogin, loading, session, navigate]);
-
-  if (isLogin) return <Outlet />;
-
-  if (loading || !session) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-sm text-slate-500">
-        Checking access…
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950 px-6 text-center">
-        <p className="text-sm font-medium text-slate-200">This account is not an admin.</p>
-        <p className="max-w-sm text-xs text-slate-500">
-          Your sign-in worked, but admin access has not been granted to this account.
-        </p>
-        <button
-          type="button"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            void navigate({ to: "/dashboard/login" });
-          }}
-          className="rounded border border-slate-700 px-4 py-2 text-xs uppercase tracking-[0.18em] text-slate-300 hover:bg-slate-900"
-        >
-          Sign out
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200">
       <div className="mx-auto flex max-w-[1400px]">
@@ -111,17 +57,6 @@ function DashboardLayout() {
               </Link>
             ))}
           </nav>
-          <button
-            type="button"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              void navigate({ to: "/dashboard/login" });
-            }}
-            className="mt-4 flex items-center gap-3 rounded px-3 py-2 text-sm text-slate-400 transition-colors hover:bg-slate-900 hover:text-slate-100"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Logout
-          </button>
         </aside>
 
         <div className="min-w-0 flex-1">
