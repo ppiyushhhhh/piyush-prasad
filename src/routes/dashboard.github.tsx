@@ -4,6 +4,7 @@ import { PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives
 import { GithubActivity } from "@/components/portfolio/GithubActivity";
 
 export const Route = createFileRoute("/dashboard/github")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: GithubPage,
 });
 
