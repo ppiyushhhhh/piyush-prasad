@@ -33,49 +33,6 @@ const NAV = [
 ] as const;
 
 function DashboardLayout() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isLogin =
-    pathname.startsWith("/dashboard/login") ||
-    pathname.startsWith("/dashboard/reset-password");
-  const { loading, session, isAdmin } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isLogin || loading) return;
-    if (!session) void navigate({ to: "/dashboard/login" });
-  }, [isLogin, loading, session, navigate]);
-
-  if (isLogin) return <Outlet />;
-
-  if (loading || !session) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-sm text-slate-500">
-        Checking access…
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950 px-6 text-center">
-        <p className="text-sm font-medium text-slate-200">This account is not an admin.</p>
-        <p className="max-w-sm text-xs text-slate-500">
-          Your sign-in worked, but admin access has not been granted to this account.
-        </p>
-        <button
-          type="button"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            void navigate({ to: "/dashboard/login" });
-          }}
-          className="rounded border border-slate-700 px-4 py-2 text-xs uppercase tracking-[0.18em] text-slate-300 hover:bg-slate-900"
-        >
-          Sign out
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200">
       <div className="mx-auto flex max-w-[1400px]">
