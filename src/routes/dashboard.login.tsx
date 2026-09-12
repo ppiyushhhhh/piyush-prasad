@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { adminBootstrapNeeded, claimAdmin } from "@/lib/admin-bootstrap.functions";
 
 export const Route = createFileRoute("/dashboard/login")({
   head: () => ({
@@ -23,21 +22,10 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [bootstrap, setBootstrap] = useState(false);
   const [forgot, setForgot] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let active = true;
-    void adminBootstrapNeeded()
-      .then((r) => active && setBootstrap(r.needed))
-      .catch(() => undefined);
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (loading || !session) return;
@@ -53,36 +41,6 @@ function LoginPage() {
     setError(null);
     setNotice(null);
     setBusy(true);
-
-    if (bootstrap) {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/dashboard/login` },
-      });
-      if (signUpError) {
-        setBusy(false);
-        setError(signUpError.message);
-        return;
-      }
-      if (!data.session) {
-        setBusy(false);
-        setNotice(
-          "Account created. Check your email and confirm the address, then sign in here to finish setup.",
-        );
-        setBootstrap(false);
-        return;
-      }
-      try {
-        await claimAdmin();
-        setBusy(false);
-        void navigate({ to: "/dashboard" });
-      } catch (err) {
-        setBusy(false);
-        setError(err instanceof Error ? err.message : "Could not grant admin access.");
-      }
-      return;
-    }
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -213,15 +171,10 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-slate-200">
       <div className="w-full max-w-sm">
         <p className="font-mono text-sm font-semibold text-slate-100">PP · OPS</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-          {bootstrap ? "Create admin account" : "Admin sign in"}
-        </h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Admin sign in</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {bootstrap
-            ? "No admin account exists yet. The first account created here becomes the admin."
-            : "Private monitoring console. Authorised access only."}
+          Private monitoring console. Authorised access only.
         </p>
-
 
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <div>
@@ -250,7 +203,7 @@ function LoginPage() {
               type="password"
               required
               minLength={8}
-              autoComplete={bootstrap ? "new-password" : "current-password"}
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full rounded border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-slate-600"
@@ -274,17 +227,26 @@ function LoginPage() {
             className="flex w-full items-center justify-center gap-2 rounded bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {bootstrap ? "Create admin account" : "Sign in"}
+            Sign in
           </button>
         </form>
 
-
-        <Link
-          to="/"
-          className="mt-8 inline-block text-xs uppercase tracking-[0.18em] text-slate-500 hover:text-slate-300"
-        >
-          ← Back to portfolio
-        </Link>
+        <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.18em] text-slate-500">
+          <button
+            type="button"
+            onClick={() => {
+              setForgot(true);
+              setError(null);
+              setNotice(null);
+            }}
+            className="hover:text-slate-300"
+          >
+            Forgot password?
+          </button>
+          <Link to="/" className="hover:text-slate-300">
+            ← Back to portfolio
+          </Link>
+        </div>
       </div>
     </div>
   );
