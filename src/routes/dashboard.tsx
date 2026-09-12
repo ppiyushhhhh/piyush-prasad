@@ -57,17 +57,6 @@ function DashboardLayout() {
               </Link>
             ))}
           </nav>
-          <button
-            type="button"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              void navigate({ to: "/dashboard/login" });
-            }}
-            className="mt-4 flex items-center gap-3 rounded px-3 py-2 text-sm text-slate-400 transition-colors hover:bg-slate-900 hover:text-slate-100"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Logout
-          </button>
         </aside>
 
         <div className="min-w-0 flex-1">
