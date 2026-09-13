@@ -24,6 +24,7 @@ import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
+import { Route as ApiPublicMonitoringRouteImport } from './routes/api/public/monitoring'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,11 @@ const GuidesDevsecopsToolsRoute = GuidesDevsecopsToolsRouteImport.update({
   path: '/guides/devsecops-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMonitoringRoute = ApiPublicMonitoringRouteImport.update({
+  id: '/api/public/monitoring',
+  path: '/api/public/monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
+    | '/api/public/monitoring'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard'
+    | '/api/public/monitoring'
   id:
     | '__root__'
     | '/'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
+    | '/api/public/monitoring'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
+  ApiPublicMonitoringRoute: typeof ApiPublicMonitoringRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesDevsecopsToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/monitoring': {
+      id: '/api/public/monitoring'
+      path: '/api/public/monitoring'
+      fullPath: '/api/public/monitoring'
+      preLoaderRoute: typeof ApiPublicMonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -359,6 +379,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
+  ApiPublicMonitoringRoute: ApiPublicMonitoringRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
