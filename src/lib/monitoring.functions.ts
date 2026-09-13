@@ -21,7 +21,7 @@ export type HealthCheck = {
   sitemap_ok: boolean | null;
   favicon_ok: boolean | null;
   health_score: number | null;
-  details: unknown;
+  details: Record<string, unknown> | null;
 };
 
 export type PerformanceRow = {
