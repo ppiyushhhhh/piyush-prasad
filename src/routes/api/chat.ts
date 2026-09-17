@@ -26,6 +26,26 @@ function json(body: unknown, status: number, headers?: Record<string, string>) {
   });
 }
 
+/**
+ * Telemetry only: event type, message count, latency and error code.
+ * Message contents, prompts and credentials are never persisted.
+ */
+async function logChatActivity(row: {
+  event_type: string;
+  message_count?: number | null;
+  latency_ms?: number | null;
+  error_code?: string | null;
+}) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("chat_activity")
+      .insert({ occurred_at: new Date().toISOString(), ...row } as never);
+  } catch (error) {
+    console.error("[chat] telemetry write failed:", (error as Error).message);
+  }
+}
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
