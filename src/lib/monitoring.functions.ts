@@ -139,6 +139,7 @@ async function ensureFreshHealthCheck(): Promise<HealthCheck | null> {
 
 export const getHealthChecks = createServerFn({ method: "GET" }).handler(
   async (): Promise<HealthCheck[]> => {
+    await ensureFreshHealthCheck();
     const db = await admin();
     const { data, error } = await db
       .from("website_health_checks")
@@ -213,6 +214,7 @@ export type OverviewData = {
 
 export const getOverview = createServerFn({ method: "GET" }).handler(
   async (): Promise<OverviewData> => {
+    await ensureFreshHealthCheck();
     const db = await admin();
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const [health, performance, deployment, report, chat] = await Promise.all([
