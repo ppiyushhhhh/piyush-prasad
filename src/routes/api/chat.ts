@@ -64,6 +64,11 @@ export const Route = createFileRoute("/api/chat")({
 
         const limit = checkRateLimit(getClientKey(request));
         if (!limit.allowed) {
+          await logChatActivity({
+            event_type: "rate_limited",
+            message_count: parsed.data.messages.length,
+            error_code: "429",
+          });
           return json(
             { error: "You've reached the chat limit for now. Please try again later." },
             429,
@@ -76,11 +81,23 @@ export const Route = createFileRoute("/api/chat")({
         if (messages[0]?.role !== "user") messages.shift();
         if (messages.length === 0) return json({ error: "Invalid request." }, 400);
 
+        const started = Date.now();
         const result = await generateReply(messages);
         if (!result.ok) {
+          await logChatActivity({
+            event_type: "error",
+            message_count: messages.length,
+            latency_ms: Date.now() - started,
+            error_code: String(result.status),
+          });
           return json({ error: result.message }, result.status);
         }
 
+        await logChatActivity({
+          event_type: "reply",
+          message_count: messages.length,
+          latency_ms: Date.now() - started,
+        });
         return json({ reply: result.text }, 200);
       },
     },
