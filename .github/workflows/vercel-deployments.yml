@@ -1,0 +1,43 @@
+name: Record Vercel Deployment
+
+on:
+  deployment_status:
+
+jobs:
+  record:
+    name: Record Vercel deployment
+    if: github.event.deployment.creator.login == 'vercel[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Send deployment status to monitoring dashboard
+        env:
+          INGEST_URL: ${{ secrets.MONITORING_INGEST_URL }}
+          INGEST_TOKEN: ${{ secrets.MONITORING_INGEST_TOKEN }}
+          DEPLOYMENT_STATE: ${{ github.event.deployment_status.state }}
+          DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          DEPLOYMENT_TIME: ${{ github.event.deployment_status.created_at }}
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.deployment.environment }}
+          COMMIT_SHA: ${{ github.event.deployment.sha }}
+        run: |
+          [ -n "$INGEST_URL" ] && [ -n "$INGEST_TOKEN" ] || { echo "Ingestion not configured; skipping."; exit 0; }
+          case "$DEPLOYMENT_STATE" in
+            success) conclusion="success" ;;
+            failure|error) conclusion="failure" ;;
+            inactive) conclusion="cancelled" ;;
+            *) conclusion="$DEPLOYMENT_STATE" ;;
+          esac
+          jq -n \
+            --arg at "$DEPLOYMENT_TIME" \
+            --arg workflow "Vercel ${DEPLOYMENT_ENVIRONMENT:-Deployment}" \
+            --arg state "$DEPLOYMENT_STATE" \
+            --arg conclusion "$conclusion" \
+            --arg sha "$COMMIT_SHA" \
+            --arg url "$DEPLOYMENT_URL" \
+            '{events:[{kind:"deployment",occurred_at:$at,provider:"vercel",workflow_name:$workflow,status:$state,conclusion:$conclusion,commit_sha:$sha,url:(if $url == "" then null else $url end)}]}' \
+            > /tmp/deployment-event.json
+          curl --fail-with-body -sS -X POST "$INGEST_URL" \
+            -H "authorization: Bearer $INGEST_TOKEN" \
+            -H "content-type: application/json" \
+            --data-binary @/tmp/deployment-event.json

@@ -41,12 +41,13 @@ jobs:
 
       - name: Record run in monitoring dashboard
         if: always() && github.event_name != 'pull_request'
+        continue-on-error: true
         env:
           INGEST_URL: ${{ secrets.MONITORING_INGEST_URL }}
           INGEST_TOKEN: ${{ secrets.MONITORING_INGEST_TOKEN }}
         run: |
           [ -n "$INGEST_URL" ] && [ -n "$INGEST_TOKEN" ] || { echo "Ingestion not configured; skipping."; exit 0; }
-          curl -sS -X POST "$INGEST_URL" \
+          curl --fail-with-body -sS -X POST "$INGEST_URL" \
             -H "authorization: Bearer $INGEST_TOKEN" \
             -H "content-type: application/json" \
             -d "$(jq -n \
@@ -56,4 +57,4 @@ jobs:
               --arg sha "${{ github.sha }}" \
               --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
               '{events:[{kind:"deployment",provider:"github-actions",workflow_name:$wf,status:$st,conclusion:$cc,commit_sha:$sha,url:$url}]}')" \
-            || echo "Could not record run."
+            

@@ -17,6 +17,8 @@
  *   REPORT_FROM   optional, defaults to SMTP_USER
  *   ALERT_TO      optional, failure-alert email; falls back to REPORT_TO
  *   SKIP_EMAIL=1  generate PDF only, do not send
+ *   MONITORING_INGEST_URL    optional secure dashboard ingestion endpoint
+ *   MONITORING_INGEST_TOKEN  bearer token for the ingestion endpoint
  */
 
 import fs from "node:fs";
@@ -47,6 +49,8 @@ const {
   REPORT_CONTACT_PHONE,
   REPORT_LINKEDIN,
   REPORT_GITHUB,
+  MONITORING_INGEST_URL,
+  MONITORING_INGEST_TOKEN,
 } = process.env;
 
 const SITE_URL = `https://${SITE_DOMAIN}`;
@@ -971,6 +975,74 @@ async function sendFailureAlert(err) {
   }
 }
 
+async function ingestMonitoringData(data) {
+  if (!MONITORING_INGEST_URL || !MONITORING_INGEST_TOKEN) {
+    console.warn("Monitoring ingestion is not configured — dashboard update skipped.");
+    return;
+  }
+
+  const generatedAt = data.generatedAt.toISOString();
+  const lighthouse = data.lighthouse.ok ? data.lighthouse : null;
+  const runUrl = data.git?.runUrl ?? null;
+  const payload = {
+    events: [
+      {
+        kind: "health",
+        url: data.url,
+        checked_at: generatedAt,
+        http_status: data.http.status || null,
+        response_time_ms: data.http.responseTimeMs,
+        ssl_valid: data.ssl.ok,
+        ssl_expires_at: data.ssl.validTo ?? null,
+        dns_ok: data.dns.ok,
+        robots_ok: data.assets.robots.ok,
+        sitemap_ok: data.assets.sitemap.ok,
+        favicon_ok: data.assets.favicon.ok,
+        health_score: data.healthScore.value,
+        details: {
+          ssl_state: data.ssl.state,
+          ssl_days_remaining: data.ssl.daysRemaining ?? null,
+          final_url: data.http.finalUrl,
+        },
+      },
+      {
+        kind: "performance",
+        url: data.url,
+        measured_at: generatedAt,
+        performance: lighthouse?.scores.performance ?? null,
+        accessibility: lighthouse?.scores.accessibility ?? null,
+        best_practices: lighthouse?.scores.bestPractices ?? null,
+        seo: lighthouse?.scores.seo ?? null,
+        details: lighthouse?.metrics ?? { error: data.lighthouse.error ?? "Lighthouse unavailable" },
+      },
+      {
+        kind: "report",
+        report_date: generatedAt.slice(0, 10),
+        health_score: data.healthScore.value,
+        lighthouse_score: lighthouse?.scores.performance ?? null,
+        status: data.healthScore.grade,
+        pdf_url: runUrl,
+      },
+    ],
+  };
+
+  try {
+    const response = await fetch(MONITORING_INGEST_URL, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${MONITORING_INGEST_TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!response.ok) throw new Error(`ingestion returned HTTP ${response.status}`);
+    console.log("Dashboard updated with health, Lighthouse, and report results.");
+  } catch (error) {
+    console.warn(`Dashboard ingestion failed: ${error.message}`);
+  }
+}
+
 // ============================================================
 // Main
 // ============================================================
@@ -984,6 +1056,7 @@ async function sendFailureAlert(err) {
     const pdfPath = path.join(reportsDir, `Daily-Website-Report-${date}.pdf`);
     await generatePdf(data, pdfPath);
     console.log(`PDF written to ${pdfPath}`);
+    await ingestMonitoringData(data);
     await sendEmail(pdfPath, data);
   } catch (err) {
     console.error(err);
