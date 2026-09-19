@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { generateReply, type ChatMessage } from "@/lib/gemini.server";
+import { writeMonitoringEvents } from "@/lib/monitoring-ingest.server";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit.server";
 
 const MAX_MESSAGE_LENGTH = 1000;
@@ -37,10 +38,9 @@ async function logChatActivity(row: {
   error_code?: string | null;
 }) {
   try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("chat_activity")
-      .insert({ occurred_at: new Date().toISOString(), ...row } as never);
+    await writeMonitoringEvents([
+      { kind: "chat", occurred_at: new Date().toISOString(), ...row },
+    ]);
   } catch (error) {
     console.error("[chat] telemetry write failed:", (error as Error).message);
   }

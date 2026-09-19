@@ -48,6 +48,8 @@ jobs:
           REPORT_CONTACT_PHONE: ${{ vars.REPORT_CONTACT_PHONE }}
           REPORT_LINKEDIN: ${{ vars.REPORT_LINKEDIN }}
           REPORT_GITHUB: ${{ vars.REPORT_GITHUB }}
+          MONITORING_INGEST_URL: ${{ secrets.MONITORING_INGEST_URL }}
+          MONITORING_INGEST_TOKEN: ${{ secrets.MONITORING_INGEST_TOKEN }}
           CHROME_PATH: /opt/hostedtoolcache/setup-chrome/chromium/stable/x64/chrome
         run: node generate-report.mjs
 
