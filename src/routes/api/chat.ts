@@ -32,7 +32,7 @@ function json(body: unknown, status: number, headers?: Record<string, string>) {
  * Message contents, prompts and credentials are never persisted.
  */
 async function logChatActivity(row: {
-  event_type: string;
+  event_type: "reply" | "error" | "rate_limited";
   message_count?: number | null;
   latency_ms?: number | null;
   error_code?: string | null;
