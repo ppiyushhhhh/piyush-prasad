@@ -19,6 +19,7 @@
  *   SKIP_EMAIL=1  generate PDF only, do not send
  *   MONITORING_INGEST_URL    optional secure dashboard ingestion endpoint
  *   MONITORING_INGEST_TOKEN  bearer token for the ingestion endpoint
+ *   REPORT_PDF_URL           optional public URL for the generated PDF
  */
 
 import fs from "node:fs";
@@ -51,6 +52,7 @@ const {
   REPORT_GITHUB,
   MONITORING_INGEST_URL,
   MONITORING_INGEST_TOKEN,
+  REPORT_PDF_URL,
 } = process.env;
 
 const SITE_URL = `https://${SITE_DOMAIN}`;
@@ -1189,7 +1191,6 @@ async function ingestMonitoringData(data) {
 
   const generatedAt = data.generatedAt.toISOString();
   const lighthouse = data.lighthouse.ok ? data.lighthouse : null;
-  const runUrl = data.git?.runUrl ?? null;
   const payload = {
     events: [
       {
@@ -1229,7 +1230,7 @@ async function ingestMonitoringData(data) {
         health_score: data.healthScore.value,
         lighthouse_score: lighthouse?.scores.performance ?? null,
         status: data.healthScore.grade,
-        pdf_url: runUrl,
+        pdf_url: REPORT_PDF_URL || null,
       },
     ],
   };
