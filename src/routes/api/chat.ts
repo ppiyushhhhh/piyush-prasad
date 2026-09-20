@@ -38,9 +38,7 @@ async function logChatActivity(row: {
   error_code?: string | null;
 }) {
   try {
-    await writeMonitoringEvents([
-      { kind: "chat", occurred_at: new Date().toISOString(), ...row },
-    ]);
+    await writeMonitoringEvents([{ kind: "chat", occurred_at: new Date().toISOString(), ...row }]);
   } catch (error) {
     console.error("[chat] telemetry write failed:", (error as Error).message);
   }
