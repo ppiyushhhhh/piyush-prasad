@@ -57,4 +57,3 @@ jobs:
               --arg sha "${{ github.sha }}" \
               --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
               '{events:[{kind:"deployment",provider:"github-actions",workflow_name:$wf,status:$st,conclusion:$cc,commit_sha:$sha,url:$url}]}')" \
-            

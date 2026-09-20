@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  MonitoringBodySchema,
-  writeMonitoringEvents,
-} from "@/lib/monitoring-ingest.server";
+import { MonitoringBodySchema, writeMonitoringEvents } from "@/lib/monitoring-ingest.server";
 
 /**
  * Monitoring ingestion endpoint.
