@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+import type {
+  ChatActivityRow,
+  DeploymentRow,
+  HealthCheck,
+  PerformanceRow,
+  ReportRow,
+} from "@/lib/monitoring.types";
+
 export const HealthEventSchema = z.object({
   kind: z.literal("health"),
   url: z.string().url(),
@@ -74,24 +82,81 @@ export const MonitoringBodySchema = z.object({
 
 export type MonitoringEvent = z.infer<typeof MonitoringBodySchema>["events"][number];
 
-const TABLE = {
-  health: "website_health_checks",
-  performance: "performance_history",
-  report: "health_reports",
-  deployment: "deployment_history",
-  chat: "chat_activity",
-} as const;
-
 export async function writeMonitoringEvents(events: MonitoringEvent[]) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const written: string[] = [];
+  const { writeMonitoringEventsWithFallback } = await import("@/lib/monitoring-data.server");
+  const now = new Date().toISOString();
 
-  for (const event of events) {
-    const { kind, ...row } = event;
-    const { error } = await supabaseAdmin.from(TABLE[kind]).insert(row as never);
-    if (error) throw new Error(`Could not store ${kind} event: ${error.message}`);
-    written.push(kind);
-  }
+  const rows = events.map((event) => {
+    switch (event.kind) {
+      case "health": {
+        const row: Omit<HealthCheck, "id"> = {
+          checked_at: event.checked_at ?? now,
+          url: event.url,
+          http_status: event.http_status ?? null,
+          response_time_ms: event.response_time_ms ?? null,
+          ssl_valid: event.ssl_valid ?? null,
+          ssl_expires_at: event.ssl_expires_at ?? null,
+          dns_ok: event.dns_ok ?? null,
+          robots_ok: event.robots_ok ?? null,
+          sitemap_ok: event.sitemap_ok ?? null,
+          favicon_ok: event.favicon_ok ?? null,
+          health_score: event.health_score ?? null,
+          details: (event.details as Record<string, never> | null | undefined) ?? null,
+        };
+        return { kind: event.kind, row };
+      }
 
-  return written;
+      case "performance": {
+        const row: Omit<PerformanceRow, "id"> = {
+          measured_at: event.measured_at ?? now,
+          url: event.url,
+          performance: event.performance ?? null,
+          accessibility: event.accessibility ?? null,
+          best_practices: event.best_practices ?? null,
+          seo: event.seo ?? null,
+          details: (event.details as Record<string, never> | null | undefined) ?? null,
+        };
+        return { kind: event.kind, row };
+      }
+
+      case "report": {
+        const row: Omit<ReportRow, "id"> = {
+          report_date: event.report_date,
+          health_score: event.health_score ?? null,
+          lighthouse_score: event.lighthouse_score ?? null,
+          status: event.status ?? null,
+          pdf_url: event.pdf_url ?? null,
+          created_at: now,
+        };
+        return { kind: event.kind, row };
+      }
+
+      case "deployment": {
+        const row: Omit<DeploymentRow, "id"> = {
+          occurred_at: event.occurred_at ?? now,
+          provider: event.provider ?? null,
+          workflow_name: event.workflow_name ?? null,
+          status: event.status ?? null,
+          conclusion: event.conclusion ?? null,
+          commit_sha: event.commit_sha ?? null,
+          duration_seconds: event.duration_seconds ?? null,
+          url: event.url ?? null,
+        };
+        return { kind: event.kind, row };
+      }
+
+      case "chat": {
+        const row: Omit<ChatActivityRow, "id"> = {
+          occurred_at: event.occurred_at ?? now,
+          event_type: event.event_type,
+          message_count: event.message_count ?? null,
+          latency_ms: event.latency_ms ?? null,
+          error_code: event.error_code ?? null,
+        };
+        return { kind: event.kind, row };
+      }
+    }
+  });
+
+  return writeMonitoringEventsWithFallback(rows);
 }
