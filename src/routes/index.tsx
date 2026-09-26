@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { GithubActivity } from "@/components/portfolio/GithubActivity";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
+import { TerminalModal } from "@/components/portfolio/TerminalModal";
 import { SectionLabel } from "@/components/portfolio/SectionLabel";
 import { EMAIL, GITHUB, LINKEDIN, PHONE, SITE_URL } from "@/lib/site";
 
@@ -221,6 +222,7 @@ function BlueprintGrid() {
 function TopNav() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>("hero");
+  const [terminalOpen, setTerminalOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
@@ -245,54 +247,78 @@ function TopNav() {
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, []);
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "`") {
+        event.preventDefault();
+        setTerminalOpen((prev) => !prev);
+      }
+      if (event.key === "Escape") {
+        setTerminalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onShortcut);
+    return () => window.removeEventListener("keydown", onShortcut);
+  }, []);
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-40 transition-all ${
-        scrolled ? "bg-[#F4F4F2]/90 backdrop-blur-md border-b border-[#D1D1CB]" : "bg-transparent"
-      }`}
-    >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
-        <a href="#hero" className="flex items-center" aria-label="Piyush Prasad — home">
-          <img src={ppLogo.url} alt="Piyush Prasad monogram" className="h-8 w-auto md:h-9" />
-        </a>
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Section navigation">
-          {NAV.map((n) => {
-            const isActive = active === n.id;
-            return (
-              <a
-                key={n.id}
-                href={`#${n.id}`}
-                aria-current={isActive ? "location" : undefined}
-                className={`mono relative text-[11px] transition-colors ${
-                  isActive ? "text-cobalt" : "text-carbon hover:text-cobalt"
-                }`}
-              >
-                {n.label}
-                <span
-                  aria-hidden
-                  className={`absolute -bottom-1.5 left-0 h-[2px] bg-cobalt transition-all duration-300 ${
-                    isActive ? "w-full" : "w-0"
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-40 transition-all ${
+          scrolled ? "bg-[#F4F4F2]/90 backdrop-blur-md border-b border-[#D1D1CB]" : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
+          <a href="#hero" className="flex items-center" aria-label="Piyush Prasad — home">
+            <img src={ppLogo.url} alt="Piyush Prasad monogram" className="h-8 w-auto md:h-9" />
+          </a>
+          <nav className="hidden items-center gap-8 md:flex" aria-label="Section navigation">
+            {NAV.map((n) => {
+              const isActive = active === n.id;
+              return (
+                <a
+                  key={n.id}
+                  href={`#${n.id}`}
+                  aria-current={isActive ? "location" : undefined}
+                  className={`mono relative text-[11px] transition-colors ${
+                    isActive ? "text-cobalt" : "text-carbon hover:text-cobalt"
                   }`}
-                />
-              </a>
-            );
-          })}
-        </nav>
-        <a
-          href="#contact"
-          className="mono text-[11px] md:hidden"
-        >
-          Menu
-        </a>
-      </div>
-      {/* Mobile section indicator */}
-      <div className="mono flex items-center justify-between border-t border-[#D1D1CB] bg-[#F4F4F2]/90 px-6 py-2 text-[10px] backdrop-blur-md md:hidden">
-        <span className="text-carbon/50">SECTION</span>
-        <span className="text-cobalt">
-          {(NAV.find((n) => n.id === active)?.label) ?? "INTRO"}
-        </span>
-      </div>
-    </header>
+                >
+                  {n.label}
+                  <span
+                    aria-hidden
+                    className={`absolute -bottom-1.5 left-0 h-[2px] bg-cobalt transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0"
+                    }`}
+                  />
+                </a>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setTerminalOpen(true)}
+              className="mono inline-flex items-center gap-2 border border-carbon/40 bg-white/70 px-2.5 py-1.5 text-[10px] text-carbon transition-colors hover:border-cobalt hover:text-cobalt md:px-3"
+            >
+              <span className="text-cobalt">&gt;_</span>
+              TERMINAL
+              <span className="hidden text-carbon/60 md:inline">Ctrl+` / Esc</span>
+            </button>
+            <a href="#contact" className="mono text-[11px] md:hidden">
+              Menu
+            </a>
+          </div>
+        </div>
+        {/* Mobile section indicator */}
+        <div className="mono flex items-center justify-between border-t border-[#D1D1CB] bg-[#F4F4F2]/90 px-6 py-2 text-[10px] backdrop-blur-md md:hidden">
+          <span className="text-carbon/50">SECTION</span>
+          <span className="text-cobalt">
+            {(NAV.find((n) => n.id === active)?.label) ?? "INTRO"}
+          </span>
+        </div>
+      </header>
+      <TerminalModal open={terminalOpen} onOpenChange={setTerminalOpen} />
+    </>
   );
 }
 
