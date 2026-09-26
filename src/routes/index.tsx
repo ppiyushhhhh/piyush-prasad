@@ -867,22 +867,19 @@ function Contact() {
     <section id="contact" className="relative bg-carbon px-6 py-24 text-white md:px-10 md:py-32">
       <div className="mx-auto max-w-[1400px]">
         <SectionLabel n="006" label="CONTACT" dark />
-        <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <h2 className="display text-[48px] leading-[0.88] sm:text-[64px] md:text-[112px] lg:text-[128px]">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="min-w-0">
+            <h2 className="display text-[48px] leading-[0.88] sm:text-[64px] md:text-[96px]">
               LET&apos;S
               <br />
               <span className="text-cobalt">BUILD</span>
               <br />
               TOGETHER
             </h2>
-            <ContactForm />
-          </div>
-
-          <div className="lg:col-span-5">
-            <p className="text-white/70">
+            <p className="mt-8 text-white/70">
               Open to Cloud, DevOps, and DevSecOps opportunities. Let&apos;s connect and build something scalable, secure, and observable.
             </p>
+            <ContactForm />
 
             <div className="mt-10 space-y-6">
               <div>
@@ -934,23 +931,23 @@ function Contact() {
               </a>
             </div>
           </div>
-        </div>
-        <div className="mt-24">
-          <div className="mono text-cobalt text-[10px]">LOCATION</div>
-          <div className="mt-4 overflow-hidden border border-white/15">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30156.556515350607!2d73.001307!3d19.12653005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c0ae08fd4fcb%3A0xeb29360c730e957f!2sGhansoli%2C%20Navi%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1790412518571!5m2!1sen!2sin"
-              width="600"
-              height="450"
-              className="block h-[320px] w-full md:h-[450px]"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
-              title="Map of Ghansoli, Navi Mumbai, Maharashtra"
-            />
+
+          <div className="min-w-0">
+            <div className="mono text-cobalt text-[10px]">LOCATION</div>
+            <div className="mt-4 aspect-square w-full overflow-hidden border border-white/15 lg:sticky lg:top-24">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30156.556515350607!2d73.001307!3d19.12653005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c0ae08fd4fcb%3A0xeb29360c730e957f!2sGhansoli%2C%20Navi%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1790412518571!5m2!1sen!2sin"
+                className="block h-full w-full"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                title="Map of Ghansoli, Navi Mumbai, Maharashtra"
+              />
+            </div>
           </div>
         </div>
+
         <div className="mono mt-24 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] text-white/75">
           <span>© 2026 PIYUSH PRASAD — ALL RIGHTS RESERVED</span>
           <a
