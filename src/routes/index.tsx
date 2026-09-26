@@ -302,7 +302,7 @@ function TopNav() {
             >
               <span className="text-cobalt">&gt;_</span>
               TERMINAL
-              <span className="hidden text-carbon/60 md:inline">Ctrl+`</span>
+              <span className="hidden text-carbon/60 md:inline">Ctrl+` / Esc</span>
             </button>
             <a href="#contact" className="mono text-[11px] md:hidden">
               Menu

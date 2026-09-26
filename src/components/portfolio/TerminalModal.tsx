@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { EMAIL, LINKEDIN, GITHUB, PHONE } from "@/lib/site";
 
@@ -19,10 +27,14 @@ const TITLE = "piyush@cloud-ops:~$";
 
 const FILES: Record<string, string> = {
   "about.txt": "Piyush Prasad\\nCloud & DevOps Engineer\\nLocation: Navi Mumbai, India",
-  "skills.txt": "Cloud: AWS, GCP\\nContainers & CI/CD: Docker, GitHub Actions\\nLinux: Ubuntu, server administration\\nMonitoring: Prometheus, Grafana, Node Exporter\\nITSM: ManageEngine ServiceDesk Plus, SLA operations",
-  "experience.txt": "Current: Junior Cloud Engineer at Runtime Solutions\\nPrevious: IT Support & Service Management, IT Office Assistant Intern at Runtime Solutions\\nEarlier: IT Service Management Consultant at Credence Infotech",
-  "projects.txt": "1) DevOps CI/CD Pipeline - https://kamleshprasad.com\\n2) Production AWS EC2 + DevSecOps - https://github.com/ppiyushhhhh/onixmall\\n3) CloudOps Sentinel - https://github.com/ppiyushhhhh/sentinel-cloud-view",
-  "certifications.txt": "Ministry of I&B AI Readiness\\nAWS Cloud Essentials\\nGoogle AI Essentials\\nUbuntu Linux Professional Certificate (Canonical)\\nDocker Foundations Professional Certificate",
+  "skills.txt":
+    "Cloud: AWS, GCP\\nContainers & CI/CD: Docker, GitHub Actions\\nLinux: Ubuntu, server administration\\nMonitoring: Prometheus, Grafana, Node Exporter\\nITSM: ManageEngine ServiceDesk Plus, SLA operations",
+  "experience.txt":
+    "Current: Junior Cloud Engineer at Runtime Solutions\\nPrevious: IT Support & Service Management, IT Office Assistant Intern at Runtime Solutions\\nEarlier: IT Service Management Consultant at Credence Infotech",
+  "projects.txt":
+    "1) DevOps CI/CD Pipeline - https://kamleshprasad.com\\n2) Production AWS EC2 + DevSecOps - https://github.com/ppiyushhhhh/onixmall\\n3) CloudOps Sentinel - https://github.com/ppiyushhhhh/sentinel-cloud-view",
+  "certifications.txt":
+    "Ministry of I&B AI Readiness\\nAWS Cloud Essentials\\nGoogle AI Essentials\\nUbuntu Linux Professional Certificate (Canonical)\\nDocker Foundations Professional Certificate",
   "contact.txt": `Email: ${EMAIL}\\nLinkedIn: ${LINKEDIN}\\nGitHub: ${GITHUB}\\nPhone: ${PHONE}`,
   "resume.pdf": "Binary file (PDF). Run `resume` to open it in a new tab.",
 };
@@ -68,7 +80,6 @@ export function TerminalModal({
   const entryIdRef = useRef(0);
 
   const files = useMemo(() => Object.keys(FILES), []);
-  const now = useMemo(() => new Date(), [open]);
 
   const nextEntryId = () => {
     entryIdRef.current += 1;
@@ -83,7 +94,8 @@ export function TerminalModal({
         kind: "output",
         content: (
           <span className="text-emerald-300">
-            Welcome to Piyush DevOps Terminal. Type <span className="text-cobalt">help</span> to list commands.
+            Welcome to Piyush DevOps Terminal. Type <span className="text-cobalt">help</span> to
+            list commands.
           </span>
         ),
       },
@@ -170,13 +182,37 @@ export function TerminalModal({
         output: (
           <div className="space-y-1 text-emerald-200">
             <p>
-              CI/CD Pipeline: <a className="text-cobalt underline" href="https://kamleshprasad.com" target="_blank" rel="noreferrer">https://kamleshprasad.com</a>
+              CI/CD Pipeline:{" "}
+              <a
+                className="text-cobalt underline"
+                href="https://kamleshprasad.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                https://kamleshprasad.com
+              </a>
             </p>
             <p>
-              AWS EC2 DevSecOps: <a className="text-cobalt underline" href="https://github.com/ppiyushhhhh/onixmall" target="_blank" rel="noreferrer">github.com/ppiyushhhhh/onixmall</a>
+              AWS EC2 DevSecOps:{" "}
+              <a
+                className="text-cobalt underline"
+                href="https://github.com/ppiyushhhhh/onixmall"
+                target="_blank"
+                rel="noreferrer"
+              >
+                github.com/ppiyushhhhh/onixmall
+              </a>
             </p>
             <p>
-              CloudOps Sentinel: <a className="text-cobalt underline" href="https://github.com/ppiyushhhhh/sentinel-cloud-view" target="_blank" rel="noreferrer">github.com/ppiyushhhhh/sentinel-cloud-view</a>
+              CloudOps Sentinel:{" "}
+              <a
+                className="text-cobalt underline"
+                href="https://github.com/ppiyushhhhh/sentinel-cloud-view"
+                target="_blank"
+                rel="noreferrer"
+              >
+                github.com/ppiyushhhhh/sentinel-cloud-view
+              </a>
             </p>
           </div>
         ),
@@ -196,16 +232,28 @@ export function TerminalModal({
         output: (
           <div className="space-y-1 text-emerald-200">
             <p>
-              Email: <a className="text-cobalt underline" href={`mailto:${EMAIL}`}>{EMAIL}</a>
+              Email:{" "}
+              <a className="text-cobalt underline" href={`mailto:${EMAIL}`}>
+                {EMAIL}
+              </a>
             </p>
             <p>
-              LinkedIn: <a className="text-cobalt underline" href={LINKEDIN} target="_blank" rel="noreferrer">{LINKEDIN.replace("https://", "")}</a>
+              LinkedIn:{" "}
+              <a className="text-cobalt underline" href={LINKEDIN} target="_blank" rel="noreferrer">
+                {LINKEDIN.replace("https://", "")}
+              </a>
             </p>
             <p>
-              GitHub: <a className="text-cobalt underline" href={GITHUB} target="_blank" rel="noreferrer">{GITHUB.replace("https://", "")}</a>
+              GitHub:{" "}
+              <a className="text-cobalt underline" href={GITHUB} target="_blank" rel="noreferrer">
+                {GITHUB.replace("https://", "")}
+              </a>
             </p>
             <p>
-              Phone: <a className="text-cobalt underline" href={`tel:${PHONE.replace(/\s/g, "")}`}>{PHONE}</a>
+              Phone:{" "}
+              <a className="text-cobalt underline" href={`tel:${PHONE.replace(/\s/g, "")}`}>
+                {PHONE}
+              </a>
             </p>
           </div>
         ),
@@ -221,15 +269,28 @@ export function TerminalModal({
 
     if (cmd === "uname" && args[0] === "-a") {
       return {
-        output: <span className="text-emerald-200">Linux cloud-node-01 6.8.0-aws #1 SMP x86_64 GNU/Linux</span>,
+        output: (
+          <span className="text-emerald-200">
+            Linux cloud-node-01 6.8.0-aws #1 SMP x86_64 GNU/Linux
+          </span>
+        ),
       };
     }
 
+    if (cmd === "uname") {
+      return { output: <span className="text-red-300">Usage: uname -a</span> };
+    }
+
     if (cmd === "uptime") {
+      const now = new Date();
       const hours = String((now.getHours() + 17) % 24).padStart(2, "0");
       const minutes = String((now.getMinutes() + 9) % 60).padStart(2, "0");
       return {
-        output: <span className="text-emerald-200">up 7 days, 4 users, load average: 0.42 0.38 0.31 ({hours}:{minutes})</span>,
+        output: (
+          <span className="text-emerald-200">
+            up 7 days, 4 users, load average: 0.42 0.38 0.31 ({hours}:{minutes})
+          </span>
+        ),
       };
     }
 
@@ -246,11 +307,19 @@ export function TerminalModal({
     }
 
     if (cmd === "sudo") {
-      return { output: <span className="text-red-300">Permission denied: user guest is not in sudoers.</span> };
+      return {
+        output: (
+          <span className="text-red-300">Permission denied: user guest is not in sudoers.</span>
+        ),
+      };
     }
 
     return {
-      output: <span className="text-red-300">Command not found: {trimmed || "<empty>"}. Type &quot;help&quot;.</span>,
+      output: (
+        <span className="text-red-300">
+          Command not found: {trimmed || "<empty>"}. Type &quot;help&quot;.
+        </span>
+      ),
     };
   };
 
@@ -398,7 +467,10 @@ export function TerminalModal({
             </div>
 
             <form onSubmit={handleSubmit} className="mt-3 border-t border-[#1E2430] pt-3">
-              <label className="mono flex items-center gap-2 text-[12px] text-emerald-300" htmlFor="terminal-input">
+              <label
+                className="mono flex items-center gap-2 text-[12px] text-emerald-300"
+                htmlFor="terminal-input"
+              >
                 <span>{PROMPT}</span>
                 <div className="relative flex min-w-0 flex-1 items-center">
                   <input
@@ -412,7 +484,9 @@ export function TerminalModal({
                     autoComplete="off"
                     spellCheck={false}
                   />
-                  <span aria-hidden className="absolute right-0 animate-pulse text-emerald-400">▋</span>
+                  <span aria-hidden className="absolute right-0 animate-pulse text-emerald-400">
+                    ▋
+                  </span>
                 </div>
               </label>
             </form>
@@ -432,7 +506,9 @@ export function TerminalModal({
                   {quick}
                 </button>
               ))}
-              <span className="mono ml-auto self-center text-[10px] text-[#7B8492]">Ctrl+` open · Esc close</span>
+              <span className="mono ml-auto self-center text-[10px] text-[#7B8492]">
+                Ctrl+` open · Esc close
+              </span>
             </div>
           </div>
         </div>
