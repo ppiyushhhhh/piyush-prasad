@@ -932,9 +932,11 @@ function Contact() {
             </div>
           </div>
 
-          <div className="min-w-0">
+          <div className="min-w-0 lg:flex lg:justify-end">
+            <div className="w-full max-w-[360px]">
             <div className="mono text-cobalt text-[10px]">LOCATION</div>
             <div className="mt-4 aspect-square w-full overflow-hidden border border-white/15 lg:sticky lg:top-24">
+
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30156.556515350607!2d73.001307!3d19.12653005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c0ae08fd4fcb%3A0xeb29360c730e957f!2sGhansoli%2C%20Navi%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1790412518571!5m2!1sen!2sin"
                 className="block h-full w-full"
