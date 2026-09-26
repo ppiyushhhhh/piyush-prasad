@@ -6,10 +6,10 @@ import { MonitoringBodySchema, writeMonitoringEvents } from "@/lib/monitoring-in
  * Monitoring ingestion endpoint.
  *
  * Called by the GitHub Actions jobs (daily health report, CI/CD) to persist
- * results into the monitoring tables. Callers authenticate with a shared
- * bearer token (MONITORING_INGEST_TOKEN); the token is compared in constant
- * time and never echoed back. Rows are written with the service-role client,
- * so the admin-only RLS policies on these tables stay untouched.
+ * monitoring events into Firestore collections. Callers authenticate with a
+ * shared bearer token (MONITORING_INGEST_TOKEN); the token is compared in
+ * constant time and never echoed back. During migration, writes can fall back
+ * to Supabase server-side if Firestore is unavailable.
  */
 
 function safeEqual(a: string, b: string) {
