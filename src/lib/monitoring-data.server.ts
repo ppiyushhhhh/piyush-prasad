@@ -15,6 +15,7 @@ import type {
   ChatActivityRow,
   DeploymentRow,
   HealthCheck,
+  MonitoringJson,
   OverviewData,
   PerformanceRow,
   ReportRow,
@@ -78,6 +79,11 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
+function asJsonRecord(value: unknown): Record<string, MonitoringJson> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, MonitoringJson>;
+}
+
 function asHealthCheck(id: string, data: unknown): HealthCheck {
   const row = asRecord(data);
   return {
@@ -94,10 +100,7 @@ function asHealthCheck(id: string, data: unknown): HealthCheck {
     sitemap_ok: typeof row["sitemap_ok"] === "boolean" ? row["sitemap_ok"] : null,
     favicon_ok: typeof row["favicon_ok"] === "boolean" ? row["favicon_ok"] : null,
     health_score: typeof row["health_score"] === "number" ? row["health_score"] : null,
-    details:
-      row["details"] && typeof row["details"] === "object"
-        ? (row["details"] as Record<string, unknown>)
-        : null,
+    details: asJsonRecord(row["details"]),
   };
 }
 
@@ -111,10 +114,7 @@ function asPerformanceRow(id: string, data: unknown): PerformanceRow {
     accessibility: typeof row["accessibility"] === "number" ? row["accessibility"] : null,
     best_practices: typeof row["best_practices"] === "number" ? row["best_practices"] : null,
     seo: typeof row["seo"] === "number" ? row["seo"] : null,
-    details:
-      row["details"] && typeof row["details"] === "object"
-        ? (row["details"] as Record<string, unknown>)
-        : null,
+    details: asJsonRecord(row["details"]),
   };
 }
 
