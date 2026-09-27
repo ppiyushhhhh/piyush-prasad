@@ -302,8 +302,7 @@ function TopNav() {
               className="mono inline-flex items-center gap-2 border border-carbon/40 bg-white/70 px-2.5 py-1.5 text-[10px] text-carbon transition-colors hover:border-cobalt hover:text-cobalt md:px-3"
             >
               <Terminal className="h-3.5 w-3.5 text-cobalt" aria-hidden />
-              TERMINAL
-              <span className="hidden text-carbon/60 md:inline">Ctrl+` / Esc</span>
+              <span className="sr-only">Open terminal</span>
             </button>
             <a href="#contact" className="mono text-[11px] md:hidden">
               Menu
