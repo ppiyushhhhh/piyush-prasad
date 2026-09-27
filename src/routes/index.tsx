@@ -12,10 +12,11 @@ import {
   ArrowUpRight,
   Copy,
   Check,
-  
+
   Github,
   Linkedin,
   ChevronDown,
+  Terminal,
 } from "lucide-react";
 import packtLogo from "@/assets/packt-logo.jpg";
 import googleLogo from "@/assets/google-logo.jpg";
