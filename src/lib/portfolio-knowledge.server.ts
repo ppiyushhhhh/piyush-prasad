@@ -72,6 +72,8 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 - Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub,
   Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain
   renewals for client Runwal.
+- Run Windows patching cycles end to end: apply patches, verify system status, and produce
+  infrastructure and patching reports.
 ### IT Support & Service Management (Full-Time) — JUL 2025 — AUG 2026
 - Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and
   escalations across multiple locations using ManageEngine ServiceDesk Plus.
