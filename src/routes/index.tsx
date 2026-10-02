@@ -99,6 +99,7 @@ const EXPERIENCE = [
         bullets: [
           "Administer Google Workspace for organizational users, including creating and deleting user accounts, configuring email, and managing groups, aliases, and access permissions.",
           "Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub, Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain renewals for client Runwal.",
+          "Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.",
         ],
       },
       {
