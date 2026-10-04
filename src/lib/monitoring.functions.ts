@@ -120,7 +120,7 @@ async function getSslExpiry(url: string): Promise<string | null> {
   }
 }
 
-async function ensureFreshHealthCheck(): Promise<HealthCheck | null> {
+async function ensureFreshHealthCheck(force = false): Promise<HealthCheck | null> {
   const db = await admin();
   const { data: existing } = await db
     .from("website_health_checks")
@@ -130,6 +130,7 @@ async function ensureFreshHealthCheck(): Promise<HealthCheck | null> {
 
   const latest = (existing?.[0] as HealthCheck) ?? null;
   if (
+    !force &&
     latest &&
     latest.ssl_expires_at &&
     Date.now() - new Date(latest.checked_at).getTime() < FRESH_MS
