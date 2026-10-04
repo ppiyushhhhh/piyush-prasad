@@ -2,7 +2,7 @@
 
 A high-performance, dark-themed engineering portfolio and private observability console for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from IT Service Management. Built around a "blueprint grid" motif that reflects modern infrastructure and DevSecOps engineering principles: minimal, data-dense, accessible, and fast.
 
-**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard)
+**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard) &nbsp;•&nbsp; **Database Admin:** [/dashboard/database](https://www.piyushprasad.in/dashboard/database)
 
 [![Live Site](https://img.shields.io/badge/Live_Site-piyushprasad.in-06b6d4?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
@@ -24,9 +24,12 @@ A high-performance, dark-themed engineering portfolio and private observability 
   - [1. Public Engineering Portfolio](#1-public-engineering-portfolio)
   - [2. "Ask Piyush AI" — Gemini Assistant](#2-ask-piyush-ai--gemini-assistant)
   - [3. Private CloudOps & Monitoring Dashboard](#3-private-cloudops--monitoring-dashboard)
+  - [4. Database Administration & Storage Engine](#4-database-administration--storage-engine)
+  - [5. Automated 7-Day Retention & Backup Archive](#5-automated-7-day-retention--backup-archive)
 - [Tech Stack](#tech-stack)
 - [Project Directory Structure](#project-directory-structure)
 - [Telemetry & Database Schema](#telemetry--database-schema)
+- [Automated Retention & Backup Policy](#automated-retention--backup-policy)
 - [Environment Variables](#environment-variables)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
@@ -42,7 +45,7 @@ A high-performance, dark-themed engineering portfolio and private observability 
 The repository combines two interconnected applications within a unified **TanStack Start (React 19)** codebase:
 
 1. **A public single-scroll portfolio** showcasing Cloud/DevOps projects, hands-on infrastructure architecture, work history, verified certifications, live GitHub commits, and an AI chat assistant.
-2. **A private cloud observability console (`/dashboard`)** that continuously monitors `piyushprasad.in`, measures HTTP response latencies, inspects live TLS 1.3 socket handshakes, aggregates GitHub Actions workflow runs, benchmarks AI inference latency, and generates downloadable executive health audits.
+2. **A private cloud observability & database administration console (`/dashboard`)** that continuously monitors `piyushprasad.in`, measures HTTP response latencies, inspects live TLS 1.3 socket handshakes, aggregates GitHub Actions workflow runs, benchmarks AI inference latency, tracks PostgreSQL physical disk footprints, orchestrates automated 7-day retention cleanup with pre-deletion backups, and sends real-time email alerts.
 
 ```
                     ┌────────────────────────────────────────────────────────┐
@@ -58,20 +61,27 @@ The repository combines two interconnected applications within a unified **TanSt
          │  Single-Page Portfolio    │                   │  /dashboard (Auth Guard)  │
          │  • Blueprint Grid Layout  │                   │  • Overview & SLA Trend   │
          │  • Selected Work / Guides │                   │  • Endpoint Health & TLS  │
-         │  • Live GitHub Activity   │                   │  • CI/CD Pipeline Runs    │
-         │  • Web3Forms Contact Form │                   │  • AI Telemetry Console   │
-         └─────────────┬─────────────┘                   │  • Audit Reports (PDF)    │
-                       │                                 │  • Custom Settings        │
-         ┌─────────────▼─────────────┐                   └─────────────┬─────────────┘
-         │   Ask Piyush AI Widget    │                                 │
-         │   (POST /api/chat)        │                                 │
-         └─────────────┬─────────────┘                                 │
+         │  • Live GitHub Activity   │                   │  • Live Performance CWV   │
+         │  • Web3Forms Contact Form │                   │  • CI/CD Pipeline Runs    │
+         └─────────────┬─────────────┘                   │  • AI Telemetry Console   │
+                       │                                 │  • Database Admin Console │
+         ┌─────────────▼─────────────┐                   │  • Backups & 7-Day Purge  │
+         │   Ask Piyush AI Widget    │                   │  • Audit Reports (PDF)    │
+         │   (POST /api/chat)        │                   │  • Custom Settings        │
+         └─────────────┬─────────────┘                   └─────────────┬─────────────┘
                        │                                               │
                        ▼                                               ▼
          ┌───────────────────────────┐                   ┌───────────────────────────┐
          │     Google Gemini API     │                   │   Supabase PostgreSQL     │
          │  (Grounded System Prompt) │                   │     (AWS ap-south-1)      │
-         └───────────────────────────┘                   └───────────────────────────┘
+         └───────────────────────────┘                   └─────────────┬─────────────┘
+                                                                       │
+                                                         ┌─────────────▼─────────────┐
+                                                         │ 7-Day Retention & Backup  │
+                                                         │ • Auto Pre-Delete Backup  │
+                                                         │ • Auth Users Strictly Kept│
+                                                         │ • Web3Forms Email Alerts  │
+                                                         └───────────────────────────┘
 ```
 
 ---
@@ -96,7 +106,7 @@ The repository combines two interconnected applications within a unified **TanSt
 ### 3. Private CloudOps & Monitoring Dashboard
 Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated operational views:
 
-- **Admin Login & Session Guard (`/dashboard/login`):** Passcode-protected session authentication with secure state management and sign-out controls.
+- **Admin Login & Session Guard (`/dashboard/login`):** Passcode & Supabase Auth session authentication with role verification (`admin`) and sign-out controls.
 - **Overview Dashboard (`/dashboard`):**
   - **Latency Area Chart:** Interactive Recharts visual curve displaying real-time response time (ms) and status codes.
   - **30-Day Rolling Uptime SLA:** Segmented availability timeline with 100% operational guarantee.
@@ -105,8 +115,13 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
   - **Interactive Latency & Distribution Sparklines:** Dual-mode chart toggling between latency trends and distribution bars.
   - **Key Performance Indicators:** Min latency, average latency, P95 latency, max latency, and availability percentage.
   - **Endpoint Probe Matrix:** Verifies `/`, `/robots.txt`, `/sitemap.xml`, and `/favicon.ico`.
-  - **Native TLS 1.3 Inspection:** Direct `node:tls` socket handshake extracting live certificate expiry date (`Dec 6, 2026`), days remaining, and cipher suite (`TLS_AES_128_GCM_SHA256`).
+  - **Native TLS 1.3 Inspection:** Direct `node:tls` socket handshake extracting live certificate expiry date, days remaining, and cipher suite (`TLS_AES_128_GCM_SHA256`).
   - **On-Demand Probe Action:** "Probe Endpoints Now" button triggers an immediate live server-side probe.
+- **Live Performance & Core Web Vitals (`/dashboard/performance`):**
+  - Live telemetry queried directly from Supabase `performance_history` and `website_health_checks`.
+  - Real-time Core Web Vitals: First Contentful Paint (FCP), Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), Total Blocking Time (TBT), and Time to First Byte (TTFB).
+  - Live Lighthouse metric scores (Performance, Accessibility, Best Practices, SEO) with dynamic grade assignments.
+  - Device distribution benchmarks (Desktop vs Mobile) and historical performance trend curves.
 - **CI/CD Pipeline Telemetry (`/dashboard/cicd`):**
   - Connects to GitHub Actions API to display recent workflows (CodeQL, Daily Reports, CI).
   - Status badges, commit SHA deep links, execution durations, and direct links to GitHub run logs.
@@ -121,6 +136,41 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
   - Adjustable response time thresholds (warning / critical ms).
   - Webhook & email notification preferences.
   - Polling interval controls and manual telemetry cache purge.
+
+### 4. Database Administration & Storage Engine
+Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/database) (restricted strictly to authenticated Administrators):
+
+- **Live PostgreSQL Engine Telemetry:**
+  - Real-time disk footprint calculation via `pg_total_relation_size()`, `pg_relation_size()`, and `pg_indexes_size()`.
+  - Quota gauge displaying exact consumed bytes, remaining capacity, and percentage used against Supabase limits (500 MB default quota).
+  - Visual status alerts: Optimal (<75%), Warning (75-90%), and Critical (>90%).
+  - Per-table physical storage breakdown table detailing table rows, data footprint, index size, total disk space, and percentage share of the database.
+- **Interactive Database Table Viewer:**
+  - Live browsing across monitored application tables (`website_health_checks`, `performance_history`, `deployment_history`, `chat_activity`, `health_reports`, `database_backups`, `admin_audit_log`, `user_roles`).
+  - Server-side pagination (10, 25, 50, 100 records per page), multi-column search, and sortable headers.
+  - Quick **"Export JSON"** button to download table records locally.
+- **Administrator User Management:**
+  - Create new application users with verified roles (`admin` / `user`).
+  - Secure password reset utility.
+  - Real-time role promotion and demotion (`admin` &harr; `user`).
+  - Enable/disable user accounts with immediate authentication lockout.
+  - Permanent account deletion with confirmation safeguards.
+- **Immutable Admin Audit Log:**
+  - Logs every administrative action (user creation, role modifications, password resets, retention purges, manual backups) with caller email, timestamp, IP address, and metadata.
+
+### 5. Automated 7-Day Retention & Backup Archive
+- **Automated Data Lifecycle:**
+  - Automatically purges telemetry and activity logs older than 7 days (`created_at < NOW() - INTERVAL '7 days'`).
+  - Background scheduler automatically evaluates and triggers retention cleanup during daily telemetry sync.
+- **Zero User Loss Policy:**
+  - `auth.users` and `public.user_roles` are **strictly protected and never pruned**. All user accounts, credentials, and access permissions are permanently preserved.
+- **Pre-Deletion Backup Guarantee:**
+  - Prior to executing any purge query, the retention engine extracts all matching records across monitored tables, packages them into a timestamped JSON snapshot, and stores them in `public.database_backups`.
+- **Instant Email Alerts:**
+  - Automatically dispatches email notifications via Web3Forms with full execution details (Backup ID, record count, cleaned tables, and user protection confirmation) whenever backups are created or aged data is pruned.
+- **"Take Manual Backup" Button & Archive UI:**
+  - Prominent **"Take Manual Backup"** action in the header of `/dashboard/database` for immediate on-demand full database snapshots.
+  - Dedicated **"Backups & Retention"** tab listing all historical backups with one-click **"Download JSON"** and detailed payload inspector.
 
 ---
 
@@ -163,6 +213,12 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
 │   ├── components/
 │   │   ├── ContactForm.tsx             # Zod-validated Web3Forms contact form
 │   │   ├── dashboard/                  # Observability UI components
+│   │   │   ├── database/               # Database Admin Console components
+│   │   │   │   ├── ActivityLog.tsx     # Admin audit log viewer
+│   │   │   │   ├── DatabaseBackups.tsx # Backups & 7-day retention management view
+│   │   │   │   ├── DatabaseOverview.tsx# Storage metrics, quota gauge, and table cards
+│   │   │   │   ├── DatabaseTableViewer.tsx # Table browser with pagination and export
+│   │   │   │   └── UserManagement.tsx  # User creation, password, and RBAC controls
 │   │   │   ├── primitives.tsx          # Panel, MetricCard, PageHeader, EmptyState
 │   │   │   └── state.tsx               # DataTable, LoadingState, ErrorState, formatters
 │   │   ├── portfolio/                  # Public portfolio modules
@@ -177,6 +233,7 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
 │   │       ├── client.server.ts        # Server-only service role client (bypasses RLS)
 │   │       └── types.ts                # TypeScript database schema types
 │   ├── lib/
+│   │   ├── database-admin.functions.ts # Server functions for DB metrics, users, backups & retention
 │   │   ├── gemini.server.ts            # Server-only Gemini API client with backoff
 │   │   ├── monitoring.functions.ts     # Server functions for health, latency, CI/CD, SSL
 │   │   ├── portfolio-knowledge.server.ts # System prompt & validated knowledge base
@@ -192,6 +249,8 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
 │   │   ├── dashboard.tsx               # Monitoring layout, sidebar navigation & auth guard
 │   │   ├── dashboard.index.tsx         # Overview: latency charts & infrastructure matrix
 │   │   ├── dashboard.health.tsx        # Health: latency sparklines, endpoint matrix, SSL
+│   │   ├── dashboard.performance.tsx   # Live Performance: Core Web Vitals & Lighthouse
+│   │   ├── dashboard.database.tsx      # Database Administration, Backups & User Management
 │   │   ├── dashboard.cicd.tsx          # CI/CD: live GitHub Actions pipeline feed
 │   │   ├── dashboard.ai-chat.tsx       # AI Telemetry & interactive diagnostic bench
 │   │   ├── dashboard.reports.tsx       # Audit reports history & on-demand generator
@@ -202,6 +261,8 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
 │   └── styles.css                      # Tailwind CSS v4 design system
 ├── supabase/
 │   ├── config.toml                     # Supabase local/cloud project configuration
+│   ├── migrations/                     # Versioned SQL migrations
+│   │   └── 20261005020000_database_backups_and_retention.sql # Retention proc & backup table
 │   └── schema.sql                      # DDL schema for monitoring & telemetry tables
 ├── package.json                        # Dependencies, scripts, and engine specs
 ├── vite.config.ts                      # Vite build, TanStack router plugin & aliases
@@ -214,14 +275,39 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
 
 The observability console persists metrics to a hosted **Supabase PostgreSQL** instance (`ap-south-1`). All tables are secured with Row Level Security (RLS) and queried through service-role server functions:
 
-| Table | Purpose | Key Columns |
-|---|---|---|
-| `website_health_checks` | Real-time endpoint probes & SSL | `url`, `http_status`, `response_time_ms`, `ssl_valid`, `ssl_expires_at`, `dns_ok`, `health_score`, `checked_at` |
-| `performance_history` | Historical Lighthouse audits | `url`, `performance`, `accessibility`, `best_practices`, `seo`, `measured_at` |
-| `deployment_history` | Fallback CI/CD execution log | `workflow_name`, `provider`, `status`, `conclusion`, `commit_sha`, `duration_seconds`, `occurred_at` |
-| `chat_activity` | Anonymized AI telemetry | `event_type`, `message_count`, `latency_ms`, `error_code`, `occurred_at` *(User message text is never stored)* |
-| `health_reports` | Generated executive audits | `report_date`, `health_score`, `lighthouse_score`, `status`, `pdf_url` |
-| `user_roles` | Dashboard authorization | `user_id`, `role` (`admin` / `viewer`) |
+| Table | Purpose | Key Columns | Retention Policy |
+|---|---|---|---|
+| `website_health_checks` | Real-time endpoint probes & SSL | `url`, `http_status`, `response_time_ms`, `ssl_valid`, `ssl_expires_at`, `dns_ok`, `health_score`, `checked_at` | Auto-pruned > 7 days (backed up) |
+| `performance_history` | Historical Lighthouse audits | `url`, `performance`, `accessibility`, `best_practices`, `seo`, `measured_at` | Auto-pruned > 7 days (backed up) |
+| `deployment_history` | CI/CD execution telemetry | `workflow_name`, `provider`, `status`, `conclusion`, `commit_sha`, `duration_seconds`, `occurred_at` | Auto-pruned > 7 days (backed up) |
+| `chat_activity` | Anonymized AI telemetry | `event_type`, `message_count`, `latency_ms`, `error_code`, `occurred_at` *(User message text is never stored)* | Auto-pruned > 7 days (backed up) |
+| `health_reports` | Generated executive audits | `report_date`, `health_score`, `lighthouse_score`, `status`, `pdf_url` | Auto-pruned > 7 days (backed up) |
+| `database_backups` | JSON snapshots of database data | `id`, `backup_type` (`manual` / `auto_prune_7d`), `tables_included`, `total_records`, `file_size_pretty`, `pruned_records_count`, `backup_data`, `metadata` | Permanent archive (downloadable) |
+| `admin_audit_log` | Security audit trail of admin actions | `id`, `action`, `admin_email`, `target_user_id`, `target_table`, `details`, `ip_address`, `created_at` | Pruned > 7 days (logged events retained) |
+| `auth.users` | Supabase Auth user accounts | `id`, `email`, `encrypted_password`, `email_confirmed_at`, `created_at` | **NEVER PURGED (Strictly Protected)** |
+| `user_roles` | Dashboard authorization & RBAC | `id`, `user_id`, `role` (`admin` / `user`), `created_at` | **NEVER PURGED (Strictly Protected)** |
+
+---
+
+## Automated Retention & Backup Policy
+
+To prevent unbounded database storage growth while guaranteeing zero loss of user profiles or critical logs, the system operates an automated 7-day retention engine:
+
+1. **Pre-Deletion Backup Guarantee:**
+   - Before executing a deletion of aged telemetry, the server function queries all records across monitored tables where `created_at < NOW() - INTERVAL '7 days'`.
+   - Records are compiled into a structured JSON archive containing table names, schemas, counts, and ISO timestamps.
+   - The backup is committed to `public.database_backups` with a unique ID and `backup_type = 'auto_prune_7d'`.
+2. **Strict User Account Protection:**
+   - `auth.users` and `public.user_roles` are hard-coded as excluded from all deletion routines.
+   - User credentials, roles, and session states are never modified by retention routines.
+3. **Automated Notification Dispatch:**
+   - An email summary is instantly dispatched to the administrator via Web3Forms containing:
+     - Pre-deletion Backup ID and download instructions
+     - Number of records pruned per table
+     - Total size of the generated archive
+     - Confirmation of user account protection
+4. **On-Demand Manual Backups:**
+   - Administrators can click **"Take Manual Backup"** in the `/dashboard/database` header or Backups tab at any time to generate a full snapshot of all current table records and download the `.json` file locally.
 
 ---
 
@@ -301,6 +387,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - **TLS 1.3 Strict Transport Security:** Enforces HTTPS with automated Let's Encrypt certificate renewals, valid through **December 2026**.
 - **Edge CDN Security:** Served via Cloudflare and Vercel edge networks with DDoS mitigation and HTTP/3 support.
 - **Privacy First:** The AI chat assistant stores strictly quantitative performance telemetry (response latency and token counts); raw user inquiries and message content are never persisted.
+- **Safe Retention Engine:** Telemetry older than 7 days is automatically backed up to JSON before removal; user accounts and roles are strictly protected.
 
 ---
 
