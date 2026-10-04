@@ -35,19 +35,57 @@ async function probe(url: string): Promise<{ ok: boolean; status: number | null;
   }
 }
 
+async function getSslExpiry(url: string): Promise<string | null> {
+  try {
+    const { hostname } = new URL(url);
+    const tls = await import("node:tls");
+    return await new Promise<string | null>((resolve) => {
+      const socket = tls.connect(
+        { host: hostname, port: 443, servername: hostname, timeout: 5000 },
+        () => {
+          const cert = socket.getPeerCertificate();
+          socket.destroy();
+          if (cert && cert.valid_to) {
+            resolve(new Date(cert.valid_to).toISOString());
+          } else {
+            resolve(null);
+          }
+        },
+      );
+      socket.on("error", () => {
+        socket.destroy();
+        resolve(null);
+      });
+      socket.on("timeout", () => {
+        socket.destroy();
+        resolve(null);
+      });
+    });
+  } catch {
+    return null;
+  }
+}
+
 async function ensureFreshHealthCheck(): Promise<HealthCheck | null> {
   const { createHealthCheck, listHealthChecks } = await import("@/lib/monitoring-data.server");
 
   const existing = await listHealthChecks(1);
   const latest = existing[0] ?? null;
-  if (latest && Date.now() - new Date(latest.checked_at).getTime() < FRESH_MS) return latest;
+  if (
+    latest &&
+    latest.ssl_expires_at &&
+    Date.now() - new Date(latest.checked_at).getTime() < FRESH_MS
+  ) {
+    return latest;
+  }
 
   const base = SITE_URL.replace(/\/$/, "");
-  const [root, robots, sitemap, favicon] = await Promise.all([
+  const [root, robots, sitemap, favicon, sslExpiry] = await Promise.all([
     probe(base + "/"),
     probe(base + "/robots.txt"),
     probe(base + "/sitemap.xml"),
     probe(base + "/favicon.ico"),
+    getSslExpiry(base),
   ]);
 
   const checks = [root.ok, root.ok, robots.ok, sitemap.ok, favicon.ok];
@@ -59,7 +97,7 @@ async function ensureFreshHealthCheck(): Promise<HealthCheck | null> {
     http_status: root.status,
     response_time_ms: root.ms,
     ssl_valid: root.status !== null ? true : null,
-    ssl_expires_at: null,
+    ssl_expires_at: sslExpiry,
     dns_ok: root.status !== null,
     robots_ok: robots.ok,
     sitemap_ok: sitemap.ok,
