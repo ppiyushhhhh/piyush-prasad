@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   AlertCircle,
   HardDrive,
+  Archive,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,29 +29,35 @@ import {
   toggleUserStatus,
   deleteUserAccount,
   getAuditLogs,
+  createManualBackup,
+  runRetentionPrune,
+  getDatabaseBackupsList,
+  getBackupDownloadData,
   type DatabaseOverviewData,
   type TableQueryResponse,
   type AdminUserRecord,
   type AuditLogRecord,
+  type DatabaseBackupRecord,
 } from "@/lib/database-admin.functions";
 
 import { DatabaseOverview } from "@/components/dashboard/database/DatabaseOverview";
 import { DatabaseTableViewer } from "@/components/dashboard/database/DatabaseTableViewer";
 import { UserManagement } from "@/components/dashboard/database/UserManagement";
 import { ActivityLog } from "@/components/dashboard/database/ActivityLog";
+import { DatabaseBackups } from "@/components/dashboard/database/DatabaseBackups";
 
 export const Route = createFileRoute("/dashboard/database")({
   head: () => ({
     meta: [
       { title: "Database Administration — PP · OPS Monitoring" },
-      { name: "description", content: "Database administration console, table inspection, and user management." },
+      { name: "description", content: "Database administration console, table inspection, automated 7-day retention, backups and user management." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: DatabaseAdminPage,
 });
 
-type AdminTab = "overview" | "tables" | "users" | "activity";
+type AdminTab = "overview" | "tables" | "users" | "backups" | "activity";
 
 function DatabaseAdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
@@ -86,6 +94,12 @@ function DatabaseAdminPage() {
   const [auditActionFilter, setAuditActionFilter] = useState("");
   const [auditSearch, setAuditSearch] = useState("");
 
+  // Backups & Retention state
+  const [backups, setBackups] = useState<DatabaseBackupRecord[]>([]);
+  const [isBackupsLoading, setIsBackupsLoading] = useState(false);
+  const [isCreatingBackup, setIsCreatingBackup] = useState(false);
+  const [isPruning, setIsPruning] = useState(false);
+
   // Server functions
   const fetchOverview = useServerFn(getDatabaseOverview);
   const fetchTableRecords = useServerFn(getTableRecords);
@@ -96,6 +110,10 @@ function DatabaseAdminPage() {
   const runToggleStatus = useServerFn(toggleUserStatus);
   const runDeleteUser = useServerFn(deleteUserAccount);
   const fetchAudit = useServerFn(getAuditLogs);
+  const fetchBackupsList = useServerFn(getDatabaseBackupsList);
+  const runCreateManualBackup = useServerFn(createManualBackup);
+  const runRetentionPruneFn = useServerFn(runRetentionPrune);
+  const fetchBackupDownload = useServerFn(getBackupDownloadData);
 
   // Verify caller's role on mount
   useEffect(() => {
@@ -244,6 +262,20 @@ function DatabaseAdminPage() {
     }
   }, [fetchAudit, auditPage, auditPageSize, auditActionFilter, auditSearch]);
 
+  // Fetch backups list
+  const loadBackups = useCallback(async () => {
+    try {
+      setIsBackupsLoading(true);
+      const res = await fetchBackupsList();
+      setBackups(res);
+    } catch (err) {
+      console.error("Failed to load backups:", err);
+      toast.error("Failed to load backups: " + (err as Error).message);
+    } finally {
+      setIsBackupsLoading(false);
+    }
+  }, [fetchBackupsList]);
+
   // Initial load and tab switching
   useEffect(() => {
     if (isAdmin) {
@@ -264,6 +296,12 @@ function DatabaseAdminPage() {
   }, [isAdmin, activeTab, loadUsers]);
 
   useEffect(() => {
+    if (isAdmin && activeTab === "backups") {
+      loadBackups();
+    }
+  }, [isAdmin, activeTab, loadBackups]);
+
+  useEffect(() => {
     if (isAdmin && activeTab === "activity") {
       loadAuditLogs();
     }
@@ -277,17 +315,19 @@ function DatabaseAdminPage() {
       loadOverview(true);
       if (activeTab === "tables") loadTableData();
       if (activeTab === "users") loadUsers();
+      if (activeTab === "backups") loadBackups();
       if (activeTab === "activity") loadAuditLogs();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isAdmin, activeTab, loadOverview, loadTableData, loadUsers, loadAuditLogs]);
+  }, [isAdmin, activeTab, loadOverview, loadTableData, loadUsers, loadBackups, loadAuditLogs]);
 
   // Manual Refresh Handler
   function handleManualRefresh() {
     loadOverview();
     if (activeTab === "tables") loadTableData();
     if (activeTab === "users") loadUsers();
+    if (activeTab === "backups") loadBackups();
     if (activeTab === "activity") loadAuditLogs();
     toast.success("Database telemetry refreshed.");
   }
@@ -331,6 +371,122 @@ function DatabaseAdminPage() {
     toast.success("User account was permanently deleted.");
     loadUsers();
     loadOverview(true);
+  }
+
+  // Backup & Retention Handlers
+  async function handleTakeManualBackup(notes?: string) {
+    try {
+      setIsCreatingBackup(true);
+      toast.info("Generating full database snapshot & archive…");
+      const res = await runCreateManualBackup();
+      toast.success(
+        `Manual backup #${res.backupId.slice(0, 8)} captured successfully (${res.fileSizePretty})!`,
+      );
+
+      // Dual-layer client-side dispatch to guarantee Web3Forms delivery
+      try {
+        const formData = new FormData();
+        formData.append("access_key", "752a0c12-46b4-4eec-8ad7-e82e229e3e43");
+        formData.append(
+          "subject",
+          `[DATABASE BACKUP] Manual Snapshot #${res.backupId.slice(0, 8)} Created`,
+        );
+        formData.append("from_name", "Database Admin Console");
+        formData.append(
+          "message",
+          `Manual database backup was triggered and completed successfully.\n\n` +
+            `• Backup ID: ${res.backupId}\n` +
+            `• Type: manual\n` +
+            `• Records Archived: ${res.totalRecordsBackedUp}\n` +
+            `• Archive Size: ${res.fileSizePretty}\n` +
+            `• Tables Included: ${res.tablesIncluded.join(", ")}\n` +
+            `• Protected: auth.users, public.user_roles (never purged)\n` +
+            `• Notes: ${notes || "Manual on-demand snapshot"}\n` +
+            `• Timestamp: ${new Date().toISOString()}\n\n` +
+            `You can download this backup JSON anytime from /dashboard/database.`,
+        );
+        await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
+      } catch (mailErr) {
+        console.warn("Client email notify warning:", mailErr);
+      }
+
+      loadBackups();
+      loadOverview(true);
+    } catch (err) {
+      console.error("Manual backup error:", err);
+      toast.error("Failed to create manual backup: " + (err as Error).message);
+    } finally {
+      setIsCreatingBackup(false);
+    }
+  }
+
+  async function handleRunRetentionPrune() {
+    try {
+      setIsPruning(true);
+      toast.info("Executing 7-day retention cleanup with pre-backup…");
+      const res = await runRetentionPruneFn();
+
+      if (res.totalRecordsPruned === 0) {
+        toast.info("No records older than 7 days found in monitored telemetry tables.");
+      } else {
+        toast.success(
+          `Pruned ${res.totalRecordsPruned} records older than 7 days. Pre-backup #${res.backupId.slice(0, 8)} saved!`,
+        );
+
+        try {
+          const formData = new FormData();
+          formData.append("access_key", "752a0c12-46b4-4eec-8ad7-e82e229e3e43");
+          formData.append(
+            "subject",
+            `[DATABASE PRUNE & BACKUP] ${res.totalRecordsPruned} Records Pruned Older Than 7 Days`,
+          );
+          formData.append("from_name", "Database Retention Engine");
+          formData.append(
+            "message",
+            `Database 7-day retention cleanup executed successfully.\n\n` +
+              `• Pre-Deletion Backup ID: ${res.backupId}\n` +
+              `• Pruned Records: ${res.totalRecordsPruned}\n` +
+              `• Archive Size: ${res.fileSizePretty}\n` +
+              `• Cleaned Tables: ${res.tablesIncluded.join(", ")}\n` +
+              `• Protected: auth.users and public.user_roles were strictly preserved\n` +
+              `• Timestamp: ${new Date().toISOString()}\n\n` +
+              `Pre-deletion backup JSON is available in the Database Backups archive.`,
+          );
+          await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
+        } catch (mailErr) {
+          console.warn("Client email notify warning:", mailErr);
+        }
+      }
+
+      loadBackups();
+      loadOverview(true);
+    } catch (err) {
+      console.error("Retention prune error:", err);
+      toast.error("Failed to run 7-day retention cleanup: " + (err as Error).message);
+    } finally {
+      setIsPruning(false);
+    }
+  }
+
+  async function handleDownloadBackup(backupId: string) {
+    try {
+      toast.info("Fetching backup archive data…");
+      const res = await fetchBackupDownload({ data: { backupId } });
+      const jsonStr = JSON.stringify(res, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.href = url;
+      downloadAnchor.download = `supabase_backup_${backupId.slice(0, 8)}_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Backup downloaded successfully!");
+    } catch (err) {
+      console.error("Download error:", err);
+      toast.error("Failed to download backup: " + (err as Error).message);
+    }
   }
 
   // Switch to specific table in Tables tab
@@ -440,10 +596,25 @@ function DatabaseAdminPage() {
             </div>
           )}
 
+          {/* Header Action: Take Manual Backup */}
+          <button
+            onClick={() => handleTakeManualBackup()}
+            disabled={isCreatingBackup || isPruning}
+            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+            title="Create manual backup snapshot of database tables"
+          >
+            {isCreatingBackup ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
+            <span>Take Manual Backup</span>
+          </button>
+
           <button
             onClick={handleManualRefresh}
             disabled={isOverviewLoading || isTableLoading}
-            className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${
@@ -504,6 +675,23 @@ function DatabaseAdminPage() {
         </button>
 
         <button
+          onClick={() => setActiveTab("backups")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+            activeTab === "backups"
+              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
+              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+          }`}
+        >
+          <Archive className="h-4 w-4" />
+          Backups &amp; Retention
+          {backups?.length ? (
+            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono">
+              {backups.length}
+            </span>
+          ) : null}
+        </button>
+
+        <button
           onClick={() => setActiveTab("activity")}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
             activeTab === "activity"
@@ -535,6 +723,8 @@ function DatabaseAdminPage() {
               onSelectTable={handleSelectTableFromOverview}
               onGoToUsers={() => setActiveTab("users")}
               onGoToActivity={() => setActiveTab("activity")}
+              onGoToBackups={() => setActiveTab("backups")}
+              onTakeManualBackup={() => handleTakeManualBackup()}
             />
           ) : (
             <div className="p-8 text-center text-slate-400">
@@ -588,6 +778,19 @@ function DatabaseAdminPage() {
             onChangeRole={handleChangeRole}
             onToggleStatus={handleToggleStatus}
             onDeleteUser={handleDeleteUser}
+          />
+        )}
+
+        {activeTab === "backups" && (
+          <DatabaseBackups
+            backups={backups}
+            isLoading={isBackupsLoading}
+            isCreatingBackup={isCreatingBackup}
+            isPruning={isPruning}
+            onRefresh={loadBackups}
+            onTakeManualBackup={handleTakeManualBackup}
+            onRunRetentionPrune={handleRunRetentionPrune}
+            onDownloadBackup={handleDownloadBackup}
           />
         )}
 

@@ -22,6 +22,8 @@ interface DatabaseOverviewProps {
   onSelectTable: (tableName: string) => void;
   onGoToUsers: () => void;
   onGoToActivity: () => void;
+  onGoToBackups?: () => void;
+  onTakeManualBackup?: () => void;
 }
 
 export function DatabaseOverview({
@@ -29,6 +31,8 @@ export function DatabaseOverview({
   onSelectTable,
   onGoToUsers,
   onGoToActivity,
+  onGoToBackups,
+  onTakeManualBackup,
 }: DatabaseOverviewProps) {
   const isHealthy = overview.status === "connected";
   const availableBytes = Math.max(0, overview.storageQuotaBytes - overview.storageUsedBytes);
@@ -198,7 +202,12 @@ export function DatabaseOverview({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-purple-950/80 border border-purple-800 text-purple-300">
+              <ShieldCheck className="h-3.5 w-3.5 text-purple-400" />
+              7-Day Retention Active
+            </span>
+
             {overview.storageTelemetrySource === "postgresql_disk" ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-emerald-950/80 border border-emerald-800 text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -209,6 +218,15 @@ export function DatabaseOverview({
                 <Info className="h-3.5 w-3.5 text-cyan-400" />
                 Estimated Schema Telemetry
               </span>
+            )}
+
+            {onGoToBackups && (
+              <button
+                onClick={onGoToBackups}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-cyan-400 hover:text-cyan-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+              >
+                Backups &amp; Retention &rarr;
+              </button>
             )}
           </div>
         </div>
@@ -241,7 +259,7 @@ export function DatabaseOverview({
           </div>
 
           {/* Micro stat summary tiles */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
             <div className="rounded-md border border-slate-800/80 bg-slate-900/50 px-3.5 py-2.5">
               <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
                 PostgreSQL Consumed
@@ -275,6 +293,19 @@ export function DatabaseOverview({
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
                 Safe operating capacity
+              </div>
+            </div>
+
+            <div className="rounded-md border border-slate-800/80 bg-slate-900/50 px-3.5 py-2.5">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold flex items-center justify-between">
+                <span>7-Day Retention</span>
+                <span className="text-[9px] font-bold text-purple-400 font-mono">ACTIVE</span>
+              </div>
+              <div className="mt-1 font-mono text-lg font-bold text-purple-300">
+                Auto-Prune
+              </div>
+              <div className="text-[11px] text-slate-400 mt-0.5">
+                Pre-backup + User safe
               </div>
             </div>
           </div>

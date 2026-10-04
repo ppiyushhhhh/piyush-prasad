@@ -77,6 +77,45 @@ export type Database = {
         }
         Relationships: []
       }
+      database_backups: {
+        Row: {
+          backup_data: Json | null
+          backup_type: string
+          created_at: string
+          file_size_bytes: number
+          file_size_pretty: string
+          id: string
+          metadata: Json | null
+          pruned_records_count: number
+          tables_included: string[]
+          total_records: number
+        }
+        Insert: {
+          backup_data?: Json | null
+          backup_type?: string
+          created_at?: string
+          file_size_bytes?: number
+          file_size_pretty?: string
+          id?: string
+          metadata?: Json | null
+          pruned_records_count?: number
+          tables_included?: string[]
+          total_records?: number
+        }
+        Update: {
+          backup_data?: Json | null
+          backup_type?: string
+          created_at?: string
+          file_size_bytes?: number
+          file_size_pretty?: string
+          id?: string
+          metadata?: Json | null
+          pruned_records_count?: number
+          tables_included?: string[]
+          total_records?: number
+        }
+        Relationships: []
+      }
       deployment_history: {
         Row: {
           commit_sha: string | null
@@ -252,6 +291,12 @@ export type Database = {
     Functions: {
       get_db_storage_usage: {
         Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      prune_telemetry_older_than: {
+        Args: {
+          days_retention?: number
+        }
         Returns: Json
       }
       has_role: {
