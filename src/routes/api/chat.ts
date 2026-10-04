@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { generateReply, type ChatMessage } from "@/lib/gemini.server";
-import { writeMonitoringEvents } from "@/lib/monitoring-ingest.server";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit.server";
 
 const MAX_MESSAGE_LENGTH = 1000;
@@ -32,13 +31,16 @@ function json(body: unknown, status: number, headers?: Record<string, string>) {
  * Message contents, prompts and credentials are never persisted.
  */
 async function logChatActivity(row: {
-  event_type: "reply" | "error" | "rate_limited";
+  event_type: string;
   message_count?: number | null;
   latency_ms?: number | null;
   error_code?: string | null;
 }) {
   try {
-    await writeMonitoringEvents([{ kind: "chat", occurred_at: new Date().toISOString(), ...row }]);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("chat_activity")
+      .insert({ occurred_at: new Date().toISOString(), ...row } as never);
   } catch (error) {
     console.error("[chat] telemetry write failed:", (error as Error).message);
   }
