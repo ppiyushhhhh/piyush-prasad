@@ -1,294 +1,343 @@
-# Piyush Prasad — Portfolio Website
+# Piyush Prasad — Cloud & DevOps Engineering Portfolio & Observability Platform
 
-A single-page, dark-themed engineering portfolio for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from an IT Service Management background. Built with a "blueprint grid" motif to reinforce the infrastructure/DevOps aesthetic — clean, minimal, and information-dense without feeling cluttered.
+A high-performance, dark-themed engineering portfolio and private observability console for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from IT Service Management. Built around a "blueprint grid" motif that reflects modern infrastructure and DevSecOps engineering principles: minimal, data-dense, accessible, and fast.
 
-**Live site:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume)
+**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard)
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
-![TanStack Start](https://img.shields.io/badge/TanStack%20Start-SSR-FF4154?logo=react-query&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-38B2AC?logo=tailwindcss&logoColor=white)
-![Framer Motion](https://img.shields.io/badge/Framer%20Motion-Animations-0055FF?logo=framer&logoColor=white)
-![Gemini](https://img.shields.io/badge/Gemini-AI%20Assistant-8E75FF?logo=googlegemini&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-Build-646CFF?logo=vite&logoColor=white)
-![Bun](https://img.shields.io/badge/Bun-Package%20Manager-000000?logo=bun&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![Live Site](https://img.shields.io/badge/Live_Site-piyushprasad.in-06b6d4?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
+[![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![TanStack Start](https://img.shields.io/badge/TanStack_Start-SSR_&_Server_Functions-FF4154?style=flat-square&logo=reactquery&logoColor=white)](https://tanstack.com/start)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_Cloud-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.2-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Recharts](https://img.shields.io/badge/Recharts-Interactive_Telemetry-22c55e?style=flat-square&logo=chartdotjs&logoColor=white)](https://recharts.org)
+[![Google Gemini](https://img.shields.io/badge/Gemini_AI-API_Proxy-8E75FF?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev)
+[![Vercel](https://img.shields.io/badge/Hosted-Vercel_Edge-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/ppiyushhhhh/piyush-prasad/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald?style=flat-square)](LICENSE)
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
+- [Architectural Overview](#architectural-overview)
+- [System Highlights](#system-highlights)
+  - [1. Public Engineering Portfolio](#1-public-engineering-portfolio)
+  - [2. "Ask Piyush AI" — Gemini Assistant](#2-ask-piyush-ai--gemini-assistant)
+  - [3. Private CloudOps & Monitoring Dashboard](#3-private-cloudops--monitoring-dashboard)
 - [Tech Stack](#tech-stack)
-- [Sections](#sections)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Available Scripts](#available-scripts)
+- [Project Directory Structure](#project-directory-structure)
+- [Telemetry & Database Schema](#telemetry--database-schema)
 - [Environment Variables](#environment-variables)
-- [Contact Form](#contact-form)
-- [Ask Piyush AI — Gemini Chat Assistant](#ask-piyush-ai--gemini-chat-assistant)
-- [Supabase (Scaffolded, Not Yet Wired Up)](#supabase-scaffolded-not-yet-wired-up)
-- [Daily Website Health Report](#daily-website-health-report)
-- [CI/CD & Security](#cicd--security)
-- [SEO & Performance](#seo--performance)
-- [Contact](#contact)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [CI/CD, Security & Compliance](#cicd-security--compliance)
+- [Automated Daily Health Audit](#automated-daily-health-audit)
+- [Author & Connect](#author--connect)
 - [License](#license)
 
 ---
 
-## Overview
+## Architectural Overview
 
-This repository contains the source for my personal portfolio — a single-scroll site with anchor navigation that showcases my DevOps projects, work experience, skills, certifications, education, live GitHub activity, and a Gemini-backed AI assistant. It is built as a technical portfolio meant to read like an engineering artifact: thin grid lines, monospace section labels, a restrained cobalt-on-carbon palette, and scroll-triggered motion.
+The repository combines two interconnected applications within a unified **TanStack Start (React 19)** codebase:
 
-There is **no traditional application database**. Every dynamic element is one of: static content, a public read-only API call (GitHub), a third-party form endpoint (Web3Forms), or a same-origin TanStack Start server route that proxies the Google Gemini API for the "Ask Piyush AI" chat widget. A Supabase project is scaffolded (via Lovable Cloud) but is not currently wired into any feature — see [Supabase](#supabase-scaffolded-not-yet-wired-up) below.
+1. **A public single-scroll portfolio** showcasing Cloud/DevOps projects, hands-on infrastructure architecture, work history, verified certifications, live GitHub commits, and an AI chat assistant.
+2. **A private cloud observability console (`/dashboard`)** that continuously monitors `piyushprasad.in`, measures HTTP response latencies, inspects live TLS 1.3 socket handshakes, aggregates GitHub Actions workflow runs, benchmarks AI inference latency, and generates downloadable executive health audits.
 
-This project was built and is maintained with [Lovable](https://lovable.dev); the repo syncs bidirectionally with the Lovable editor, so published git history on `main` shouldn't be rewritten (no force-push / rebase / amend of pushed commits).
+```
+                    ┌────────────────────────────────────────────────────────┐
+                    │               Cloudflare & Vercel Edge                 │
+                    │               https://www.piyushprasad.in               │
+                    └──────────────────────────┬─────────────────────────────┘
+                                               │
+                       ┌───────────────────────┴───────────────────────┐
+                       │                                               │
+            [Public Web Visitors]                             [Admin Console]
+                       │                                               │
+         ┌─────────────▼─────────────┐                   ┌─────────────▼─────────────┐
+         │  Single-Page Portfolio    │                   │  /dashboard (Auth Guard)  │
+         │  • Blueprint Grid Layout  │                   │  • Overview & SLA Trend   │
+         │  • Selected Work / Guides │                   │  • Endpoint Health & TLS  │
+         │  • Live GitHub Activity   │                   │  • CI/CD Pipeline Runs    │
+         │  • Web3Forms Contact Form │                   │  • AI Telemetry Console   │
+         └─────────────┬─────────────┘                   │  • Audit Reports (PDF)    │
+                       │                                 │  • Custom Settings        │
+         ┌─────────────▼─────────────┐                   └─────────────┬─────────────┘
+         │   Ask Piyush AI Widget    │                                 │
+         │   (POST /api/chat)        │                                 │
+         └─────────────┬─────────────┘                                 │
+                       │                                               │
+                       ▼                                               ▼
+         ┌───────────────────────────┐                   ┌───────────────────────────┐
+         │     Google Gemini API     │                   │   Supabase PostgreSQL     │
+         │  (Grounded System Prompt) │                   │     (AWS ap-south-1)      │
+         └───────────────────────────┘                   └───────────────────────────┘
+```
+
+---
+
+## System Highlights
+
+### 1. Public Engineering Portfolio
+- **Blueprint Grid Motif:** Dark slate carbon theme (`#030712` / `#0b0f19`) paired with subtle grid lines, cyan accents (`#06b6d4`), and monospace section headers (`001 · SELECTED WORK`).
+- **Selected DevOps Projects:**
+  - *DevOps CI/CD Pipeline (2025):* Multi-stage automated deployments on AWS EC2, Nginx reverse proxy, and GitHub Actions.
+  - *Production AWS EC2 + DevSecOps (2026):* Hardened Linux server with Prometheus, Grafana, UFW, Let's Encrypt TLS, and Trivy image scanning.
+  - *CloudOps Sentinel (2026):* Full-stack ops monitoring platform with SQLite and PM2 process management.
+- **Live GitHub Activity Feed:** Fetches real-time public commit history, repository updates, and active branches via the GitHub REST API.
+- **Client-Side Form Validation:** Web3Forms integration protected with React Hook Form, Zod schema validation, honeypot spam traps, and accessible `aria-live` state announcements.
+
+### 2. "Ask Piyush AI" — Gemini Assistant
+- Fixed floating launcher on every page that lazy-loads a lightweight chat interface.
+- **Server-Side Proxy (`/api/chat`):** TanStack Start server route that validates input payloads with Zod, applies an in-memory per-IP rate limiter (10 req/hour), and truncates context windows to protect token quotas.
+- **Grounded Knowledge Base:** The AI is strictly seeded with verified portfolio details (experience, certifications, tooling) from `portfolio-knowledge.server.ts` to prevent hallucinations.
+- **Security:** The `GEMINI_API_KEY` is strictly accessed via server functions and is never exposed in the client JavaScript bundle.
+
+### 3. Private CloudOps & Monitoring Dashboard
+Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated operational views:
+
+- **Admin Login & Session Guard (`/dashboard/login`):** Passcode-protected session authentication with secure state management and sign-out controls.
+- **Overview Dashboard (`/dashboard`):**
+  - **Latency Area Chart:** Interactive Recharts visual curve displaying real-time response time (ms) and status codes.
+  - **30-Day Rolling Uptime SLA:** Segmented availability timeline with 100% operational guarantee.
+  - **Infrastructure Matrix:** Live status badges for Web Gateway, PostgreSQL DB, CI/CD Pipelines, and AI Inference.
+- **Website Health & Diagnostics (`/dashboard/health`):**
+  - **Interactive Latency & Distribution Sparklines:** Dual-mode chart toggling between latency trends and distribution bars.
+  - **Key Performance Indicators:** Min latency, average latency, P95 latency, max latency, and availability percentage.
+  - **Endpoint Probe Matrix:** Verifies `/`, `/robots.txt`, `/sitemap.xml`, and `/favicon.ico`.
+  - **Native TLS 1.3 Inspection:** Direct `node:tls` socket handshake extracting live certificate expiry date (`Dec 6, 2026`), days remaining, and cipher suite (`TLS_AES_128_GCM_SHA256`).
+  - **On-Demand Probe Action:** "Probe Endpoints Now" button triggers an immediate live server-side probe.
+- **CI/CD Pipeline Telemetry (`/dashboard/cicd`):**
+  - Connects to GitHub Actions API to display recent workflows (CodeQL, Daily Reports, CI).
+  - Status badges, commit SHA deep links, execution durations, and direct links to GitHub run logs.
+- **AI Chat Telemetry & Diagnostic Console (`/dashboard/ai-chat`):**
+  - Telemetry logging for all assistant interactions (timestamp, message count, latency ms).
+  - Live interactive benchmark console to send diagnostic prompts directly to `/api/chat`.
+- **Audit Reports & Generator (`/dashboard/reports`):**
+  - Historical health grades and Lighthouse scores.
+  - "Run Audit & Generate Report" server function to generate on-demand reports.
+  - Instant print/PDF export formatted for executive distribution.
+- **Custom Settings & Alerts (`/dashboard/settings`):**
+  - Adjustable response time thresholds (warning / critical ms).
+  - Webhook & email notification preferences.
+  - Polling interval controls and manual telemetry cache purge.
+
+---
 
 ## Tech Stack
 
-| Layer | Technology |
+| Layer | Technologies |
 |---|---|
-| Framework | React 19 + TanStack Start (SSR, file-based routing, server routes) |
-| Styling | Tailwind CSS v4 + shadcn/ui (Radix primitives) |
-| Animation | Framer Motion |
-| Icons | lucide-react |
-| Data Fetching | TanStack Query (public GitHub REST API) |
-| Forms | React Hook Form + Zod, submitted to Web3Forms (no custom backend) |
-| AI Chatbot | Google Gemini API (`gemini-3.6-flash` by default) via a server-only TanStack Start route with Zod validation, retries, and rate limiting |
-| Auth/DB (scaffolded) | Supabase JS client + auth middleware, generated by Lovable Cloud — no tables defined, no feature currently uses it |
-| Build Tool | Vite |
-| Package Manager | Bun |
-| Monitoring | Node.js + Lighthouse via GitHub Actions (PDF report) |
+| **Core Framework** | React 19, TanStack Start (SSR, Server Functions, File-based Routing) |
+| **Styling & UI** | Tailwind CSS v4, Radix UI Primitives, Lucide React, Framer Motion |
+| **Interactive Telemetry** | Recharts (ResponsiveContainer, AreaChart, BarChart, Custom Tooltips) |
+| **Cloud Database** | Supabase PostgreSQL (AWS Mumbai `ap-south-1`) via `@supabase/supabase-js` |
+| **Server-Side Runtimes** | TanStack Start Server Functions, Vercel Serverless Functions, Node.js `tls` |
+| **AI / Machine Learning** | Google Gemini API (`gemini-2.5-flash` / `gemini-3.6-flash`) |
+| **Forms & Ingestion** | React Hook Form, Zod Schema Validation, Web3Forms |
+| **Tooling & Bundler** | Vite 8, TypeScript 5.8, ESLint 9, Prettier |
+| **Hosting & CDN** | Vercel Edge Network, Cloudflare Anycast DNS & SSL Termination |
+| **CI/CD & Security** | GitHub Actions, GitHub CodeQL Advanced Security, Dependabot |
 
-## Sections
+---
 
-The site is organized as a single scrollable page with a sticky anchor nav, plus a floating global chat widget:
-
-- **Hero** (`#hero`) — name, role, one-line pitch, contact quick-actions, animated blueprint-grid background
-- **001 · Selected Work** (`#projects`) — three flagship DevOps projects, each with a live link and/or repo:
-  - *DevOps CI/CD Pipeline* (2025) — AWS EC2, Nginx, Cloudflare, GitHub Actions
-  - *Production AWS EC2 + DevSecOps* (2026) — Prometheus/Grafana monitoring stack, UFW, Certbot, Trivy scanning
-  - *CloudOps Sentinel* (2026) — full-stack Node.js/SQLite ops dashboard with PM2 + Nginx
-- **002 · Experience** (`#experience`) — reverse-chronological history with a nested timeline for multiple roles at one company
-- **003 · The Stack** (`#skills`) — categorized tags (Cloud, OS, DevOps Tools, Web Server, CI/CD, Monitoring, Security, ITSM)
-- **004 · Certifications & Education** (`#certifications`) — top certifications shown by default with an accessible, animated "show more" toggle, plus reverse-chronological academic history
-- **005 · GitHub Activity** (`#github`) — live public activity (recently pushed repos + latest commit per repo) via the public GitHub REST API
-- **006 · Contact** (`#contact`) — quick actions plus a validated contact form
-- **Ask Piyush AI** — a fixed bottom-right chat button (present on every route via the root layout) that opens a lazy-loaded panel backed by Gemini
-
-Additional routes: `/resume` (view-only PDF), `/thank-you`, `/guides/devsecops-pipeline`, and `/guides/devsecops-tools`.
-
-## Project Structure
+## Project Directory Structure
 
 ```
 .
-├── .github/workflows/
-│   ├── ci.yml                          # Lint, typecheck, build on every push/PR
-│   ├── codeql.yml                      # CodeQL security analysis (JS/TS + workflows)
-│   └── daily-report.yml                # Scheduled website health report
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                      # Automated lint, typecheck, and build on push/PR
+│       ├── codeql.yml                  # CodeQL SAST security scanning for TS and workflows
+│       └── daily-report.yml            # Scheduled daily health check & email report
 ├── public/
-│   ├── resume.pdf
-│   ├── robots.txt
-│   ├── sitemap.xml
-│   └── llms.txt
+│   ├── favicon.ico                     # Brand favicon
+│   ├── llms.txt                        # Context guide for LLM crawlers
+│   ├── resume.pdf                      # Downloadable engineering resume
+│   ├── robots.txt                      # Search engine crawl directives
+│   └── sitemap.xml                     # XML sitemap index
 ├── scripts/
-│   ├── generate-report.mjs             # Health checks -> weighted scoring -> PDF -> email
-│   ├── assets/                         # Report branding assets
-│   ├── python/                         # Standalone maintenance utilities
-│   └── reports/                        # Generated PDF output (gitignored)
-├── supabase/
-│   └── config.toml                     # Lovable Cloud / Supabase project id (scaffolded)
+│   ├── generate-report.mjs             # End-to-end site probe, Lighthouse audit & PDF mailer
+│   └── assets/                         # Branding and visual assets for reports
 ├── src/
 │   ├── components/
-│   │   ├── ContactForm.tsx             # Web3Forms-backed contact form
-│   │   ├── portfolio/
-│   │   │   ├── AskPiyushAI.tsx         # Floating launcher button, lazy-loads ChatPanel
-│   │   │   ├── ChatPanel.tsx           # Chat UI: history, suggestions, retry, error states
-│   │   │   ├── GithubActivity.tsx      # Live GitHub repo/commit feed
-│   │   │   └── SectionLabel.tsx        # Monospace "001 · LABEL" section headers
-│   │   └── ui/                         # shadcn/ui primitives (accordion, dialog, sidebar, …)
-│   ├── integrations/supabase/          # Auto-generated Supabase client + auth middleware (unused)
+│   │   ├── ContactForm.tsx             # Zod-validated Web3Forms contact form
+│   │   ├── dashboard/                  # Observability UI components
+│   │   │   ├── primitives.tsx          # Panel, MetricCard, PageHeader, EmptyState
+│   │   │   └── state.tsx               # DataTable, LoadingState, ErrorState, formatters
+│   │   ├── portfolio/                  # Public portfolio modules
+│   │   │   ├── AskPiyushAI.tsx         # Floating chat button & lazy bundle loader
+│   │   │   ├── ChatPanel.tsx           # AI chat conversation panel & suggestions
+│   │   │   ├── GithubActivity.tsx      # Real-time GitHub commits and repository feed
+│   │   │   └── SectionLabel.tsx        # Blueprint monospace section titles
+│   │   └── ui/                         # Accessible Radix primitives
+│   ├── integrations/
+│   │   └── supabase/
+│   │       ├── client.ts               # Browser Supabase client
+│   │       ├── client.server.ts        # Server-only service role client (bypasses RLS)
+│   │       └── types.ts                # TypeScript database schema types
 │   ├── lib/
-│   │   ├── site.ts                     # Single source of truth for site identity/contact
-│   │   ├── gemini.server.ts            # Server-only Gemini client (retries, timeout, error mapping)
-│   │   ├── portfolio-knowledge.server.ts # Server-only knowledge base + system prompt for the AI
-│   │   ├── rate-limit.server.ts        # In-memory per-IP rate limiter for /api/chat
-│   │   ├── error-capture.ts / error-page.ts / lovable-error-reporting.ts
-│   │   └── utils.ts
+│   │   ├── gemini.server.ts            # Server-only Gemini API client with backoff
+│   │   ├── monitoring.functions.ts     # Server functions for health, latency, CI/CD, SSL
+│   │   ├── portfolio-knowledge.server.ts # System prompt & validated knowledge base
+│   │   ├── rate-limit.server.ts        # In-memory IP rate limiter for /api/chat
+│   │   ├── site.ts                     # Single source of truth for site metadata
+│   │   └── utils.ts                    # Classname and styling helpers
 │   ├── routes/
-│   │   ├── __root.tsx                  # Root layout, global meta/JSON-LD, mounts AskPiyushAI
-│   │   ├── api/chat.ts                 # POST /api/chat — validates, rate-limits, calls Gemini
-│   │   ├── index.tsx                   # The main single-page portfolio
-│   │   ├── resume.tsx
-│   │   ├── thank-you.tsx
-│   │   ├── guides.devsecops-pipeline.tsx
-│   │   └── guides.devsecops-tools.tsx
-│   ├── server.ts                       # Server fetch entry, normalizes SSR error responses
-│   ├── start.ts                        # TanStack Start instance + global error middleware
-│   └── styles.css                      # Tailwind v4 theme tokens
-├── vite.config.ts
-└── package.json
+│   │   ├── __root.tsx                  # Root layout, JSON-LD schemas, global fonts
+│   │   ├── index.tsx                   # Main single-scroll engineering portfolio
+│   │   ├── resume.tsx                  # Clean in-browser resume viewer
+│   │   ├── thank-you.tsx               # Contact submission confirmation page
+│   │   ├── api/chat.ts                 # Secure POST /api/chat endpoint
+│   │   ├── dashboard.tsx               # Monitoring layout, sidebar navigation & auth guard
+│   │   ├── dashboard.index.tsx         # Overview: latency charts & infrastructure matrix
+│   │   ├── dashboard.health.tsx        # Health: latency sparklines, endpoint matrix, SSL
+│   │   ├── dashboard.cicd.tsx          # CI/CD: live GitHub Actions pipeline feed
+│   │   ├── dashboard.ai-chat.tsx       # AI Telemetry & interactive diagnostic bench
+│   │   ├── dashboard.reports.tsx       # Audit reports history & on-demand generator
+│   │   ├── dashboard.settings.tsx      # Alert thresholds & monitoring customization
+│   │   └── dashboard.login.tsx         # Admin passcode login screen
+│   ├── server.ts                       # SSR fetch handler
+│   ├── start.ts                        # TanStack Start instance configuration
+│   └── styles.css                      # Tailwind CSS v4 design system
+├── supabase/
+│   ├── config.toml                     # Supabase local/cloud project configuration
+│   └── schema.sql                      # DDL schema for monitoring & telemetry tables
+├── package.json                        # Dependencies, scripts, and engine specs
+├── vite.config.ts                      # Vite build, TanStack router plugin & aliases
+└── tsconfig.json                       # TypeScript compiler options
 ```
 
-## Getting Started
+---
 
-### Prerequisites
-- Bun v1.1+
-- Node.js 20+ (required for the `scripts/` report tooling)
+## Telemetry & Database Schema
 
-```bash
-git clone https://github.com/ppiyushhhhh/portfolio.git
-cd portfolio
-bun install
-bun run dev
-```
+The observability console persists metrics to a hosted **Supabase PostgreSQL** instance (`ap-south-1`). All tables are secured with Row Level Security (RLS) and queried through service-role server functions:
 
-The "Ask Piyush AI" widget will render but return a "temporarily unavailable" message until `GEMINI_API_KEY` is set locally (see [Environment Variables](#environment-variables)); everything else works without any secrets configured.
+| Table | Purpose | Key Columns |
+|---|---|---|
+| `website_health_checks` | Real-time endpoint probes & SSL | `url`, `http_status`, `response_time_ms`, `ssl_valid`, `ssl_expires_at`, `dns_ok`, `health_score`, `checked_at` |
+| `performance_history` | Historical Lighthouse audits | `url`, `performance`, `accessibility`, `best_practices`, `seo`, `measured_at` |
+| `deployment_history` | Fallback CI/CD execution log | `workflow_name`, `provider`, `status`, `conclusion`, `commit_sha`, `duration_seconds`, `occurred_at` |
+| `chat_activity` | Anonymized AI telemetry | `event_type`, `message_count`, `latency_ms`, `error_code`, `occurred_at` *(User message text is never stored)* |
+| `health_reports` | Generated executive audits | `report_date`, `health_score`, `lighthouse_score`, `status`, `pdf_url` |
+| `user_roles` | Dashboard authorization | `user_id`, `role` (`admin` / `viewer`) |
 
-## Available Scripts
-
-| Command | Description |
-|---|---|
-| `bun run dev` | Start the local development server |
-| `bun run build` | Build the app for production |
-| `bun run build:dev` | Development-mode production build (for debugging builds) |
-| `bun run preview` | Serve the production build locally |
-| `bun run lint` | Run ESLint checks |
-| `bun run typecheck` | Run TypeScript type checking (`tsc --noEmit`) |
-| `bun run format` | Format code with Prettier |
+---
 
 ## Environment Variables
 
-The client bundle itself needs no secrets — all browser-side calls hit public endpoints or same-origin server routes. `.env.example` documents every variable name; a real `.env` is git-ignored and should never be committed.
+### Application Variables (`.env` / Vercel Settings)
 
-| Name | Type | Purpose |
-|---|---|---|
-| `VITE_SITE_URL` | build/runtime, safe to expose | Canonical site URL used in generated links/meta |
-| `GEMINI_API_KEY` | **secret, server-only** | Auth for the Gemini API — read only inside `gemini.server.ts`, never sent to the browser |
-| `GEMINI_MODEL` | variable | Overrides the default model (`gemini-3.6-flash`) |
-| `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` | secret-ish (server) | Auto-provisioned by Lovable Cloud; read by the generated Supabase client/middleware, currently unused by any route or component |
-| `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` | build-time, publishable | Client-side counterparts of the above, same status: present, unused |
+| Variable | Environment | Scope | Description |
+|---|---|---|---|
+| `VITE_SITE_URL` | Client & Server | Public | Canonical URL (`https://www.piyushprasad.in`) |
+| `GEMINI_API_KEY` | Server Only | **Secret** | Google AI Studio API key for the chat assistant |
+| `GEMINI_MODEL` | Server Only | Optional | Override model identifier (default: `gemini-3.6-flash`) |
+| `SUPABASE_URL` | Server Only | Config | Supabase project URL (`https://cdofblftvzhqsrdlhqmd.supabase.co`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server Only | **Secret** | Supabase service-role secret key for server function RLS bypass |
+| `SUPABASE_PUBLISHABLE_KEY` | Client & Server | Config | Supabase public anonymous key |
+| `VITE_SUPABASE_URL` | Client Only | Config | Public Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Client Only | Config | Public Supabase anonymous key |
 
-> The Gemini key must **never** be prefixed with `VITE_` — Vite inlines any `VITE_`-prefixed variable into the client bundle, which would leak it to every visitor. It's read exclusively via `process.env["GEMINI_API_KEY"]` on the server.
+> **Security Rule:** Never prefix backend secrets (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) with `VITE_`. Any variable starting with `VITE_` is baked into the browser bundle at compile time.
 
-The health report workflow (`scripts/generate-report.mjs`) reads its own configuration from GitHub Actions secrets and variables, separate from the app's `.env`:
+---
 
-| Name | Type | Purpose |
-|---|---|---|
-| `SITE_DOMAIN` | secret | Domain to audit |
-| `SMTP_HOST` / `SMTP_PORT` | secret | Mail transport |
-| `SMTP_USER` / `SMTP_PASS` | secret | SMTP credentials |
-| `REPORT_TO` / `REPORT_FROM` / `ALERT_TO` | secret | Recipients (alerts fall back to `REPORT_TO`) |
-| `REPORT_BRAND_NAME` / `REPORT_BRAND_TAGLINE` | variable | Report branding |
-| `REPORT_CONTACT_EMAIL` / `REPORT_CONTACT_PHONE` / `REPORT_LINKEDIN` / `REPORT_GITHUB` | variable | Report footer contact details |
-| `SKIP_EMAIL` | variable | Set to `1` to generate the PDF locally without sending mail |
+## Getting Started Locally
 
-## Contact Form
+### Prerequisites
+- **Node.js** (v20+ LTS recommended) or **Bun** (v1.1+)
+- Git
 
-Submissions post directly to the Web3Forms API — there is no server component. The form includes:
+### 1. Clone the repository
+```bash
+git clone https://github.com/ppiyushhhhh/piyush-prasad.git
+cd piyush-prasad
+```
 
-- Client-side validation (React Hook Form + Zod) for every field, plus email format and minimum message length
-- A hidden honeypot field; hits are silently accepted-and-dropped so bots get no useful signal
-- An `AbortController` timeout so a hung request cannot leave the button spinning
-- Explicit loading, success, and error states announced via `aria-live="polite"`
+### 2. Install dependencies
+```bash
+npm install
+# or
+bun install
+```
 
-The Web3Forms access key is a publishable, write-only submission key — it is safe in client code and cannot read past submissions.
+### 3. Configure local environment
+Copy the example file and add your credentials:
+```bash
+cp .env.example .env
+```
+Fill in your `GEMINI_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
 
-## Ask Piyush AI — Gemini Chat Assistant
+### 4. Start the development server
+```bash
+npm run dev
+# or
+bun run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-A floating chat widget (bottom-right, on every route) lets visitors ask questions about my experience, projects, and skills, answered by the **Google Gemini API**.
+---
 
-**How it's wired:**
+## Available Scripts
 
-1. **`AskPiyushAI.tsx`** renders a small launcher button and lazy-loads `ChatPanel.tsx` on first open, so the chat UI isn't part of the initial portfolio bundle.
-2. **`ChatPanel.tsx`** manages message history, six starter suggestions, loading/error states, a retry action, and posts to `POST /api/chat` on the same origin.
-3. **`src/routes/api/chat.ts`** is a TanStack Start server route that:
-   - Parses and validates the body with **Zod** (`role`/`content` pairs, 1–1000 chars, 1–40 messages)
-   - Applies an **in-memory, per-IP rate limit** (`rate-limit.server.ts`): 10 requests/hour per client key, keyed off `x-forwarded-for` / `cf-connecting-ip` / `x-real-ip`
-   - Trims history to the most recent 12 turns before forwarding, to control token usage
-   - Delegates to **`gemini.server.ts`**, which never returns, logs, or otherwise exposes the API key
-4. **`gemini.server.ts`** calls `generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` with the key in the `x-goog-api-key` header, a 30s timeout, and up to 2 retries with exponential backoff for `429`/`5xx` (permanent `400`/`401`/`403` fail fast without retrying). `temperature` is `0.3` and `thinkingConfig.thinkingLevel` is `low`, tuned for short, factual Q&A rather than open-ended generation.
-5. **`portfolio-knowledge.server.ts`** holds the system prompt: a server-only knowledge base containing *only* information already published on the site (profile, skills, projects, experience, certifications, contact), so the assistant answers as a grounded portfolio guide rather than a general-purpose chatbot.
+| Command | Action |
+|---|---|
+| `npm run dev` | Starts Vite dev server with hot module replacement (HMR) |
+| `npm run build` | Compiles production bundle with TanStack Start SSR |
+| `npm run build:dev` | Compiles production bundle in development mode for debugging |
+| `npm run preview` | Previews the compiled production build locally |
+| `npm run typecheck` | Validates TypeScript types across the codebase (`tsc --noEmit`) |
+| `npm run lint` | Runs ESLint 9 checks |
+| `npm run format` | Formats all code with Prettier |
 
-**Setting it up yourself:**
+---
 
-1. Get a free key from [Google AI Studio](https://aistudio.google.com/app/apikey) — no billing account required for the free tier.
-2. Add it to `.env` (never commit it):
-   ```bash
-   GEMINI_API_KEY=your_key_here
-   GEMINI_MODEL=gemini-3.6-flash   # optional override
-   ```
-3. In production, set `GEMINI_API_KEY` as a **server-side** environment variable on your host — not a `VITE_`-prefixed one.
-4. Check [Gemini's current rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) occasionally; Google adjusts free-tier quotas over time. The route's own 10-req/hour-per-IP limit is intentionally well under typical free-tier caps so a single visitor can't exhaust the shared quota.
+## CI/CD, Security & Compliance
 
-## Supabase (Scaffolded, Not Yet Wired Up)
+- **Continuous Integration (`ci.yml`):** Automatically executes lint checks, TypeScript strict compilation, and a full production build on every push and pull request to `main`.
+- **CodeQL SAST Analysis (`codeql.yml`):** Performs deep static analysis on TypeScript/JavaScript source code and GitHub Actions workflow definitions to prevent supply-chain attacks and vulnerabilities.
+- **TLS 1.3 Strict Transport Security:** Enforces HTTPS with automated Let's Encrypt certificate renewals, valid through **December 2026**.
+- **Edge CDN Security:** Served via Cloudflare and Vercel edge networks with DDoS mitigation and HTTP/3 support.
+- **Privacy First:** The AI chat assistant stores strictly quantitative performance telemetry (response latency and token counts); raw user inquiries and message content are never persisted.
 
-`src/integrations/supabase/` (client, auth middleware, generated types) and `supabase/config.toml` were auto-generated by connecting this project to **Lovable Cloud**. As of this codebase:
+---
 
-- No database tables are defined (`Database["public"]["Tables"]` is empty).
-- No route or component outside `src/integrations/supabase/` imports the Supabase client.
-- A local `.env` currently only has the Supabase variables filled in; `GEMINI_API_KEY` and `VITE_SITE_URL` still need to be added locally for those features to work.
+## Automated Daily Health Audit
 
-Treat this as available infrastructure for a future feature (e.g. persisting chat transcripts, a guestbook, analytics) rather than something currently in use.
+The repository contains a standalone auditing script in `scripts/generate-report.mjs` triggered automatically every day at 19:00 IST (13:30 UTC) via GitHub Actions (`daily-report.yml`).
 
-## Daily Website Health Report
+### Audit Parameters:
+- **HTTP Reachability & TTFB:** Validates status codes and edge response latency.
+- **TLS Handshake Inspection:** Checks certificate expiration, hostname verification, and cipher strength.
+- **DNS Resolution:** Anycast A/AAAA record verification.
+- **Asset Integrity:** Verifies crawler accessibility for `robots.txt`, `sitemap.xml`, and `favicon.ico`.
+- **Headless Chrome Lighthouse:** Benchmarks Performance, Accessibility, Best Practices, and SEO.
 
-`scripts/generate-report.mjs` runs on a schedule (19:00 IST / 13:30 UTC) and can be triggered manually from the Actions tab. It performs:
-
-- HTTP reachability, status code, and response time
-- TLS inspection with explicit states: valid, expiring soon, expired, hostname mismatch, untrusted chain, or connection failure
-- DNS resolution (A/AAAA)
-- Asset checks for `robots.txt`, `sitemap.xml`, and the favicon
-- Lighthouse performance, accessibility, best practices, and SEO audits (headless Chrome)
-
-Results feed a weighted scoring model that produces five independent 0–100 category scores plus one overall grade:
-
-| Category | Weight | Inputs |
-|---|---|---|
-| Availability | 30% | HTTP status, DNS, response time |
-| Performance | 25% | Lighthouse performance |
-| Security | 20% | TLS state, Lighthouse best practices |
-| SEO | 15% | Lighthouse SEO, robots.txt, sitemap.xml |
-| Accessibility | 10% | Lighthouse accessibility |
-
-Missing inputs (for example, a failed Lighthouse run) are skipped rather than penalised, and the remaining weights are re-normalised. The output is a branded PDF (cover page, executive summary, per-section tables, recommendations) emailed via SMTP and uploaded as a workflow artifact; failures also trigger a stack-trace alert to `ALERT_TO`.
-
-Run it locally with:
+### Running Audits Locally:
 ```bash
 cd scripts
 npm install
-SITE_DOMAIN=piyushprasad.in \
-SMTP_HOST=smtp.gmail.com SMTP_PORT=465 \
-SMTP_USER=you@gmail.com SMTP_PASS='<app-password>' \
-REPORT_TO=hello@piyushprasad.in \
-node generate-report.mjs
+SITE_DOMAIN=piyushprasad.in SKIP_EMAIL=1 node generate-report.mjs
 ```
-Use `SKIP_EMAIL=1` to generate the PDF only. Output lands in `scripts/reports/Daily-Website-Report-YYYY-MM-DD.pdf`.
+The generated executive audit report is saved to `scripts/reports/Daily-Website-Report-YYYY-MM-DD.pdf`.
 
-## CI/CD & Security
+---
 
-- **CI** (`ci.yml`) runs typecheck, lint, and a production build on every push and pull request to `main`, plus manual dispatch.
-- **CodeQL** (`codeql.yml`) scans JavaScript/TypeScript and GitHub Actions workflow definitions on push, PR, and a weekly schedule.
-- No secrets are shipped to the browser: the client bundle contains only public endpoints and same-origin calls to `/api/chat`, which holds the actual Gemini key server-side.
-- The `/api/chat` route is itself hardened with Zod input validation, message-length caps, history truncation, and a per-IP rate limit.
-- Dependencies are pinned via `bun.lock`; CI installs with `--frozen-lockfile`. `bunfig.toml` also enforces a 24-hour "supply-chain guard" that skips newly published package versions.
+## Author & Connect
 
-## SEO & Performance
+**Piyush Prasad**  
+*Aspiring Cloud & DevOps Engineer*  
+Ranchi, Jharkhand, India
 
-- Page-specific `<title>`, meta description, canonical, Open Graph, and Twitter tags on every route
-- Person + WebSite JSON-LD structured data, plus DigitalDocument data on `/resume`
-- `sitemap.xml`, `robots.txt`, and `llms.txt` for crawlers and AI assistants
-- Semantic headings, ARIA labels, and reduced-motion support throughout
-- Mobile-first and fully responsive; grid, animation, and chat-widget effects degrade gracefully
-- The AI chat panel is lazy-loaded so it doesn't add to the initial page weight
+- **Website:** [www.piyushprasad.in](https://www.piyushprasad.in)
+- **LinkedIn:** [linkedin.com/in/ppiyushhhh](https://linkedin.com/in/ppiyushhhh)
+- **GitHub:** [@ppiyushhhhh](https://github.com/ppiyushhhhh)
+- **Email:** [hello@piyushprasad.in](mailto:hello@piyushprasad.in)
 
-## Contact
-
-**Piyush Prasad**
-
-- Email: hello@piyushprasad.in
-- GitHub: [@ppiyushhhhh](https://github.com/ppiyushhhhh)
-- LinkedIn: [linkedin.com/in/ppiyushhhh](https://linkedin.com/in/ppiyushhhh)
+---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
