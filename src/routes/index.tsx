@@ -278,6 +278,15 @@ function TopNav() {
               </a>
             );
           })}
+          <a
+            href="/dashboard"
+            target="_blank"
+            rel="noreferrer"
+            className="mono inline-flex items-center gap-1.5 rounded-full border border-cobalt/30 bg-cobalt/10 px-3 py-1 text-[10px] font-semibold text-cobalt transition-colors hover:bg-cobalt hover:text-white"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            LIVE CLOUDOPS
+          </a>
         </nav>
         <a
           href="#contact"
@@ -947,7 +956,16 @@ function Contact() {
           >
             VIEW RESUME
 
+          <a
+            href="/dashboard"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-white/70 hover:text-cobalt underline underline-offset-4"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            LIVE CLOUDOPS & ARCHITECTURE
           </a>
+
           <a href="/guides/devsecops-pipeline" className="text-white/70 hover:text-cobalt underline underline-offset-4">
             GUIDE · BUILDING A SECURE CI/CD PIPELINE
           </a>

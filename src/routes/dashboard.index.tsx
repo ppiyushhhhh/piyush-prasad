@@ -27,6 +27,7 @@ import {
 
 import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
 import { ErrorState, LoadingState, boolLabel, fmtDateTime } from "@/components/dashboard/state";
+import { CloudArchitectureMatrix } from "@/components/dashboard/CloudArchitectureMatrix";
 import { getOverview, getHealthChecks } from "@/lib/monitoring.functions";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -248,102 +249,53 @@ function Overview() {
             </Panel>
           </div>
 
-          {/* Infrastructure Health & Architecture Matrix */}
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <Panel title="Cloud Infrastructure & Subsystem Matrix">
-              <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-950/60 p-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <Globe className="h-4 w-4 text-cyan-400" />
-                    <div>
-                      <p className="font-semibold text-slate-200">Public Web Gateway</p>
-                      <p className="text-[11px] text-slate-500 font-mono">https://www.piyushprasad.in</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3 w-3" />
-                    200 OK
-                  </span>
-                </div>
+          {/* Cloud Architecture & Infrastructure Matrix */}
+          <div className="mt-8">
+            <CloudArchitectureMatrix />
+          </div>
 
-                <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-950/60 p-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <Database className="h-4 w-4 text-purple-400" />
-                    <div>
-                      <p className="font-semibold text-slate-200">PostgreSQL Cloud Database</p>
-                      <p className="text-[11px] text-slate-500 font-mono">Supabase AWS (ap-south-1 Mumbai)</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Connected
-                  </span>
+          {/* Deployment & Operational Summary */}
+          <div className="mt-8">
+            <Panel title="Operational Deployment & Target Environment Summary">
+              <div className="grid gap-6 md:grid-cols-4 text-xs">
+                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-4">
+                  <dt className="uppercase tracking-[0.14em] text-slate-500 text-[10px] font-semibold">Monitored Target Domain</dt>
+                  <dd className="mt-2 font-mono text-cyan-400 font-semibold text-sm">{health?.url ?? "https://www.piyushprasad.in/"}</dd>
+                  <p className="mt-1 text-[11px] text-slate-500">Root Web Ingress & HTTP Gateway</p>
                 </div>
-
-                <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-950/60 p-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <GitBranch className="h-4 w-4 text-orange-400" />
-                    <div>
-                      <p className="font-semibold text-slate-200">CI/CD & Pipeline Automation</p>
-                      <p className="text-[11px] text-slate-500 font-mono">GitHub Actions &bull; 238 Runs</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Passing
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-950/60 p-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <Bot className="h-4 w-4 text-cyan-400" />
-                    <div>
-                      <p className="font-semibold text-slate-200">AI Assistant Gateway</p>
-                      <p className="text-[11px] text-slate-500 font-mono">Google Gemini API /api/chat</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Online
-                  </span>
-                </div>
-              </div>
-            </Panel>
-
-            <Panel title="Deployment & Operational Summary">
-              <dl className="grid gap-4 text-xs">
-                <div>
-                  <dt className="uppercase tracking-[0.14em] text-slate-500">Monitored Target Domain</dt>
-                  <dd className="mt-1 font-mono text-cyan-400 font-semibold">{health?.url ?? "https://www.piyushprasad.in/"}</dd>
-                </div>
-                <div>
-                  <dt className="uppercase tracking-[0.14em] text-slate-500">Latest CI/CD Pipeline Execution</dt>
-                  <dd className="mt-1 font-mono text-slate-300">
+                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-4">
+                  <dt className="uppercase tracking-[0.14em] text-slate-500 text-[10px] font-semibold">Latest CI/CD Execution</dt>
+                  <dd className="mt-2 font-mono text-slate-200 font-semibold text-sm">
                     {data?.deployment ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <span className="text-emerald-400 font-semibold">{data.deployment.workflow_name}</span>
-                        <span>&bull;</span>
-                        <span className="capitalize">{data.deployment.conclusion ?? data.deployment.status ?? "Success"}</span>
+                        <span className="text-emerald-400 font-semibold">{data.deployment.workflow_name.split("#")[0]}</span>
+                        <span className="text-xs text-slate-400 font-normal">#{data.deployment.workflow_name.split("#")[1] ?? "latest"}</span>
                       </span>
                     ) : (
-                      "CodeQL Advanced #132 &bull; Success"
+                      "CodeQL Advanced #132"
                     )}
                   </dd>
+                  <p className="mt-1 text-[11px] text-slate-500 capitalize">
+                    Status: <span className="text-emerald-400 font-semibold">{data?.deployment?.conclusion ?? data?.deployment?.status ?? "Success"}</span>
+                  </p>
                 </div>
-                <div>
-                  <dt className="uppercase tracking-[0.14em] text-slate-500">Latest Executive Health Audit</dt>
-                  <dd className="mt-1 font-mono text-slate-300">
-                    {data?.report?.report_date ?? new Date().toISOString().slice(0, 10)} &bull;{" "}
-                    <span className="text-emerald-400 font-semibold">{data?.report?.status ?? "Grade A+ (Optimal)"}</span>
+                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-4">
+                  <dt className="uppercase tracking-[0.14em] text-slate-500 text-[10px] font-semibold">Executive Health Audit</dt>
+                  <dd className="mt-2 font-mono text-emerald-400 font-semibold text-sm">
+                    {data?.report?.status ?? "Grade A+ (Optimal)"}
                   </dd>
+                  <p className="mt-1 text-[11px] text-slate-500 font-mono">
+                    Audited: {data?.report?.report_date ?? new Date().toISOString().slice(0, 10)}
+                  </p>
                 </div>
-                <div>
-                  <dt className="uppercase tracking-[0.14em] text-slate-500">Portfolio Assistant Interactions (24h)</dt>
-                  <dd className="mt-1 font-mono text-slate-300">
-                    {data?.chatCount24h ?? 1} requests processed successfully
+                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-4">
+                  <dt className="uppercase tracking-[0.14em] text-slate-500 text-[10px] font-semibold">AI Assistant Ingestion</dt>
+                  <dd className="mt-2 font-mono text-cyan-400 font-semibold text-sm">
+                    {data?.chatCount24h ?? 1} Requests (24h)
                   </dd>
+                  <p className="mt-1 text-[11px] text-slate-500">Processed via /api/chat Proxy</p>
                 </div>
-              </dl>
+              </div>
             </Panel>
           </div>
         </>
