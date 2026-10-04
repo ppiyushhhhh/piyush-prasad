@@ -15,12 +15,37 @@ import type { Database } from "@/integrations/supabase/types";
  *    are recorded in public.admin_audit_log.
  */
 
+export function formatBytes(bytes: number, decimals = 1): string {
+  if (bytes <= 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "kB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const num = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+  return `${num} ${sizes[i]}`;
+}
+
 export interface DbTableStat {
   name: string;
   displayName: string;
   description: string;
   rowCount: number;
   lastUpdated: string | null;
+  totalBytes?: number;
+  totalPretty?: string;
+  tablePretty?: string;
+  indexPretty?: string;
+}
+
+export interface TableStorageDetail {
+  tableName: string;
+  displayName: string;
+  rowCount: number;
+  totalBytes: number;
+  totalPretty: string;
+  tablePretty: string;
+  indexPretty: string;
+  percentOfDb: number;
 }
 
 export interface DatabaseOverviewData {
@@ -36,6 +61,15 @@ export interface DatabaseOverviewData {
   recentActivityCount: number;
   lastUpdated: string;
   serviceRoleConfigured: boolean;
+  // Storage Metrics
+  storageUsedBytes: number;
+  storageUsedPretty: string;
+  storageQuotaBytes: number;
+  storageQuotaPretty: string;
+  storagePercent: number;
+  storageStatus: "optimal" | "warning" | "critical";
+  tableStorageBreakdown: TableStorageDetail[];
+  storageTelemetrySource: "postgresql_disk" | "estimated";
 }
 
 export interface AdminUserRecord {
@@ -56,6 +90,8 @@ export interface TableQueryResponse {
   columns: string[];
   page: number;
   pageSize: number;
+  tableSizePretty?: string;
+  indexSizePretty?: string;
 }
 
 export interface AuditLogRecord {
@@ -294,7 +330,7 @@ export const getDatabaseOverview = createServerFn({ method: "GET" }).handler(
     }
 
     // Collect counts for each application table in parallel
-    const tableStatPromises = SUPPORTED_TABLES.map(async (table) => {
+    const tableStatPromises = SUPPORTED_TABLES.map(async (table): Promise<DbTableStat> => {
       try {
         const { count, error } = await db
           .from(table.name as any)
@@ -345,7 +381,7 @@ export const getDatabaseOverview = createServerFn({ method: "GET" }).handler(
       }
     });
 
-    const tableStats = await Promise.all(tableStatPromises);
+    const tableStats: DbTableStat[] = await Promise.all(tableStatPromises);
     const totalRecords = tableStats.reduce((acc, curr) => acc + curr.rowCount, 0);
 
     // Get user counts
@@ -385,6 +421,129 @@ export const getDatabaseOverview = createServerFn({ method: "GET" }).handler(
       recentActivityCount = 0;
     }
 
+    // Query actual PostgreSQL database storage via RPC
+    const FREE_TIER_QUOTA_BYTES = 500 * 1024 * 1024; // 500 MB Supabase Free Tier quota
+    let storageUsedBytes = 0;
+    let storageUsedPretty = "0 B";
+    let storageTelemetrySource: "postgresql_disk" | "estimated" = "estimated";
+    const tableSizeMap = new Map<
+      string,
+      { totalBytes: number; totalPretty: string; tablePretty: string; indexPretty: string }
+    >();
+
+    try {
+      const { data: rpcData, error: rpcError } = await db.rpc("get_db_storage_usage");
+      if (!rpcError && rpcData && typeof rpcData === "object") {
+        const payload = rpcData as {
+          database_size_bytes?: number;
+          database_size_pretty?: string;
+          table_sizes?: Array<{
+            table_name: string;
+            total_bytes: number;
+            total_pretty: string;
+            table_bytes: number;
+            table_pretty: string;
+            index_bytes: number;
+            index_pretty: string;
+          }>;
+        };
+
+        if (payload.database_size_bytes) {
+          storageUsedBytes = Number(payload.database_size_bytes);
+          storageUsedPretty = String(payload.database_size_pretty || formatBytes(storageUsedBytes));
+          storageTelemetrySource = "postgresql_disk";
+
+          if (Array.isArray(payload.table_sizes)) {
+            payload.table_sizes.forEach((t) => {
+              tableSizeMap.set(t.table_name, {
+                totalBytes: Number(t.total_bytes || 0),
+                totalPretty: String(t.total_pretty || formatBytes(Number(t.total_bytes || 0))),
+                tablePretty: String(t.table_pretty || "—"),
+                indexPretty: String(t.index_pretty || "—"),
+              });
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[DatabaseAdmin] get_db_storage_usage RPC call warning:", err);
+    }
+
+    // If RPC was not available, estimate based on row counts & base system catalog overhead
+    if (storageUsedBytes === 0) {
+      // Base system catalogs, schemas, auth overhead is ~8 MB in a standard Supabase database
+      let estimatedAppBytes = 8 * 1024 * 1024;
+
+      tableStats.forEach((t) => {
+        const rowMultiplier =
+          t.name === "website_health_checks"
+            ? 520
+            : t.name === "performance_history"
+              ? 480
+              : t.name === "deployment_history"
+                ? 380
+                : t.name === "chat_activity"
+                  ? 220
+                  : t.name === "health_reports"
+                    ? 300
+                    : 200;
+
+        const tableBytes = Math.max(16384, t.rowCount * rowMultiplier);
+        const indexBytes = Math.max(16384, Math.round(t.rowCount * 80));
+        const total = tableBytes + indexBytes;
+
+        estimatedAppBytes += total;
+        tableSizeMap.set(t.name, {
+          totalBytes: total,
+          totalPretty: formatBytes(total),
+          tablePretty: formatBytes(tableBytes),
+          indexPretty: formatBytes(indexBytes),
+        });
+      });
+
+      storageUsedBytes = estimatedAppBytes;
+      storageUsedPretty = formatBytes(storageUsedBytes);
+      storageTelemetrySource = "estimated";
+    }
+
+    // Attach sizes to table stats
+    tableStats.forEach((t) => {
+      const sizeInfo = tableSizeMap.get(t.name);
+      if (sizeInfo) {
+        t.totalBytes = sizeInfo.totalBytes;
+        t.totalPretty = sizeInfo.totalPretty;
+        t.tablePretty = sizeInfo.tablePretty;
+        t.indexPretty = sizeInfo.indexPretty;
+      } else {
+        t.totalBytes = 16384;
+        t.totalPretty = "16 kB";
+        t.tablePretty = "8 kB";
+        t.indexPretty = "8 kB";
+      }
+    });
+
+    const storagePercent = Math.min(
+      100,
+      Math.round((storageUsedBytes / FREE_TIER_QUOTA_BYTES) * 10000) / 100,
+    );
+
+    const storageStatus: DatabaseOverviewData["storageStatus"] =
+      storagePercent >= 90 ? "critical" : storagePercent >= 75 ? "warning" : "optimal";
+
+    const tableStorageBreakdown: TableStorageDetail[] = tableStats.map((t) => ({
+      tableName: t.name,
+      displayName: t.displayName,
+      rowCount: t.rowCount,
+      totalBytes: t.totalBytes ?? 0,
+      totalPretty: t.totalPretty ?? "0 B",
+      tablePretty: t.tablePretty ?? "0 B",
+      indexPretty: t.indexPretty ?? "0 B",
+      percentOfDb:
+        storageUsedBytes > 0
+          ? Math.round(((t.totalBytes ?? 0) / storageUsedBytes) * 1000) / 10
+          : 0,
+    }));
+
     return {
       status,
       statusMessage,
@@ -398,6 +557,14 @@ export const getDatabaseOverview = createServerFn({ method: "GET" }).handler(
       recentActivityCount,
       lastUpdated: new Date().toISOString(),
       serviceRoleConfigured,
+      storageUsedBytes,
+      storageUsedPretty,
+      storageQuotaBytes: FREE_TIER_QUOTA_BYTES,
+      storageQuotaPretty: "500 MB",
+      storagePercent,
+      storageStatus,
+      tableStorageBreakdown,
+      storageTelemetrySource,
     };
   },
 );
@@ -511,6 +678,44 @@ export const getTableRecords = createServerFn({ method: "POST" })
       });
     }
 
+    // Determine table storage size
+    let tableSizePretty: string | undefined;
+    let indexSizePretty: string | undefined;
+    try {
+      const { data: rpcData } = await db.rpc("get_db_storage_usage");
+      if (rpcData && typeof rpcData === "object" && Array.isArray((rpcData as any).table_sizes)) {
+        const found = ((rpcData as any).table_sizes as any[]).find(
+          (t) => t.table_name === tableName,
+        );
+        if (found) {
+          tableSizePretty = found.total_pretty;
+          indexSizePretty = found.index_pretty;
+        }
+      }
+    } catch {
+      // non-fatal
+    }
+
+    if (!tableSizePretty) {
+      const rowMultiplier =
+        tableName === "website_health_checks"
+          ? 520
+          : tableName === "performance_history"
+            ? 480
+            : tableName === "deployment_history"
+              ? 380
+              : tableName === "chat_activity"
+                ? 220
+                : tableName === "health_reports"
+                  ? 300
+                  : 200;
+      const countVal = count ?? filteredRows.length;
+      const total = Math.max(16384, countVal * rowMultiplier);
+      const idxBytes = Math.max(16384, Math.round(countVal * 80));
+      tableSizePretty = formatBytes(total + idxBytes);
+      indexSizePretty = formatBytes(idxBytes);
+    }
+
     return {
       tableName,
       rows: filteredRows,
@@ -518,6 +723,8 @@ export const getTableRecords = createServerFn({ method: "POST" })
       columns: Array.from(columnSet),
       page,
       pageSize,
+      tableSizePretty,
+      indexSizePretty,
     };
   });
 

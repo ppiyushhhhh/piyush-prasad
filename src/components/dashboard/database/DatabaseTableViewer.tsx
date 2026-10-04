@@ -16,6 +16,7 @@ import {
   Eye,
   Database,
   ExternalLink,
+  HardDrive,
 } from "lucide-react";
 import type { DbTableStat, TableQueryResponse } from "@/lib/database-admin.functions";
 import { SUPPORTED_TABLES } from "@/lib/database-admin.functions";
@@ -212,15 +213,22 @@ export function DatabaseTableViewer({
                     {t.name}
                   </div>
                 </div>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-mono shrink-0 ${
-                    isSelected
-                      ? "bg-cyan-800/60 text-cyan-200 font-semibold"
-                      : "bg-slate-800 text-slate-400 group-hover:bg-slate-700"
-                  }`}
-                >
-                  {stat?.rowCount ?? 0}
-                </span>
+                <div className="flex flex-col items-end shrink-0 gap-0.5">
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                      isSelected
+                        ? "bg-cyan-800/60 text-cyan-200 font-semibold"
+                        : "bg-slate-800 text-slate-400 group-hover:bg-slate-700"
+                    }`}
+                  >
+                    {(stat?.rowCount ?? 0).toLocaleString()}
+                  </span>
+                  {stat?.totalPretty && (
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {stat.totalPretty}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
@@ -245,9 +253,37 @@ export function DatabaseTableViewer({
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 {activeTableMeta.description}
               </p>
+
+              <div className="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2 border-t border-slate-800/60 text-xs font-mono text-slate-400">
+                <div className="flex items-center gap-1.5 text-slate-300">
+                  <HardDrive className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>
+                    Storage:{" "}
+                    <strong className="text-cyan-300 font-semibold">
+                      {activeStat?.totalPretty ?? tableData?.tableSizePretty ?? "—"}
+                    </strong>
+                  </span>
+                </div>
+                {(activeStat?.tablePretty || activeStat?.indexPretty) && (
+                  <>
+                    <span className="text-slate-600">•</span>
+                    <span>
+                      Data: <strong className="text-slate-300">{activeStat.tablePretty ?? "—"}</strong>
+                    </span>
+                    <span className="text-slate-600">•</span>
+                    <span>
+                      Index: <strong className="text-slate-300">{activeStat.indexPretty ?? "—"}</strong>
+                    </span>
+                  </>
+                )}
+                <span className="text-slate-600">•</span>
+                <span>
+                  Records: <strong className="text-slate-300">{totalCount.toLocaleString()}</strong>
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-center">
               <button
                 onClick={onRefresh}
                 disabled={isLoading}

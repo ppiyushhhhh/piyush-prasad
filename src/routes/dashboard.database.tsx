@@ -13,6 +13,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  HardDrive,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -409,6 +410,28 @@ function DatabaseAdminPage() {
               {overview?.status === "connected" ? "PostgreSQL Connected" : "Connecting…"}
             </span>
           </div>
+
+          {/* Database Storage Badge */}
+          {overview?.storageUsedPretty && (
+            <div className="rounded-md border border-cyan-800/80 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-slate-300 flex items-center gap-2">
+              <HardDrive className="h-3.5 w-3.5 text-cyan-400" />
+              <span>
+                Storage: <strong className="text-cyan-300">{overview.storageUsedPretty}</strong>
+                <span className="text-slate-500 ml-1">/ {overview.storageQuotaPretty}</span>
+              </span>
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                  overview.storageStatus === "critical"
+                    ? "bg-rose-950 text-rose-300 border border-rose-800"
+                    : overview.storageStatus === "warning"
+                      ? "bg-amber-950 text-amber-300 border border-amber-800"
+                      : "bg-cyan-950 text-cyan-300 border border-cyan-800"
+                }`}
+              >
+                {overview.storagePercent}%
+              </span>
+            </div>
+          )}
 
           {lastUpdated && (
             <div className="rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-slate-400 flex items-center gap-1.5">
