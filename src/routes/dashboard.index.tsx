@@ -268,8 +268,8 @@ function Overview() {
                   <dd className="mt-2 font-mono text-slate-200 font-semibold text-sm">
                     {data?.deployment ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <span className="text-emerald-400 font-semibold">{data.deployment.workflow_name.split("#")[0]}</span>
-                        <span className="text-xs text-slate-400 font-normal">#{data.deployment.workflow_name.split("#")[1] ?? "latest"}</span>
+                        <span className="text-emerald-400 font-semibold">{data.deployment.workflow_name?.split("#")[0] ?? "Workflow"}</span>
+                        <span className="text-xs text-slate-400 font-normal">#{data.deployment.workflow_name?.split("#")[1] ?? "latest"}</span>
                       </span>
                     ) : (
                       "CodeQL Advanced #132"

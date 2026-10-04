@@ -17,8 +17,10 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
+import { Route as DashboardDatabaseRouteImport } from './routes/dashboard.database'
 import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
+import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
@@ -66,6 +68,11 @@ const DashboardCicdRoute = DashboardCicdRouteImport.update({
   path: '/cicd',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardDatabaseRoute = DashboardDatabaseRouteImport.update({
+  id: '/database',
+  path: '/database',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardGithubRoute = DashboardGithubRouteImport.update({
   id: '/github',
   path: '/github',
@@ -74,6 +81,11 @@ const DashboardGithubRoute = DashboardGithubRouteImport.update({
 const DashboardHealthRoute = DashboardHealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLoginRoute = DashboardLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
@@ -115,8 +127,10 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -132,8 +146,10 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -151,8 +167,10 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
+  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -171,8 +189,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
+    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -188,8 +208,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
+    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -206,8 +228,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
+    | '/dashboard/login'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -286,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCicdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/database': {
+      id: '/dashboard/database'
+      path: '/database'
+      fullPath: '/dashboard/database'
+      preLoaderRoute: typeof DashboardDatabaseRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/github': {
       id: '/dashboard/github'
       path: '/github'
@@ -298,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/dashboard/health'
       preLoaderRoute: typeof DashboardHealthRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/login': {
+      id: '/dashboard/login'
+      path: '/login'
+      fullPath: '/dashboard/login'
+      preLoaderRoute: typeof DashboardLoginRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/performance': {
@@ -348,8 +386,10 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardAiChatRoute: typeof DashboardAiChatRoute
   DashboardCicdRoute: typeof DashboardCicdRoute
+  DashboardDatabaseRoute: typeof DashboardDatabaseRoute
   DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
+  DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
   DashboardReportsRoute: typeof DashboardReportsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
@@ -359,8 +399,10 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAiChatRoute: DashboardAiChatRoute,
   DashboardCicdRoute: DashboardCicdRoute,
+  DashboardDatabaseRoute: DashboardDatabaseRoute,
   DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,
+  DashboardLoginRoute: DashboardLoginRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
   DashboardReportsRoute: DashboardReportsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,

@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_user_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          target_record_id: string | null
+          target_table: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_record_id?: string | null
+          target_table?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_record_id?: string | null
+          target_table?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       chat_activity: {
         Row: {
           error_code: string | null

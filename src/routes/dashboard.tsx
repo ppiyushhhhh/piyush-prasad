@@ -9,6 +9,7 @@ import {
   Github,
   Rocket,
   Settings,
+  Database,
   LogOut,
   Shield,
   Loader2,
@@ -36,6 +37,7 @@ const NAV = [
   { to: "/dashboard/cicd", label: "CI/CD", icon: Rocket },
   { to: "/dashboard/ai-chat", label: "AI Chat", icon: Bot },
   { to: "/dashboard/reports", label: "Reports", icon: FileText },
+  { to: "/dashboard/database", label: "Database", icon: Database },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 

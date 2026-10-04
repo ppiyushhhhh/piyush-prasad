@@ -955,6 +955,7 @@ function Contact() {
             className="inline-flex items-center gap-2 text-white/70 hover:text-cobalt underline underline-offset-4"
           >
             VIEW RESUME
+          </a>
 
           <a
             href="/dashboard"
