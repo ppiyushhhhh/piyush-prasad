@@ -92,23 +92,57 @@ async function ensurePrivateBucket() {
   }
 }
 
-async function sendOperationalEmail({ subject, headline, status, backupDateTime, backupSize, errorMessage }) {
+async function sendOperationalEmail({
+  subject,
+  headline,
+  status,
+  backupDateTime,
+  backupSize,
+  backupTag = "AUTOMATIC",
+  filename,
+  totalRecords = 0,
+  tablesSummary = {},
+  errorMessage,
+  prunedCount = 0,
+  storageLocation = "Private Supabase Storage",
+}) {
   const recipient = process.env.REPORT_TO || process.env.ALERT_TO || "admin@piyushprasad.in";
   const isSuccess = status === "SUCCESS";
+  const isManual = backupTag === "MANUAL";
+  const tagColor = isManual ? "#c084fc" : "#38bdf8";
+
+  // Build table breakdown lines
+  const tableBreakdownLines = [];
+  for (const [tbl, count] of Object.entries(tablesSummary)) {
+    tableBreakdownLines.push(`  • public.${tbl.padEnd(26)} : ${count} records`);
+  }
 
   const messageText = [
-    `PP·OPS Database Administration Notification`,
-    `============================================`,
+    `============================================================`,
+    `PP·OPS DATABASE BACKUP & RESTORATION AUDIT DISPATCH`,
+    `============================================================`,
     headline,
     ``,
-    `Backup Date/Time: ${backupDateTime}`,
-    `Status:          ${status}`,
-    `Backup Size:     ${backupSize || "0 B"}`,
-    ...(errorMessage ? [`Error Message:   ${errorMessage}`] : []),
+    `[TAG: ${backupTag}]`,
+    `Execution Mode:      ${backupTag}`,
+    `Operational Status:  ${status}`,
+    `Date & Time:         ${backupDateTime}`,
+    ...(filename ? [`Archive Filename:    ${filename}`] : []),
+    `Archive Size:        ${backupSize || "0 B"}`,
+    `Total Records:       ${totalRecords.toLocaleString()} records`,
+    `Storage Destination: ${storageLocation}`,
+    `Retention Policy:    7-Day Continuous Rotation (${prunedCount} pruned)`,
+    `User Security:       Supabase Service Role (Server-Side Execution)`,
+    ...(errorMessage ? [``, `ERROR DETAIL:`, errorMessage] : []),
     ``,
-    `Storage Policy:   Private Supabase Storage Bucket (database-backups)`,
-    `Retention Policy: 7-Day Rolling Rotation`,
-    `Security:         Supabase Service Role (Server-Side Execution)`,
+    `DATABASE TABLE BREAKDOWN:`,
+    `------------------------------------------------------------`,
+    ...(tableBreakdownLines.length > 0 ? tableBreakdownLines : ["  • (No tables recorded)"]),
+    `------------------------------------------------------------`,
+    `Total Records Backed Up: ${totalRecords.toLocaleString()}`,
+    ``,
+    `Inspect in Dashboard: https://piyushprasad.in/dashboard/database`,
+    `============================================================`,
   ].join("\n");
 
   const smtpHost = process.env.SMTP_HOST;
@@ -143,20 +177,20 @@ async function sendOperationalEmail({ subject, headline, status, backupDateTime,
   const web3FormsKey = process.env.WEB3FORMS_ACCESS_KEY || process.env.VITE_WEB3FORMS_ACCESS_KEY;
   if (web3FormsKey) {
     try {
-      const payload = new FormData();
-      payload.append("access_key", web3FormsKey);
-      payload.append("from_name", "PP·OPS Database Engine");
-      payload.append("subject", subject);
-      payload.append("name", "Database Operational Notification");
-      payload.append("email", recipient);
-      payload.append("message", messageText);
+      const params = new URLSearchParams();
+      params.append("access_key", web3FormsKey);
+      params.append("from_name", `PP·OPS Database Engine [${backupTag}]`);
+      params.append("subject", subject);
+      params.append("name", `Database Backup Alert [${backupTag}]`);
+      params.append("email", recipient);
+      params.append("message", messageText);
 
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: payload,
+        body: params,
       });
-      if (res.ok) {
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (res.ok && data?.success) {
         console.log(`📧 Operational status notification delivered via notification gateway to: ${recipient}`);
         return true;
       }
@@ -478,19 +512,40 @@ async function main() {
 
     console.log(`💾 SQL Archive Size: ${fileSizePretty}, Records: ${totalRecords}`);
 
-    // Upload to private Supabase Storage bucket
-    const { error: uploadErr } = await supabase.storage
-      .from(BACKUP_STORAGE_BUCKET)
-      .upload(filename, sqlBuffer, {
-        contentType: "application/sql",
-        upsert: true,
-      });
+    // Upload to private Supabase Storage bucket (with resilient fallback to database vault)
+    let storageUploaded = false;
+    let storagePath = filename;
+    let storageBucketName = BACKUP_STORAGE_BUCKET;
 
-    if (uploadErr) {
-      throw new Error(`Upload to storage failed: ${uploadErr.message}`);
+    try {
+      const { error: uploadErr } = await supabase.storage
+        .from(BACKUP_STORAGE_BUCKET)
+        .upload(filename, sqlBuffer, {
+          contentType: "application/sql",
+          upsert: true,
+        });
+
+      if (uploadErr) {
+        console.warn(`⚠️ Supabase Storage upload skipped/failed (${uploadErr.message}). Utilizing database vault persistence.`);
+        storageUploaded = false;
+        storagePath = "database://backup_data";
+        storageBucketName = "database_backups (embedded)";
+      } else {
+        storageUploaded = true;
+        console.log(`☁️ Uploaded successfully to private Supabase Storage: "${filename}"`);
+      }
+    } catch (storageExc) {
+      console.warn(`⚠️ Storage upload exception (${storageExc.message}). Utilizing database vault.`);
+      storageUploaded = false;
+      storagePath = "database://backup_data";
+      storageBucketName = "database_backups (embedded)";
     }
 
-    console.log(`☁️ Uploaded successfully to private Supabase Storage: "${filename}"`);
+    const backupTag = isManual ? "MANUAL" : "AUTOMATIC";
+    const tablesSummary = {};
+    for (const [t, r] of Object.entries(tablesData)) {
+      tablesSummary[t] = r.length;
+    }
 
     // Insert backup history record
     const { error: insertErr } = await supabase.from("database_backups").insert({
@@ -506,11 +561,15 @@ async function main() {
       pruned_records_count: 0,
       deleted_at: null,
       error_message: null,
-      storage_bucket: BACKUP_STORAGE_BUCKET,
-      storage_path: filename,
+      storage_bucket: storageBucketName,
+      storage_path: storagePath,
+      backup_data: { sql: sqlContent, fallbackStorage: !storageUploaded, tableCounts: tablesSummary },
       metadata: {
         runner: "scripts/run-database-backup.mjs",
         executedAt: now.toISOString(),
+        backupTypeTag: backupTag,
+        storageUploaded,
+        tablesSummary,
       },
     });
 
@@ -521,15 +580,29 @@ async function main() {
     }
 
     // Execute 7-day retention rotation
-    await run7DayRetentionRotation();
+    const deletedCount = await run7DayRetentionRotation();
 
     // Operational success email
+    const subject = isManual
+      ? `[PP·OPS Database] Manual Database Backup Completed [MANUAL] — ${dateStr}`
+      : `[PP·OPS Database] Daily Database Backup Completed [AUTOMATIC] — ${dateStr}`;
+
+    const headline = isManual
+      ? `Manual database backup snapshot captured and archived [MANUAL].`
+      : `Daily automatic database backup completed successfully [AUTOMATIC].`;
+
     await sendOperationalEmail({
-      subject: "Daily database backup completed successfully",
-      headline: "Daily database backup completed successfully.",
+      subject,
+      headline,
       status: "SUCCESS",
+      backupTag,
+      filename,
       backupDateTime: `${dateStr} ${timeStr}`,
       backupSize: fileSizePretty,
+      totalRecords,
+      tablesSummary,
+      prunedCount: deletedCount,
+      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Database Vault (Embedded)",
       errorMessage: null,
     });
 

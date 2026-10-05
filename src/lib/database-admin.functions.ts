@@ -147,6 +147,7 @@ export interface BackupResultResponse {
   totalRecordsPruned: number;
   fileSizePretty: string;
   status: "SUCCESS" | "FAILED";
+  backupTag?: "MANUAL" | "AUTOMATIC";
   errorMessage?: string | null;
   emailSent: boolean;
   emailRecipient: string;
@@ -1283,6 +1284,7 @@ export const createManualBackup = createServerFn({ method: "POST" }).handler(
       totalRecordsPruned: result.prunedCount,
       fileSizePretty: result.fileSizePretty,
       status: result.status,
+      backupTag: "MANUAL",
       errorMessage: result.errorMessage,
       emailSent: result.notificationSent,
       emailRecipient: result.notificationRecipient,
@@ -1394,6 +1396,19 @@ export const getBackupDownloadData = createServerFn({ method: "POST" })
       }
 
       const filePath = record.storage_path || record.filename;
+
+      // Resilient check: If stored directly in database backup_data or path is database://backup_data
+      if (
+        record.storage_path === "database://backup_data" ||
+        (record.backup_data && typeof record.backup_data === "object" && (record.backup_data as any).sql)
+      ) {
+        return {
+          backupId: record.id,
+          filename: record.filename,
+          sqlContent: (record.backup_data as any).sql,
+        };
+      }
+
       const { BACKUP_STORAGE_BUCKET } = await import("./database-backup.service");
 
       // Attempt to generate signed download URL
@@ -1423,8 +1438,15 @@ export const getBackupDownloadData = createServerFn({ method: "POST" })
         };
       }
 
-      // If backup_data json exists as legacy fallback
+      // If backup_data exists as json or secondary fallback
       if (record.backup_data) {
+        if (typeof record.backup_data === "object" && (record.backup_data as any).sql) {
+          return {
+            backupId: record.id,
+            filename: record.filename,
+            sqlContent: (record.backup_data as any).sql,
+          };
+        }
         return {
           backupId: record.id,
           filename: record.filename.replace(/\.sql$/, ".json"),

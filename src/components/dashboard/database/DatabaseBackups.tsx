@@ -102,6 +102,16 @@ export function DatabaseBackups({
     return `${num} ${sizes[i]}`;
   }, [totalStoredBytes]);
 
+  const manualBackupsCount = useMemo(
+    () => backups.filter((b) => b.backup_type === "manual" || (b.metadata as any)?.backupTypeTag === "MANUAL").length,
+    [backups],
+  );
+
+  const automaticBackupsCount = useMemo(
+    () => backups.length - manualBackupsCount,
+    [backups, manualBackupsCount],
+  );
+
   // Calculate current month's on-the-fly statistics if no stored report yet
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -489,11 +499,21 @@ export function DatabaseBackups({
       <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 space-y-4 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-800">
           <div>
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <Layers className="h-4 w-4 text-cyan-400" />
-              Complete Backup History &amp; Rotation Logs ({backups.length})
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-cyan-400" />
+                Complete Backup History &amp; Rotation Logs ({backups.length})
+              </h3>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950/80 text-purple-300 border border-purple-700/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                MANUAL: {manualBackupsCount}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-700/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                AUTOMATIC: {automaticBackupsCount}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
               Historical records remain permanently available for auditing and monthly reports even after the physical backup file is pruned from storage.
             </p>
           </div>
@@ -506,6 +526,7 @@ export function DatabaseBackups({
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-950 text-slate-400 text-[11px] font-sans">
                     <th className="py-3 px-4 font-semibold">Backup Date &amp; Time</th>
+                    <th className="py-3 px-3 font-semibold">Type / Tag</th>
                     <th className="py-3 px-3 font-semibold">Filename</th>
                     <th className="py-3 px-3 font-semibold">Status</th>
                     <th className="py-3 px-3 font-semibold text-right">Size</th>
@@ -517,6 +538,7 @@ export function DatabaseBackups({
                   {backups.map((b) => {
                     const isPruned = Boolean(b.deleted_at);
                     const isSuccess = b.status === "SUCCESS";
+                    const isManual = b.backup_type === "manual" || (b.metadata as any)?.backupTypeTag === "MANUAL";
 
                     return (
                       <tr
@@ -533,6 +555,20 @@ export function DatabaseBackups({
                           <div className="text-[10px] text-slate-500 truncate max-w-[130px]">
                             {b.id}
                           </div>
+                        </td>
+
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          {isManual ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold font-mono tracking-wider bg-purple-950/90 text-purple-300 border border-purple-600/70 shadow-sm">
+                              <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                              MANUAL
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[10px] font-bold font-mono tracking-wider bg-cyan-950/90 text-cyan-300 border border-cyan-600/70 shadow-sm">
+                              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                              AUTOMATIC
+                            </span>
+                          )}
                         </td>
 
                         <td className="py-3 px-3 text-cyan-300 font-semibold truncate max-w-[220px]">
@@ -719,6 +755,20 @@ export function DatabaseBackups({
                   <span className="text-[10px] text-slate-500 uppercase block font-sans">Status</span>
                   <span className={`font-bold ${selectedBackupForModal.status === "SUCCESS" ? "text-emerald-400" : "text-red-400"}`}>
                     {selectedBackupForModal.status}
+                  </span>
+                </div>
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-3">
+                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Execution Mode / Tag</span>
+                  <span className="font-bold flex items-center gap-1.5 mt-0.5">
+                    {selectedBackupForModal.backup_type === "manual" || (selectedBackupForModal.metadata as any)?.backupTypeTag === "MANUAL" ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-purple-400" /> MANUAL
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" /> AUTOMATIC
+                      </span>
+                    )}
                   </span>
                 </div>
                 <div className="rounded-lg border border-slate-800 bg-slate-950 p-3">

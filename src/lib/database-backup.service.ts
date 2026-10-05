@@ -39,8 +39,10 @@ export interface BackupExecutionResult {
   fileSizePretty: string;
   totalRecords: number;
   tablesIncluded: string[];
+  tablesSummary?: Record<string, number>;
   prunedCount: number;
   status: "SUCCESS" | "FAILED";
+  backupTag: "MANUAL" | "AUTOMATIC";
   errorMessage?: string | null;
   notificationSent: boolean;
   notificationRecipient: string;
@@ -258,16 +260,30 @@ export async function sendOperationalEmail({
   status,
   backupDateTime,
   backupSize,
+  backupTag = "AUTOMATIC",
+  backupId,
+  filename,
+  totalRecords = 0,
+  tablesSummary = {},
   errorMessage,
   recipientEmail,
+  prunedCount = 0,
+  storageLocation = "Private Supabase Storage",
 }: {
   subject: string;
   headline: string;
   status: "SUCCESS" | "FAILED";
   backupDateTime: string;
   backupSize?: string;
+  backupTag?: "MANUAL" | "AUTOMATIC";
+  backupId?: string;
+  filename?: string;
+  totalRecords?: number;
+  tablesSummary?: Record<string, number>;
   errorMessage?: string | null;
   recipientEmail?: string;
+  prunedCount?: number;
+  storageLocation?: string;
 }): Promise<{ sent: boolean; method: string; recipient: string }> {
   const recipient =
     recipientEmail ||
@@ -278,21 +294,57 @@ export async function sendOperationalEmail({
   const isSuccess = status === "SUCCESS";
   const statusColor = isSuccess ? "#10b981" : "#ef4444";
   const statusBadge = isSuccess ? "COMPLETED SUCCESSFULLY" : "FAILED";
+  const isManual = backupTag === "MANUAL";
+  const tagColor = isManual ? "#c084fc" : "#38bdf8";
+  const tagBg = isManual ? "#3b0764" : "#083344";
+  const tagBorder = isManual ? "#7e22ce" : "#0891b2";
+
+  // Build table breakdown lines
+  const tableBreakdownLines: string[] = [];
+  const tableRowsHtml: string[] = [];
+  const entries = Object.entries(tablesSummary);
+
+  if (entries.length > 0) {
+    for (const [tbl, count] of entries) {
+      tableBreakdownLines.push(`  • public.${tbl.padEnd(26)} : ${count} records`);
+      tableRowsHtml.push(`
+        <tr>
+          <td style="padding: 6px 12px; border-bottom: 1px solid #1f2937; color: #cbd5e1; font-family: monospace; font-size: 12px;">public.${tbl}</td>
+          <td style="padding: 6px 12px; border-bottom: 1px solid #1f2937; color: #38bdf8; font-family: monospace; font-size: 12px; text-align: right; font-weight: 700;">${count.toLocaleString()}</td>
+        </tr>
+      `);
+    }
+  } else {
+    tableBreakdownLines.push("  • (No individual table records available)");
+  }
 
   const textLines = [
-    `PP·OPS Database Administration Notification`,
-    `============================================`,
+    `============================================================`,
+    `PP·OPS DATABASE BACKUP & RESTORATION AUDIT DISPATCH`,
+    `============================================================`,
     headline,
     ``,
-    `Backup Date/Time: ${backupDateTime}`,
-    `Status:          ${status}`,
-    `Backup Size:     ${backupSize || "0 B"}`,
-    ...(errorMessage ? [`Error Message:   ${errorMessage}`] : []),
+    `[TAG: ${backupTag}]`,
+    `Execution Mode:      ${backupTag}`,
+    `Operational Status:  ${status}`,
+    ...(backupId ? [`Backup ID:           ${backupId}`] : []),
+    `Date & Time:         ${backupDateTime}`,
+    ...(filename ? [`Archive Filename:    ${filename}`] : []),
+    `Archive Size:        ${backupSize || "0 B"}`,
+    `Total Records:       ${totalRecords.toLocaleString()} records`,
+    `Storage Destination: ${storageLocation}`,
+    `Retention Policy:    7-Day Continuous Rotation (${prunedCount} pruned)`,
+    `User Security:       Admin credentials and RBAC active and preserved`,
+    ...(errorMessage ? [``, `ERROR DETAIL:`, errorMessage] : []),
     ``,
-    `Storage Policy:   Private Supabase Storage Bucket (database-backups)`,
-    `Retention Policy: 7-Day Rolling Window (Auto-pruned after 7 days)`,
+    `DATABASE TABLE BREAKDOWN:`,
+    `------------------------------------------------------------`,
+    ...tableBreakdownLines,
+    `------------------------------------------------------------`,
+    `Total Records Backed Up: ${totalRecords.toLocaleString()}`,
     ``,
-    `Access Dashboard: https://piyushprasad.in/dashboard/database`,
+    `Inspect in Dashboard: https://piyushprasad.in/dashboard/database`,
+    `============================================================`,
   ];
 
   const htmlContent = `
@@ -302,18 +354,24 @@ export async function sendOperationalEmail({
   <meta charset="utf-8">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f19; color: #f1f5f9; padding: 24px; margin: 0; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #111827; border: 1px solid #1f2937; border-radius: 12px; overflow: hidden; }
+    .container { max-width: 620px; margin: 0 auto; background-color: #111827; border: 1px solid #1f2937; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
     .header { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); padding: 24px; border-bottom: 1px solid #1f2937; }
-    .brand { font-size: 13px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; }
-    .title { font-size: 20px; font-weight: 700; color: #f8fafc; margin-top: 6px; margin-bottom: 0; }
+    .brand { font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1.5px; }
+    .title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 6px; margin-bottom: 0; }
     .body { padding: 24px; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: ${isSuccess ? "#064e3b" : "#7f1d1d"}; color: ${isSuccess ? "#6ee7b7" : "#fca5a5"}; border: 1px solid ${statusColor}; margin-bottom: 16px; }
-    .info-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    .info-table td { padding: 10px 12px; border-bottom: 1px solid #1f2937; font-size: 13px; }
-    .info-table td.label { color: #94a3b8; font-weight: 500; width: 140px; }
+    .tags-row { display: flex; gap: 8px; margin-bottom: 18px; align-items: center; }
+    .tag-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-family: monospace; background: ${tagBg}; color: ${tagColor}; border: 1px solid ${tagBorder}; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; background: ${isSuccess ? "#064e3b" : "#7f1d1d"}; color: ${isSuccess ? "#6ee7b7" : "#fca5a5"}; border: 1px solid ${statusColor}; }
+    .info-table { width: 100%; border-collapse: collapse; margin-top: 14px; background: #0b0f19; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden; }
+    .info-table td { padding: 9px 12px; border-bottom: 1px solid #1f2937; font-size: 13px; }
+    .info-table td.label { color: #94a3b8; font-weight: 500; width: 150px; }
     .info-table td.value { color: #f8fafc; font-family: monospace; font-weight: 600; }
+    .section-title { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; margin-bottom: 8px; }
+    .breakdown-table { width: 100%; border-collapse: collapse; background: #0b0f19; border: 1px solid #1f2937; border-radius: 8px; }
+    .breakdown-table th { padding: 8px 12px; background: #1e293b; color: #94a3b8; font-size: 11px; text-transform: uppercase; text-align: left; }
     .error-box { margin-top: 16px; padding: 12px 16px; background-color: #450a0a; border: 1px solid #b91c1c; border-radius: 8px; font-family: monospace; font-size: 12px; color: #fecaca; }
     .footer { padding: 16px 24px; background-color: #0b0f19; border-top: 1px solid #1f2937; font-size: 11px; color: #64748b; text-align: center; }
+    .btn { display: inline-block; margin-top: 18px; padding: 10px 20px; background: #0284c7; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -323,34 +381,68 @@ export async function sendOperationalEmail({
       <h2 class="title">${headline}</h2>
     </div>
     <div class="body">
-      <span class="badge">${statusBadge}</span>
+      <div class="tags-row">
+        <span class="tag-badge">[${backupTag}]</span>
+        <span class="status-badge">${statusBadge}</span>
+      </div>
+
       <table class="info-table">
+        <tr>
+          <td class="label">Backup Mode</td>
+          <td class="value"><strong style="color: ${tagColor};">${backupTag}</strong></td>
+        </tr>
+        ${backupId ? `<tr><td class="label">Backup ID</td><td class="value">${backupId}</td></tr>` : ""}
         <tr>
           <td class="label">Date &amp; Time</td>
           <td class="value">${backupDateTime}</td>
         </tr>
+        ${filename ? `<tr><td class="label">Archive Filename</td><td class="value" style="color: #38bdf8;">${filename}</td></tr>` : ""}
         <tr>
-          <td class="label">Operational Status</td>
-          <td class="value" style="color: ${statusColor};">${status}</td>
-        </tr>
-        <tr>
-          <td class="label">Backup Archive Size</td>
+          <td class="label">Archive Size</td>
           <td class="value">${backupSize || "0 B"}</td>
         </tr>
         <tr>
+          <td class="label">Total Records</td>
+          <td class="value">${totalRecords.toLocaleString()} rows</td>
+        </tr>
+        <tr>
           <td class="label">Storage Location</td>
-          <td class="value">Private Supabase Storage</td>
+          <td class="value">${storageLocation}</td>
         </tr>
         <tr>
           <td class="label">Retention Policy</td>
-          <td class="value">7 Days (Continuous Rotation)</td>
+          <td class="value">7 Days Continuous Rotation</td>
         </tr>
       </table>
+
       ${
-        errorMessage
-          ? `<div class="error-box"><strong>Error Detail:</strong><br>${errorMessage}</div>`
+        tableRowsHtml.length > 0
+          ? `
+          <div class="section-title">Database Tables Breakdown</div>
+          <table class="breakdown-table">
+            <thead>
+              <tr>
+                <th>Table Name</th>
+                <th style="text-align: right;">Archived Records</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRowsHtml.join("")}
+            </tbody>
+          </table>
+          `
           : ""
       }
+
+      ${
+        errorMessage
+          ? `<div class="error-box"><strong>Failure Reason:</strong><br>${errorMessage}</div>`
+          : ""
+      }
+
+      <div style="text-align: center;">
+        <a href="https://piyushprasad.in/dashboard/database" class="btn">View Database Console</a>
+      </div>
     </div>
     <div class="footer">
       Automated operational alert from PP·OPS Platform. Supabase credentials and backup archives are strictly protected server-side.
@@ -400,18 +492,17 @@ export async function sendOperationalEmail({
 
   if (web3FormsKey) {
     try {
-      const payload = new FormData();
-      payload.append("access_key", web3FormsKey);
-      payload.append("from_name", "PP·OPS Database Engine");
-      payload.append("subject", subject);
-      payload.append("name", "Database Operational Notification");
-      payload.append("email", recipient);
-      payload.append("message", textLines.join("\n"));
+      const params = new URLSearchParams();
+      params.append("access_key", web3FormsKey);
+      params.append("from_name", `PP·OPS Database Engine [${backupTag}]`);
+      params.append("subject", subject);
+      params.append("name", `Database Backup Alert [${backupTag}]`);
+      params.append("email", recipient);
+      params.append("message", textLines.join("\n"));
 
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: payload,
+        body: params,
       });
       const data = (await res.json().catch(() => ({}))) as { success?: boolean };
       if (res.ok && data?.success) {
@@ -532,6 +623,7 @@ export async function executeDatabaseBackupWorkflow({
       ? `database-backup-${dateStr}-${now.getTime().toString().slice(-6)}.sql`
       : `database-backup-${dateStr}.sql`;
 
+  const backupTag: "MANUAL" | "AUTOMATIC" = backupType === "manual" ? "MANUAL" : "AUTOMATIC";
   const backupId = `bk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   let sqlDumpStr = "";
   let totalRecordsCount = 0;
@@ -541,7 +633,7 @@ export async function executeDatabaseBackupWorkflow({
   const tablesSummary: Record<string, number> = {};
 
   try {
-    // Ensure bucket exists
+    // Ensure bucket exists (log warnings without throwing)
     await ensurePrivateStorageBucket(supabase);
 
     // 1. Query all required application tables
@@ -579,16 +671,36 @@ export async function executeDatabaseBackupWorkflow({
     fileSizeBytes = sqlBuffer.length;
     fileSizePretty = formatBytes(fileSizeBytes);
 
-    // 3. Upload to Private Supabase Storage Bucket
-    const { error: uploadError } = await supabase.storage
-      .from(BACKUP_STORAGE_BUCKET)
-      .upload(filename, sqlBuffer, {
-        contentType: "application/sql",
-        upsert: true,
-      });
+    // 3. Upload to Private Supabase Storage Bucket (with resilient fallback to database vault)
+    let storageUploaded = false;
+    let storagePath: string | null = filename;
+    let storageBucketName = BACKUP_STORAGE_BUCKET;
 
-    if (uploadError) {
-      throw new Error(`Supabase Storage upload failed: ${uploadError.message}`);
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from(BACKUP_STORAGE_BUCKET)
+        .upload(filename, sqlBuffer, {
+          contentType: "application/sql",
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.warn(
+          `[DatabaseBackup] Supabase Storage upload skipped/failed (${uploadError.message}). Utilizing database vault persistence.`,
+        );
+        storageUploaded = false;
+        storagePath = "database://backup_data";
+        storageBucketName = "database_backups (embedded)";
+      } else {
+        storageUploaded = true;
+      }
+    } catch (storageErr: any) {
+      console.warn(
+        `[DatabaseBackup] Storage upload exception: ${storageErr?.message || storageErr}. Utilizing database vault persistence.`,
+      );
+      storageUploaded = false;
+      storagePath = "database://backup_data";
+      storageBucketName = "database_backups (embedded)";
     }
 
     // 4. Create Backup History Record in Database
@@ -605,12 +717,15 @@ export async function executeDatabaseBackupWorkflow({
       pruned_records_count: 0,
       deleted_at: null,
       error_message: null,
-      storage_bucket: BACKUP_STORAGE_BUCKET,
-      storage_path: filename,
+      storage_bucket: storageBucketName,
+      storage_path: storagePath,
+      backup_data: { sql: sqlDumpStr, fallbackStorage: !storageUploaded, tableCounts: dumpResult.tableCounts },
       metadata: {
         triggererEmail: triggererEmail || "system@scheduler",
         tablesSummary,
         generatedAt: now.toISOString(),
+        backupTypeTag: backupTag,
+        storageUploaded,
       },
     });
 
@@ -622,12 +737,29 @@ export async function executeDatabaseBackupWorkflow({
     const { deletedCount } = await executeSevenDayRetentionRotation(supabase);
 
     // 6. Send Operational Success Notification
+    const subject =
+      backupType === "manual"
+        ? `[PP·OPS Database] Manual Database Backup Completed [MANUAL] — ${dateStr}`
+        : `[PP·OPS Database] Daily Database Backup Completed [AUTOMATIC] — ${dateStr}`;
+
+    const headline =
+      backupType === "manual"
+        ? `Manual database backup snapshot captured and archived [MANUAL].`
+        : `Daily automatic database backup completed successfully [AUTOMATIC].`;
+
     const notifResult = await sendOperationalEmail({
-      subject: "Daily database backup completed successfully",
-      headline: "Daily database backup completed successfully.",
+      subject,
+      headline,
       status: "SUCCESS",
+      backupTag,
+      backupId,
+      filename,
       backupDateTime: `${dateStr} ${timeStr}`,
       backupSize: fileSizePretty,
+      totalRecords: totalRecordsCount,
+      tablesSummary,
+      prunedCount: deletedCount,
+      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Database Vault (Embedded)",
       errorMessage: null,
       recipientEmail: triggererEmail,
     });
@@ -642,8 +774,10 @@ export async function executeDatabaseBackupWorkflow({
       fileSizePretty,
       totalRecords: totalRecordsCount,
       tablesIncluded: Object.keys(tablesData),
+      tablesSummary,
       prunedCount: deletedCount,
       status: "SUCCESS",
+      backupTag,
       errorMessage: null,
       notificationSent: notifResult.sent,
       notificationRecipient: notifResult.recipient,
@@ -678,6 +812,7 @@ export async function executeDatabaseBackupWorkflow({
           triggererEmail: triggererEmail || "system@scheduler",
           failureReason: errorMsg,
           attemptedAt: now.toISOString(),
+          backupTypeTag: backupTag,
         },
       });
     } catch (logErr) {
@@ -685,12 +820,27 @@ export async function executeDatabaseBackupWorkflow({
     }
 
     // Send Operational Failure Notification
+    const failSubject =
+      backupType === "manual"
+        ? `[PP·OPS Database] Manual Database Backup Failed [MANUAL] — ${dateStr}`
+        : `[PP·OPS Database] Daily Database Backup Failed [AUTOMATIC] — ${dateStr}`;
+
+    const failHeadline =
+      backupType === "manual"
+        ? `Manual database backup snapshot failed [MANUAL].`
+        : `Daily automatic database backup execution failed [AUTOMATIC].`;
+
     const notifResult = await sendOperationalEmail({
-      subject: "Daily database backup failed",
-      headline: "Daily database backup failed.",
+      subject: failSubject,
+      headline: failHeadline,
       status: "FAILED",
+      backupTag,
+      backupId,
+      filename,
       backupDateTime: `${dateStr} ${timeStr}`,
       backupSize: "0 B",
+      totalRecords: 0,
+      tablesSummary: {},
       errorMessage: errorMsg,
       recipientEmail: triggererEmail,
     });
@@ -707,6 +857,7 @@ export async function executeDatabaseBackupWorkflow({
       tablesIncluded: [],
       prunedCount: 0,
       status: "FAILED",
+      backupTag,
       errorMessage: errorMsg,
       notificationSent: notifResult.sent,
       notificationRecipient: notifResult.recipient,
@@ -1133,20 +1284,20 @@ async function sendMonthlyReportEmail({
 
   if (web3FormsKey) {
     try {
-      const payload = new FormData();
-      payload.append("access_key", web3FormsKey);
-      payload.append("from_name", "PP·OPS Database Engine");
-      payload.append("subject", subject);
-      payload.append("name", "Monthly Backup Summary");
-      payload.append("email", recipient);
-      payload.append("message", textReport);
+      const params = new URLSearchParams();
+      params.append("access_key", web3FormsKey);
+      params.append("from_name", "PP·OPS Database Engine");
+      params.append("subject", subject);
+      params.append("name", "Monthly Backup Summary");
+      params.append("email", recipient);
+      params.append("message", textReport);
 
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: payload,
+        body: params,
       });
-      return res.ok;
+      const data = (await res.json().catch(() => ({}))) as { success?: boolean };
+      return Boolean(res.ok && data?.success);
     } catch (err) {
       console.warn("[DatabaseBackup] Web3Forms fallback email failed:", err);
     }
