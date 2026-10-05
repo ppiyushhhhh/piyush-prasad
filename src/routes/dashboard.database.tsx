@@ -33,11 +33,14 @@ import {
   runRetentionPrune,
   getDatabaseBackupsList,
   getBackupDownloadData,
+  getMonthlyReportsList,
+  generateMonthlyReportFn,
   type DatabaseOverviewData,
   type TableQueryResponse,
   type AdminUserRecord,
   type AuditLogRecord,
   type DatabaseBackupRecord,
+  type MonthlyBackupReportRecord,
 } from "@/lib/database-admin.functions";
 
 import { DatabaseOverview } from "@/components/dashboard/database/DatabaseOverview";
@@ -96,7 +99,9 @@ function DatabaseAdminPage() {
 
   // Backups & Retention state
   const [backups, setBackups] = useState<DatabaseBackupRecord[]>([]);
+  const [monthlyReports, setMonthlyReports] = useState<MonthlyBackupReportRecord[]>([]);
   const [isBackupsLoading, setIsBackupsLoading] = useState(false);
+  const [isMonthlyReportsLoading, setIsMonthlyReportsLoading] = useState(false);
   const [isCreatingBackup, setIsCreatingBackup] = useState(false);
   const [isPruning, setIsPruning] = useState(false);
 
@@ -114,6 +119,8 @@ function DatabaseAdminPage() {
   const runCreateManualBackup = useServerFn(createManualBackup);
   const runRetentionPruneFn = useServerFn(runRetentionPrune);
   const fetchBackupDownload = useServerFn(getBackupDownloadData);
+  const fetchMonthlyReportsList = useServerFn(getMonthlyReportsList);
+  const runGenerateMonthlyReport = useServerFn(generateMonthlyReportFn);
 
   // Verify caller's role on mount
   useEffect(() => {
@@ -276,6 +283,19 @@ function DatabaseAdminPage() {
     }
   }, [fetchBackupsList]);
 
+  // Fetch monthly reports list
+  const loadMonthlyReports = useCallback(async () => {
+    try {
+      setIsMonthlyReportsLoading(true);
+      const res = await fetchMonthlyReportsList();
+      setMonthlyReports(res);
+    } catch (err) {
+      console.warn("Failed to load monthly reports:", err);
+    } finally {
+      setIsMonthlyReportsLoading(false);
+    }
+  }, [fetchMonthlyReportsList]);
+
   // Initial load and tab switching
   useEffect(() => {
     if (isAdmin) {
@@ -298,8 +318,9 @@ function DatabaseAdminPage() {
   useEffect(() => {
     if (isAdmin && activeTab === "backups") {
       loadBackups();
+      loadMonthlyReports();
     }
-  }, [isAdmin, activeTab, loadBackups]);
+  }, [isAdmin, activeTab, loadBackups, loadMonthlyReports]);
 
   useEffect(() => {
     if (isAdmin && activeTab === "activity") {
@@ -315,12 +336,15 @@ function DatabaseAdminPage() {
       loadOverview(true);
       if (activeTab === "tables") loadTableData();
       if (activeTab === "users") loadUsers();
-      if (activeTab === "backups") loadBackups();
+      if (activeTab === "backups") {
+        loadBackups();
+        loadMonthlyReports();
+      }
       if (activeTab === "activity") loadAuditLogs();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isAdmin, activeTab, loadOverview, loadTableData, loadUsers, loadBackups, loadAuditLogs]);
+  }, [isAdmin, activeTab, loadOverview, loadTableData, loadUsers, loadBackups, loadMonthlyReports, loadAuditLogs]);
 
   // Manual Refresh Handler
   function handleManualRefresh() {
@@ -374,44 +398,23 @@ function DatabaseAdminPage() {
   }
 
   // Backup & Retention Handlers
-  async function handleTakeManualBackup(notes?: string) {
+  async function handleTakeManualBackup() {
     try {
       setIsCreatingBackup(true);
-      toast.info("Generating full database snapshot & archive…");
+      toast.info("Generating PostgreSQL database dump & uploading to private storage…");
       const res = await runCreateManualBackup();
-      toast.success(
-        `Manual backup #${res.backupId.slice(0, 8)} captured successfully (${res.fileSizePretty})!`,
-      );
 
-      // Dual-layer client-side dispatch to guarantee Web3Forms delivery
-      try {
-        const formData = new FormData();
-        formData.append("access_key", "752a0c12-46b4-4eec-8ad7-e82e229e3e43");
-        formData.append(
-          "subject",
-          `[DATABASE BACKUP] Manual Snapshot #${res.backupId.slice(0, 8)} Created`,
+      if (res.status === "SUCCESS") {
+        toast.success(
+          `Backup "${res.filename}" captured & stored in Supabase (${res.fileSizePretty})!`,
         );
-        formData.append("from_name", "Database Admin Console");
-        formData.append(
-          "message",
-          `Manual database backup was triggered and completed successfully.\n\n` +
-            `• Backup ID: ${res.backupId}\n` +
-            `• Type: manual\n` +
-            `• Records Archived: ${res.totalRecordsBackedUp}\n` +
-            `• Archive Size: ${res.fileSizePretty}\n` +
-            `• Tables Included: ${res.tablesIncluded.join(", ")}\n` +
-            `• Protected: auth.users, public.user_roles (never purged)\n` +
-            `• Notes: ${notes || "Manual on-demand snapshot"}\n` +
-            `• Timestamp: ${new Date().toISOString()}\n\n` +
-            `You can download this backup JSON anytime from /dashboard/database.`,
-        );
-        await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
-      } catch (mailErr) {
-        console.warn("Client email notify warning:", mailErr);
+      } else {
+        toast.error(`Backup failed: ${res.errorMessage || "Unknown error"}`);
       }
 
       loadBackups();
       loadOverview(true);
+      loadMonthlyReports();
     } catch (err) {
       console.error("Manual backup error:", err);
       toast.error("Failed to create manual backup: " + (err as Error).message);
@@ -423,43 +426,20 @@ function DatabaseAdminPage() {
   async function handleRunRetentionPrune() {
     try {
       setIsPruning(true);
-      toast.info("Executing 7-day retention cleanup with pre-backup…");
+      toast.info("Evaluating 7-day rolling retention rotation…");
       const res = await runRetentionPruneFn();
 
       if (res.totalRecordsPruned === 0) {
-        toast.info("No records older than 7 days found in monitored telemetry tables.");
+        toast.info("All stored backups are within the 7-day retention window.");
       } else {
         toast.success(
-          `Pruned ${res.totalRecordsPruned} records older than 7 days. Pre-backup #${res.backupId.slice(0, 8)} saved!`,
+          `Pruned ${res.totalRecordsPruned} physical backup file(s) older than 7 days. History records updated.`,
         );
-
-        try {
-          const formData = new FormData();
-          formData.append("access_key", "752a0c12-46b4-4eec-8ad7-e82e229e3e43");
-          formData.append(
-            "subject",
-            `[DATABASE PRUNE & BACKUP] ${res.totalRecordsPruned} Records Pruned Older Than 7 Days`,
-          );
-          formData.append("from_name", "Database Retention Engine");
-          formData.append(
-            "message",
-            `Database 7-day retention cleanup executed successfully.\n\n` +
-              `• Pre-Deletion Backup ID: ${res.backupId}\n` +
-              `• Pruned Records: ${res.totalRecordsPruned}\n` +
-              `• Archive Size: ${res.fileSizePretty}\n` +
-              `• Cleaned Tables: ${res.tablesIncluded.join(", ")}\n` +
-              `• Protected: auth.users and public.user_roles were strictly preserved\n` +
-              `• Timestamp: ${new Date().toISOString()}\n\n` +
-              `Pre-deletion backup JSON is available in the Database Backups archive.`,
-          );
-          await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
-        } catch (mailErr) {
-          console.warn("Client email notify warning:", mailErr);
-        }
       }
 
       loadBackups();
       loadOverview(true);
+      loadMonthlyReports();
     } catch (err) {
       console.error("Retention prune error:", err);
       toast.error("Failed to run 7-day retention cleanup: " + (err as Error).message);
@@ -470,22 +450,64 @@ function DatabaseAdminPage() {
 
   async function handleDownloadBackup(backupId: string) {
     try {
-      toast.info("Fetching backup archive data…");
+      toast.info("Retrieving secure backup download…");
       const res = await fetchBackupDownload({ data: { backupId } });
-      const jsonStr = JSON.stringify(res, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const downloadAnchor = document.createElement("a");
-      downloadAnchor.href = url;
-      downloadAnchor.download = `supabase_backup_${backupId.slice(0, 8)}_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-      URL.revokeObjectURL(url);
-      toast.success("Backup downloaded successfully!");
+
+      if (res.signedUrl) {
+        window.open(res.signedUrl, "_blank");
+        toast.success("Download started via secure signed URL!");
+        return;
+      }
+
+      if (res.sqlContent) {
+        const blob = new Blob([res.sqlContent], { type: "application/sql" });
+        const url = URL.createObjectURL(blob);
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.href = url;
+        downloadAnchor.download = res.filename || `database-backup-${backupId.slice(0, 8)}.sql`;
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        URL.revokeObjectURL(url);
+        toast.success("PostgreSQL SQL backup downloaded successfully!");
+        return;
+      }
+
+      if (res.backupData) {
+        const jsonStr = JSON.stringify(res.backupData, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.href = url;
+        downloadAnchor.download = res.filename || `database-backup-${backupId.slice(0, 8)}.json`;
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        URL.revokeObjectURL(url);
+        toast.success("Backup downloaded successfully!");
+        return;
+      }
+
+      throw new Error("No download payload received from storage.");
     } catch (err) {
       console.error("Download error:", err);
       toast.error("Failed to download backup: " + (err as Error).message);
+    }
+  }
+
+  async function handleGenerateMonthlyReport(year: number, month: number, sendEmail: boolean) {
+    try {
+      toast.info(`Generating backup summary report for ${month}/${year}…`);
+      const report = await runGenerateMonthlyReport({ data: { year, month, sendEmail } });
+      toast.success(
+        `Generated monthly summary: ${report.monthName} ${report.year} (${report.successPercentage}% success)!`,
+      );
+      loadMonthlyReports();
+      return report;
+    } catch (err) {
+      console.error("Monthly report error:", err);
+      toast.error("Failed to generate monthly report: " + (err as Error).message);
+      return null;
     }
   }
 
@@ -784,13 +806,19 @@ function DatabaseAdminPage() {
         {activeTab === "backups" && (
           <DatabaseBackups
             backups={backups}
+            monthlyReports={monthlyReports}
             isLoading={isBackupsLoading}
             isCreatingBackup={isCreatingBackup}
             isPruning={isPruning}
-            onRefresh={loadBackups}
+            isMonthlyReportsLoading={isMonthlyReportsLoading}
+            onRefresh={() => {
+              loadBackups();
+              loadMonthlyReports();
+            }}
             onTakeManualBackup={handleTakeManualBackup}
             onRunRetentionPrune={handleRunRetentionPrune}
             onDownloadBackup={handleDownloadBackup}
+            onGenerateMonthlyReport={handleGenerateMonthlyReport}
           />
         )}
 

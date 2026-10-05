@@ -77,40 +77,121 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_monthly_reports: {
+        Row: {
+          created_at: string
+          deleted_backups_count: number
+          failed_backups: number
+          id: string
+          month: number
+          month_name: string
+          report_file_url: string | null
+          report_generated_date: string
+          report_status: string
+          success_percentage: number
+          successful_backups: number
+          summary_data: Json
+          total_backup_size_bytes: number
+          total_backup_size_pretty: string
+          total_backups: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          deleted_backups_count?: number
+          failed_backups?: number
+          id?: string
+          month: number
+          month_name: string
+          report_file_url?: string | null
+          report_generated_date?: string
+          report_status?: string
+          success_percentage?: number
+          successful_backups?: number
+          summary_data?: Json
+          total_backup_size_bytes?: number
+          total_backup_size_pretty?: string
+          total_backups?: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          deleted_backups_count?: number
+          failed_backups?: number
+          id?: string
+          month?: number
+          month_name?: string
+          report_file_url?: string | null
+          report_generated_date?: string
+          report_status?: string
+          success_percentage?: number
+          successful_backups?: number
+          summary_data?: Json
+          total_backup_size_bytes?: number
+          total_backup_size_pretty?: string
+          total_backups?: number
+          year?: number
+        }
+        Relationships: []
+      }
       database_backups: {
         Row: {
           backup_data: Json | null
+          backup_date: string
+          backup_time: string
           backup_type: string
           created_at: string
+          deleted_at: string | null
+          error_message: string | null
           file_size_bytes: number
           file_size_pretty: string
+          filename: string
           id: string
           metadata: Json | null
           pruned_records_count: number
+          status: string
+          storage_bucket: string
+          storage_path: string | null
           tables_included: string[]
           total_records: number
         }
         Insert: {
           backup_data?: Json | null
+          backup_date?: string
+          backup_time?: string
           backup_type?: string
           created_at?: string
+          deleted_at?: string | null
+          error_message?: string | null
           file_size_bytes?: number
           file_size_pretty?: string
+          filename?: string
           id?: string
           metadata?: Json | null
           pruned_records_count?: number
+          status?: string
+          storage_bucket?: string
+          storage_path?: string | null
           tables_included?: string[]
           total_records?: number
         }
         Update: {
           backup_data?: Json | null
+          backup_date?: string
+          backup_time?: string
           backup_type?: string
           created_at?: string
+          deleted_at?: string | null
+          error_message?: string | null
           file_size_bytes?: number
           file_size_pretty?: string
+          filename?: string
           id?: string
           metadata?: Json | null
           pruned_records_count?: number
+          status?: string
+          storage_bucket?: string
+          storage_path?: string | null
           tables_included?: string[]
           total_records?: number
         }

@@ -158,19 +158,27 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 - **Immutable Admin Audit Log:**
   - Logs every administrative action (user creation, role modifications, password resets, retention purges, manual backups) with caller email, timestamp, IP address, and metadata.
 
-### 5. Automated 7-Day Retention & Backup Archive
-- **Automated Data Lifecycle:**
-  - Automatically purges telemetry and activity logs older than 7 days (`created_at < NOW() - INTERVAL '7 days'`).
-  - Background scheduler automatically evaluates and triggers retention cleanup during daily telemetry sync.
-- **Zero User Loss Policy:**
-  - `auth.users` and `public.user_roles` are **strictly protected and never pruned**. All user accounts, credentials, and access permissions are permanently preserved.
-- **Pre-Deletion Backup Guarantee:**
-  - Prior to executing any purge query, the retention engine extracts all matching records across monitored tables, packages them into a timestamped JSON snapshot, and stores them in `public.database_backups`.
-- **Instant Email Alerts:**
-  - Automatically dispatches email notifications via Web3Forms with full execution details (Backup ID, record count, cleaned tables, and user protection confirmation) whenever backups are created or aged data is pruned.
-- **"Take Manual Backup" Button & Archive UI:**
-  - Prominent **"Take Manual Backup"** action in the header of `/dashboard/database` for immediate on-demand full database snapshots.
-  - Dedicated **"Backups & Retention"** tab listing all historical backups with one-click **"Download JSON"** and detailed payload inspector.
+### 5. Supabase-Based Database Backup System & 7-Day Retention
+- **Automated Daily Backups:**
+  - Automated database backup runs once every 24 hours at `02:00 UTC` via GitHub Actions (`.github/workflows/database-backup.yml`) and background API endpoint (`/api/public/database-backup`).
+  - Serializes all application tables into genuine PostgreSQL `.sql` dump archives (`database-backup-YYYY-MM-DD.sql`).
+- **Private Supabase Storage:**
+  - Backups are stored strictly in a private Supabase Storage bucket (`database-backups`) with `public = false`. Credentials and service-role keys are never exposed to the frontend.
+- **7-Day Rolling Retention & Rotation:**
+  - Continuously maintains a rolling 7-day retention window.
+  - Backups older than 7 days are automatically pruned from Supabase Storage and marked with `deleted_at` timestamps.
+  - Historical records remain permanently available in `public.database_backups` for monthly reporting even after physical file deletion.
+  - Strict failure handling: recent successful backups are NEVER deleted if a new backup fails.
+- **Operational Email Notifications:**
+  - Dispatches immediate operational status notifications ("Daily database backup completed successfully" or "Daily database backup failed") with date/time, status, backup size, and failure reason.
+  - Web3Forms is strictly not used as a backup mechanism; email is used only for operational notifications.
+- **End-of-Month Backup Summaries & History:**
+  - Automatically queries all backup history records for the month and calculates: scheduled backups, successful, failed, success percentage, failed dates/reasons, total created storage, and backups deleted via 7-day rotation.
+  - Permanently persisted in `public.backup_monthly_reports` and viewable via `/dashboard/database` under **Backup Reports**.
+- **Admin UI & Secure Downloads:**
+  - Manual on-demand backup button and 7-day cleanup runner.
+  - One-click secure signed download of `.sql` backup files.
+  - Interactive monthly summary viewer matching executive audit standards.
 
 ---
 
@@ -300,14 +308,13 @@ To prevent unbounded database storage growth while guaranteeing zero loss of use
 2. **Strict User Account Protection:**
    - `auth.users` and `public.user_roles` are hard-coded as excluded from all deletion routines.
    - User credentials, roles, and session states are never modified by retention routines.
-3. **Automated Notification Dispatch:**
-   - An email summary is instantly dispatched to the administrator via Web3Forms containing:
-     - Pre-deletion Backup ID and download instructions
-     - Number of records pruned per table
-     - Total size of the generated archive
-     - Confirmation of user account protection
-4. **On-Demand Manual Backups:**
-   - Administrators can click **"Take Manual Backup"** in the `/dashboard/database` header or Backups tab at any time to generate a full snapshot of all current table records and download the `.json` file locally.
+3. **Operational Notification Dispatch:**
+   - Immediate operational email notifications are dispatched server-side upon backup completion or failure.
+   - Status: "Daily database backup completed successfully" or "Daily database backup failed" with date/time, archive size, and error detail.
+   - Web3Forms is not used as a backup mechanism; email is used strictly for operational notifications.
+4. **On-Demand Manual Backups & Secure Downloads:**
+   - Administrators can trigger manual backups from `/dashboard/database` at any time, producing `.sql` PostgreSQL dumps saved to private Supabase Storage.
+   - Available backups can be downloaded via secure signed URLs or direct SQL text exports.
 
 ---
 

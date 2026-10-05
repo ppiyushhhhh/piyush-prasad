@@ -26,6 +26,7 @@ import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
+import { Route as ApiPublicDatabaseBackupRouteImport } from './routes/api/public/database-backup'
 import { Route as ApiPublicMonitoringRouteImport } from './routes/api/public/monitoring'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +114,11 @@ const GuidesDevsecopsToolsRoute = GuidesDevsecopsToolsRouteImport.update({
   path: '/guides/devsecops-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDatabaseBackupRoute = ApiPublicDatabaseBackupRouteImport.update({
+  id: '/api/public/database-backup',
+  path: '/api/public/database-backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMonitoringRoute = ApiPublicMonitoringRouteImport.update({
   id: '/api/public/monitoring',
   path: '/api/public/monitoring',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRoutesByTo {
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRoutesById {
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
 export interface FileRouteTypes {
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
+    | '/api/public/database-backup'
     | '/api/public/monitoring'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard'
+    | '/api/public/database-backup'
     | '/api/public/monitoring'
   id:
     | '__root__'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/dashboard/'
+    | '/api/public/database-backup'
     | '/api/public/monitoring'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
+  ApiPublicDatabaseBackupRoute: typeof ApiPublicDatabaseBackupRoute
   ApiPublicMonitoringRoute: typeof ApiPublicMonitoringRoute
 }
 
@@ -373,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesDevsecopsToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/database-backup': {
+      id: '/api/public/database-backup'
+      path: '/api/public/database-backup'
+      fullPath: '/api/public/database-backup'
+      preLoaderRoute: typeof ApiPublicDatabaseBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/monitoring': {
       id: '/api/public/monitoring'
       path: '/api/public/monitoring'
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
+  ApiPublicDatabaseBackupRoute: ApiPublicDatabaseBackupRoute,
   ApiPublicMonitoringRoute: ApiPublicMonitoringRoute,
 }
 export const routeTree = rootRouteImport

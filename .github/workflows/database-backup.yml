@@ -1,0 +1,76 @@
+name: Automated Database Backup & Retention
+
+on:
+  schedule:
+    # 02:00 UTC = 07:30 IST every single day
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Backup Action to perform"
+        required: true
+        default: "daily_backup"
+        type: choice
+        options:
+          - daily_backup
+          - manual_backup
+          - monthly_summary
+          - simulate_failure_test
+      month:
+        description: "Target Month (1-12) for monthly summary"
+        required: false
+        default: ""
+      year:
+        description: "Target Year (e.g. 2026) for monthly summary"
+        required: false
+        default: ""
+
+jobs:
+  backup:
+    name: Execute Supabase Database Backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install Dependencies
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: Run Database Backup & Retention Policy
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || vars.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          REPORT_TO: ${{ secrets.REPORT_TO }}
+          REPORT_FROM: ${{ secrets.REPORT_FROM }}
+          ALERT_TO: ${{ secrets.ALERT_TO }}
+          WEB3FORMS_ACCESS_KEY: ${{ secrets.WEB3FORMS_ACCESS_KEY || vars.VITE_WEB3FORMS_ACCESS_KEY }}
+        run: |
+          ACTION="${{ github.event.inputs.action || 'daily_backup' }}"
+          MONTH="${{ github.event.inputs.month }}"
+          YEAR="${{ github.event.inputs.year }}"
+
+          ARGS=""
+          if [ "$ACTION" = "manual_backup" ]; then
+            ARGS="--manual"
+          elif [ "$ACTION" = "monthly_summary" ]; then
+            ARGS="--monthly"
+            if [ -n "$MONTH" ]; then ARGS="$ARGS --month=$MONTH"; fi
+            if [ -n "$YEAR" ]; then ARGS="$ARGS --year=$YEAR"; fi
+          elif [ "$ACTION" = "simulate_failure_test" ]; then
+            ARGS="--test-fail"
+          fi
+
+          node scripts/run-database-backup.mjs $ARGS
