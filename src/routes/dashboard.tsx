@@ -10,6 +10,7 @@ import {
   Rocket,
   Settings,
   Database,
+  HardDrive,
   LogOut,
   Shield,
   Loader2,
@@ -38,6 +39,7 @@ const NAV = [
   { to: "/dashboard/ai-chat", label: "AI Chat", icon: Bot },
   { to: "/dashboard/reports", label: "Reports", icon: FileText },
   { to: "/dashboard/database", label: "Database", icon: Database },
+  { to: "/dashboard/manual-backups", label: "Manual Backups", icon: HardDrive },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 

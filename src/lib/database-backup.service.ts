@@ -34,6 +34,10 @@ export function getLocalHistoryFilePath(): string {
   return path.join(getBackupStorageDir(), "backup-history.json");
 }
 
+export function getLocalManualHistoryFilePath(): string {
+  return path.join(getBackupStorageDir(), "manual-backups-history.json");
+}
+
 export function readLocalBackupHistory(): Array<Record<string, any>> {
   try {
     const file = getLocalHistoryFilePath();
@@ -45,6 +49,65 @@ export function readLocalBackupHistory(): Array<Record<string, any>> {
     console.warn("[DatabaseBackup] Warning reading local backup history:", err?.message);
   }
   return [];
+}
+
+export function readLocalManualBackupHistory(): Array<Record<string, any>> {
+  try {
+    const manualFile = getLocalManualHistoryFilePath();
+    if (fs.existsSync(manualFile)) {
+      const content = fs.readFileSync(manualFile, "utf8");
+      return JSON.parse(content);
+    }
+    // Seed from general backup history if manual file not yet created
+    const general = readLocalBackupHistory();
+    const manualItems = general
+      .filter((b) => b["backup_type"] === "manual" || b?.metadata?.backupTypeTag === "MANUAL")
+      .map((b) => ({
+        id: b.id,
+        created_at: b.created_at,
+        backup_date: b.backup_date,
+        backup_time: b.backup_time,
+        filename: b.filename,
+        admin_email: b.metadata?.triggererEmail || "admin@piyushprasad.in",
+        status: b.status || "SUCCESS",
+        tables_included: b.tables_included || [],
+        total_records: b.total_records || 0,
+        file_size_bytes: b.file_size_bytes || 0,
+        file_size_pretty: b.file_size_pretty || "0 B",
+        email_sent: true,
+        email_recipient: b.metadata?.triggererEmail || "contact.piyushprasad@gmail.com",
+        storage_path: b.storage_path || b.filename,
+        backup_data: b.backup_data,
+        metadata: b.metadata,
+      }));
+    if (manualItems.length > 0) {
+      fs.writeFileSync(manualFile, JSON.stringify(manualItems, null, 2), "utf8");
+      return manualItems;
+    }
+  } catch (err: any) {
+    console.warn("[DatabaseBackup] Warning reading local manual backup history:", err?.message);
+  }
+  return [];
+}
+
+export function saveLocalManualBackupRecord({
+  record,
+  sqlContent,
+}: {
+  record: Record<string, any>;
+  sqlContent?: string;
+}): void {
+  try {
+    const dir = getBackupStorageDir();
+    if (sqlContent && record["filename"]) {
+      fs.writeFileSync(path.join(dir, record["filename"]), sqlContent, "utf8");
+    }
+    const history = readLocalManualBackupHistory();
+    const updated = [record, ...history.filter((h) => h["filename"] !== record["filename"] && h["id"] !== record["id"])];
+    fs.writeFileSync(getLocalManualHistoryFilePath(), JSON.stringify(updated, null, 2), "utf8");
+  } catch (err: any) {
+    console.warn("[DatabaseBackup] Warning saving local manual backup record:", err?.message);
+  }
 }
 
 export function saveLocalBackupRecord({
@@ -107,6 +170,7 @@ export const BACKUP_TABLES = [
   "user_roles",
   "admin_audit_log",
   "backup_monthly_reports",
+  "manual_database_backups",
 ] as const;
 
 export interface BackupExecutionResult {
@@ -887,6 +951,69 @@ export async function executeDatabaseBackupWorkflow({
       }
     } catch (insertErr: any) {
       console.warn("[DatabaseBackup] Supabase history insert exception:", insertErr?.message);
+    }
+
+    // 4b. If Manual Backup, record in dedicated manual_database_backups ledger and local manual vault
+    if (backupType === "manual") {
+      const manualRecord = {
+        id: backupId,
+        created_at: now.toISOString(),
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        admin_email: triggererEmail || "admin@piyushprasad.in",
+        status: "SUCCESS" as const,
+        tables_included: Object.keys(tablesData),
+        total_records: totalRecordsCount,
+        file_size_bytes: fileSizeBytes,
+        file_size_pretty: fileSizePretty,
+        email_sent: true,
+        email_recipient: triggererEmail || "contact.piyushprasad@gmail.com",
+        storage_path: storagePath,
+        backup_data: { sql: sqlDumpStr, tableCounts: dumpResult.tableCounts },
+        metadata: {
+          triggererEmail: triggererEmail || "admin",
+          tablesSummary,
+          generatedAt: now.toISOString(),
+          backupTypeTag: "MANUAL",
+        },
+      };
+
+      saveLocalManualBackupRecord({
+        record: manualRecord,
+        sqlContent: sqlDumpStr,
+      });
+
+      try {
+        const { error: manualInsertError } = await (supabase as any)
+          .from("manual_database_backups")
+          .insert({
+            backup_date: dateStr,
+            backup_time: timeStr,
+            filename,
+            admin_email: triggererEmail || "admin@piyushprasad.in",
+            status: "SUCCESS",
+            tables_included: Object.keys(tablesData),
+            total_records: totalRecordsCount,
+            file_size_bytes: fileSizeBytes,
+            file_size_pretty: fileSizePretty,
+            email_sent: true,
+            email_recipient: triggererEmail || "contact.piyushprasad@gmail.com",
+            storage_path: storagePath,
+            backup_data: { sql: sqlDumpStr, tableCounts: dumpResult.tableCounts },
+            metadata: {
+              triggererEmail: triggererEmail || "admin",
+              tablesSummary,
+              generatedAt: now.toISOString(),
+            },
+          });
+
+        if (manualInsertError) {
+          console.warn("[DatabaseBackup] Notice: manual_database_backups insert skipped/warning:", manualInsertError.message);
+        }
+      } catch (mErr: any) {
+        console.warn("[DatabaseBackup] manual_database_backups insert exception:", mErr?.message);
+      }
     }
 
     // 5. Automatic 7-Day Retention Cleanup & Rotation (Only on success!)

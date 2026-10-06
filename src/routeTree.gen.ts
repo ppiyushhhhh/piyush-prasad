@@ -21,6 +21,7 @@ import { Route as DashboardDatabaseRouteImport } from './routes/dashboard.databa
 import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
 import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
+import { Route as DashboardManualBackupsRouteImport } from './routes/dashboard.manual-backups'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
@@ -89,6 +90,11 @@ const DashboardLoginRoute = DashboardLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardManualBackupsRoute = DashboardManualBackupsRouteImport.update({
+  id: '/manual-backups',
+  path: '/manual-backups',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
   id: '/performance',
   path: '/performance',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
   '/dashboard/login': typeof DashboardLoginRoute
+  '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/manual-backups'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/manual-backups'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/dashboard/github'
     | '/dashboard/health'
     | '/dashboard/login'
+    | '/dashboard/manual-backups'
     | '/dashboard/performance'
     | '/dashboard/reports'
     | '/dashboard/settings'
@@ -351,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLoginRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/manual-backups': {
+      id: '/dashboard/manual-backups'
+      path: '/manual-backups'
+      fullPath: '/dashboard/manual-backups'
+      preLoaderRoute: typeof DashboardManualBackupsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/performance': {
       id: '/dashboard/performance'
       path: '/performance'
@@ -410,6 +429,7 @@ interface DashboardRouteChildren {
   DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
   DashboardLoginRoute: typeof DashboardLoginRoute
+  DashboardManualBackupsRoute: typeof DashboardManualBackupsRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
   DashboardReportsRoute: typeof DashboardReportsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
@@ -423,6 +443,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,
   DashboardLoginRoute: DashboardLoginRoute,
+  DashboardManualBackupsRoute: DashboardManualBackupsRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
   DashboardReportsRoute: DashboardReportsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,

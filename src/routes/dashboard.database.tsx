@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Database,
@@ -695,6 +695,14 @@ function DatabaseAdminPage() {
             )}
             <span>Take Manual Backup</span>
           </button>
+
+          <Link
+            to="/dashboard/manual-backups"
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer"
+          >
+            <HardDrive className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Manual Backups Page</span>
+          </Link>
 
           <button
             onClick={handleManualRefresh}
