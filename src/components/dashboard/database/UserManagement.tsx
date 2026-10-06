@@ -123,19 +123,25 @@ export function UserManagement({
       {/* Top Header & Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
-            <Users className="h-5 w-5 text-cyan-400" />
-            Application Users & Access Control
-          </h2>
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+              <Users className="h-5 w-5 text-cyan-400" />
+              Application Users & Access Control
+            </h2>
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-950/80 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-800">
+              <Shield className="h-3 w-3 text-emerald-400" />
+              Admin Only
+            </span>
+          </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Manage application authentication accounts, update passwords, and control role-based privileges.
+            Security Rule: Only verified administrators are authorized to create users, assign roles, or change data.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAddUserOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors shadow-sm cursor-pointer"
           >
             <UserPlus className="h-4 w-4" />
             Add User

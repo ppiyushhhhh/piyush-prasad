@@ -422,7 +422,7 @@ async function verifyAdminCaller() {
       return { user, adminClient, userClient, db, token };
     }
 
-    throw new Error("Forbidden: Administrator privileges required to access Database Administration.");
+    throw new Error("Forbidden: Only administrators are authorized to change data or create users.");
   }
 
   return { user, adminClient, userClient, db, token };
