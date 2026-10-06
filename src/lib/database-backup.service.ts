@@ -200,7 +200,7 @@ function escapeSqlValue(val: unknown): string {
     // Array of strings or primitives
     const elements = val.map((v) => {
       if (typeof v === "string") {
-        return `"${v.replace(/"/g, '\\"')}"`;
+        return `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
       }
       return String(v);
     });
