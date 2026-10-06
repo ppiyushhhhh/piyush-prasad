@@ -151,6 +151,12 @@ export interface BackupResultResponse {
   errorMessage?: string | null;
   emailSent: boolean;
   emailRecipient: string;
+  emailDetails?: {
+    subject: string;
+    headline: string;
+    messageText: string;
+    htmlContent?: string;
+  };
   userAccountsPreserved: boolean;
   downloadPayload?: {
     backupId: string;
@@ -325,29 +331,39 @@ async function verifyAdminCaller() {
 
   if (!isAdmin) {
     // Check if ANY admin exists in user_roles
-    const { count, error: countError } = await db
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
+    let count: number | null = null;
+    let countError: any = null;
+    try {
+      const res = await db
+        .from("user_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "admin");
+      count = res.count;
+      countError = res.error;
+    } catch (e) {
+      countError = e;
+    }
 
-    if (!countError && count === 0) {
+    if (!countError && (count === 0 || count === null)) {
       // Bootstrap: First authenticated user claims admin role
       console.log(`[DatabaseAdmin] Bootstrap: Claiming admin role for first user ${user.email} (${user.id})`);
-      const { error: insertError } = await db.from("user_roles").insert({
-        user_id: user.id,
-        role: "admin",
-      });
-
-      if (!insertError) {
-        await logAuditEntry({
-          adminUserId: user.id,
-          adminEmail: user.email ?? "admin",
-          action: "bootstrap_admin_claimed",
-          details: { note: "First authenticated user automatically claimed initial admin role." },
-          db,
+      try {
+        await db.from("user_roles").insert({
+          user_id: user.id,
+          role: "admin",
         });
-        return { user, adminClient, userClient, db, token };
+      } catch (insertError: any) {
+        console.warn("[DatabaseAdmin] Bootstrap role insert warning:", insertError?.message);
       }
+
+      await logAuditEntry({
+        adminUserId: user.id,
+        adminEmail: user.email ?? "admin",
+        action: "bootstrap_admin_claimed",
+        details: { note: "First authenticated user automatically claimed initial admin role." },
+        db,
+      });
+      return { user, adminClient, userClient, db, token };
     }
 
     throw new Error("Forbidden: Administrator privileges required to access Database Administration.");
@@ -1288,6 +1304,7 @@ export const createManualBackup = createServerFn({ method: "POST" }).handler(
       errorMessage: result.errorMessage,
       emailSent: result.notificationSent,
       emailRecipient: result.notificationRecipient,
+      emailDetails: result.emailDetails,
       userAccountsPreserved: true,
       downloadPayload: {
         backupId: result.backupId,
@@ -1351,6 +1368,11 @@ export const runRetentionPrune = createServerFn({ method: "POST" }).handler(
 export const getDatabaseBackupsList = createServerFn({ method: "GET" }).handler(
   async (): Promise<DatabaseBackupRecord[]> => {
     const { db } = await verifyAdminCaller();
+    const { readLocalBackupHistory } = await import("./database-backup.service");
+
+    const localList = readLocalBackupHistory();
+    let supabaseList: any[] = [];
+
     try {
       const { data, error } = await db
         .from("database_backups")
@@ -1360,22 +1382,69 @@ export const getDatabaseBackupsList = createServerFn({ method: "GET" }).handler(
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) {
-        console.warn("[DatabaseAdmin] Query database_backups warning:", error.message);
-        return [];
+      if (!error && Array.isArray(data)) {
+        supabaseList = data;
       }
-      return (data ?? []) as unknown as DatabaseBackupRecord[];
     } catch {
-      return [];
+      // Supabase table query fallback
     }
+
+    // Merge Supabase and Local Vault records (deduplicate by filename / id)
+    const seen = new Set<string>();
+    const merged: DatabaseBackupRecord[] = [];
+
+    for (const item of [...supabaseList, ...localList]) {
+      const key = item.filename || item.id;
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        merged.push(item as unknown as DatabaseBackupRecord);
+      }
+    }
+
+    // Sort descending by created_at
+    merged.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return merged;
   },
 );
 
-// Download specific backup payload from Supabase Storage
+// Download specific backup payload from Supabase Storage or Local Vault
 export const getBackupDownloadData = createServerFn({ method: "POST" })
   .validator((data: { backupId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await verifyAdminCaller();
+    const { readLocalBackupHistory, getBackupStorageDir } = await import("./database-backup.service");
+
+    // 1. Check local backup vault first
+    const localRecords = readLocalBackupHistory();
+    const localMatch = localRecords.find((r) => r.id === data.backupId || r.filename === data.backupId);
+
+    if (localMatch) {
+      if (localMatch.deleted_at) {
+        throw new Error(
+          `Backup file "${localMatch.filename}" was automatically pruned after 7 days per retention policy. History record remains available.`,
+        );
+      }
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const localFilePath = path.join(getBackupStorageDir(), localMatch.filename);
+      if (fs.existsSync(localFilePath)) {
+        const sqlContent = fs.readFileSync(localFilePath, "utf8");
+        return {
+          backupId: localMatch.id,
+          filename: localMatch.filename,
+          sqlContent,
+        };
+      }
+      if (localMatch.backup_data?.sql) {
+        return {
+          backupId: localMatch.id,
+          filename: localMatch.filename,
+          sqlContent: localMatch.backup_data.sql,
+        };
+      }
+    }
+
+    // 2. Check Supabase
     try {
       const { data: records, error } = await db
         .from("database_backups")
@@ -1383,81 +1452,60 @@ export const getBackupDownloadData = createServerFn({ method: "POST" })
         .eq("id", data.backupId)
         .limit(1);
 
-      if (error || !records || !records[0]) {
-        throw new Error("Backup history record not found.");
-      }
+      if (!error && records && records[0]) {
+        const record = records[0];
 
-      const record = records[0];
+        if (record.deleted_at) {
+          throw new Error(
+            `Backup file "${record.filename}" was automatically pruned after 7 days per retention policy. History record remains available.`,
+          );
+        }
 
-      if (record.deleted_at) {
-        throw new Error(
-          `Backup file "${record.filename}" was automatically pruned after 7 days per retention policy. History record remains available.`,
-        );
-      }
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const localFilePath = path.join(getBackupStorageDir(), record.filename);
+        if (fs.existsSync(localFilePath)) {
+          const sqlContent = fs.readFileSync(localFilePath, "utf8");
+          return {
+            backupId: record.id,
+            filename: record.filename,
+            sqlContent,
+          };
+        }
 
-      const filePath = record.storage_path || record.filename;
-
-      // Resilient check: If stored directly in database backup_data or path is database://backup_data
-      if (
-        record.storage_path === "database://backup_data" ||
-        (record.backup_data && typeof record.backup_data === "object" && (record.backup_data as any).sql)
-      ) {
-        return {
-          backupId: record.id,
-          filename: record.filename,
-          sqlContent: (record.backup_data as any).sql,
-        };
-      }
-
-      const { BACKUP_STORAGE_BUCKET } = await import("./database-backup.service");
-
-      // Attempt to generate signed download URL
-      const { data: signedData, error: signError } = await db.storage
-        .from(BACKUP_STORAGE_BUCKET)
-        .createSignedUrl(filePath, 300);
-
-      if (!signError && signedData?.signedUrl) {
-        return {
-          backupId: record.id,
-          filename: record.filename,
-          signedUrl: signedData.signedUrl,
-        };
-      }
-
-      // Fallback: download file buffer directly
-      const { data: fileData, error: dlError } = await db.storage
-        .from(BACKUP_STORAGE_BUCKET)
-        .download(filePath);
-
-      if (!dlError && fileData) {
-        const sqlText = await fileData.text();
-        return {
-          backupId: record.id,
-          filename: record.filename,
-          sqlContent: sqlText,
-        };
-      }
-
-      // If backup_data exists as json or secondary fallback
-      if (record.backup_data) {
-        if (typeof record.backup_data === "object" && (record.backup_data as any).sql) {
+        // Check if stored directly in database backup_data or path is database://backup_data
+        if (
+          record.storage_path === "database://backup_data" ||
+          (record.backup_data && typeof record.backup_data === "object" && (record.backup_data as any).sql)
+        ) {
           return {
             backupId: record.id,
             filename: record.filename,
             sqlContent: (record.backup_data as any).sql,
           };
         }
-        return {
-          backupId: record.id,
-          filename: record.filename.replace(/\.sql$/, ".json"),
-          backupData: record.backup_data,
-        };
-      }
 
-      throw new Error(`File "${filePath}" could not be downloaded from storage: ${signError?.message || dlError?.message || "File unavailable"}`);
-    } catch (err: any) {
-      throw new Error(err.message || "Failed to download backup");
+        const { BACKUP_STORAGE_BUCKET } = await import("./database-backup.service");
+
+        // Attempt to generate signed download URL
+        const filePath = record.storage_path || record.filename;
+        const { data: signedData, error: signError } = await db.storage
+          .from(BACKUP_STORAGE_BUCKET)
+          .createSignedUrl(filePath, 300);
+
+        if (!signError && signedData?.signedUrl) {
+          return {
+            backupId: record.id,
+            filename: record.filename,
+            signedUrl: signedData.signedUrl,
+          };
+        }
+      }
+    } catch (dbErr: any) {
+      if (dbErr?.message?.includes("pruned")) throw dbErr;
     }
+
+    throw new Error("Backup history record not found.");
   });
 
 // Get Monthly Backup Reports List

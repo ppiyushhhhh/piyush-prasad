@@ -60,6 +60,29 @@ function verifyCronToken(request: Request): boolean {
   return validTokens.some((expected) => safeEqual(token, expected));
 }
 
+async function getEffectiveServerSupabase() {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (supabaseAdmin && typeof supabaseAdmin.from === "function") {
+      return supabaseAdmin;
+    }
+  } catch {}
+
+  const { createClient } = await import("@supabase/supabase-js");
+  const url =
+    process.env["SUPABASE_URL"] ||
+    process.env["VITE_SUPABASE_URL"] ||
+    "https://xseiuzpzzfvtrkmohogn.supabase.co";
+  const key =
+    process.env["SUPABASE_SERVICE_ROLE_KEY"] ||
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ||
+    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+    "";
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 export const Route = createFileRoute("/api/public/database-backup")({
   server: {
     handlers: {
@@ -71,17 +94,17 @@ export const Route = createFileRoute("/api/public/database-backup")({
         const url = new URL(request.url);
         const action = url.searchParams.get("action") || "status";
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const supabase = await getEffectiveServerSupabase();
 
         if (action === "status") {
-          const { data: latestBackup } = await supabaseAdmin
+          const { data: latestBackup } = await supabase
             .from("database_backups")
             .select("id, backup_date, backup_time, filename, status, file_size_pretty, created_at, deleted_at")
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
 
-          const { count: storedCount } = await supabaseAdmin
+          const { count: storedCount } = await supabase
             .from("database_backups")
             .select("id", { count: "exact", head: true })
             .is("deleted_at", null)
@@ -120,11 +143,11 @@ export const Route = createFileRoute("/api/public/database-backup")({
         }
 
         const { action, year, month, recipientEmail, forceMonthly } = parseResult.data;
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const supabase = await getEffectiveServerSupabase();
 
         // Action: retention cleanup only
         if (action === "retention") {
-          const cleanup = await executeSevenDayRetentionRotation(supabaseAdmin);
+          const cleanup = await executeSevenDayRetentionRotation(supabase);
           return jsonResponse({ ok: true, action: "retention", cleanup }, 200);
         }
 
@@ -135,7 +158,7 @@ export const Route = createFileRoute("/api/public/database-backup")({
           const targetMonth = month || targetDate.getMonth() + 1;
 
           const report = await generateMonthlyBackupSummary({
-            supabase: supabaseAdmin,
+            supabase,
             year: targetYear,
             month: targetMonth,
             recipientEmail,
@@ -147,7 +170,7 @@ export const Route = createFileRoute("/api/public/database-backup")({
 
         // Action: backup or full_cycle
         const backupResult = await executeDatabaseBackupWorkflow({
-          supabase: supabaseAdmin,
+          supabase,
           backupType: "daily",
           triggererEmail: recipientEmail,
         });
@@ -163,7 +186,7 @@ export const Route = createFileRoute("/api/public/database-backup")({
         if (forceMonthly || isLastDayOfMonth) {
           try {
             monthlyReportResult = await generateMonthlyBackupSummary({
-              supabase: supabaseAdmin,
+              supabase,
               year: now.getFullYear(),
               month: now.getMonth() + 1,
               recipientEmail,

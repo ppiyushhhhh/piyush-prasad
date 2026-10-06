@@ -12,8 +12,19 @@
  * 6. At month end (or with --monthly flag), generates, stores, and emails the monthly summary.
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
+
+// Auto-load .env if available
+try {
+  if (typeof process.loadEnvFile === "function") {
+    process.loadEnvFile();
+  }
+} catch {
+  // Ignore if .env is missing or already loaded
+}
 
 // Parse CLI flags
 const args = process.argv.slice(2);
@@ -25,7 +36,9 @@ const forceYearMatch = args.find((a) => a.startsWith("--year="))?.split("=")[1];
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error("❌ Error: Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables.");
@@ -38,6 +51,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 
 const BACKUP_STORAGE_BUCKET = "database-backups";
 const RETENTION_DAYS = 7;
+const BACKUP_DIR = path.resolve(process.cwd(), "data", "backups");
+if (!fs.existsSync(BACKUP_DIR)) {
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  } catch (err) {
+    console.warn("⚠️ Could not create local backups directory:", err.message);
+  }
+}
+const HISTORY_FILE = path.join(BACKUP_DIR, "backup-history.json");
+
 const BACKUP_TABLES = [
   "website_health_checks",
   "performance_history",
@@ -189,7 +212,7 @@ async function sendOperationalEmail({
         method: "POST",
         body: params,
       });
-      const data = (await res.json().catch(() => ({}))) as any;
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data?.success) {
         console.log(`📧 Operational status notification delivered via notification gateway to: ${recipient}`);
         return true;
@@ -205,40 +228,82 @@ async function sendOperationalEmail({
 async function run7DayRetentionRotation() {
   console.log("🧹 Evaluating 7-day retention rotation...");
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  let totalPruned = 0;
 
-  const { data: expiredRecords, error } = await supabase
-    .from("database_backups")
-    .select("id, filename, created_at, storage_path")
-    .lt("created_at", cutoff)
-    .is("deleted_at", null);
-
-  if (error) {
-    console.warn("⚠️ Failed to query expired backups:", error.message);
-    return 0;
-  }
-
-  if (!expiredRecords || expiredRecords.length === 0) {
-    console.log("✅ No backups older than 7 days pending deletion.");
-    return 0;
-  }
-
-  const filesToRemove = expiredRecords.map((r) => r.storage_path || r.filename).filter(Boolean);
-  if (filesToRemove.length > 0) {
-    const { error: rmErr } = await supabase.storage.from(BACKUP_STORAGE_BUCKET).remove(filesToRemove);
-    if (rmErr) {
-      console.warn("⚠️ Storage file deletion warning:", rmErr.message);
-    } else {
-      console.log(`🗑️ Deleted ${filesToRemove.length} expired physical backup file(s) from Supabase Storage:`, filesToRemove);
+  // 1. Rotate local backup archives
+  try {
+    let history = [];
+    if (fs.existsSync(HISTORY_FILE)) {
+      try {
+        history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
+      } catch {
+        history = [];
+      }
     }
+    const cutoffMs = Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    let localChanged = false;
+    for (const record of history) {
+      if (!record.deleted_at && new Date(record.created_at).getTime() < cutoffMs) {
+        record.deleted_at = new Date().toISOString();
+        const localFilePath = path.join(BACKUP_DIR, record.filename);
+        if (fs.existsSync(localFilePath)) {
+          try {
+            fs.unlinkSync(localFilePath);
+            console.log(`🗑️ Removed local physical archive older than 7 days: ${record.filename}`);
+          } catch (delErr) {
+            console.warn("⚠️ Could not delete local backup archive:", delErr.message);
+          }
+        }
+        totalPruned++;
+        localChanged = true;
+      }
+    }
+    if (localChanged) {
+      fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
+    }
+  } catch (localErr) {
+    console.warn("⚠️ Local retention rotation warning:", localErr.message);
   }
 
-  const nowIso = new Date().toISOString();
-  for (const r of expiredRecords) {
-    await supabase.from("database_backups").update({ deleted_at: nowIso }).eq("id", r.id);
-  }
+  // 2. Rotate Supabase Storage and database table
+  try {
+    const { data: expiredRecords, error } = await supabase
+      .from("database_backups")
+      .select("id, filename, created_at, storage_path")
+      .lt("created_at", cutoff)
+      .is("deleted_at", null);
 
-  console.log(`✅ Updated ${expiredRecords.length} backup history records with deletion timestamp (deleted_at).`);
-  return expiredRecords.length;
+    if (error) {
+      console.warn("⚠️ Failed to query expired backups in Supabase:", error.message);
+      return totalPruned;
+    }
+
+    if (!expiredRecords || expiredRecords.length === 0) {
+      console.log("✅ No remote Supabase backups older than 7 days pending deletion.");
+      return totalPruned;
+    }
+
+    const filesToRemove = expiredRecords.map((r) => r.storage_path || r.filename).filter(Boolean);
+    if (filesToRemove.length > 0) {
+      const { error: rmErr } = await supabase.storage.from(BACKUP_STORAGE_BUCKET).remove(filesToRemove);
+      if (rmErr) {
+        console.warn("⚠️ Storage file deletion warning:", rmErr.message);
+      } else {
+        console.log(`🗑️ Deleted ${filesToRemove.length} expired physical backup file(s) from Supabase Storage:`, filesToRemove);
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    for (const r of expiredRecords) {
+      await supabase.from("database_backups").update({ deleted_at: nowIso }).eq("id", r.id);
+    }
+
+    console.log(`✅ Updated ${expiredRecords.length} Supabase backup history records with deletion timestamp (deleted_at).`);
+    return Math.max(totalPruned, expiredRecords.length);
+  } catch (remoteErr) {
+    console.warn("⚠️ Supabase retention rotation warning:", remoteErr.message);
+    return totalPruned;
+  }
 }
 
 async function runMonthlyReport(targetYear, targetMonth) {
@@ -512,6 +577,57 @@ async function main() {
 
     console.log(`💾 SQL Archive Size: ${fileSizePretty}, Records: ${totalRecords}`);
 
+    const backupTag = isManual ? "MANUAL" : "AUTOMATIC";
+    const tablesSummary = {};
+    for (const [t, r] of Object.entries(tablesData)) {
+      tablesSummary[t] = r.length;
+    }
+
+    // Save to local backup vault first
+    try {
+      fs.writeFileSync(path.join(BACKUP_DIR, filename), sqlContent, "utf8");
+      console.log(`💾 Saved backup snapshot locally to: "${path.join(BACKUP_DIR, filename)}"`);
+
+      let history = [];
+      if (fs.existsSync(HISTORY_FILE)) {
+        try {
+          history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
+        } catch {
+          history = [];
+        }
+      }
+      const historyRecord = {
+        id: `bk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        created_at: now.toISOString(),
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: sqlBuffer.length,
+        file_size_pretty: fileSizePretty,
+        status: "SUCCESS",
+        backup_type: isManual ? "manual" : "daily",
+        tables_included: Object.keys(tablesData),
+        total_records: totalRecords,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: null,
+        storage_bucket: "Local Vault & Storage",
+        storage_path: filename,
+        backup_data: { sql: sqlContent, tableCounts: tablesSummary },
+        metadata: {
+          runner: "scripts/run-database-backup.mjs",
+          executedAt: now.toISOString(),
+          backupTypeTag: backupTag,
+          tablesSummary,
+        },
+      };
+      history = [historyRecord, ...history.filter((h) => h.filename !== filename)];
+      fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
+      console.log(`📝 Logged backup record in local backup history vault.`);
+    } catch (localWriteErr) {
+      console.warn("⚠️ Local backup file write warning:", localWriteErr.message);
+    }
+
     // Upload to private Supabase Storage bucket (with resilient fallback to database vault)
     let storageUploaded = false;
     let storagePath = filename;
@@ -541,42 +657,40 @@ async function main() {
       storageBucketName = "database_backups (embedded)";
     }
 
-    const backupTag = isManual ? "MANUAL" : "AUTOMATIC";
-    const tablesSummary = {};
-    for (const [t, r] of Object.entries(tablesData)) {
-      tablesSummary[t] = r.length;
-    }
+    // Insert backup history record in Supabase
+    try {
+      const { error: insertErr } = await supabase.from("database_backups").insert({
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: sqlBuffer.length,
+        file_size_pretty: fileSizePretty,
+        status: "SUCCESS",
+        backup_type: isManual ? "manual" : "daily",
+        tables_included: Object.keys(tablesData),
+        total_records: totalRecords,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: null,
+        storage_bucket: storageBucketName,
+        storage_path: storagePath,
+        backup_data: { sql: sqlContent, fallbackStorage: !storageUploaded, tableCounts: tablesSummary },
+        metadata: {
+          runner: "scripts/run-database-backup.mjs",
+          executedAt: now.toISOString(),
+          backupTypeTag: backupTag,
+          storageUploaded,
+          tablesSummary,
+        },
+      });
 
-    // Insert backup history record
-    const { error: insertErr } = await supabase.from("database_backups").insert({
-      backup_date: dateStr,
-      backup_time: timeStr,
-      filename,
-      file_size_bytes: sqlBuffer.length,
-      file_size_pretty: fileSizePretty,
-      status: "SUCCESS",
-      backup_type: isManual ? "manual" : "daily",
-      tables_included: Object.keys(tablesData),
-      total_records: totalRecords,
-      pruned_records_count: 0,
-      deleted_at: null,
-      error_message: null,
-      storage_bucket: storageBucketName,
-      storage_path: storagePath,
-      backup_data: { sql: sqlContent, fallbackStorage: !storageUploaded, tableCounts: tablesSummary },
-      metadata: {
-        runner: "scripts/run-database-backup.mjs",
-        executedAt: now.toISOString(),
-        backupTypeTag: backupTag,
-        storageUploaded,
-        tablesSummary,
-      },
-    });
-
-    if (insertErr) {
-      console.warn("⚠️ Backup history insert warning:", insertErr.message);
-    } else {
-      console.log(`📝 Logged backup record in public.database_backups.`);
+      if (insertErr) {
+        console.warn("⚠️ Supabase backup history insert warning:", insertErr.message);
+      } else {
+        console.log(`📝 Logged backup record in public.database_backups.`);
+      }
+    } catch (insertExc) {
+      console.warn("⚠️ Supabase backup history insert exception:", insertExc.message);
     }
 
     // Execute 7-day retention rotation
@@ -602,7 +716,7 @@ async function main() {
       totalRecords,
       tablesSummary,
       prunedCount: deletedCount,
-      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Database Vault (Embedded)",
+      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Local Vault & Database",
       errorMessage: null,
     });
 
@@ -624,6 +738,42 @@ async function main() {
     // Failure Handling (Requirement 9):
     // Record failure, DO NOT delete previous backups, keep latest valid backup, send notification
     try {
+      let history = [];
+      if (fs.existsSync(HISTORY_FILE)) {
+        try {
+          history = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
+        } catch {
+          history = [];
+        }
+      }
+      history.unshift({
+        id: `bk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        created_at: now.toISOString(),
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: 0,
+        file_size_pretty: "0 B",
+        status: "FAILED",
+        backup_type: isManual ? "manual" : "daily",
+        tables_included: [],
+        total_records: 0,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: err.message,
+        storage_bucket: "Local Vault & Storage",
+        storage_path: null,
+        metadata: {
+          runner: "scripts/run-database-backup.mjs",
+          failureReason: err.message,
+          attemptedAt: now.toISOString(),
+          backupTypeTag: isManual ? "MANUAL" : "AUTOMATIC",
+        },
+      });
+      fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
+    } catch {}
+
+    try {
       await supabase.from("database_backups").insert({
         backup_date: dateStr,
         backup_time: timeStr,
@@ -643,6 +793,7 @@ async function main() {
           runner: "scripts/run-database-backup.mjs",
           failureReason: err.message,
           attemptedAt: now.toISOString(),
+          backupTypeTag: isManual ? "MANUAL" : "AUTOMATIC",
         },
       });
       console.log("📝 Logged failure record in public.database_backups.");
@@ -650,10 +801,19 @@ async function main() {
       console.warn("⚠️ Warning recording failure in database:", logErr.message);
     }
 
+    const failSubject = isManual
+      ? `[PP·OPS Database] Manual Database Backup Failed [MANUAL] — ${dateStr}`
+      : `[PP·OPS Database] Daily Database Backup Failed [AUTOMATIC] — ${dateStr}`;
+
+    const failHeadline = isManual
+      ? `Manual database backup execution failed [MANUAL].`
+      : `Daily automatic database backup execution failed [AUTOMATIC].`;
+
     await sendOperationalEmail({
-      subject: "Daily database backup failed",
-      headline: "Daily database backup failed.",
+      subject: failSubject,
+      headline: failHeadline,
       status: "FAILED",
+      backupTag: isManual ? "MANUAL" : "AUTOMATIC",
       backupDateTime: `${dateStr} ${timeStr}`,
       backupSize: "0 B",
       errorMessage: err.message,

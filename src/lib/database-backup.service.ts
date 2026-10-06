@@ -14,9 +14,89 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import nodemailer from "nodemailer";
+import fs from "node:fs";
+import path from "node:path";
 
 export const BACKUP_STORAGE_BUCKET = "database-backups";
 export const RETENTION_DAYS = 7;
+
+export function getBackupStorageDir(): string {
+  const dir = path.resolve(process.cwd(), "data", "backups");
+  if (!fs.existsSync(dir)) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch {}
+  }
+  return dir;
+}
+
+export function getLocalHistoryFilePath(): string {
+  return path.join(getBackupStorageDir(), "backup-history.json");
+}
+
+export function readLocalBackupHistory(): Array<Record<string, any>> {
+  try {
+    const file = getLocalHistoryFilePath();
+    if (fs.existsSync(file)) {
+      const content = fs.readFileSync(file, "utf8");
+      return JSON.parse(content);
+    }
+  } catch (err: any) {
+    console.warn("[DatabaseBackup] Warning reading local backup history:", err?.message);
+  }
+  return [];
+}
+
+export function saveLocalBackupRecord({
+  record,
+  sqlContent,
+}: {
+  record: Record<string, any>;
+  sqlContent?: string;
+}): void {
+  try {
+    const dir = getBackupStorageDir();
+    if (sqlContent && record["filename"]) {
+      fs.writeFileSync(path.join(dir, record["filename"]), sqlContent, "utf8");
+    }
+    const history = readLocalBackupHistory();
+    const updated = [record, ...history.filter((h) => h["filename"] !== record["filename"])];
+    fs.writeFileSync(getLocalHistoryFilePath(), JSON.stringify(updated, null, 2), "utf8");
+  } catch (err: any) {
+    console.warn("[DatabaseBackup] Warning saving local backup record:", err?.message);
+  }
+}
+
+export function rotateLocalBackupHistory(retentionDays = RETENTION_DAYS): number {
+  let pruned = 0;
+  try {
+    const dir = getBackupStorageDir();
+    const history = readLocalBackupHistory();
+    const cutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+    let changed = false;
+
+    for (const item of history) {
+      if (!item["deleted_at"] && new Date(item["created_at"]).getTime() < cutoffMs) {
+        item["deleted_at"] = new Date().toISOString();
+        const filePath = path.join(dir, item["filename"]);
+        if (fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+          } catch {}
+        }
+        pruned++;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(getLocalHistoryFilePath(), JSON.stringify(history, null, 2), "utf8");
+    }
+  } catch (err: any) {
+    console.warn("[DatabaseBackup] Warning rotating local backup history:", err?.message);
+  }
+  return pruned;
+}
 
 export const BACKUP_TABLES = [
   "website_health_checks",
@@ -47,6 +127,12 @@ export interface BackupExecutionResult {
   notificationSent: boolean;
   notificationRecipient: string;
   sqlContent?: string;
+  emailDetails?: {
+    subject: string;
+    headline: string;
+    messageText: string;
+    htmlContent?: string;
+  };
 }
 
 export interface MonthlyReportData {
@@ -254,6 +340,16 @@ export async function ensurePrivateStorageBucket(
  * Web3Forms is never used as the backup mechanism.
  * Uses SMTP (Nodemailer) when configured, or operational webhook/dispatcher fallback.
  */
+export interface OperationalEmailResult {
+  sent: boolean;
+  method: string;
+  recipient: string;
+  subject: string;
+  headline: string;
+  messageText: string;
+  htmlContent: string;
+}
+
 export async function sendOperationalEmail({
   subject,
   headline,
@@ -284,7 +380,7 @@ export async function sendOperationalEmail({
   recipientEmail?: string;
   prunedCount?: number;
   storageLocation?: string;
-}): Promise<{ sent: boolean; method: string; recipient: string }> {
+}): Promise<OperationalEmailResult> {
   const recipient =
     recipientEmail ||
     process.env["ALERT_TO"] ||
@@ -478,7 +574,15 @@ export async function sendOperationalEmail({
         html: htmlContent,
       });
 
-      return { sent: true, method: "smtp", recipient };
+      return {
+        sent: true,
+        method: "smtp",
+        recipient,
+        subject,
+        headline,
+        messageText: textLines.join("\n"),
+        htmlContent,
+      };
     } catch (smtpErr) {
       console.warn("[DatabaseBackup] SMTP alert delivery failed:", smtpErr);
     }
@@ -506,14 +610,30 @@ export async function sendOperationalEmail({
       });
       const data = (await res.json().catch(() => ({}))) as { success?: boolean };
       if (res.ok && data?.success) {
-        return { sent: true, method: "notification_service", recipient };
+        return {
+          sent: true,
+          method: "notification_service",
+          recipient,
+          subject,
+          headline,
+          messageText: textLines.join("\n"),
+          htmlContent,
+        };
       }
     } catch (wErr) {
       console.warn("[DatabaseBackup] Operational alert fallback failed:", wErr);
     }
   }
 
-  return { sent: false, method: "none", recipient };
+  return {
+    sent: false,
+    method: "none",
+    recipient,
+    subject,
+    headline,
+    messageText: textLines.join("\n"),
+    htmlContent,
+  };
 }
 
 /**
@@ -521,7 +641,7 @@ export async function sendOperationalEmail({
  *
  * Requirements:
  * - Keep backups for 7 days.
- * - Backups older than 7 days must automatically be deleted from Supabase Storage.
+ * - Backups older than 7 days must automatically be deleted from Supabase Storage and local vault.
  * - Update their history records with the deletion timestamp (deleted_at).
  * - History records remain available for reporting even after physical file deletion.
  * - NEVER delete recent successful backups if a backup fails.
@@ -529,6 +649,7 @@ export async function sendOperationalEmail({
 export async function executeSevenDayRetentionRotation(
   supabase: SupabaseClient<Database>,
 ): Promise<{ deletedCount: number; deletedFilenames: string[] }> {
+  const localPruned = rotateLocalBackupHistory(RETENTION_DAYS);
   const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const deletedFilenames: string[] = [];
 
@@ -542,11 +663,11 @@ export async function executeSevenDayRetentionRotation(
 
     if (error) {
       console.warn("[DatabaseBackup] Error querying expired backups:", error.message);
-      return { deletedCount: 0, deletedFilenames: [] };
+      return { deletedCount: localPruned, deletedFilenames: [] };
     }
 
     if (!expiredRecords || expiredRecords.length === 0) {
-      return { deletedCount: 0, deletedFilenames: [] };
+      return { deletedCount: localPruned, deletedFilenames: [] };
     }
 
     const filesToRemove = expiredRecords
@@ -578,12 +699,12 @@ export async function executeSevenDayRetentionRotation(
     }
 
     return {
-      deletedCount: expiredRecords.length,
+      deletedCount: Math.max(localPruned, expiredRecords.length),
       deletedFilenames,
     };
   } catch (err) {
     console.error("[DatabaseBackup] 7-Day retention cleanup error:", err);
-    return { deletedCount: 0, deletedFilenames: [] };
+    return { deletedCount: localPruned, deletedFilenames: [] };
   }
 }
 
@@ -671,6 +792,37 @@ export async function executeDatabaseBackupWorkflow({
     fileSizeBytes = sqlBuffer.length;
     fileSizePretty = formatBytes(fileSizeBytes);
 
+    // Save to local persistent vault first
+    saveLocalBackupRecord({
+      record: {
+        id: backupId,
+        created_at: now.toISOString(),
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: fileSizeBytes,
+        file_size_pretty: fileSizePretty,
+        status: "SUCCESS",
+        backup_type: backupType,
+        tables_included: Object.keys(tablesData),
+        total_records: totalRecordsCount,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: null,
+        storage_bucket: "Local Vault & Storage",
+        storage_path: filename,
+        backup_data: { sql: sqlDumpStr, tableCounts: dumpResult.tableCounts },
+        metadata: {
+          triggererEmail: triggererEmail || "system@scheduler",
+          tablesSummary,
+          generatedAt: now.toISOString(),
+          backupTypeTag: backupTag,
+          storageUploaded: false,
+        },
+      },
+      sqlContent: sqlDumpStr,
+    });
+
     // 3. Upload to Private Supabase Storage Bucket (with resilient fallback to database vault)
     let storageUploaded = false;
     let storagePath: string | null = filename;
@@ -704,33 +856,37 @@ export async function executeDatabaseBackupWorkflow({
     }
 
     // 4. Create Backup History Record in Database
-    const { error: insertError } = await supabase.from("database_backups").insert({
-      backup_date: dateStr,
-      backup_time: timeStr,
-      filename,
-      file_size_bytes: fileSizeBytes,
-      file_size_pretty: fileSizePretty,
-      status: "SUCCESS",
-      backup_type: backupType,
-      tables_included: Object.keys(tablesData),
-      total_records: totalRecordsCount,
-      pruned_records_count: 0,
-      deleted_at: null,
-      error_message: null,
-      storage_bucket: storageBucketName,
-      storage_path: storagePath,
-      backup_data: { sql: sqlDumpStr, fallbackStorage: !storageUploaded, tableCounts: dumpResult.tableCounts },
-      metadata: {
-        triggererEmail: triggererEmail || "system@scheduler",
-        tablesSummary,
-        generatedAt: now.toISOString(),
-        backupTypeTag: backupTag,
-        storageUploaded,
-      },
-    });
+    try {
+      const { error: insertError } = await supabase.from("database_backups").insert({
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: fileSizeBytes,
+        file_size_pretty: fileSizePretty,
+        status: "SUCCESS",
+        backup_type: backupType,
+        tables_included: Object.keys(tablesData),
+        total_records: totalRecordsCount,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: null,
+        storage_bucket: storageBucketName,
+        storage_path: storagePath,
+        backup_data: { sql: sqlDumpStr, fallbackStorage: !storageUploaded, tableCounts: dumpResult.tableCounts },
+        metadata: {
+          triggererEmail: triggererEmail || "system@scheduler",
+          tablesSummary,
+          generatedAt: now.toISOString(),
+          backupTypeTag: backupTag,
+          storageUploaded,
+        },
+      });
 
-    if (insertError) {
-      console.warn("[DatabaseBackup] Warning inserting backup history record:", insertError.message);
+      if (insertError) {
+        console.warn("[DatabaseBackup] Warning inserting backup history record:", insertError.message);
+      }
+    } catch (insertErr: any) {
+      console.warn("[DatabaseBackup] Supabase history insert exception:", insertErr?.message);
     }
 
     // 5. Automatic 7-Day Retention Cleanup & Rotation (Only on success!)
@@ -759,7 +915,7 @@ export async function executeDatabaseBackupWorkflow({
       totalRecords: totalRecordsCount,
       tablesSummary,
       prunedCount: deletedCount,
-      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Database Vault (Embedded)",
+      storageLocation: storageUploaded ? "Private Supabase Storage (database-backups)" : "Local Vault & Database",
       errorMessage: null,
       recipientEmail: triggererEmail,
     });
@@ -782,16 +938,47 @@ export async function executeDatabaseBackupWorkflow({
       notificationSent: notifResult.sent,
       notificationRecipient: notifResult.recipient,
       sqlContent: sqlDumpStr,
+      emailDetails: {
+        subject: notifResult.subject,
+        headline: notifResult.headline,
+        messageText: notifResult.messageText,
+        htmlContent: notifResult.htmlContent,
+      },
     };
   } catch (err: any) {
     const errorMsg = err?.message || String(err);
     console.error("[DatabaseBackup] Backup execution failed:", errorMsg);
 
     // Failure Handling (Requirement 9):
-    // - Do not delete the previous successful backup.
-    // - Record the failure.
-    // - Keep the latest valid backup.
-    // - Send a failure notification.
+    // Record failure in local file vault
+    saveLocalBackupRecord({
+      record: {
+        id: backupId,
+        created_at: now.toISOString(),
+        backup_date: dateStr,
+        backup_time: timeStr,
+        filename,
+        file_size_bytes: 0,
+        file_size_pretty: "0 B",
+        status: "FAILED",
+        backup_type: backupType,
+        tables_included: [],
+        total_records: 0,
+        pruned_records_count: 0,
+        deleted_at: null,
+        error_message: errorMsg,
+        storage_bucket: "Local Vault & Storage",
+        storage_path: null,
+        metadata: {
+          triggererEmail: triggererEmail || "system@scheduler",
+          failureReason: errorMsg,
+          attemptedAt: now.toISOString(),
+          backupTypeTag: backupTag,
+        },
+      },
+    });
+
+    // Also try recording failure in Supabase
     try {
       await supabase.from("database_backups").insert({
         backup_date: dateStr,
@@ -861,6 +1048,12 @@ export async function executeDatabaseBackupWorkflow({
       errorMessage: errorMsg,
       notificationSent: notifResult.sent,
       notificationRecipient: notifResult.recipient,
+      emailDetails: {
+        subject: notifResult.subject,
+        headline: notifResult.headline,
+        messageText: notifResult.messageText,
+        htmlContent: notifResult.htmlContent,
+      },
     };
   }
 }

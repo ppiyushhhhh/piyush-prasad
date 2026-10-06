@@ -35,3 +35,9 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Supabase CLI temp
+supabase/.temp/
+
+# Local database backup files and vault
+data/backups/

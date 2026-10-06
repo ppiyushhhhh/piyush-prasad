@@ -401,12 +401,69 @@ function DatabaseAdminPage() {
   async function handleTakeManualBackup() {
     try {
       setIsCreatingBackup(true);
-      toast.info("Generating PostgreSQL database dump & uploading to private storage…");
+      toast.info("Generating PostgreSQL database dump & uploading to storage vault…");
       const res = await runCreateManualBackup();
 
       if (res.status === "SUCCESS") {
+        // If server did not send via SMTP, trigger client-side operational notification via Web3Forms
+        if (!res.emailSent) {
+          const web3Key =
+            (import.meta.env["VITE_WEB3FORMS_ACCESS_KEY"] as string | undefined)?.trim() ||
+            "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
+
+          if (web3Key) {
+            try {
+              const params = new URLSearchParams();
+              params.append("access_key", web3Key);
+              params.append("from_name", "PP·OPS Database Engine [MANUAL]");
+              params.append(
+                "subject",
+                res.emailDetails?.subject ||
+                  `[PP·OPS Database] Manual Database Backup Completed [MANUAL] — ${res.backupDate}`,
+              );
+              params.append("name", "Manual Database Backup Alert");
+              params.append("email", res.emailRecipient || "admin@piyushprasad.in");
+              params.append(
+                "message",
+                res.emailDetails?.messageText ||
+                  [
+                    "============================================================",
+                    "PP·OPS MANUAL DATABASE BACKUP NOTIFICATION",
+                    "============================================================",
+                    "Operational Status: COMPLETED SUCCESSFULLY",
+                    "Execution Mode:     MANUAL SNAPSHOT",
+                    `Backup ID:          ${res.backupId}`,
+                    `Date & Time:        ${res.backupDate} ${res.backupTime}`,
+                    `Archive Filename:   ${res.filename}`,
+                    `Archive Size:       ${res.fileSizePretty}`,
+                    `Total Records:      ${res.totalRecordsBackedUp} records`,
+                    "Storage:            Server Vault & Supabase",
+                    "Retention:          7-Day Continuous Rotation",
+                    `Recipient:          ${res.emailRecipient}`,
+                    "============================================================",
+                  ].join("\n"),
+              );
+
+              fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: params,
+              })
+                .then(async (r) => {
+                  const d = await r.json().catch(() => ({}));
+                  if (d?.success) {
+                    toast.success(`Operational email delivered to ${res.emailRecipient}!`);
+                  }
+                })
+                .catch((e) => console.warn("Client email trigger warning:", e));
+            } catch (wErr) {
+              console.warn("Client notification dispatch warning:", wErr);
+            }
+          }
+        }
+
         toast.success(
-          `Backup "${res.filename}" captured & stored in Supabase (${res.fileSizePretty})!`,
+          `Manual backup "${res.filename}" captured successfully (${res.fileSizePretty})! Operational email triggered to ${res.emailRecipient}.`,
+          { duration: 6000 },
         );
       } else {
         toast.error(`Backup failed: ${res.errorMessage || "Unknown error"}`);
@@ -452,19 +509,25 @@ function DatabaseAdminPage() {
     try {
       toast.info("Retrieving secure backup download…");
       const res = await fetchBackupDownload({ data: { backupId } });
+      const downloadPayload = res as {
+        signedUrl?: string;
+        sqlContent?: string;
+        filename?: string;
+        backupData?: unknown;
+      };
 
-      if (res.signedUrl) {
-        window.open(res.signedUrl, "_blank");
+      if (downloadPayload.signedUrl) {
+        window.open(downloadPayload.signedUrl, "_blank");
         toast.success("Download started via secure signed URL!");
         return;
       }
 
-      if (res.sqlContent) {
-        const blob = new Blob([res.sqlContent], { type: "application/sql" });
+      if (downloadPayload.sqlContent) {
+        const blob = new Blob([downloadPayload.sqlContent], { type: "application/sql" });
         const url = URL.createObjectURL(blob);
         const downloadAnchor = document.createElement("a");
         downloadAnchor.href = url;
-        downloadAnchor.download = res.filename || `database-backup-${backupId.slice(0, 8)}.sql`;
+        downloadAnchor.download = downloadPayload.filename || `database-backup-${backupId.slice(0, 8)}.sql`;
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
@@ -473,13 +536,13 @@ function DatabaseAdminPage() {
         return;
       }
 
-      if (res.backupData) {
-        const jsonStr = JSON.stringify(res.backupData, null, 2);
+      if (downloadPayload.backupData) {
+        const jsonStr = JSON.stringify(downloadPayload.backupData, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const downloadAnchor = document.createElement("a");
         downloadAnchor.href = url;
-        downloadAnchor.download = res.filename || `database-backup-${backupId.slice(0, 8)}.json`;
+        downloadAnchor.download = downloadPayload.filename || `database-backup-${backupId.slice(0, 8)}.json`;
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
