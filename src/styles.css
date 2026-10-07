@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Archivo Black", "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --color-stone: #F4F4F2;
-  --color-carbon: #0F1115;
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-stone: #FAF9F6;
+  --color-carbon: #121316;
   --color-cobalt: #1A4BFF;
-  --color-aluminum: #D1D1CB;
+  --color-aluminum: #E5E5DF;
 }
 
 @theme inline {
@@ -42,24 +42,24 @@
 
 :root {
   --radius: 0.25rem;
-  --background: #F4F4F2;
-  --foreground: #0F1115;
+  --background: #FAF9F6;
+  --foreground: #121316;
   --card: #FFFFFF;
-  --card-foreground: #0F1115;
+  --card-foreground: #121316;
   --popover: #FFFFFF;
-  --popover-foreground: #0F1115;
+  --popover-foreground: #121316;
   --primary: #1A4BFF;
   --primary-foreground: #FFFFFF;
-  --secondary: #EAEAE4;
-  --secondary-foreground: #0F1115;
-  --muted: #EAEAE4;
-  --muted-foreground: #5A5A55;
+  --secondary: #F3F3ED;
+  --secondary-foreground: #121316;
+  --muted: #F3F3ED;
+  --muted-foreground: #5A5C66;
   --accent: #1A4BFF;
   --accent-foreground: #FFFFFF;
   --destructive: #C0392B;
   --destructive-foreground: #FFFFFF;
-  --border: #D1D1CB;
-  --input: #D1D1CB;
+  --border: #E5E5DF;
+  --input: #E5E5DF;
   --ring: #1A4BFF;
 }
 
@@ -70,7 +70,7 @@
     background-color: var(--color-stone);
     color: var(--color-carbon);
     font-family: var(--font-sans);
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
@@ -78,17 +78,17 @@
 
 @utility mono {
   font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.15em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 @utility display {
   font-family: var(--font-display);
-  letter-spacing: -0.03em;
-  line-height: 0.88;
-  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  font-weight: 700;
 }
 
 @utility hairline {

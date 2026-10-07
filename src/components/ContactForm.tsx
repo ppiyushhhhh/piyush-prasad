@@ -32,7 +32,7 @@ function validate(values: Fields): Errors {
 }
 
 const fieldClass =
-  "mt-2 w-full border border-white/20 bg-transparent px-3 py-2.5 text-[16px] text-white placeholder-white/40 transition-colors focus:border-cobalt focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt";
+  "mt-2 w-full border border-border bg-white px-3.5 py-2.5 text-sm text-carbon placeholder:text-carbon/40 transition-colors focus:border-cobalt focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt";
 
 export function ContactForm() {
   const [values, setValues] = useState<Fields>(EMPTY);
@@ -134,12 +134,14 @@ export function ContactForm() {
   const sending = status === "sending";
 
   return (
-    <form onSubmit={onSubmit} noValidate className="relative mt-12 max-w-[560px]">
-      <div className="mono text-cobalt text-[10px]">SEND A MESSAGE</div>
+    <form onSubmit={onSubmit} noValidate className="relative mt-8 max-w-[560px]">
+      <div className="mono text-cobalt text-[10px] font-bold tracking-wider">
+        SEND A DIRECT MESSAGE
+      </div>
 
-      <div className="mt-6 space-y-5">
+      <div className="mt-5 space-y-4">
         <div>
-          <label htmlFor="cf-name" className="mono block text-[10px] text-white/70">
+          <label htmlFor="cf-name" className="mono block text-[10px] font-semibold text-carbon/70 tracking-wider">
             FULL NAME
           </label>
           <input
@@ -155,14 +157,14 @@ export function ContactForm() {
             placeholder="Your name"
           />
           {errors.name && (
-            <p id="cf-name-error" className="mt-1.5 text-[13px] text-red-300">
+            <p id="cf-name-error" className="mt-1.5 text-xs text-rose-600 font-medium">
               {errors.name}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="cf-email" className="mono block text-[10px] text-white/70">
+          <label htmlFor="cf-email" className="mono block text-[10px] font-semibold text-carbon/70 tracking-wider">
             EMAIL ADDRESS
           </label>
           <input
@@ -178,14 +180,14 @@ export function ContactForm() {
             placeholder="you@example.com"
           />
           {errors.email && (
-            <p id="cf-email-error" className="mt-1.5 text-[13px] text-red-300">
+            <p id="cf-email-error" className="mt-1.5 text-xs text-rose-600 font-medium">
               {errors.email}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="cf-subject" className="mono block text-[10px] text-white/70">
+          <label htmlFor="cf-subject" className="mono block text-[10px] font-semibold text-carbon/70 tracking-wider">
             SUBJECT
           </label>
           <input
@@ -198,17 +200,17 @@ export function ContactForm() {
             aria-invalid={!!errors.subject}
             aria-describedby={errors.subject ? "cf-subject-error" : undefined}
             className={fieldClass}
-            placeholder="What is this about?"
+            placeholder="Infrastructure / Project inquiry"
           />
           {errors.subject && (
-            <p id="cf-subject-error" className="mt-1.5 text-[13px] text-red-300">
+            <p id="cf-subject-error" className="mt-1.5 text-xs text-rose-600 font-medium">
               {errors.subject}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="cf-message" className="mono block text-[10px] text-white/70">
+          <label htmlFor="cf-message" className="mono block text-[10px] font-semibold text-carbon/70 tracking-wider">
             MESSAGE
           </label>
           <textarea
@@ -220,10 +222,10 @@ export function ContactForm() {
             aria-invalid={!!errors.message}
             aria-describedby={errors.message ? "cf-message-error" : undefined}
             className={fieldClass}
-            placeholder="Tell me a bit about the role or project."
+            placeholder="Tell me a bit about your team, system requirements, or project scope."
           />
           {errors.message && (
-            <p id="cf-message-error" className="mt-1.5 text-[13px] text-red-300">
+            <p id="cf-message-error" className="mt-1.5 text-xs text-rose-600 font-medium">
               {errors.message}
             </p>
           )}
@@ -247,20 +249,20 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={sending}
-        className="mono mt-8 inline-flex items-center gap-2 bg-cobalt px-5 py-3 text-[11px] text-white transition-colors hover:bg-white hover:text-carbon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 focus-visible:ring-offset-carbon disabled:cursor-not-allowed disabled:opacity-60"
+        className="mono mt-6 inline-flex items-center gap-2 bg-cobalt px-6 py-3.5 text-[11px] font-semibold tracking-wider text-white transition-all hover:bg-carbon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send className="h-3.5 w-3.5" />
-        {sending ? "SENDING..." : "SEND MESSAGE"}
+        {sending ? "SENDING MESSAGE…" : "SEND MESSAGE"}
       </button>
 
-      <p aria-live="polite" className="mt-4 text-[15px]">
+      <p aria-live="polite" className="mt-4 text-sm font-medium">
         {status === "success" && (
-          <span className="text-cobalt">
-            Thank you for contacting me. Your message has been sent successfully.
+          <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 inline-block">
+            ✓ Thank you! Your message has been sent successfully. I will get back to you shortly.
           </span>
         )}
         {status === "error" && (
-          <span className="text-red-300">
+          <span className="text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2 inline-block">
             {errorMessage ||
               "Something went wrong sending your message. Please try again, or email me directly."}
           </span>

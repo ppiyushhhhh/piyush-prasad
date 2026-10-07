@@ -198,7 +198,7 @@ function RepoCard({ repo }: { repo: Repo }) {
       : ["open-source", repo.language?.toLowerCase() ?? "devops"];
 
   return (
-    <div className="group flex flex-col justify-between border border-[#D1D1CB] bg-white/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cobalt hover:bg-white hover:shadow-[0_12px_28px_-12px_rgba(26,75,255,0.25)]">
+    <div className="group flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-2xs">
       <div>
         {/* Header: Repo Name & External Link */}
         <div className="flex items-start justify-between gap-3">
@@ -208,7 +208,7 @@ function RepoCard({ repo }: { repo: Repo }) {
                 <GitBranch className="h-3 w-3" />
                 {repo.default_branch ?? "main"}
               </span>
-              <span className="rounded bg-black/[0.04] px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
+              <span className="border border-border bg-[#FAF9F6] px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
                 Public
               </span>
             </div>
@@ -216,7 +216,7 @@ function RepoCard({ repo }: { repo: Repo }) {
               href={repo.html_url}
               target="_blank"
               rel="noreferrer"
-              className="mt-1 block font-semibold text-base text-carbon tracking-tight group-hover:text-cobalt transition-colors truncate"
+              className="mt-1.5 block font-bold text-base text-carbon tracking-tight group-hover:text-cobalt transition-colors truncate"
             >
               {repo.name}
             </a>
@@ -227,7 +227,7 @@ function RepoCard({ repo }: { repo: Repo }) {
             target="_blank"
             rel="noreferrer"
             aria-label={`View ${repo.name} on GitHub`}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#D1D1CB] bg-white text-carbon/60 transition-all group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-carbon/60 transition-all group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-white"
           >
             <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
@@ -239,11 +239,11 @@ function RepoCard({ repo }: { repo: Repo }) {
         </p>
 
         {/* Topic Pills */}
-        <div className="mt-3.5 flex flex-wrap gap-1.5">
+        <div className="mt-4 flex flex-wrap gap-1.5">
           {tags.map((t) => (
             <span
               key={t}
-              className="mono rounded bg-slate-100 px-2 py-0.5 text-[9px] font-medium text-carbon/70 group-hover:border-cobalt/20 transition-colors"
+              className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-medium text-carbon/70 group-hover:border-cobalt/30 transition-colors"
             >
               #{t}
             </span>
@@ -252,9 +252,9 @@ function RepoCard({ repo }: { repo: Repo }) {
       </div>
 
       {/* Footer: Latest Commit & Metrics */}
-      <div className="mt-6 pt-4 border-t border-[#D1D1CB]/60">
+      <div className="mt-6 pt-4 border-t border-border">
         <div className="flex items-center justify-between text-[11px] text-carbon/60 mb-2">
-          <span className="mono text-[9px] uppercase tracking-wider text-carbon/50 font-semibold flex items-center gap-1">
+          <span className="mono text-[9px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1">
             <Activity className="h-3 w-3 text-cobalt" />
             Latest Commit
           </span>
@@ -267,7 +267,7 @@ function RepoCard({ repo }: { repo: Repo }) {
             )}
             {(repo.stargazers_count ?? 0) > 0 && (
               <span className="flex items-center gap-1 text-carbon/70">
-                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
                 {repo.stargazers_count}
               </span>
             )}
@@ -281,7 +281,7 @@ function RepoCard({ repo }: { repo: Repo }) {
         </div>
 
         {commit ? (
-          <div className="rounded border border-[#D1D1CB]/50 bg-white/70 p-2.5">
+          <div className="border border-border bg-[#FAF9F6] p-2.5">
             <p className="text-xs font-mono text-carbon/90 line-clamp-1 leading-snug">
               {commit.commit.message.split("\n")[0]}
             </p>
@@ -357,77 +357,85 @@ export function GithubActivity() {
   const hasMore = filteredRepos.length > 4;
 
   return (
-    <section id="github" className="relative px-6 py-24 md:px-10 md:py-32 bg-[#F7F7F5]/50 border-t border-[#D1D1CB]/50">
-      <div className="mx-auto max-w-[1400px]">
-        <SectionLabel n="005" label="GITHUB ACTIVITY & OPEN SOURCE" />
-
-        {/* Section Heading & Profile Overview */}
-        <div className="mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div>
-            <h2 className="display text-[40px] leading-[0.9] sm:text-[48px] md:text-[72px]">
-              LIVE
-              <br />
-              <span className="text-cobalt">COMMITS</span>
-            </h2>
-            <p className="mt-3 max-w-lg text-xs md:text-sm text-carbon/70 leading-relaxed font-sans">
-              Real-time feed of active GitHub repositories, automation scripts, and continuous integration workflows synchronized via the GitHub REST API.
-            </p>
+    <section id="github" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
+      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+        {/* Section Header */}
+        <div className="mb-12 md:mb-16">
+          <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-carbon/60">
+            <span className="inline-flex items-center gap-1.5 font-bold text-cobalt">
+              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+              05
+            </span>
+            <span className="text-carbon/30">/</span>
+            <span className="tracking-[0.16em] text-carbon/80">GITHUB ACTIVITY</span>
+            <span className="ml-3 h-px flex-1 bg-border" />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <a
-              href={GITHUB}
-              target="_blank"
-              rel="noreferrer"
-              className="mono inline-flex items-center gap-2 border border-[#D1D1CB] bg-white px-4 py-2.5 text-xs font-semibold text-carbon shadow-sm transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
-            >
-              <Github className="h-4 w-4" />
-              github.com/{GH_USER}
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+              <h2 className="display text-[32px] sm:text-[44px] md:text-[56px] text-carbon tracking-tight">
+                Live Commits &amp; Telemetry
+              </h2>
+              <p className="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-muted-foreground font-sans">
+                Real-time feed of active GitHub repositories, automation scripts, and continuous integration workflows synchronized via the GitHub REST API.
+              </p>
+            </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-mono text-emerald-700">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              GitHub REST API v3 Connected
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
+              <a
+                href={GITHUB}
+                target="_blank"
+                rel="noreferrer"
+                className="mono inline-flex items-center gap-2 border border-carbon bg-white px-4 py-2 text-xs font-semibold text-carbon transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
+              >
+                <Github className="h-4 w-4" />
+                github.com/{GH_USER}
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+
+              <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-50 px-3 py-2 text-[11px] font-mono text-emerald-800">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                API v3 Connected
+              </div>
             </div>
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#D1D1CB]/80 pb-4">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveFilter("all")}
-              className={`mono rounded px-3 py-1.5 text-[11px] font-semibold transition-all ${
+              className={`mono px-3 py-1.5 text-[11px] font-semibold transition-all ${
                 activeFilter === "all"
-                  ? "bg-cobalt text-white shadow-sm"
-                  : "bg-white border border-[#D1D1CB] text-carbon/70 hover:border-cobalt hover:text-cobalt"
+                  ? "bg-cobalt text-white shadow-2xs"
+                  : "bg-white border border-border text-carbon/70 hover:border-cobalt hover:text-cobalt"
               }`}
             >
               All Repositories ({data?.length ?? 0})
             </button>
             <button
               onClick={() => setActiveFilter("devops")}
-              className={`mono rounded px-3 py-1.5 text-[11px] font-semibold transition-all ${
+              className={`mono px-3 py-1.5 text-[11px] font-semibold transition-all ${
                 activeFilter === "devops"
-                  ? "bg-cobalt text-white shadow-sm"
-                  : "bg-white border border-[#D1D1CB] text-carbon/70 hover:border-cobalt hover:text-cobalt"
+                  ? "bg-cobalt text-white shadow-2xs"
+                  : "bg-white border border-border text-carbon/70 hover:border-cobalt hover:text-cobalt"
               }`}
             >
-              DevOps & Cloud
+              DevOps &amp; Cloud
             </button>
             <button
               onClick={() => setActiveFilter("web")}
-              className={`mono rounded px-3 py-1.5 text-[11px] font-semibold transition-all ${
+              className={`mono px-3 py-1.5 text-[11px] font-semibold transition-all ${
                 activeFilter === "web"
-                  ? "bg-cobalt text-white shadow-sm"
-                  : "bg-white border border-[#D1D1CB] text-carbon/70 hover:border-cobalt hover:text-cobalt"
+                  ? "bg-cobalt text-white shadow-2xs"
+                  : "bg-white border border-border text-carbon/70 hover:border-cobalt hover:text-cobalt"
               }`}
             >
-              TypeScript & Web
+              TypeScript &amp; Web
             </button>
           </div>
 
@@ -446,7 +454,7 @@ export function GithubActivity() {
 
         {/* States: Loading, Error, Stale */}
         {isLoading && !data && (
-          <div className="mono flex items-center justify-center gap-3 border border-[#D1D1CB] bg-white p-12 text-xs text-carbon/70">
+          <div className="mono flex items-center justify-center gap-3 border border-border bg-white p-12 text-xs text-carbon/70">
             <Loader2 className="h-5 w-5 animate-spin text-cobalt" />
             Querying GitHub API for latest repository commits…
           </div>
@@ -462,7 +470,7 @@ export function GithubActivity() {
         )}
 
         {showStaleNotice && (
-          <div className="mono mb-4 flex items-center gap-2 border border-[#D1D1CB] bg-white px-4 py-2 text-[10px] text-carbon/70">
+          <div className="mono mb-4 flex items-center gap-2 border border-border bg-white px-4 py-2 text-[10px] text-carbon/70">
             <span className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
             Displaying cached activity snapshot — live GitHub API rate limited.
           </div>
@@ -471,7 +479,7 @@ export function GithubActivity() {
         {/* Repositories Grid */}
         {data && (
           <>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {visibleRepos.map((r) => (
                 <RepoCard key={r.id} repo={r} />
               ))}
@@ -482,7 +490,7 @@ export function GithubActivity() {
                 <button
                   type="button"
                   onClick={() => setShowAll((s) => !s)}
-                  className="mono inline-flex items-center gap-2 border border-[#D1D1CB] bg-white px-6 py-3 text-[11px] tracking-[0.14em] font-semibold text-carbon transition-all hover:border-cobalt hover:bg-cobalt hover:text-white shadow-sm"
+                  className="mono inline-flex items-center gap-2 border border-carbon bg-white px-5 py-2.5 text-[11px] tracking-[0.14em] font-semibold text-carbon transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
                 >
                   {showAll ? (
                     <>
@@ -498,12 +506,12 @@ export function GithubActivity() {
             )}
 
             {dataUpdatedAt > 0 && (
-              <div className="mono mt-6 flex items-center justify-between text-[10px] text-carbon/50 pt-3 border-t border-[#D1D1CB]/50">
+              <div className="mono mt-6 flex flex-wrap items-center justify-between gap-2 text-[10px] text-carbon/50 pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
                   {isFetching && <Loader2 className="h-3 w-3 animate-spin text-cobalt" />}
                   <span>{isFetching ? "Revalidating GitHub cache…" : `Cache updated ${relTime(new Date(dataUpdatedAt).toISOString())}`}</span>
                 </div>
-                <span>Unauthenticated REST Ingestion &bull; 60 requests/hr rate-safe</span>
+                <span>REST API Ingestion &bull; 60 req/hr rate-safe</span>
               </div>
             )}
           </>
