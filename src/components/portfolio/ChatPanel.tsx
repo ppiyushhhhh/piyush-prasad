@@ -1,18 +1,172 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Send, X, RotateCcw, Loader2, FileText } from "lucide-react";
+import {
+  Send,
+  X,
+  RotateCcw,
+  FileText,
+  Terminal,
+  ArrowRight,
+  ExternalLink,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
-  "What AWS projects has Piyush worked on?",
-  "Explain CloudOps Sentinel.",
-  "What DevOps technologies does Piyush use?",
-  "What cloud platforms does Piyush know?",
-  "What certifications does Piyush have?",
-  "Tell me about Piyush's current experience.",
+  "What's Piyush's CloudOps experience?",
+  "Tell me about CloudOps-Sentinel",
+  "What AWS projects has Piyush built?",
+  "What technologies does Piyush use?",
+  "Tell me about his DevOps projects",
+  "How can I contact Piyush?",
 ];
 
 const MAX_LENGTH = 1000;
+
+// Highlighted technologies for technical badge styling
+const TECH_TERMS = [
+  "AWS",
+  "EC2",
+  "S3",
+  "IAM",
+  "Linux",
+  "Ubuntu",
+  "Docker",
+  "Kubernetes",
+  "GitHub Actions",
+  "Nginx",
+  "MySQL",
+  "SQLite",
+  "Prometheus",
+  "Grafana",
+  "Node Exporter",
+  "Terraform",
+  "Git",
+  "Trivy",
+  "PM2",
+  "Certbot",
+  "Cloudflare",
+  "UFW",
+];
+
+/**
+ * Editorial Technical Message Formatter
+ * Formats paragraphs, code blocks, inline code, bold text, lists, and URLs cleanly.
+ */
+function FormattedMessage({ text }: { text: string }) {
+  // If response contains code blocks
+  const parts = text.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <div className="space-y-2 text-xs sm:text-[13px] leading-relaxed text-carbon font-sans">
+      {parts.map((part, index) => {
+        if (part.startsWith("```") && part.endsWith("```")) {
+          const lines = part.slice(3, -3).trim().split("\n");
+          const firstLine = lines[0]?.trim();
+          const isLang = firstLine && !firstLine.includes(" ") && lines.length > 1;
+          const lang = isLang ? firstLine : "sh";
+          const code = isLang ? lines.slice(1).join("\n") : lines.join("\n");
+
+          return (
+            <div
+              key={index}
+              className="my-2.5 overflow-hidden rounded border border-border bg-[#F5F4EE]"
+            >
+              <div className="flex items-center justify-between border-b border-border/80 bg-[#EAE8E0] px-3 py-1 font-mono text-[9px] uppercase tracking-wider text-carbon/60">
+                <span>{lang}</span>
+                <span>CODE</span>
+              </div>
+              <pre className="overflow-x-auto p-3 font-mono text-[11px] leading-snug text-carbon">
+                <code>{code}</code>
+              </pre>
+            </div>
+          );
+        }
+
+        // Split into paragraphs / lines
+        const paragraphs = part.split(/\n\s*\n/);
+        return (
+          <div key={index} className="space-y-2">
+            {paragraphs.map((para, pIdx) => {
+              const lines = para.split("\n");
+
+              return (
+                <p key={pIdx} className="leading-relaxed">
+                  {lines.map((line, lIdx) => {
+                    const isBullet = line.trim().startsWith("* ") || line.trim().startsWith("- ");
+                    const cleanLine = isBullet ? line.trim().slice(2) : line;
+
+                    return (
+                      <span key={lIdx} className={isBullet ? "flex items-start gap-1.5 my-1 ml-1" : "inline"}>
+                        {isBullet && (
+                          <span className="mono text-cobalt text-[10px] select-none font-bold mt-0.5">
+                            →
+                          </span>
+                        )}
+                        <span>{renderInlineFormatting(cleanLine)}</span>
+                        {!isBullet && lIdx < lines.length - 1 && <br />}
+                      </span>
+                    );
+                  })}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Format inline tokens: **bold**, `code`, URLs, and prioritized tech tags
+ */
+function renderInlineFormatting(line: string) {
+  // Regex matches URLs, backtick code, and **bold**
+  const regex = /((?:https?:\/\/[^\s]+)|(?:`[^`]+`)|(?:\*\*[^*]+\*\*))/g;
+  const tokens = line.split(regex);
+
+  return tokens.map((token, i) => {
+    if (token.startsWith("http://") || token.startsWith("https://")) {
+      const cleanUrl = token.replace(/[.,;)]+$/, "");
+      return (
+        <a
+          key={i}
+          href={cleanUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-0.5 text-cobalt font-medium underline underline-offset-2 hover:text-carbon"
+        >
+          <span>{cleanUrl.replace(/^https?:\/\/(www\.)?/, "")}</span>
+          <ExternalLink className="h-2.5 w-2.5" />
+        </a>
+      );
+    }
+
+    if (token.startsWith("`") && token.endsWith("`")) {
+      return (
+        <code
+          key={i}
+          className="rounded border border-border/80 bg-[#F2F1EA] px-1 py-0.2 font-mono text-[11px] text-carbon font-semibold"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+
+    if (token.startsWith("**") && token.endsWith("**")) {
+      return (
+        <strong key={i} className="font-bold text-carbon">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    return token;
+  });
+}
 
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -22,6 +176,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastSentRef = useRef<Msg[] | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -80,103 +235,201 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     if (lastSentRef.current) void send(lastSentRef.current);
   }, [send]);
 
+  const clearConversation = useCallback(() => {
+    setMessages([]);
+    setError(null);
+    inputRef.current?.focus();
+  }, []);
+
   return (
-    <div
+    <motion.div
       role="dialog"
       aria-modal="false"
-      aria-label="Piyush AI assistant"
-      className="fixed inset-x-3 bottom-3 z-[60] flex h-[min(78dvh,560px)] flex-col border border-aluminum bg-white shadow-[0_20px_60px_-20px_rgba(15,17,21,0.45)] sm:inset-x-auto sm:right-6 sm:bottom-[8.5rem] sm:w-[400px]"
+      aria-label="Piyush AI Assistant"
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: shouldReduceMotion ? 0 : 12, scale: 0.98 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="fixed inset-3 sm:inset-auto sm:right-6 sm:bottom-6 z-[60] flex flex-col sm:w-[420px] md:w-[440px] sm:h-[640px] max-h-[calc(100dvh-24px)] sm:max-h-[calc(100vh-48px)] rounded-lg border border-border bg-white shadow-[0_20px_50px_-12px_rgba(18,19,22,0.3)] overflow-hidden overscroll-contain"
     >
-      {/* Header */}
-      <header className="flex items-start justify-between gap-3 border-b border-aluminum bg-carbon px-4 py-3">
-        <div className="min-w-0">
-          <h2 className="mono text-[13px] font-medium tracking-[0.08em] text-white uppercase">
-            Piyush AI
-          </h2>
-          <p className="mt-1 text-[12px] leading-snug text-white/60">
-            Ask me about Piyush&apos;s projects, skills, experience and certifications.
-          </p>
+      {/* Editorial Engineering Header */}
+      <header className="flex items-center justify-between border-b border-border bg-[#FAF9F6] px-4 py-3.5 select-none">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* PP Monogram Badge */}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-carbon/15 bg-white shadow-2xs">
+            <img
+              src="/pp-logo.png"
+              alt="PP"
+              className="h-5 w-auto object-contain"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.style.display = "none";
+                if (target.parentElement) {
+                  target.parentElement.innerHTML =
+                    '<span class="mono font-bold text-cobalt text-[10px]">PP</span>';
+                }
+              }}
+            />
+          </div>
+
+          <div className="min-w-0 flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-carbon tracking-tight truncate">
+                Piyush AI
+              </span>
+              <span className="mono text-[9px] text-cobalt font-semibold border border-cobalt/25 bg-cobalt/5 px-1.5 py-0.2">
+                ASSISTANT
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-600" />
+              </span>
+              <span>Online &bull; Cloud &amp; DevOps</span>
+            </div>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close chat"
-          className="shrink-0 border border-white/20 p-1.5 text-white/70 transition-colors hover:border-white/50 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-        >
-          <X className="h-4 w-4" aria-hidden="true" />
-        </button>
+
+        {/* Header Controls */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={clearConversation}
+              title="Clear conversation"
+              aria-label="Clear conversation"
+              className="flex h-7 w-7 items-center justify-center rounded border border-border bg-white text-carbon/60 transition-colors hover:border-cobalt hover:text-cobalt focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cobalt"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close AI Assistant"
+            className="flex h-7 w-7 items-center justify-center rounded border border-border bg-white text-carbon/70 transition-colors hover:border-carbon hover:bg-carbon hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cobalt"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </header>
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+      {/* Messages Conversation Container */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-white">
+        {/* Welcome / Empty State */}
         {messages.length === 0 && (
-          <div>
-            <p className="text-[14px] leading-relaxed text-muted-foreground">
-              Hi — I&apos;m Piyush&apos;s portfolio assistant. Pick a question or ask your own.
-            </p>
-            <ul className="mt-3 space-y-2">
-              {SUGGESTIONS.map((q) => (
-                <li key={q}>
+          <div className="py-2 animate-in fade-in duration-300">
+            <div className="border border-border bg-[#FAF9F6] p-4 rounded-sm">
+              <div className="flex items-center gap-2 text-cobalt mb-1.5">
+                <Terminal className="h-4 w-4" />
+                <span className="mono text-[10px] font-bold tracking-wider">
+                  ENGINEERING ASSISTANT READY
+                </span>
+              </div>
+              <h3 className="text-sm font-bold text-carbon">
+                Hi, I'm Piyush's AI assistant.
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                Ask me about his Cloud &amp; DevOps projects, AWS work, infrastructure, automation, or experience.
+              </p>
+            </div>
+
+            {/* Suggested Questions Grid */}
+            <div className="mt-4">
+              <div className="mono text-[9px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 px-1">
+                SUGGESTED QUESTIONS
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {SUGGESTIONS.map((q) => (
                   <button
+                    key={q}
                     type="button"
                     onClick={() => submit(q)}
-                    className="w-full border border-aluminum px-3 py-2 text-left text-[13px] text-carbon transition-colors hover:border-cobalt hover:text-cobalt focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:outline-none"
+                    className="group flex items-center justify-between border border-border bg-white px-3 py-2.5 text-left text-xs font-medium text-carbon transition-all hover:border-cobalt hover:bg-[#FAF9F6] hover:text-cobalt focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cobalt"
                   >
-                    {q}
+                    <span>{q}</span>
+                    <ArrowRight className="h-3 w-3 text-carbon/30 group-hover:text-cobalt group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
                   </button>
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        <ul className="space-y-4">
-          {messages.map((m, i) => (
-            <li key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-              <div
-                className={
-                  m.role === "user"
-                    ? "max-w-[85%] bg-cobalt px-3 py-2 text-[14px] leading-relaxed whitespace-pre-wrap text-white"
-                    : "max-w-[92%] text-[14px] leading-relaxed whitespace-pre-wrap text-carbon"
-                }
-              >
-                {m.role === "assistant" && (
-                  <span className="mono mb-1 block text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
-                    Piyush AI
-                  </span>
-                )}
-                {m.content.replace(/\*/g, "")}
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/* Messages List */}
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
+          >
+            {/* Metadata Label */}
+            <span className="mono text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-1">
+              {m.role === "user" ? "YOU // QUERY" : "PIYUSH AI // ASSISTANT"}
+            </span>
 
-        <div aria-live="polite" className="mt-3">
-          {loading && (
-            <p className="mono flex items-center gap-2 text-[12px] tracking-[0.08em] text-muted-foreground uppercase">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-              Thinking…
-            </p>
-          )}
-          {error && (
-            <div className="border border-destructive/40 bg-destructive/5 px-3 py-2">
-              <p className="text-[13px] text-destructive">{error}</p>
+            {/* Bubble Content */}
+            <div
+              className={`max-w-[88%] sm:max-w-[85%] ${
+                m.role === "user"
+                  ? "bg-carbon text-white rounded-md px-3.5 py-2.5 text-xs sm:text-[13px] leading-relaxed shadow-2xs whitespace-pre-wrap"
+                  : "bg-[#FAF9F6] border border-border rounded-md p-3.5 sm:p-4 text-xs sm:text-[13px] text-carbon shadow-2xs w-full"
+              }`}
+            >
+              {m.role === "user" ? (
+                m.content
+              ) : (
+                <FormattedMessage text={m.content} />
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Thinking / Loading State */}
+        {loading && (
+          <div className="flex flex-col items-start">
+            <span className="mono text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-1">
+              PIYUSH AI // PROCESSING
+            </span>
+            <div className="flex items-center gap-2 border border-border bg-[#FAF9F6] px-3.5 py-2.5 rounded-md text-xs text-carbon/80 shadow-2xs">
+              <div className="flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+              <span className="font-mono text-[11px] text-carbon/70 ml-1">
+                Piyush AI is thinking…
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="flex flex-col items-start">
+            <div className="w-full border border-rose-300 bg-rose-50 p-3 rounded-md text-xs text-rose-800">
+              <div className="flex items-center gap-2 font-semibold">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>Something went wrong. Please try again.</span>
+              </div>
+              <p className="mt-1 text-[11px] text-rose-700/80">{error}</p>
               <button
                 type="button"
                 onClick={retry}
-                className="mono mt-2 inline-flex items-center gap-1.5 text-[11px] tracking-[0.08em] text-cobalt uppercase hover:underline focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:outline-none"
+                className="mono mt-2 inline-flex items-center gap-1.5 border border-rose-300 bg-white px-2.5 py-1 text-[10px] font-semibold text-rose-800 hover:bg-rose-100 transition-colors"
               >
-                <RotateCcw className="h-3 w-3" aria-hidden="true" />
-                Retry
+                <RotateCcw className="h-3 w-3" />
+                RETRY REQUEST
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Composer */}
+      {/* Fixed Composer Form */}
       <form
-        className="border-t border-aluminum p-3"
+        className="border-t border-border bg-[#FAF9F6] p-3 select-none"
         onSubmit={(e) => {
           e.preventDefault();
           submit(input);
@@ -184,7 +437,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-end gap-2">
           <label htmlFor="piyush-ai-input" className="sr-only">
-            Ask Piyush AI a question
+            Ask about Piyush's projects, stack, experience
           </label>
           <textarea
             id="piyush-ai-input"
@@ -199,35 +452,34 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 submit(input);
               }
             }}
-            placeholder="Ask about projects, skills, experience…"
-            className="max-h-28 min-h-[42px] flex-1 resize-y border border-aluminum bg-white px-3 py-2 text-[14px] text-carbon placeholder:text-muted-foreground/70 focus-visible:border-cobalt focus-visible:ring-1 focus-visible:ring-cobalt focus-visible:outline-none"
+            placeholder="Ask about Piyush's projects, stack, experience…"
+            className="max-h-24 min-h-[42px] flex-1 resize-y border border-border bg-white px-3 py-2 text-xs sm:text-sm text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:outline-none focus-visible:ring-1 focus-visible:ring-cobalt rounded-sm"
           />
+
           <button
             type="submit"
             disabled={loading || input.trim().length === 0}
-            aria-label="Send message"
-            className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center bg-carbon text-white transition-colors hover:bg-cobalt focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Send message to Piyush AI"
+            className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-sm bg-cobalt text-white transition-all hover:bg-carbon focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Send className="h-4 w-4" aria-hidden="true" />
-            )}
+            <Send className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-2 flex items-center justify-between gap-3">
+
+        {/* Input Footer Metadata */}
+        <div className="mt-2 flex items-center justify-between gap-3 text-[10px] text-muted-foreground font-mono">
           <a
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[12px] text-carbon transition-colors hover:text-cobalt focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:outline-none"
+            className="inline-flex items-center gap-1 hover:text-cobalt transition-colors"
           >
-            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-            View Resume
+            <FileText className="h-3 w-3" />
+            <span>Resume</span>
           </a>
-          <span className="text-[11px] text-muted-foreground">Press Enter to send</span>
+          <span>Enter to send &bull; Shift+Enter for newline</span>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }
