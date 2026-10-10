@@ -134,18 +134,18 @@ export function Certifications() {
                   key={cert.name}
                   className="group flex items-start gap-4 p-4 sm:p-5 transition-colors hover:bg-[#FAF9F6]"
                 >
-                  {/* Issuer Logo or Monogram */}
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-white p-1 shadow-2xs">
+                  {/* Issuer Logo or Monogram with dynamic hover micro-interaction */}
+                  <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
                     {cert.logo ? (
                       <img
                         src={cert.logo}
                         alt={cert.issuer}
-                        className={`h-full w-full ${
+                        className={`h-full w-full transition-transform duration-300 ease-out group-hover:scale-105 hover:scale-115 ${
                           cert.logo === mibLogo ? "object-contain p-0.5" : "object-cover"
                         }`}
                       />
                     ) : (
-                      <span className="mono text-cobalt font-bold text-[10px]">
+                      <span className="mono text-cobalt font-bold text-[10px] transition-transform duration-300 group-hover:scale-110">
                         {cert.issuer.slice(0, 2).toUpperCase()}
                       </span>
                     )}
@@ -211,7 +211,7 @@ export function Certifications() {
               {EDUCATION_DATA.map((edu) => (
                 <div
                   key={edu.degree}
-                  className="border border-border bg-white p-5 sm:p-6 transition-all hover:border-cobalt/60 hover:shadow-2xs"
+                  className="group border border-border bg-white p-5 sm:p-6 transition-all hover:border-cobalt/60 hover:shadow-2xs"
                 >
                   <div className="mono text-[10px] font-bold text-cobalt mb-2">
                     {edu.period}
@@ -219,11 +219,11 @@ export function Certifications() {
 
                   <div className="flex items-start gap-3.5">
                     {edu.logo && (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-white p-1 shadow-2xs">
+                      <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
                         <img
                           src={edu.logo}
                           alt={edu.school}
-                          className="h-full w-full object-contain"
+                          className="h-full w-full object-contain transition-transform duration-300 ease-out group-hover:scale-105 hover:scale-115"
                         />
                       </div>
                     )}
