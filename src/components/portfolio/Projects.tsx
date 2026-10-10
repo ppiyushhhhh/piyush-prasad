@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeader } from "./SectionHeader";
-import { ArrowUpRight, Github, ExternalLink, ShieldCheck, Terminal, Server, Layers } from "lucide-react";
+import { ArrowUpRight, Github, ExternalLink, Maximize2, ShieldCheck, Terminal, Server, Layers } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
+import cicdPipelineImg from "@/assets/projects/cicd-pipeline.jpg";
+import devsecopsImg from "@/assets/projects/devsecops-monitoring.jpg";
+import cloudopsSentinelImg from "@/assets/projects/cloudops-sentinel.jpg";
 
 export interface ProjectItem {
   idx: string;
@@ -21,6 +26,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "DevOps CI/CD Pipeline",
     subtitle: "AWS · Nginx · Cloudflare · GitHub Actions",
     year: "2025",
+    image: cicdPipelineImg,
     body:
       "Designed and implemented a full CI/CD pipeline using GitHub Actions to automate deployment of a React application. Deployed on AWS EC2 (Ubuntu), configured Nginx as a reverse proxy. Managed domain routing with Cloudflare and implemented secure domain-based email via SPF, DKIM, and DMARC.",
     tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
@@ -35,6 +41,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "Production AWS EC2 + DevSecOps",
     subtitle: "Monitoring · Security · Prometheus · Grafana",
     year: "2026",
+    image: devsecopsImg,
     body:
       "Deployed a production-grade React + Node.js application on AWS EC2 using Nginx reverse proxy with HTTPS via Certbot SSL. Implemented server hardening: UFW Firewall, rate limiting, and DDoS protection. Built a full monitoring stack with Prometheus, Grafana, and Node Exporter. Integrated Trivy vulnerability scanning in CI/CD.",
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
@@ -49,6 +56,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "CloudOps Sentinel",
     subtitle: "React · Node.js · SQLite · Nginx · PM2",
     year: "2026",
+    image: cloudopsSentinelImg,
     body:
       "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a login gate. Delivers live server metrics, Docker status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident and alert management, activity logs, and automated PDF reporting. Backed by SQLite persistence with scheduled cron backups, served via Nginx reverse proxy with PM2 process management and GitHub Actions CI/CD.",
     tech: ["React", "Node.js", "Express", "SQLite", "PM2", "Nginx", "Trivy", "GitHub Actions"],
@@ -60,15 +68,53 @@ export const PROJECTS: ProjectItem[] = [
   },
 ];
 
-function ProjectVisual({ project }: { project: ProjectItem }) {
+function ProjectVisual({
+  project,
+  onOpenPreview,
+}: {
+  project: ProjectItem;
+  onOpenPreview: (project: ProjectItem) => void;
+}) {
   if (project.image) {
     return (
-      <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-border bg-[#F3F3ED]">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpenPreview(project)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpenPreview(project);
+          }
+        }}
+        className="group/img relative aspect-[16/9] w-full cursor-zoom-in overflow-hidden border-b border-border bg-[#14151a] focus:outline-hidden focus:ring-2 focus:ring-cobalt/50"
+        title="Click to view full preview"
+      >
         <img
           src={project.image}
           alt={project.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-102"
+          loading="lazy"
+          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
         />
+
+        {/* Ambient subtle vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-40" />
+
+        {/* Floating Spec Tags */}
+        <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-xs border border-white/20 bg-carbon/80 px-2 py-0.5 text-[10px] font-mono font-medium text-white backdrop-blur-xs shadow-xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>SPEC // {project.idx}</span>
+        </div>
+
+        <div className="pointer-events-none absolute top-3 right-3 rounded-xs border border-white/20 bg-carbon/80 px-2 py-0.5 text-[9px] font-mono text-white/90 backdrop-blur-xs shadow-xs">
+          {project.year}
+        </div>
+
+        {/* Hover zoom indicator */}
+        <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-1.5 rounded-xs border border-white/25 bg-carbon/85 px-2.5 py-1 text-[11px] font-mono text-white opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover/img:opacity-100 shadow-md">
+          <Maximize2 className="h-3 w-3 text-cobalt" />
+          <span>Preview</span>
+        </div>
       </div>
     );
   }
@@ -179,6 +225,7 @@ function ProjectVisual({ project }: { project: ProjectItem }) {
 
 export function Projects() {
   const shouldReduceMotion = useReducedMotion();
+  const [previewProject, setPreviewProject] = useState<ProjectItem | null>(null);
 
   return (
     <section id="projects" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
@@ -202,7 +249,7 @@ export function Projects() {
               className="group flex flex-col border border-border bg-white transition-all duration-300 hover:border-cobalt hover:shadow-sm"
             >
               {/* Card Visual Header */}
-              <ProjectVisual project={project} />
+              <ProjectVisual project={project} onOpenPreview={setPreviewProject} />
 
               {/* Card Body */}
               <div className="flex flex-1 flex-col p-6 sm:p-7">
@@ -273,6 +320,80 @@ export function Projects() {
           ))}
         </div>
       </div>
+
+      {/* Project Image Preview Lightbox Dialog */}
+      <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
+        {previewProject && (
+          <DialogContent className="max-w-4xl p-0 overflow-hidden border-border bg-white sm:rounded-lg">
+            {previewProject.image && (
+              <div className="relative aspect-[16/9] w-full bg-[#121316] overflow-hidden border-b border-border">
+                <img
+                  src={previewProject.image}
+                  alt={previewProject.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="p-6">
+              <DialogHeader>
+                <div className="flex items-center gap-2 mono text-xs text-cobalt font-bold">
+                  <span>PROJECT // {previewProject.idx}</span>
+                  <span className="text-border">·</span>
+                  <span className="text-muted-foreground">{previewProject.year}</span>
+                </div>
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-carbon">
+                  {previewProject.title}
+                </DialogTitle>
+                <DialogDescription className="mono text-xs text-muted-foreground">
+                  {previewProject.subtitle}
+                </DialogDescription>
+              </DialogHeader>
+
+              <p className="mt-4 text-sm leading-relaxed text-carbon/80">
+                {previewProject.body}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {previewProject.tech.map((t) => (
+                  <span
+                    key={t}
+                    className="mono border border-border bg-[#FAF9F6] px-2.5 py-1 text-[10px] text-carbon/80"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              {(previewProject.link || previewProject.repo) && (
+                <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-border pt-4">
+                  {previewProject.link && (
+                    <a
+                      href={previewProject.link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-cobalt hover:underline"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span>Visit Live ({previewProject.link.label})</span>
+                    </a>
+                  )}
+                  {previewProject.repo && (
+                    <a
+                      href={previewProject.repo.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-xs font-mono text-carbon/80 hover:text-cobalt"
+                    >
+                      <Github className="h-3.5 w-3.5" />
+                      <span>{previewProject.repo.label}</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
     </section>
   );
 }
