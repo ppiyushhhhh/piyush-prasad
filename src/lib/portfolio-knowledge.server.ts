@@ -65,7 +65,7 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 
 # EXPERIENCE
 
-## Runtime Solutions — Dec 2024 — Present (https://www.runtimesolutions.in/)
+## Runtime Solutions — Dec 2024 — Present (https://www.runtime-solutions.com/)
 ### Junior Cloud Engineer (Full-Time) — Sep 2026 — PRESENT
 - Administer Google Workspace for organizational users, including creating and deleting user
   accounts, configuring email, and managing groups, aliases, and access permissions.
@@ -97,7 +97,7 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 - Performed routine checks on network connectivity, access points, and biometric devices.
 
 ## Credence Infotech — IT Service Management Consultant (Full-Time), Feb 2022 — Oct 2024
-(https://credenceinfotech.com/)
+(https://www.credenceinfotech.in/)
 - Provided operational support for IT infrastructure, service management, and change
   management processes.
 - Acted as a coordination point between technical teams and stakeholders to ensure smooth

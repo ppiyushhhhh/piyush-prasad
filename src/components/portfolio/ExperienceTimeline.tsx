@@ -24,7 +24,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
   {
     company: "Runtime Solutions",
     logo: runtimeLogo,
-    url: "https://www.runtimesolutions.in/",
+    url: "https://www.runtime-solutions.com/",
     period: "Dec 2024 — Present",
     positions: [
       {
@@ -67,7 +67,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
   {
     company: "Credence Infotech",
     logo: credenceLogo,
-    url: "https://credenceinfotech.com/",
+    url: "https://www.credenceinfotech.in/",
     period: "Feb 2022 — Oct 2024",
     positions: [
       {
@@ -114,32 +114,48 @@ export function ExperienceTimeline() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
                 <div className="flex items-center gap-4">
                   {companyExp.logo ? (
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-white p-1.5 shadow-2xs">
+                    <a
+                      href={companyExp.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`Visit ${companyExp.company}`}
+                      aria-label={`Visit ${companyExp.company} website`}
+                      className="group/logo relative flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-white p-1.5 shadow-2xs transition-all duration-300 hover:border-cobalt hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                    >
                       <img
                         src={companyExp.logo?.url ?? companyExp.logo}
                         alt={companyExp.company}
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover/logo:scale-110"
                       />
-                    </div>
+                    </a>
                   ) : (
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt font-mono font-bold">
-                      {companyExp.company.slice(0, 2).toUpperCase()}
-                    </div>
+                    <a
+                      href={companyExp.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`Visit ${companyExp.company}`}
+                      aria-label={`Visit ${companyExp.company} website`}
+                      className="group/logo flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt font-mono font-bold transition-all duration-300 hover:border-cobalt hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                    >
+                      <span className="transition-transform duration-300 group-hover/logo:scale-110">
+                        {companyExp.company.slice(0, 2).toUpperCase()}
+                      </span>
+                    </a>
                   )}
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xl sm:text-2xl font-bold text-carbon">
-                        {companyExp.company}
-                      </h3>
                       <a
                         href={companyExp.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-carbon/40 hover:text-cobalt transition-colors"
+                        className="group/name inline-flex items-center gap-1.5 text-carbon hover:text-cobalt transition-colors"
                         title={`Visit ${companyExp.company}`}
                       >
-                        <ArrowUpRight className="h-4 w-4" />
+                        <h3 className="text-xl sm:text-2xl font-bold transition-colors">
+                          {companyExp.company}
+                        </h3>
+                        <ArrowUpRight className="h-4 w-4 opacity-40 transition-all duration-200 group-hover/name:opacity-100 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 text-cobalt" />
                       </a>
                     </div>
                     <span className="mono text-[11px] text-muted-foreground">
