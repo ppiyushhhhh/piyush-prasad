@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Copy,
   Download,
-  Activity,
   Github,
   Linkedin,
   FileText,
@@ -167,17 +166,6 @@ export function CommandPalette() {
             <Mail className="mr-2 h-4 w-4 text-cobalt" />
             <span>Contact & Get In Touch</span>
             <CommandShortcut className="font-mono text-[10px]">#contact</CommandShortcut>
-          </CommandItem>
-
-          <CommandItem
-            onSelect={() => runCommand(() => window.open("/dashboard", "_blank"))}
-            className="cursor-pointer"
-          >
-            <Activity className="mr-2 h-4 w-4 text-emerald-500" />
-            <span>Live CloudOps Dashboard</span>
-            <CommandShortcut className="font-mono text-[10px] text-emerald-600">
-              LIVE /dashboard ↗
-            </CommandShortcut>
           </CommandItem>
         </CommandGroup>
 

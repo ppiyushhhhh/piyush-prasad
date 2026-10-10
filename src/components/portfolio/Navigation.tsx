@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, ArrowUpRight, Activity, Search } from "lucide-react";
+import { Github, FileText, Menu, X, Search } from "lucide-react";
 
 interface NavItem {
   id: string;
@@ -147,24 +147,6 @@ export function Navigation() {
               );
             })}
 
-            {/* Live CloudOps Badge */}
-            <a
-              href="/dashboard"
-              target="_blank"
-              rel="noreferrer"
-              className="mono inline-flex items-center gap-2 border border-cobalt/30 bg-cobalt/5 px-2.5 py-1 text-[10px] font-semibold text-cobalt transition-colors hover:bg-cobalt hover:text-white"
-              title="Live CloudOps & Architecture Monitor"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-600" />
-              </span>
-              <span>LIVE CLOUDOPS</span>
-              <ArrowUpRight className="h-3 w-3" />
-            </a>
-
-            <div className="h-4 w-px bg-border" />
-
             {/* Command Palette Trigger Button */}
             <button
               type="button"
@@ -275,20 +257,6 @@ export function Navigation() {
           </div>
 
           <div className="mt-auto space-y-4 pt-6 border-t border-border">
-            <a
-              href="/dashboard"
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex w-full items-center justify-between border border-cobalt/30 bg-cobalt/5 p-3 text-xs font-mono font-medium text-cobalt"
-            >
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live CloudOps Dashboard
-              </span>
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
-
             <div className="grid grid-cols-2 gap-3">
               <a
                 href={GITHUB}

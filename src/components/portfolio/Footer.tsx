@@ -107,18 +107,6 @@ export function Footer() {
             <ul className="space-y-3 text-xs">
               <li>
                 <a
-                  href="/dashboard"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group inline-flex items-center gap-2 font-mono text-cobalt font-semibold hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Live CloudOps &amp; Architecture Monitor</span>
-                  <ArrowUpRight className="h-3 w-3" />
-                </a>
-              </li>
-              <li>
-                <a
                   href="/resume"
                   target="_blank"
                   rel="noreferrer"
