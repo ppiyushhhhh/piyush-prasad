@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GITHUB, LINKEDIN, EMAIL, PHONE } from "@/lib/site";
 import {
   ArrowUp,
@@ -9,6 +9,7 @@ import {
   FileText,
   BookOpen,
   MapPin,
+  Clock,
   Terminal,
   ShieldCheck,
   Check,
@@ -30,12 +31,30 @@ const SECTION_LINKS: SectionLink[] = [
   { num: "02", label: "Technical Skills", href: "#skills" },
   { num: "03", label: "Experience Journey", href: "#experience" },
   { num: "04", label: "Credentials & Education", href: "#certifications" },
-  { num: "05", label: "GitHub Activity", href: "#github-activity" },
-  { num: "06", label: "Get In Touch", href: "#contact" },
+  { num: "05", label: "Get In Touch", href: "#contact" },
 ];
 
 export function Footer() {
   const [copied, setCopied] = useState(false);
+  const [istTime, setIstTime] = useState<string>("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const formatted = new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      }).format(now);
+      setIstTime(formatted);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCopyEmail = async () => {
     try {
@@ -273,13 +292,16 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Location & Infrastructure Note */}
+            {/* Location & Live IST Clock */}
             <div className="flex items-center justify-between border-t border-border/70 pt-3 text-[11px] font-mono text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <MapPin className="h-3 w-3 text-cobalt" />
                 <span>Navi Mumbai, MH, India</span>
               </span>
-              <span className="text-[10px] text-carbon/60">UTC+5:30 IST</span>
+              <span className="inline-flex items-center gap-1.5 border border-border bg-white px-2 py-0.5 text-[10px] text-carbon/80 shadow-2xs font-mono font-medium">
+                <Clock className="h-3 w-3 text-cobalt" />
+                <span className="tabular-nums">{istTime || "IST"}</span>
+              </span>
             </div>
           </div>
         </div>
