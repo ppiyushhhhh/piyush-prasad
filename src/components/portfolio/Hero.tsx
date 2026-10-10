@@ -12,7 +12,6 @@ import {
   Terminal,
   Activity,
   CheckCircle2,
-  Search,
 } from "lucide-react";
 
 export function Hero() {
@@ -133,19 +132,6 @@ export function Hero() {
                 <Download className="h-3.5 w-3.5" />
                 <span>DOWNLOAD RESUME</span>
               </a>
-
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-                className="mono inline-flex items-center gap-2 border border-border bg-[#F5F4EE] px-4 py-3.5 text-[11px] font-semibold tracking-wider text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt hover:bg-white shadow-2xs cursor-pointer"
-                title="Quick Search & Actions (Ctrl+K or ⌘K)"
-              >
-                <Search className="h-3.5 w-3.5 text-cobalt" />
-                <span>QUICK FIND</span>
-                <kbd className="rounded border border-border bg-white px-1.5 py-0.5 text-[9px] font-mono text-carbon/70">
-                  ⌘K
-                </kbd>
-              </button>
             </motion.div>
 
             {/* Social & Contact Direct Links */}

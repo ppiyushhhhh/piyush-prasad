@@ -147,19 +147,16 @@ export function Navigation() {
               );
             })}
 
-            {/* Command Palette Trigger Button */}
+            {/* Search Trigger Button */}
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-              className="mono inline-flex items-center gap-2 border border-border bg-white px-2.5 py-1 text-[11px] text-muted-foreground transition-all hover:border-cobalt hover:text-carbon shadow-2xs cursor-pointer"
-              title="Quick Search & Actions (Ctrl+K or ⌘K)"
-              aria-label="Open command palette"
+              className="mono inline-flex items-center gap-1.5 border border-border bg-white px-2.5 py-1 text-[11px] font-medium text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt shadow-2xs cursor-pointer"
+              title="Search"
+              aria-label="Search"
             >
               <Search className="h-3.5 w-3.5 text-cobalt" />
-              <span className="hidden xl:inline text-[10px]">Search</span>
-              <kbd className="mono rounded border border-border bg-[#FAF9F6] px-1 py-0.2 text-[9px] font-semibold text-carbon/70">
-                ⌘K
-              </kbd>
+              <span className="text-[10px] tracking-wider uppercase font-semibold">SEARCH</span>
             </button>
 
             {/* GitHub Icon Link */}
