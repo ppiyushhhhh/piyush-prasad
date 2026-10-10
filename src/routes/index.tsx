@@ -10,6 +10,7 @@ import { ContactSection } from "@/components/portfolio/ContactSection";
 import { Footer } from "@/components/portfolio/Footer";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
 import { CommandPalette } from "@/components/portfolio/CommandPalette";
+import { CustomCursor } from "@/components/portfolio/CustomCursor";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
@@ -26,6 +27,9 @@ export const Route = createFileRoute("/")({
 function PortfolioPage() {
   return (
     <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white">
+      {/* Minimalist Deep Carbon Custom Pointer */}
+      <CustomCursor />
+
       {/* Sticky Top Navigation */}
       <Navigation />
 
