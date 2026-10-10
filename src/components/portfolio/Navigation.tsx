@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, ArrowUpRight, Activity } from "lucide-react";
+import { Github, FileText, Menu, X, ArrowUpRight, Activity, Search } from "lucide-react";
 
 interface NavItem {
   id: string;
@@ -165,6 +165,21 @@ export function Navigation() {
 
             <div className="h-4 w-px bg-border" />
 
+            {/* Command Palette Trigger Button */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+              className="mono inline-flex items-center gap-2 border border-border bg-white px-2.5 py-1 text-[11px] text-muted-foreground transition-all hover:border-cobalt hover:text-carbon shadow-2xs cursor-pointer"
+              title="Quick Search & Actions (Ctrl+K or ⌘K)"
+              aria-label="Open command palette"
+            >
+              <Search className="h-3.5 w-3.5 text-cobalt" />
+              <span className="hidden xl:inline text-[10px]">Search</span>
+              <kbd className="mono rounded border border-border bg-[#FAF9F6] px-1 py-0.2 text-[9px] font-semibold text-carbon/70">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* GitHub Icon Link */}
             <a
               href={GITHUB}
@@ -188,8 +203,18 @@ export function Navigation() {
             </a>
           </nav>
 
-          {/* Mobile Menu Hamburger Button */}
+          {/* Mobile Menu Actions */}
           <div className="flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-white text-carbon transition-colors hover:border-cobalt hover:text-cobalt cursor-pointer"
+              title="Quick Search (⌘K)"
+              aria-label="Open search palette"
+            >
+              <Search className="h-4 w-4 text-cobalt" />
+            </button>
+
             <a
               href="/resume.pdf"
               target="_blank"

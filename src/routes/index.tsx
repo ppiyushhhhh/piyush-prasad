@@ -9,6 +9,7 @@ import { GithubActivity } from "@/components/portfolio/GithubActivity";
 import { ContactSection } from "@/components/portfolio/ContactSection";
 import { Footer } from "@/components/portfolio/Footer";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
+import { CommandPalette } from "@/components/portfolio/CommandPalette";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
@@ -41,6 +42,9 @@ function PortfolioPage() {
 
       {/* Editorial Footer */}
       <Footer />
+
+      {/* Interactive Command Palette (Cmd+K / Ctrl+K) */}
+      <CommandPalette />
 
       {/* AI Portfolio Assistant Float */}
       <AskPiyushAI />

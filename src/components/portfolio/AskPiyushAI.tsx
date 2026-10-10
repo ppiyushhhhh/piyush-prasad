@@ -10,11 +10,16 @@ export function AskPiyushAI() {
   const [hovered, setHovered] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
-  // Close with escape key handled in ChatPanel, but sync state here
+  // Sync state with open/close events from command palette or other components
   useEffect(() => {
     const handleCloseEvent = () => setOpen(false);
+    const handleOpenEvent = () => setOpen(true);
     window.addEventListener("close-ai-chat", handleCloseEvent);
-    return () => window.removeEventListener("close-ai-chat", handleCloseEvent);
+    window.addEventListener("open-ai-chat", handleOpenEvent);
+    return () => {
+      window.removeEventListener("close-ai-chat", handleCloseEvent);
+      window.removeEventListener("open-ai-chat", handleOpenEvent);
+    };
   }, []);
 
   return (
