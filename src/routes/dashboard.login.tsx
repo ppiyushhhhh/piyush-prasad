@@ -44,7 +44,7 @@ function LoginPage() {
       setErrorMessage(null);
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
 
@@ -148,7 +148,11 @@ function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@piyushprasad.in"
-                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors mono"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    autoComplete="email"
+                    spellCheck={false}
+                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors normal-case font-mono"
                   />
                 </div>
               </div>
@@ -165,12 +169,16 @@ function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-10 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors mono"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    autoComplete="current-password"
+                    spellCheck={false}
+                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-10 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors normal-case font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-carbon transition-colors"
+                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-carbon transition-colors cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>

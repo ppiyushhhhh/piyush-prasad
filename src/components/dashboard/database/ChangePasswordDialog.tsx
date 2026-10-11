@@ -115,12 +115,15 @@ export function ChangePasswordDialog({
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-9 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono shadow-2xs"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-9 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono normal-case shadow-2xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-muted-foreground hover:text-carbon"
+                className="absolute right-3 top-2.5 text-muted-foreground hover:text-carbon cursor-pointer"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -140,7 +143,10 @@ export function ChangePasswordDialog({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
-                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono shadow-2xs"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono normal-case shadow-2xs"
               />
             </div>
           </div>

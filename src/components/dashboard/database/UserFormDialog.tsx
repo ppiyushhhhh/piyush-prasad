@@ -101,7 +101,10 @@ export function UserFormDialog({ isOpen, onClose, onSubmit }: UserFormDialogProp
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="colleague@domain.com"
-                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono shadow-2xs"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono normal-case shadow-2xs"
               />
             </div>
           </div>
@@ -119,7 +122,10 @@ export function UserFormDialog({ isOpen, onClose, onSubmit }: UserFormDialogProp
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-9 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono shadow-2xs"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-9 py-2 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none font-mono normal-case shadow-2xs"
               />
               <button
                 type="button"
