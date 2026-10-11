@@ -16,6 +16,11 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
         content:
           "A step-by-step technical guide to building secure CI/CD pipelines with GitHub Actions, Trivy vulnerability scanning, automated secrets management, and container hardening.",
       },
+      { property: "og:url", content: "https://www.piyushprasad.in/guides/devsecops-pipeline" },
+      { property: "og:image", content: "https://www.piyushprasad.in/og/og-devsecops.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "DevSecOps Engineering Guides & Pipeline Security — Piyush Prasad" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "DevSecOps Pipeline Guide | Piyush Prasad" },
       {
@@ -23,7 +28,8 @@ export const Route = createFileRoute("/guides/devsecops-pipeline")({
         content:
           "A step-by-step technical guide to building secure CI/CD pipelines with GitHub Actions, Trivy vulnerability scanning, automated secrets management, and container hardening.",
       },
-      { property: "og:url", content: "https://www.piyushprasad.in/guides/devsecops-pipeline" },
+      { name: "twitter:image", content: "https://www.piyushprasad.in/og/og-devsecops.png" },
+      { name: "twitter:image:alt", content: "DevSecOps Engineering Guides & Pipeline Security — Piyush Prasad" },
     ],
     links: [{ rel: "canonical", href: "https://www.piyushprasad.in/guides/devsecops-pipeline" }],
     scripts: [

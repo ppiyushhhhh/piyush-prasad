@@ -28,13 +28,21 @@ export const Route = createFileRoute("/")({
         content:
           "Portfolio of Piyush Prasad, Cloud & DevOps Engineer specializing in AWS cloud infrastructure, automated CI/CD pipelines, Docker containerization, and DevSecOps.",
       },
+      { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: `${SITE_URL}/og-image.png` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Piyush Prasad — Cloud & DevOps Engineer Portfolio" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Cloud & DevOps Engineer | Piyush Prasad" },
       {
         name: "twitter:description",
         content:
           "Portfolio of Piyush Prasad, Cloud & DevOps Engineer specializing in AWS cloud infrastructure, automated CI/CD pipelines, Docker containerization, and DevSecOps.",
       },
+      { name: "twitter:image", content: `${SITE_URL}/og-image.png` },
+      { name: "twitter:image:alt", content: "Piyush Prasad — Cloud & DevOps Engineer Portfolio" },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/` }],
   }),

@@ -23,8 +23,17 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Monitoring Dashboard — Piyush Prasad" },
-      { name: "description", content: "Internal DevOps monitoring dashboard." },
+      { title: "Operations Console — Piyush Prasad" },
+      { name: "description", content: "Privileged operations console and infrastructure monitoring." },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Operations Console — Piyush Prasad" },
+      { property: "og:description", content: "Privileged operations console and infrastructure monitoring." },
+      { property: "og:url", content: "https://www.piyushprasad.in/dashboard" },
+      { property: "og:image", content: "https://www.piyushprasad.in/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Operations Console — Piyush Prasad" },
+      { name: "twitter:description", content: "Privileged operations console and infrastructure monitoring." },
+      { name: "twitter:image", content: "https://www.piyushprasad.in/og-image.png" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

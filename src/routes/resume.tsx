@@ -18,12 +18,19 @@ export const Route = createFileRoute("/resume")({
       },
       { property: "og:url", content: "https://www.piyushprasad.in/resume" },
       { property: "og:type", content: "profile" },
+      { property: "og:image", content: "https://www.piyushprasad.in/og/og-resume.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Piyush Prasad — Curriculum Vitae & Engineering Experience" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Resume & Engineering Experience | Piyush Prasad" },
       {
         name: "twitter:description",
         content:
           "Professional resume and engineering background of Piyush Prasad, highlighting hands-on expertise in AWS architectures, Linux administration, and CI/CD automation.",
       },
+      { name: "twitter:image", content: "https://www.piyushprasad.in/og/og-resume.png" },
+      { name: "twitter:image:alt", content: "Piyush Prasad — Curriculum Vitae & Engineering Experience" },
       { name: "robots", content: "index, follow" },
     ],
     links: [
