@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2, AlertCircle, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { StatusTag } from "@/components/dashboard/primitives";
 
 export const Route = createFileRoute("/dashboard/login")({
   head: () => ({
@@ -124,10 +125,7 @@ function LoginPage() {
                   Privileged infrastructure &amp; database access
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 mono text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Zero-Trust</span>
-              </div>
+              <StatusTag status="optimal">ZERO-TRUST</StatusTag>
             </div>
 
             {errorMessage && (

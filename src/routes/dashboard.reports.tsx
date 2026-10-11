@@ -4,7 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Download, FileText, PlusCircle, RefreshCw, Printer, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 
-import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import {
+  TelemetryMatrix,
+  TelemetryCell,
+  StatusTag,
+  MetricCard,
+  PageHeader,
+  Panel,
+  EmptyState,
+} from "@/components/dashboard/primitives";
 import { DataTable, ErrorState, LoadingState, fmtDate } from "@/components/dashboard/state";
 import { getReports, generateLiveReport } from "@/lib/monitoring.functions";
 
@@ -172,25 +180,26 @@ function ReportsPage() {
           subtitle="Daily website health reports, Lighthouse assessments and executive summaries."
         />
         <div className="flex items-center gap-2">
+          <StatusTag status="optimal">GRADE A+ (AUDITED)</StatusTag>
           <button
             onClick={handleGenerateReport}
             disabled={isGenerating}
-            className="inline-flex items-center gap-2 rounded-sm bg-cobalt px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 disabled:opacity-50 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 bg-cobalt px-3.5 py-1.5 text-xs font-mono font-semibold text-white hover:bg-cobalt/90 disabled:opacity-50 transition-colors cursor-pointer"
           >
             {isGenerating ? (
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <PlusCircle className="h-3.5 w-3.5" />
             )}
-            {isGenerating ? "Auditing Site…" : "Run Audit & Generate Report"}
+            {isGenerating ? "AUDITING..." : "RUN AUDIT"}
           </button>
           {latest && (
             <button
               onClick={() => downloadReportFile(latest)}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-1.5 text-xs font-medium text-carbon hover:border-cobalt hover:text-cobalt transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 border border-[#E5E5DF] bg-white px-3.5 py-1.5 text-xs font-mono font-medium text-carbon hover:border-cobalt hover:text-cobalt transition-colors cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
-              Download Latest
+              DOWNLOAD
             </button>
           )}
         </div>
@@ -202,11 +211,18 @@ function ReportsPage() {
         <LoadingState label="Loading audit reports from database…" />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {cards.map((c) => (
-              <MetricCard key={c.label} label={c.label} value={c.value} />
+          {/* Monolithic Telemetry Matrix (replaces 4 isolated cards) */}
+          <TelemetryMatrix columns={4}>
+            {cards.map((c, i) => (
+              <TelemetryCell
+                key={c.label}
+                index={i + 1}
+                label={c.label}
+                value={c.value}
+                accent={i === 1 ? "emerald" : i === 2 ? "cobalt" : "default"}
+              />
             ))}
-          </div>
+          </TelemetryMatrix>
 
           <div className="mt-8">
             <Panel

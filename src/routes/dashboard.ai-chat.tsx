@@ -4,7 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Bot, Send, Sparkles, Clock, CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react";
 
-import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import {
+  TelemetryMatrix,
+  TelemetryCell,
+  StatusTag,
+  MetricCard,
+  PageHeader,
+  Panel,
+  EmptyState,
+} from "@/components/dashboard/primitives";
 import { DataTable, ErrorState, LoadingState, fmtDateTime } from "@/components/dashboard/state";
 import { getChatActivity } from "@/lib/monitoring.functions";
 
@@ -84,14 +92,17 @@ function AiChatPage() {
           title="AI Assistant Analytics"
           subtitle="Real-time telemetry, latency benchmarking and chat assistant health."
         />
-        <button
-          onClick={() => refetch()}
-          disabled={isRefetching || isPending}
-          className="self-start sm:self-auto inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:border-cobalt hover:text-cobalt disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin text-cobalt" : "text-muted-foreground"}`} />
-          Refresh Activity
-        </button>
+        <div className="flex items-center gap-2.5">
+          <StatusTag status="optimal">GEMINI 2.5 FLASH PROXY</StatusTag>
+          <button
+            onClick={() => refetch()}
+            disabled={isRefetching || isPending}
+            className="inline-flex items-center gap-2 border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono font-medium text-carbon hover:border-cobalt hover:text-cobalt disabled:opacity-50 transition-colors cursor-pointer"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin text-cobalt" : "text-muted-foreground"}`} />
+            REFRESH
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -100,11 +111,19 @@ function AiChatPage() {
         <LoadingState label="Loading AI chat telemetry…" />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {cards.map((c) => (
-              <MetricCard key={c.label} label={c.label} value={c.value} hint={c.hint} />
+          {/* Monolithic Telemetry Matrix (replaces 4 isolated cards) */}
+          <TelemetryMatrix columns={4}>
+            {cards.map((c, i) => (
+              <TelemetryCell
+                key={c.label}
+                index={i + 1}
+                label={c.label}
+                value={c.value}
+                hint={c.hint}
+                accent={i === 0 ? "cobalt" : i === 2 ? "emerald" : "default"}
+              />
             ))}
-          </div>
+          </TelemetryMatrix>
 
           {/* Interactive AI Chat Live Simulator */}
           <div className="mt-8">

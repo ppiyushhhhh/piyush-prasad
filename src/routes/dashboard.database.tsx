@@ -48,6 +48,7 @@ import { DatabaseTableViewer } from "@/components/dashboard/database/DatabaseTab
 import { UserManagement } from "@/components/dashboard/database/UserManagement";
 import { ActivityLog } from "@/components/dashboard/database/ActivityLog";
 import { DatabaseBackups } from "@/components/dashboard/database/DatabaseBackups";
+import { StatusTag } from "@/components/dashboard/primitives";
 
 export const Route = createFileRoute("/dashboard/database")({
   head: () => ({
@@ -627,14 +628,13 @@ function DatabaseAdminPage() {
               <Database className="h-5 w-5 text-cobalt" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
                   Database Administration
                 </h1>
-                <span className="mono text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm font-semibold flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {overview?.status === "connected" ? "PostgreSQL 15 Live" : "Connecting…"}
-                </span>
+                <StatusTag status={overview?.status === "connected" ? "optimal" : "warning"}>
+                  {overview?.status === "connected" ? "POSTGRESQL 15 LIVE" : "CONNECTING..."}
+                </StatusTag>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 mono">
                 Supabase Engine &bull; AWS ap-south-1 &bull; 7-Day Continuous Rotation

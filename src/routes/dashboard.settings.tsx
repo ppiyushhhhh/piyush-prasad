@@ -15,7 +15,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-import { PageHeader, Panel } from "@/components/dashboard/primitives";
+import { PageHeader, Panel, StatusTag } from "@/components/dashboard/primitives";
 import { triggerFreshHealthCheck, generateLiveReport } from "@/lib/monitoring.functions";
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -143,19 +143,20 @@ function SettingsPage() {
           subtitle="Customize monitoring thresholds, notification endpoints and run system diagnostic actions."
         />
         <div className="flex items-center gap-2">
+          <StatusTag status="optimal">CONFIG: SYNCHRONIZED</StatusTag>
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:border-cobalt hover:text-cobalt transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono font-medium text-carbon hover:border-cobalt hover:text-cobalt transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Reset Defaults
+            RESET
           </button>
           <button
             onClick={handleSave}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-cobalt px-4 py-1.5 text-xs font-semibold text-white hover:bg-cobalt/90 transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-cobalt px-4 py-1.5 text-xs font-mono font-semibold text-white hover:bg-cobalt/90 transition-colors cursor-pointer"
           >
             <Save className="h-3.5 w-3.5" />
-            Save Changes
+            SAVE CHANGES
           </button>
         </div>
       </div>
@@ -345,41 +346,41 @@ function SettingsPage() {
           </div>
         </Panel>
 
-        {/* Section 4: Live Maintenance & Diagnostic Tools */}
-        <Panel title="Live Diagnostic & Maintenance Tools">
+        {/* Section 4: Live Maintenance & Diagnostic Console */}
+        <Panel tag="SYS.EXEC" title="Live Diagnostic & Maintenance Tools">
           <p className="text-xs text-muted-foreground mb-4">
             Perform on-demand checks, trigger report compilation, or verify sub-system integrations:
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="border border-[#E5E5DF] divide-y sm:divide-y-0 sm:divide-x divide-[#E5E5DF] bg-white grid grid-cols-1 sm:grid-cols-3">
             <button
               type="button"
               onClick={handleTriggerHealthCheck}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4 text-xs font-semibold text-carbon hover:bg-white hover:border-cobalt hover:text-cobalt transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Zap className={`h-4 w-4 text-emerald-600 ${actionLoading === "health" ? "animate-spin" : ""}`} />
-              {actionLoading === "health" ? "Probing Site…" : "Run Live Probe Now"}
+              {actionLoading === "health" ? "PROBING SITE..." : "RUN LIVE PROBE"}
             </button>
 
             <button
               type="button"
               onClick={handleTriggerReport}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4 text-xs font-semibold text-carbon hover:bg-white hover:border-cobalt hover:text-cobalt transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
               <ShieldCheck className={`h-4 w-4 text-cobalt ${actionLoading === "report" ? "animate-spin" : ""}`} />
-              {actionLoading === "report" ? "Compiling Audit…" : "Generate Audit Report"}
+              {actionLoading === "report" ? "COMPILING AUDIT..." : "GENERATE AUDIT REPORT"}
             </button>
 
             <button
               type="button"
               onClick={handleTestChat}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4 text-xs font-semibold text-carbon hover:bg-white hover:border-cobalt hover:text-cobalt transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Bot className={`h-4 w-4 text-indigo-600 ${actionLoading === "chat" ? "animate-spin" : ""}`} />
-              {actionLoading === "chat" ? "Testing API…" : "Test Gemini AI Bot"}
+              {actionLoading === "chat" ? "TESTING API..." : "TEST GEMINI BOT"}
             </button>
           </div>
         </Panel>

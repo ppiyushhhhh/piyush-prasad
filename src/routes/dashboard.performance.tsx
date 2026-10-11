@@ -23,8 +23,9 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
+  ReferenceLine,
   XAxis,
   YAxis,
   Tooltip,
@@ -32,7 +33,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 
-import { PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import { PageHeader, Panel, EmptyState, StatusTag } from "@/components/dashboard/primitives";
 import { DataTable, ErrorState, LoadingState, fmtDateTime } from "@/components/dashboard/state";
 import {
   getPerformanceHistory,
@@ -368,11 +369,10 @@ function PerformancePage() {
         </div>
 
         {/* Live Controls Strip */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Target URL Pill */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2 shadow-2xs">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <Globe className="h-3.5 w-3.5 text-cobalt" />
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Target URL Marker */}
+          <div className="border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2">
+            <span className="h-1.5 w-1.5 bg-emerald-600" />
             <span className="font-semibold text-carbon">
               {latest?.url ? new URL(latest.url).hostname : "www.piyushprasad.in"}
             </span>
@@ -380,42 +380,42 @@ function PerformancePage() {
 
           {/* Last Audited */}
           {latest && (
-            <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-muted-foreground flex items-center gap-1.5 shadow-2xs">
+            <div className="border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-muted-foreground flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Audited: {new Date(latest.measured_at).toLocaleTimeString()}</span>
+              <span>AUDITED: {new Date(latest.measured_at).toLocaleTimeString()}</span>
             </div>
           )}
 
           {/* Auto Refresh Toggle */}
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`rounded-sm border px-3 py-1.5 text-xs mono transition-colors flex items-center gap-1.5 shadow-2xs ${
+            className={`border px-3 py-1.5 text-xs mono transition-colors flex items-center gap-1.5 cursor-pointer ${
               autoRefresh
-                ? "border-cobalt/30 bg-cobalt/10 text-cobalt font-semibold"
+                ? "border-cobalt bg-blue-50/50 text-cobalt font-semibold"
                 : "border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon"
             }`}
             title="Auto-refresh telemetry every 30 seconds"
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
+              className={`h-1.5 w-1.5 ${
                 autoRefresh ? "bg-cobalt animate-ping" : "bg-neutral-400"
               }`}
             />
-            Auto: {autoRefresh ? "30s" : "Off"}
+            AUTO: {autoRefresh ? "30S" : "OFF"}
           </button>
 
           {/* Run Live Audit Button */}
           <button
             onClick={() => auditMutation.mutate()}
             disabled={auditMutation.isPending || isFetching}
-            className="inline-flex items-center gap-2 rounded-sm bg-cobalt hover:bg-cobalt/90 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 shadow-2xs"
+            className="inline-flex items-center gap-2 bg-cobalt hover:bg-cobalt/90 px-3.5 py-1.5 text-xs mono font-semibold text-white transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${
                 auditMutation.isPending || isFetching ? "animate-spin" : ""
               }`}
             />
-            {auditMutation.isPending ? "Auditing Live Site…" : "Run Live Audit"}
+            {auditMutation.isPending ? "AUDITING..." : "RUN AUDIT"}
           </button>
         </div>
       </div>
@@ -426,25 +426,30 @@ function PerformancePage() {
         <LoadingState label="Collecting live performance metrics…" />
       ) : (
         <>
-          {/* 4 Top Lighthouse Metric Cards with Progress Bars */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {scores.map((s) => (
+          {/* 4 Top Lighthouse Metric Matrix (Monolithic Architectural Panel) */}
+          <div className="border border-[#E5E5DF] divide-y sm:divide-y-0 sm:divide-x divide-[#E5E5DF] bg-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {scores.map((s, i) => (
               <div
                 key={s.label}
-                className="rounded-sm border border-[#E5E5DF] bg-white p-5 shadow-2xs space-y-3"
+                className="p-5 space-y-3"
               >
                 <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mono">
-                    {s.label}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                      [0{i + 1}]
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.18em] text-carbon font-semibold mono">
+                      {s.label}
+                    </span>
+                  </div>
                   <span
-                    className={`px-2 py-0.5 rounded-sm text-[10px] mono font-bold ${
+                    className={`px-1.5 py-0.5 text-[9px] mono font-bold border ${
                       s.badgeColor === "emerald"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-amber-50 text-amber-700 border border-amber-200"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-amber-50 text-amber-700 border-amber-200"
                     }`}
                   >
-                    {s.badge}
+                    [ {s.badge.toUpperCase()} ]
                   </span>
                 </div>
 
@@ -455,107 +460,86 @@ function PerformancePage() {
                   <span className="text-xs text-muted-foreground mono">/ 100</span>
                 </div>
 
-                {/* Score Progress Bar */}
-                <div className="h-1.5 w-full rounded-full bg-[#FAF9F6] border border-[#E5E5DF] overflow-hidden">
+                {/* Score Progress Bar (Sharp rectilinear hairline bar) */}
+                <div className="h-1 w-full bg-[#FAF9F6] border border-[#E5E5DF] overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${s.barColor}`}
+                    className={`h-full ${s.barColor}`}
                     style={{ width: `${s.value}%` }}
                   />
                 </div>
 
-                <p className="text-[11px] text-muted-foreground mono truncate">{s.subtext}</p>
+                <p className="text-[10px] text-muted-foreground mono truncate">{s.subtext}</p>
               </div>
             ))}
           </div>
 
-          {/* Core Web Vitals & Edge Network Timing Strip */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-white p-6 shadow-2xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#E5E5DF]">
+          {/* Core Web Vitals & Edge Network Timing Matrix */}
+          <div className="mt-8 border border-[#E5E5DF] bg-white">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-3 border-b border-[#E5E5DF] bg-[#FAF9F6]">
               <div className="flex items-center gap-2">
-                <Gauge className="h-4 w-4 text-cobalt" />
-                <h3 className="text-sm font-semibold text-carbon">
+                <span className="mono text-[10px] font-bold uppercase tracking-[0.2em] text-cobalt">VITALS //</span>
+                <h3 className="mono text-xs font-bold uppercase tracking-wider text-carbon">
                   Live Core Web Vitals &amp; Server Handshake Telemetry
                 </h3>
               </div>
-              <span className="text-xs mono text-emerald-700 flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Edge Handshake: Optimal (HTTP/3 Active)
-              </span>
+              <StatusTag status="optimal">EDGE HANDSHAKE: HTTP/3 ACTIVE</StatusTag>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-[#E5E5DF] bg-white">
               {/* TTFB */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Server TTFB</span>
-                  <Gauge className="h-3.5 w-3.5 text-cobalt" />
-                </div>
-                <div className="mt-2 mono text-xl font-bold text-carbon">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">SERVER TTFB</span>
+                <div className="mono text-xl font-bold text-carbon">
                   {latestDetails.ttfb_ms ?? 540} <span className="text-xs font-normal text-muted-foreground">ms</span>
                 </div>
-                <div className="text-[10px] text-emerald-700 mono mt-1">&lt; 800ms (Fast)</div>
+                <div className="text-[10px] text-emerald-700 mono">&lt; 800ms (Optimal)</div>
               </div>
 
               {/* Total Latency */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Roundtrip Time</span>
-                  <Zap className="h-3.5 w-3.5 text-emerald-700" />
-                </div>
-                <div className="mt-2 mono text-xl font-bold text-carbon">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">ROUNDTRIP TIME</span>
+                <div className="mono text-xl font-bold text-carbon">
                   {latestDetails.total_latency_ms ?? 630} <span className="text-xs font-normal text-muted-foreground">ms</span>
                 </div>
-                <div className="text-[10px] text-muted-foreground mono mt-1">Full HTML delivery</div>
+                <div className="text-[10px] text-muted-foreground mono">Full HTML delivery</div>
               </div>
 
               {/* FCP */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Est. FCP</span>
-                  <Clock className="h-3.5 w-3.5 text-indigo-600" />
-                </div>
-                <div className="mt-2 mono text-xl font-bold text-carbon">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">EST. FCP</span>
+                <div className="mono text-xl font-bold text-carbon">
                   {latestVitals.fcp_ms ? (latestVitals.fcp_ms / 1000).toFixed(2) : "0.68"} <span className="text-xs font-normal text-muted-foreground">s</span>
                 </div>
-                <div className="text-[10px] text-emerald-700 mono mt-1">&lt; 1.8s (Good)</div>
+                <div className="text-[10px] text-emerald-700 mono">&lt; 1.8s (Good)</div>
               </div>
 
               {/* LCP */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Est. LCP</span>
-                  <Activity className="h-3.5 w-3.5 text-indigo-600" />
-                </div>
-                <div className="mt-2 mono text-xl font-bold text-carbon">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">EST. LCP</span>
+                <div className="mono text-xl font-bold text-carbon">
                   {latestVitals.lcp_ms ? (latestVitals.lcp_ms / 1000).toFixed(2) : "0.99"} <span className="text-xs font-normal text-muted-foreground">s</span>
                 </div>
-                <div className="text-[10px] text-emerald-700 mono mt-1">&lt; 2.5s (Good)</div>
+                <div className="text-[10px] text-emerald-700 mono">&lt; 2.5s (Good)</div>
               </div>
 
               {/* Payload Size */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Payload Size</span>
-                  <HardDrive className="h-3.5 w-3.5 text-amber-600" />
-                </div>
-                <div className="mt-2 mono text-xl font-bold text-carbon">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">PAYLOAD SIZE</span>
+                <div className="mono text-xl font-bold text-carbon">
                   {latestDetails.transfer_size_kb ?? 69.2} <span className="text-xs font-normal text-muted-foreground">KB</span>
                 </div>
-                <div className="text-[10px] text-cobalt mono mt-1">
+                <div className="text-[10px] text-cobalt mono">
                   {(latestDetails.content_encoding ?? "zstd").toUpperCase()} encoded
                 </div>
               </div>
 
               {/* Protocol */}
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5">
-                <div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase font-semibold mono">
-                  <span>Transport</span>
-                  <Server className="h-3.5 w-3.5 text-cobalt" />
-                </div>
-                <div className="mt-2 mono text-sm font-bold text-cobalt truncate">
+              <div className="p-4 space-y-1">
+                <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">TRANSPORT</span>
+                <div className="mono text-sm font-bold text-cobalt truncate">
                   {latestDetails.http_version ?? "HTTP/3 (QUIC)"}
                 </div>
-                <div className="text-[10px] text-muted-foreground mono mt-1 truncate">
+                <div className="text-[10px] text-muted-foreground mono truncate">
                   {latestDetails.server ?? "Cloudflare"} CDN
                 </div>
               </div>
@@ -573,152 +557,164 @@ function PerformancePage() {
               </div>
 
               {/* Chart Mode Toggle Tabs */}
-              <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-0.5 text-xs mono">
+              <div className="flex items-center border border-[#E5E5DF] bg-white text-xs font-mono">
                 <button
                   onClick={() => setChartMode("scores")}
-                  className={`px-3 py-1 rounded-sm transition-colors ${
+                  className={`px-3 py-1 font-medium transition-colors cursor-pointer ${
                     chartMode === "scores"
-                      ? "bg-white text-cobalt font-bold shadow-2xs border border-[#E5E5DF]"
+                      ? "bg-cobalt text-white font-bold"
                       : "text-muted-foreground hover:text-carbon"
                   }`}
                 >
-                  Lighthouse Scores (0-100)
+                  LIGHTHOUSE SCORES (0-100)
                 </button>
                 <button
                   onClick={() => setChartMode("latency")}
-                  className={`px-3 py-1 rounded-sm transition-colors ${
+                  className={`px-3 py-1 font-medium transition-colors border-l border-[#E5E5DF] cursor-pointer ${
                     chartMode === "latency"
-                      ? "bg-white text-cobalt font-bold shadow-2xs border border-[#E5E5DF]"
+                      ? "bg-cobalt text-white font-bold"
                       : "text-muted-foreground hover:text-carbon"
                   }`}
                 >
-                  Server TTFB Latency (ms)
+                  SERVER TTFB (MS)
                 </button>
               </div>
             </div>
 
-            {/* Recharts Chart Area */}
+            {/* Recharts Chart Area (Zero Gradients, Crisp Swiss Multi-Trace LineChart) */}
             <div className="h-64 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 {chartMode === "scores" ? (
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1A4BFF" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#1A4BFF" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="a11yGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="2 2" stroke="#E5E5DF" vertical={false} />
                     <XAxis
                       dataKey="time"
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
-                      axisLine={false}
+                      axisLine={{ stroke: "#E5E5DF" }}
+                      fontFamily="monospace"
                     />
                     <YAxis
                       domain={[70, 100]}
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
-                      axisLine={false}
+                      axisLine={{ stroke: "#E5E5DF" }}
+                      fontFamily="monospace"
                     />
                     <Tooltip content={<PerformanceChartTooltip />} />
-                    <Area
+                    <ReferenceLine
+                      y={90}
+                      stroke="#059669"
+                      strokeDasharray="4 4"
+                      label={{
+                        value: "SLA 90+ TARGET",
+                        fill: "#059669",
+                        fontSize: 9,
+                        position: "insideTopRight",
+                        fontFamily: "monospace",
+                      }}
+                    />
+                    <Line
                       type="monotone"
                       dataKey="performance"
                       stroke="#1A4BFF"
                       strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#perfGrad)"
+                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="Performance"
                     />
-                    <Area
+                    <Line
                       type="monotone"
                       dataKey="accessibility"
                       stroke="#059669"
                       strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#a11yGrad)"
+                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#059669", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "#059669", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="Accessibility"
                     />
-                    <Area
+                    <Line
                       type="monotone"
                       dataKey="best_practices"
-                      stroke="#4f46e5"
+                      stroke="#4F46E5"
                       strokeWidth={1.5}
-                      fillOpacity={0}
+                      dot={{ r: 2.5, fill: "#FFFFFF", stroke: "#4F46E5", strokeWidth: 1.5 }}
                       name="Best Practices"
                     />
-                    <Area
+                    <Line
                       type="monotone"
                       dataKey="seo"
-                      stroke="#d97706"
+                      stroke="#D97706"
                       strokeWidth={1.5}
-                      fillOpacity={0}
+                      dot={{ r: 2.5, fill: "#FFFFFF", stroke: "#D97706", strokeWidth: 1.5 }}
                       name="SEO"
                     />
-                  </AreaChart>
+                  </LineChart>
                 ) : (
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="latencyGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1A4BFF" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#1A4BFF" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="2 2" stroke="#E5E5DF" vertical={false} />
                     <XAxis
                       dataKey="time"
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
-                      axisLine={false}
+                      axisLine={{ stroke: "#E5E5DF" }}
+                      fontFamily="monospace"
                     />
                     <YAxis
                       domain={[300, 800]}
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
-                      axisLine={false}
+                      axisLine={{ stroke: "#E5E5DF" }}
                       unit="ms"
+                      fontFamily="monospace"
                     />
                     <Tooltip content={<LatencyChartTooltip />} />
-                    <Area
+                    <ReferenceLine
+                      y={600}
+                      stroke="#1A4BFF"
+                      strokeDasharray="4 4"
+                      label={{
+                        value: "SLA 600MS TTFB",
+                        fill: "#1A4BFF",
+                        fontSize: 9,
+                        position: "insideTopRight",
+                        fontFamily: "monospace",
+                      }}
+                    />
+                    <Line
                       type="monotone"
                       dataKey="ttfb"
                       stroke="#1A4BFF"
                       strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#latencyGrad)"
+                      dot={{ r: 3.5, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                      activeDot={{ r: 5.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="TTFB"
                     />
-                  </AreaChart>
+                  </LineChart>
                 )}
               </ResponsiveContainer>
             </div>
 
-            {/* Chart Legend */}
+            {/* Technical Chart Legend (Square Markers) */}
             <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs mono">
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-cobalt" />
-                <span className="text-carbon">Performance</span>
+                <span className="h-1.5 w-1.5 bg-cobalt" />
+                <span className="text-carbon uppercase text-[10px] tracking-wider">Performance</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                <span className="text-carbon">Accessibility</span>
+                <span className="h-1.5 w-1.5 bg-emerald-600" />
+                <span className="text-carbon uppercase text-[10px] tracking-wider">Accessibility</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-indigo-600" />
-                <span className="text-carbon">Best Practices</span>
+                <span className="h-1.5 w-1.5 bg-indigo-600" />
+                <span className="text-carbon uppercase text-[10px] tracking-wider">Best Practices</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-amber-600" />
-                <span className="text-carbon">SEO</span>
+                <span className="h-1.5 w-1.5 bg-amber-600" />
+                <span className="text-carbon uppercase text-[10px] tracking-wider">SEO</span>
               </div>
             </div>
           </div>

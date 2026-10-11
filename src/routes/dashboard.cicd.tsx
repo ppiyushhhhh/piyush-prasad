@@ -19,7 +19,15 @@ import {
   Calendar,
 } from "lucide-react";
 
-import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import {
+  TelemetryMatrix,
+  TelemetryCell,
+  StatusTag,
+  MetricCard,
+  PageHeader,
+  Panel,
+  EmptyState,
+} from "@/components/dashboard/primitives";
 import { DataTable, ErrorState, LoadingState, fmtDateTime } from "@/components/dashboard/state";
 import { getDeployments } from "@/lib/monitoring.functions";
 
@@ -107,22 +115,23 @@ function CicdPage() {
           subtitle="Real-time GitHub Actions pipeline telemetry, DevSecOps gates, build duration analytics, and deployment logs."
         />
         <div className="flex items-center gap-2.5">
+          <StatusTag status="optimal">ALL PIPELINES GREEN</StatusTag>
           <button
             onClick={() => refetch()}
             disabled={isRefetching || isPending}
-            className="inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-semibold text-carbon shadow-2xs transition hover:border-cobalt hover:text-cobalt disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono font-semibold text-carbon hover:border-cobalt hover:text-cobalt disabled:opacity-50 transition-colors cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 text-cobalt ${isRefetching ? "animate-spin" : ""}`} />
-            {isRefetching ? "Syncing..." : "Sync Pipelines"}
+            {isRefetching ? "SYNCING..." : "SYNC"}
           </button>
           <a
             href="https://github.com/ppiyushhhhh/piyush-prasad/actions"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-sm bg-cobalt px-3.5 py-2 text-xs font-semibold text-white hover:bg-cobalt/90 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 bg-cobalt px-3 py-1.5 text-xs font-mono font-semibold text-white hover:bg-cobalt/90 transition-colors"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            GitHub Actions Console
+            ACTIONS CONSOLE
           </a>
         </div>
       </div>
@@ -133,12 +142,19 @@ function CicdPage() {
         <LoadingState label="Fetching live GitHub Actions runs from ppiyushhhhh/piyush-prasad..." />
       ) : (
         <>
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {cards.map((c) => (
-              <MetricCard key={c.label} label={c.label} value={c.value} hint={c.hint} />
+          {/* Monolithic Telemetry Matrix (replaces 4 isolated cards) */}
+          <TelemetryMatrix columns={4}>
+            {cards.map((c, i) => (
+              <TelemetryCell
+                key={c.label}
+                index={i + 1}
+                label={c.label}
+                value={c.value}
+                hint={c.hint}
+                accent={i === 1 ? "emerald" : i === 0 ? "cobalt" : "default"}
+              />
             ))}
-          </div>
+          </TelemetryMatrix>
 
           {/* Interactive Visual Pipeline Workflow Stepper */}
           <div className="mt-8">

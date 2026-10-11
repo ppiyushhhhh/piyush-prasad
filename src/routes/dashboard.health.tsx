@@ -20,8 +20,9 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
+  ReferenceLine,
   BarChart,
   Bar,
   XAxis,
@@ -31,7 +32,15 @@ import {
   Cell,
 } from "recharts";
 
-import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import {
+  TelemetryMatrix,
+  TelemetryCell,
+  StatusTag,
+  MetricCard,
+  PageHeader,
+  Panel,
+  EmptyState,
+} from "@/components/dashboard/primitives";
 import {
   DataTable,
   ErrorState,
@@ -185,6 +194,7 @@ function HealthPage() {
       label: "Overall Health Score",
       value: latest?.health_score != null ? `${latest.health_score}%` : "100%",
       hint: "SLA: 99.98% uptime",
+      accent: "emerald" as const,
     },
   ];
 
@@ -199,19 +209,16 @@ function HealthPage() {
           <button
             onClick={() => probeMutation.mutate()}
             disabled={probeMutation.isPending || isFetching}
-            className="inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-semibold text-carbon shadow-2xs transition hover:border-cobalt hover:text-cobalt disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-none border border-[#E5E5DF] bg-white px-3.5 py-1.5 text-xs font-mono font-semibold text-carbon hover:border-cobalt hover:text-cobalt disabled:opacity-50 transition-colors cursor-pointer"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 text-cobalt ${
                 probeMutation.isPending || isFetching ? "animate-spin" : ""
               }`}
             />
-            {probeMutation.isPending ? "Probing Target..." : "Probe Endpoints Now"}
+            {probeMutation.isPending ? "PROBING..." : "PROBE NOW"}
           </button>
-          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Active Monitor
-          </div>
+          <StatusTag status="optimal">MONITOR: ACTIVE</StatusTag>
         </div>
       </div>
 
@@ -221,155 +228,174 @@ function HealthPage() {
         <LoadingState label="Inspecting website endpoints and TLS certificates..." />
       ) : (
         <>
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
-            {cards.map((c) => (
-              <MetricCard key={c.label} label={c.label} value={c.value} hint={c.hint} />
+          {/* Monolithic Telemetry Matrix (replaces 6 disconnected cards) */}
+          <TelemetryMatrix columns={6}>
+            {cards.map((c, i) => (
+              <TelemetryCell
+                key={c.label}
+                index={i + 1}
+                label={c.label}
+                value={c.value}
+                hint={c.hint}
+                accent={c.accent ?? (i === 1 ? "cobalt" : "default")}
+              />
             ))}
-          </div>
+          </TelemetryMatrix>
 
           {/* Interactive Latency Graph & Sparkline Panel */}
           <div className="mt-8">
             <Panel
+              tag="PROBE.TRACE"
               title="Interactive Response Latency & TTFB Sparklines"
               action={
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-0.5 text-[11px]">
-                    <button
-                      onClick={() => setActiveTab("latency")}
-                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
-                        activeTab === "latency"
-                          ? "bg-cobalt text-white shadow-2xs font-semibold"
-                          : "text-muted-foreground hover:text-carbon"
-                      }`}
-                    >
-                      Latency Trend
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("distribution")}
-                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
-                        activeTab === "distribution"
-                          ? "bg-cobalt text-white shadow-2xs font-semibold"
-                          : "text-muted-foreground hover:text-carbon"
-                      }`}
-                    >
-                      Distribution Bar
-                    </button>
-                  </div>
+                <div className="flex items-center border border-[#E5E5DF] bg-white text-xs font-mono">
+                  <button
+                    onClick={() => setActiveTab("latency")}
+                    className={`px-3 py-1 font-medium transition cursor-pointer ${
+                      activeTab === "latency"
+                        ? "bg-cobalt text-white font-semibold"
+                        : "text-muted-foreground hover:text-carbon"
+                    }`}
+                  >
+                    LATENCY TRACE
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("distribution")}
+                    className={`px-3 py-1 font-medium transition border-l border-[#E5E5DF] cursor-pointer ${
+                      activeTab === "distribution"
+                        ? "bg-cobalt text-white font-semibold"
+                        : "text-muted-foreground hover:text-carbon"
+                    }`}
+                  >
+                    DISTRIBUTION
+                  </button>
                 </div>
               }
             >
-              {/* Latency Summary Stat Pills */}
-              <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
-                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Minimum Latency
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-emerald-700">
+              {/* Monolithic Precision Latency Stat Strip */}
+              <div className="mb-6 grid grid-cols-2 sm:grid-cols-5 border border-[#E5E5DF] divide-y sm:divide-y-0 sm:divide-x divide-[#E5E5DF] bg-white">
+                <div className="p-3.5 space-y-1">
+                  <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    MIN LATENCY
+                  </span>
+                  <p className="font-mono text-xl font-bold text-emerald-700">
                     {minLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Fastest Edge Hit</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Fastest Edge Hit</p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
-                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Average Latency
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-cobalt">
+
+                <div className="p-3.5 space-y-1">
+                  <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    AVG LATENCY
+                  </span>
+                  <p className="font-mono text-xl font-bold text-cobalt">
                     {avgLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Global Rolling Mean</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Rolling Global Mean</p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
-                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    P95 Latency
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-amber-700">
+
+                <div className="p-3.5 space-y-1">
+                  <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    P95 BENCHMARK
+                  </span>
+                  <p className="font-mono text-xl font-bold text-amber-700">
                     {p95Latency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">95% of probes below</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">95% Probes Under</p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
-                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Max Latency
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-carbon">
+
+                <div className="p-3.5 space-y-1">
+                  <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    MAX LATENCY
+                  </span>
+                  <p className="font-mono text-xl font-bold text-carbon">
                     {maxLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Peak Cold Spike</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Peak Cold Spike</p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3 col-span-2 sm:col-span-1">
-                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Availability
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-emerald-700">
+
+                <div className="p-3.5 space-y-1 col-span-2 sm:col-span-1">
+                  <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    AVAILABILITY
+                  </span>
+                  <p className="font-mono text-xl font-bold text-emerald-700">
                     100.0%
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Zero Downtime</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Zero Downtime SLA</p>
                 </div>
               </div>
 
-              {/* Main Chart Area */}
+              {/* Main Technical Trace Area */}
               <div className="h-64 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   {activeTab === "latency" ? (
-                    <AreaChart
+                    <LineChart
                       data={displayChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
-                      <defs>
-                        <linearGradient id="healthLatencyGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#1A4BFF" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#1A4BFF" stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#E5E5DF" vertical={false} />
                       <XAxis
                         dataKey="time"
                         stroke="#5A5C66"
-                        fontSize={11}
+                        fontSize={10}
                         tickLine={false}
                         axisLine={{ stroke: "#E5E5DF" }}
+                        fontFamily="monospace"
                       />
                       <YAxis
                         stroke="#5A5C66"
-                        fontSize={11}
+                        fontSize={10}
                         tickLine={false}
                         axisLine={{ stroke: "#E5E5DF" }}
                         unit="ms"
+                        fontFamily="monospace"
                       />
                       <Tooltip content={<HealthChartTooltip />} />
-                      <Area
+                      <ReferenceLine
+                        y={150}
+                        stroke="#1A4BFF"
+                        strokeDasharray="4 4"
+                        label={{
+                          value: "SLA 150MS",
+                          fill: "#1A4BFF",
+                          fontSize: 9,
+                          position: "insideTopRight",
+                          fontFamily: "monospace",
+                        }}
+                      />
+                      <Line
                         type="monotone"
                         dataKey="latency"
                         stroke="#1A4BFF"
                         strokeWidth={2}
-                        fill="url(#healthLatencyGradient)"
-                        dot={{ r: 3.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 1.5 }}
-                        activeDot={{ r: 5.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
+                        dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       />
-                    </AreaChart>
+                    </LineChart>
                   ) : (
                     <BarChart
                       data={displayChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#E5E5DF" vertical={false} />
                       <XAxis
                         dataKey="time"
                         stroke="#5A5C66"
-                        fontSize={11}
+                        fontSize={10}
                         tickLine={false}
                         axisLine={{ stroke: "#E5E5DF" }}
+                        fontFamily="monospace"
                       />
                       <YAxis
                         stroke="#5A5C66"
-                        fontSize={11}
+                        fontSize={10}
                         tickLine={false}
                         axisLine={{ stroke: "#E5E5DF" }}
                         unit="ms"
+                        fontFamily="monospace"
                       />
                       <Tooltip content={<HealthChartTooltip />} />
-                      <Bar dataKey="latency" radius={[2, 2, 0, 0]}>
+                      <Bar dataKey="latency">
                         {displayChartData.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
@@ -386,26 +412,30 @@ function HealthPage() {
                     </BarChart>
                   )}
                 </ResponsiveContainer>
-              </div>
-
-              {/* SLA Timeline Bars */}
+              {/* SLA Timeline Bars (Sharp Industrial Ticks) */}
               <div className="mt-6 border-t border-[#E5E5DF] pt-4">
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                  <span className="font-semibold text-carbon flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                    Probe Availability & Uptime Timeline
+                  <span className="font-semibold text-carbon flex items-center gap-1.5 mono text-[11px] uppercase tracking-wider">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                    PROBE AVAILABILITY &amp; UPTIME TIMELINE
                   </span>
-                  <span className="font-mono text-emerald-700 font-bold">100% Operational</span>
+                  <span className="font-mono text-emerald-700 font-bold text-[11px] uppercase">[ 100% OPERATIONAL ]</span>
                 </div>
-                <div className="flex items-center gap-1 h-3">
+                <div className="flex items-center gap-0.5 h-3">
                   {Array.from({ length: 40 }).map((_, i) => (
                     <div
                       key={i}
                       title={`Probe slice #${40 - i}: 100% reachable`}
-                      className="flex-1 h-full rounded-2xs bg-emerald-500 hover:bg-emerald-600 transition-colors cursor-pointer"
+                      className="flex-1 h-full bg-emerald-600/90 hover:bg-cobalt transition-colors cursor-pointer"
                     />
                   ))}
                 </div>
+                <div className="flex justify-between text-[9px] text-muted-foreground mt-1.5 font-mono uppercase tracking-widest">
+                  <span>-40 CYCLES</span>
+                  <span className="text-carbon font-semibold">ALL EDGE REACHABLE (HTTP 200)</span>
+                  <span>LIVE NOW</span>
+                </div>
+              </div>
               </div>
             </Panel>
           </div>

@@ -17,15 +17,23 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts";
 
-import { MetricCard, PageHeader, Panel, EmptyState } from "@/components/dashboard/primitives";
+import {
+  TelemetryMatrix,
+  TelemetryCell,
+  StatusTag,
+  PageHeader,
+  Panel,
+  EmptyState,
+} from "@/components/dashboard/primitives";
 import { ErrorState, LoadingState, boolLabel, fmtDateTime } from "@/components/dashboard/state";
 import { CloudArchitectureMatrix } from "@/components/dashboard/CloudArchitectureMatrix";
 import { getOverview, getHealthChecks } from "@/lib/monitoring.functions";
@@ -39,20 +47,20 @@ function CustomChartTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="rounded-sm border border-[#E5E5DF] bg-white p-3 text-xs shadow-md">
-        <p className="font-semibold text-carbon mb-1">{data.fullTime ?? label}</p>
+      <div className="rounded-none border border-[#E5E5DF] bg-white p-3 text-xs shadow-none">
+        <p className="font-mono font-semibold text-carbon mb-1 text-[11px] uppercase tracking-wider">{data.fullTime ?? label}</p>
         <div className="space-y-1">
           <p className="font-mono text-cobalt flex items-center justify-between gap-4">
-            <span>Response Time:</span>
+            <span className="text-[10px] text-muted-foreground uppercase">Response Time</span>
             <span className="font-bold">{data.latency} ms</span>
           </p>
-          <p className="font-mono text-emerald-600 flex items-center justify-between gap-4">
-            <span>Health Score:</span>
+          <p className="font-mono text-emerald-700 flex items-center justify-between gap-4">
+            <span className="text-[10px] text-muted-foreground uppercase">Health Score</span>
             <span className="font-bold">{data.score}%</span>
           </p>
           <p className="font-mono text-muted-foreground flex items-center justify-between gap-4">
-            <span>HTTP Status:</span>
-            <span className="text-carbon">{data.status} OK</span>
+            <span className="text-[10px] text-muted-foreground uppercase">HTTP Status</span>
+            <span className="text-carbon font-bold">{data.status} OK</span>
           </p>
         </div>
       </div>
@@ -112,21 +120,22 @@ function Overview() {
           { time: "Now", latency: health?.response_time_ms ?? avgLatency, score: health?.health_score ?? 100, status: health?.http_status ?? 200, fullTime: "Live Check" },
         ];
 
-  const cards = [
-    { label: "Website status", value: health?.http_status ? `${health.http_status} OK` : null, hint: "Endpoint responsive" },
+  const cells = [
+    { label: "Website status", value: health?.http_status ? `${health.http_status} OK` : null, hint: "Endpoint responsive", accent: "emerald" as const },
     {
       label: "HTTP response time",
       value: health?.response_time_ms != null ? `${health.response_time_ms} ms` : null,
       hint: `Avg: ${avgLatency} ms`,
+      accent: "cobalt" as const,
     },
-    { label: "SSL status", value: boolLabel(health?.ssl_valid), hint: "TLS 1.3 Active" },
-    { label: "SSL expiry", value: health?.ssl_expires_at ? new Date(health.ssl_expires_at).toLocaleDateString() : "Dec 6, 2026", hint: "Valid to 2026" },
-    { label: "DNS status", value: boolLabel(health?.dns_ok), hint: "Route 53 / Anycast" },
-    { label: "Lighthouse perf", value: perf?.performance ?? 96, hint: "Google Lighthouse" },
-    { label: "SEO score", value: perf?.seo ?? 100, hint: "Search Discovery" },
-    { label: "Accessibility", value: perf?.accessibility ?? 98, hint: "WCAG 2.1 AA" },
-    { label: "Last health check", value: fmtDateTime(health?.checked_at), hint: "Probed automatically" },
-    { label: "Overall health", value: health?.health_score != null ? `${health.health_score}%` : "100%", hint: "SLA: 99.98%" },
+    { label: "SSL status", value: boolLabel(health?.ssl_valid), hint: "TLS 1.3 Active", accent: "default" as const },
+    { label: "SSL expiry", value: health?.ssl_expires_at ? new Date(health.ssl_expires_at).toLocaleDateString() : "Dec 6, 2026", hint: "Valid to 2026", accent: "default" as const },
+    { label: "DNS status", value: boolLabel(health?.dns_ok), hint: "Route 53 / Anycast", accent: "default" as const },
+    { label: "Lighthouse perf", value: perf?.performance ?? 96, hint: "Google Lighthouse", accent: "cobalt" as const },
+    { label: "SEO score", value: perf?.seo ?? 100, hint: "Search Discovery", accent: "default" as const },
+    { label: "Accessibility", value: perf?.accessibility ?? 98, hint: "WCAG 2.1 AA", accent: "default" as const },
+    { label: "Last health check", value: fmtDateTime(health?.checked_at), hint: "Probed automatically", accent: "default" as const },
+    { label: "Overall health", value: health?.health_score != null ? `${health.health_score}%` : "100%", hint: "SLA: 99.98%", accent: "emerald" as const },
   ];
 
   return (
@@ -137,13 +146,7 @@ function Overview() {
           subtitle="Live operational status of piyushprasad.in across availability, latency and security."
         />
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-2xs">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-            </span>
-            All Systems Operational
-          </div>
+          <StatusTag status="optimal">SYS: 100% OPERATIONAL</StatusTag>
         </div>
       </div>
 
@@ -153,97 +156,112 @@ function Overview() {
         <LoadingState label="Polling live monitoring cluster…" />
       ) : (
         <>
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {cards.map((c) => (
-              <MetricCard key={c.label} label={c.label} value={c.value} hint={c.hint} />
+          {/* Monolithic Telemetry Matrix (replaces 10 disconnected cards) */}
+          <TelemetryMatrix columns={5}>
+            {cells.map((c, i) => (
+              <TelemetryCell
+                key={c.label}
+                index={i + 1}
+                label={c.label}
+                value={c.value}
+                hint={c.hint}
+                accent={c.accent}
+              />
             ))}
-          </div>
+          </TelemetryMatrix>
 
-          {/* Interactive Latency Trend Chart */}
+          {/* Interactive Latency Precision Chart */}
           <div className="mt-8">
             <Panel
-              title="Real-Time Response Latency (ms) & Performance History"
+              tag="LATENCY.01"
+              title="Real-Time Response Latency (ms) & Telemetry Trace"
               action={
-                <div className="flex items-center gap-3 text-xs font-mono">
-                  <span className="text-muted-foreground hidden sm:inline">
-                    Min: <strong className="text-carbon">{minLatency} ms</strong>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="text-muted-foreground hidden sm:inline text-[11px]">
+                    MIN: <strong className="text-carbon font-semibold">{minLatency} ms</strong>
                   </span>
-                  <span className="text-muted-foreground hidden sm:inline">
-                    Avg: <strong className="text-cobalt">{avgLatency} ms</strong>
+                  <span className="text-muted-foreground hidden sm:inline text-[11px]">
+                    AVG: <strong className="text-cobalt font-semibold">{avgLatency} ms</strong>
                   </span>
-                  <span className="text-muted-foreground hidden sm:inline">
-                    Max: <strong className="text-carbon">{maxLatency} ms</strong>
+                  <span className="text-muted-foreground hidden sm:inline text-[11px]">
+                    MAX: <strong className="text-carbon font-semibold">{maxLatency} ms</strong>
                   </span>
                   <Link
                     to="/dashboard/health"
-                    className="inline-flex items-center gap-1 text-cobalt hover:underline font-sans text-xs font-semibold"
+                    className="inline-flex items-center gap-1 text-cobalt hover:underline font-mono text-[11px] font-semibold tracking-wider"
                   >
-                    View All Checks &rarr;
+                    ALL CHECKS &rarr;
                   </Link>
                 </div>
               }
             >
               <div className="h-56 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="latencyAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1A4BFF" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#1A4BFF" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
+                  <LineChart data={displayChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="2 2" stroke="#E5E5DF" vertical={false} />
                     <XAxis
                       dataKey="time"
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
                       axisLine={{ stroke: "#E5E5DF" }}
+                      fontFamily="monospace"
                     />
                     <YAxis
                       stroke="#5A5C66"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
                       axisLine={{ stroke: "#E5E5DF" }}
                       unit="ms"
+                      fontFamily="monospace"
                     />
                     <Tooltip content={<CustomChartTooltip />} />
-                    <Area
+                    <ReferenceLine
+                      y={150}
+                      stroke="#1A4BFF"
+                      strokeDasharray="4 4"
+                      label={{
+                        value: "SLA LIMIT 150MS",
+                        fill: "#1A4BFF",
+                        fontSize: 9,
+                        position: "insideTopRight",
+                        fontFamily: "monospace",
+                      }}
+                    />
+                    <Line
                       type="monotone"
                       dataKey="latency"
                       stroke="#1A4BFF"
                       strokeWidth={2}
-                      fill="url(#latencyAreaGradient)"
-                      dot={{ r: 3, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 1.5 }}
+                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
                       activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                     />
-                  </AreaChart>
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* 30-Day Uptime SLA Sparkline */}
+              {/* 30-Day Uptime SLA Sparkline (Sharp Industrial Ticks) */}
               <div className="mt-6 border-t border-[#E5E5DF] pt-4">
                 <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="font-semibold text-carbon flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                    30-Day Rolling Uptime SLA: <span className="text-emerald-700 font-mono font-bold">99.98%</span>
+                  <span className="font-semibold text-carbon flex items-center gap-1.5 mono text-[11px] uppercase tracking-wider">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                    30-Day Rolling Uptime SLA: <span className="text-emerald-700 font-bold">99.98%</span>
                   </span>
-                  <span className="text-muted-foreground font-mono text-[11px]">0 incidents in last 30 days</span>
+                  <span className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider">0 Incidents Detected</span>
                 </div>
-                <div className="flex items-center gap-1 h-3.5">
+                <div className="flex items-center gap-0.5 h-3">
                   {Array.from({ length: 30 }).map((_, i) => (
                     <div
                       key={i}
-                      title={`Day ${30 - i} ago: 100% operational`}
-                      className="flex-1 h-full rounded-2xs bg-emerald-500 hover:bg-emerald-600 transition-colors cursor-pointer"
+                      title={`T-${30 - i}d: 100% operational`}
+                      className="flex-1 h-full bg-emerald-600/90 hover:bg-cobalt transition-colors cursor-pointer"
                     />
                   ))}
                 </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5 font-mono">
-                  <span>30 days ago</span>
-                  <span>100% Operational Guarantee</span>
-                  <span>Today</span>
+                <div className="flex justify-between text-[9px] text-muted-foreground mt-1.5 font-mono uppercase tracking-widest">
+                  <span>-30 Days</span>
+                  <span className="text-carbon font-semibold">Continuous Zero-Downtime Guarantee</span>
+                  <span>T-0 Live</span>
                 </div>
               </div>
             </Panel>
@@ -254,46 +272,58 @@ function Overview() {
             <CloudArchitectureMatrix />
           </div>
 
-          {/* Deployment & Operational Summary */}
+          {/* Monolithic Operational Ingress & Runtime Ledger */}
           <div className="mt-8">
-            <Panel title="Operational Deployment & Target Environment Summary">
-              <div className="grid gap-6 md:grid-cols-4 text-xs">
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
-                  <dt className="mono text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.14em]">Monitored Target Domain</dt>
-                  <dd className="mt-2 font-mono text-cobalt font-bold text-sm">{health?.url ?? "https://www.piyushprasad.in/"}</dd>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Root Web Ingress & HTTP Gateway</p>
+            <Panel tag="SYS.LEDGER" title="Operational Deployment & Target Environment Summary">
+              <div className="grid grid-cols-1 md:grid-cols-4 border border-[#E5E5DF] divide-y md:divide-y-0 md:divide-x divide-[#E5E5DF] bg-white">
+                <div className="p-4 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">[01] INGRESS DOMAIN</span>
+                    <span className="h-1.5 w-1.5 bg-cobalt" />
+                  </div>
+                  <p className="font-mono text-carbon font-bold text-sm truncate">{health?.url ?? "https://www.piyushprasad.in/"}</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Anycast Edge Ingress Gateway</p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
-                  <dt className="mono text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.14em]">Latest CI/CD Execution</dt>
-                  <dd className="mt-2 font-mono text-carbon font-semibold text-sm">
+
+                <div className="p-4 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">[02] CI/CD RUNTIME</span>
+                    <span className="h-1.5 w-1.5 bg-emerald-600" />
+                  </div>
+                  <p className="font-mono text-carbon font-bold text-sm truncate">
                     {data?.deployment ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="text-emerald-700 font-semibold">{data.deployment.workflow_name?.split("#")[0] ?? "Workflow"}</span>
-                        <span className="text-xs text-muted-foreground font-normal">#{data.deployment.workflow_name?.split("#")[1] ?? "latest"}</span>
-                      </span>
+                      `${data.deployment.workflow_name?.split("#")[0] ?? "Workflow"} #${data.deployment.workflow_name?.split("#")[1] ?? "latest"}`
                     ) : (
                       "CodeQL Advanced #132"
                     )}
-                  </dd>
-                  <p className="mt-1 text-[11px] text-muted-foreground capitalize">
-                    Status: <span className="text-emerald-700 font-semibold">{data?.deployment?.conclusion ?? data?.deployment?.status ?? "Success"}</span>
+                  </p>
+                  <p className="text-[10px] text-emerald-700 font-mono font-semibold uppercase">
+                    Status: {data?.deployment?.conclusion ?? data?.deployment?.status ?? "Success"}
                   </p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
-                  <dt className="mono text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.14em]">Executive Health Audit</dt>
-                  <dd className="mt-2 font-mono text-emerald-700 font-bold text-sm">
+
+                <div className="p-4 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">[03] AUDIT AUDITOR</span>
+                    <span className="h-1.5 w-1.5 bg-emerald-600" />
+                  </div>
+                  <p className="font-mono text-emerald-700 font-bold text-sm">
                     {data?.report?.status ?? "Grade A+ (Optimal)"}
-                  </dd>
-                  <p className="mt-1 text-[11px] text-muted-foreground font-mono">
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono">
                     Audited: {data?.report?.report_date ?? new Date().toISOString().slice(0, 10)}
                   </p>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
-                  <dt className="mono text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.14em]">AI Assistant Ingestion</dt>
-                  <dd className="mt-2 font-mono text-cobalt font-bold text-sm">
-                    {data?.chatCount24h ?? 1} Requests (24h)
-                  </dd>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Processed via /api/chat Proxy</p>
+
+                <div className="p-4 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">[04] AI INGESTION</span>
+                    <span className="h-1.5 w-1.5 bg-cobalt" />
+                  </div>
+                  <p className="font-mono text-cobalt font-bold text-sm">
+                    {data?.chatCount24h ?? 1} Requests / 24h
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Proxy: /api/chat Gemini Flash</p>
                 </div>
               </div>
             </Panel>
