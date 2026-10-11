@@ -13,6 +13,7 @@ import {
   Database,
   GitBranch,
 } from "lucide-react";
+import { TechLogo } from "./TechLogos";
 
 interface PriorityTech {
   name: string;
@@ -124,10 +125,20 @@ export function SkillsGrid() {
                 className="group relative flex flex-col justify-between border border-border bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-2xs"
               >
                 <div>
+                  {/* Service Logo Header Badge */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] p-1.5 shadow-2xs group-hover:border-cobalt/60 group-hover:bg-white transition-all">
+                      <TechLogo name={tech.name} className="h-5 w-5" />
+                    </div>
+                    <span className="mono text-[8px] font-semibold text-muted-foreground/60 uppercase tracking-widest select-none">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
                   <div className="mono text-[9px] text-muted-foreground uppercase tracking-wider">
                     {tech.category}
                   </div>
-                  <div className="mt-1.5 text-base font-bold text-carbon group-hover:text-cobalt transition-colors">
+                  <div className="mt-1 text-base font-bold text-carbon group-hover:text-cobalt transition-colors">
                     {tech.name}
                   </div>
                 </div>
