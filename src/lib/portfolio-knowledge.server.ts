@@ -127,6 +127,7 @@ Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 
 # CONTACT (public)
 - Email: hello@piyushprasad.in
+- Support & Query Email: support@piyushprasad.in
 - Phone: +91 9324236673
 - GitHub: https://github.com/ppiyushhhhh
 - LinkedIn: https://linkedin.com/in/ppiyushhhh

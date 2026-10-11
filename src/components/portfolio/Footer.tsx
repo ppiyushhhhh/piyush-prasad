@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GITHUB, LINKEDIN, EMAIL, PHONE } from "@/lib/site";
+import { GITHUB, LINKEDIN, EMAIL, SUPPORT_EMAIL, PHONE } from "@/lib/site";
 import {
   ArrowUp,
   ArrowUpRight,
@@ -36,6 +36,7 @@ const SECTION_LINKS: SectionLink[] = [
 
 export function Footer() {
   const [copied, setCopied] = useState(false);
+  const [copiedSupport, setCopiedSupport] = useState(false);
   const [istTime, setIstTime] = useState<string>("");
 
   useEffect(() => {
@@ -64,6 +65,17 @@ export function Footer() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Failed to copy email");
+    }
+  };
+
+  const handleCopySupportEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(SUPPORT_EMAIL);
+      setCopiedSupport(true);
+      toast.success("Support email copied to clipboard!", { description: SUPPORT_EMAIL });
+      setTimeout(() => setCopiedSupport(false), 2000);
+    } catch {
+      toast.error("Failed to copy support email");
     }
   };
 
@@ -138,7 +150,7 @@ export function Footer() {
                   type="button"
                   onClick={handleCopyEmail}
                   className="inline-flex items-center gap-1.5 border border-border bg-white px-3 py-1 text-[11px] font-mono text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt shadow-2xs cursor-pointer"
-                  title="Copy email to clipboard"
+                  title="Copy primary email to clipboard"
                 >
                   {copied ? (
                     <>
@@ -153,9 +165,47 @@ export function Footer() {
                   )}
                 </button>
               </div>
+
+              {/* Secondary Support Query Email Option */}
+              <div className="mt-3.5 border-t border-border/70 pt-3">
+                <span className="mono text-[10px] text-muted-foreground uppercase tracking-wider block">
+                  For any queries, feel free to contact me:
+                </span>
+                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="group inline-flex items-center gap-1.5 border border-border bg-white px-3 py-1 text-[11px] font-mono font-bold text-carbon transition-all hover:border-cobalt hover:text-cobalt shadow-2xs cursor-pointer"
+                    title={`Send query to ${SUPPORT_EMAIL}`}
+                  >
+                    <Mail className="h-3.5 w-3.5 text-cobalt" />
+                    <span>{SUPPORT_EMAIL}</span>
+                    <ArrowUpRight className="h-3 w-3 text-carbon/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cobalt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={handleCopySupportEmail}
+                    className="inline-flex items-center gap-1 border border-border bg-white px-2.5 py-1 text-[10px] font-mono font-semibold text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt shadow-2xs cursor-pointer"
+                    title="Copy support email address"
+                    aria-label="Copy support email address"
+                  >
+                    {copiedSupport ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        <span className="text-emerald-700 font-semibold">COPIED!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3 text-cobalt" />
+                        <span>COPY</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Social channels */}
+            {/* Social & Contact Channels */}
             <div className="flex items-center gap-2 pt-2">
               <a
                 href={GITHUB}
@@ -180,9 +230,19 @@ export function Footer() {
               <a
                 href={`mailto:${EMAIL}`}
                 className="flex h-9 w-9 items-center justify-center border border-border bg-white text-carbon/75 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-cobalt hover:text-cobalt"
-                aria-label="Send Direct Email"
+                aria-label={`Send Email to Primary Address (${EMAIL})`}
+                title={`Primary Email: ${EMAIL}`}
               >
                 <Mail className="h-4 w-4" />
+              </a>
+
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="flex h-9 w-9 items-center justify-center border border-border bg-white text-carbon/75 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-cobalt hover:text-cobalt"
+                aria-label={`Send Query to Support Address (${SUPPORT_EMAIL})`}
+                title={`Support Queries: ${SUPPORT_EMAIL}`}
+              >
+                <Mail className="h-4 w-4 text-cobalt" />
               </a>
             </div>
           </div>

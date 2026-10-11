@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeader } from "./SectionHeader";
 import { ContactForm } from "@/components/ContactForm";
-import { EMAIL, GITHUB, LINKEDIN, PHONE } from "@/lib/site";
+import { EMAIL, SUPPORT_EMAIL, GITHUB, LINKEDIN, PHONE } from "@/lib/site";
 import {
   ArrowUpRight,
   Copy,
@@ -17,6 +17,7 @@ import {
 
 export function ContactSection() {
   const [copied, setCopied] = useState(false);
+  const [copiedSupport, setCopiedSupport] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const handleCopy = async () => {
@@ -24,6 +25,16 @@ export function ContactSection() {
       await navigator.clipboard.writeText(EMAIL);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  const handleCopySupport = async () => {
+    try {
+      await navigator.clipboard.writeText(SUPPORT_EMAIL);
+      setCopiedSupport(true);
+      setTimeout(() => setCopiedSupport(false), 2000);
     } catch {
       // fallback
     }
@@ -50,12 +61,54 @@ export function ContactSection() {
             </p>
 
             <ContactForm />
+
+            {/* Alternative Direct Support Email below form */}
+            <div className="mt-8 border-t border-border/80 pt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-border bg-[#FAF9F6] p-4 transition-colors hover:border-cobalt/40">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-white text-cobalt shadow-2xs">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      For any queries, feel free to contact me
+                    </div>
+                    <a
+                      href={`mailto:${SUPPORT_EMAIL}`}
+                      className="inline-flex items-center gap-1.5 text-sm font-bold text-carbon hover:text-cobalt transition-colors group mt-0.5"
+                    >
+                      <span>{SUPPORT_EMAIL}</span>
+                      <ArrowUpRight className="h-3.5 w-3.5 text-carbon/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cobalt" />
+                    </a>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopySupport}
+                  className="mono inline-flex items-center gap-1.5 border border-border bg-white px-3 py-1.5 text-[10px] font-semibold text-carbon transition-colors hover:border-cobalt hover:text-cobalt shadow-2xs self-start sm:self-center cursor-pointer"
+                  aria-label="Copy support email address"
+                >
+                  {copiedSupport ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-600" />
+                      <span className="text-emerald-600 font-bold">COPIED</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>COPY</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Right Column: Contact Details & Channels */}
           <div className="flex flex-col justify-between space-y-8 lg:col-span-5">
             <div className="space-y-6">
-              {/* Email Card */}
+              {/* Primary Email Card */}
               <div className="border border-border bg-white p-6 shadow-2xs">
                 <div className="mono flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
                   <span className="flex items-center gap-1.5 font-semibold text-carbon">
@@ -76,10 +129,53 @@ export function ContactSection() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="mono inline-flex items-center gap-1.5 border border-border bg-[#FAF9F6] px-3 py-1.5 text-[10px] font-semibold text-carbon transition-colors hover:border-cobalt hover:text-cobalt"
-                    aria-label="Copy email address"
+                    className="mono inline-flex items-center gap-1.5 border border-border bg-[#FAF9F6] px-3 py-1.5 text-[10px] font-semibold text-carbon transition-colors hover:border-cobalt hover:text-cobalt cursor-pointer"
+                    aria-label="Copy primary email address"
                   >
                     {copied ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        <span className="text-emerald-600 font-bold">COPIED</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        <span>COPY</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Secondary Support Email Card */}
+              <div className="border border-border bg-white p-6 shadow-2xs">
+                <div className="mono flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5 font-semibold text-carbon">
+                    <Mail className="h-3.5 w-3.5 text-cobalt" />
+                    SECONDARY / SUPPORT EMAIL
+                  </span>
+                  <span className="text-cobalt font-bold">QUERIES</span>
+                </div>
+
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  For any queries, feel free to contact me.
+                </p>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="text-base sm:text-lg font-bold text-carbon hover:text-cobalt transition-colors break-all"
+                  >
+                    {SUPPORT_EMAIL}
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={handleCopySupport}
+                    className="mono inline-flex items-center gap-1.5 border border-border bg-[#FAF9F6] px-3 py-1.5 text-[10px] font-semibold text-carbon transition-colors hover:border-cobalt hover:text-cobalt cursor-pointer"
+                    aria-label="Copy support email address"
+                  >
+                    {copiedSupport ? (
                       <>
                         <Check className="h-3 w-3 text-emerald-600" />
                         <span className="text-emerald-600 font-bold">COPIED</span>
