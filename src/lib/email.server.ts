@@ -52,6 +52,13 @@ export function formatSubmissionDate(isoDate: string): string {
   }
 }
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "IN";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 /**
  * Generates Admin Notification Email (sent to support@piyushprasad.in)
  */
@@ -60,31 +67,28 @@ export function renderAdminNotificationEmail(submission: ContactSubmission): {
   html: string;
   text: string;
 } {
-  const safeName = escapeHtml(submission.name);
-  const safeEmail = escapeHtml(submission.email);
-  const safeSubject = escapeHtml(submission.subject || "Portfolio Contact Inquiry");
+  const safeName = escapeHtml(submission.name.trim());
+  const safeEmail = escapeHtml(submission.email.trim());
+  const safeSubject = escapeHtml(submission.subject?.trim() || "Portfolio Contact Inquiry");
   const safeMessage = escapeHtml(submission.message).replace(/\n/g, "<br/>");
   const formattedDate = formatSubmissionDate(submission.created_at);
+  const initials = escapeHtml(getInitials(submission.name));
 
   const subject = `New Portfolio Contact: ${submission.name.trim()}`;
 
-  const text = `New Contact Form Submission
-============================
-Website Source: piyushprasad.in
+  const text = `New Portfolio Message from ${submission.name.trim()}
+===================================================
+Sender: ${submission.name.trim()} <${submission.email.trim()}>
+Subject: ${submission.subject?.trim() || "Portfolio Contact Inquiry"}
+Date: ${formattedDate}
 Reference ID: ${submission.id}
-Date & Time: ${formattedDate}
-
-Visitor Details:
-----------------
-Name: ${submission.name}
-Email: ${submission.email}
-Subject: ${submission.subject || "(No subject provided)"}
+Source: piyushprasad.in
 
 Message:
 --------
 ${submission.message}
 
-Reply-To is configured to: ${submission.email}
+Reply directly to: ${submission.email.trim()}
 `;
 
   const html = `<!DOCTYPE html>
@@ -93,67 +97,132 @@ Reply-To is configured to: ${submission.email}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(subject)}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAF9F6; color: #1A1A1A; margin: 0; padding: 24px; line-height: 1.5; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #E5E5DF; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .header { border-bottom: 2px solid #0052FF; padding-bottom: 16px; margin-bottom: 24px; }
-    .tag { display: inline-block; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; background: #F0F4FF; color: #0052FF; padding: 4px 8px; border: 1px solid #D0E0FF; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
-    h1 { font-size: 20px; margin: 0; color: #1A1A1A; }
-    .table-details { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
-    .table-details td { padding: 8px 12px; border-bottom: 1px solid #F0F0EB; vertical-align: top; }
-    .table-details td.label { font-weight: 600; color: #666660; width: 130px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-    .message-box { background: #FAF9F6; border: 1px solid #E5E5DF; border-left: 3px solid #0052FF; padding: 16px; margin: 20px 0; font-size: 14px; color: #1A1A1A; white-space: normal; line-height: 1.6; }
-    .footer { border-top: 1px solid #E5E5DF; padding-top: 16px; font-size: 12px; color: #888880; font-family: ui-monospace, monospace; }
-    .reply-btn { display: inline-block; background: #0052FF; color: #ffffff !important; text-decoration: none; padding: 10px 18px; font-size: 13px; font-weight: 600; margin-top: 16px; }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="tag">NEW INQUIRY // PIYUSHPRASAD.IN</div>
-      <h1>New Portfolio Contact: ${safeName}</h1>
-    </div>
+<body style="margin: 0; padding: 32px 16px; background-color: #F4F4F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #18181B; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        <!-- Main Card -->
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);" cellpadding="0" cellspacing="0" border="0">
+          
+          <!-- Top Header Bar -->
+          <tr>
+            <td style="padding: 20px 28px; border-bottom: 1px solid #F4F4F5; background: #FAFAFA;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="background-color: #18181B; color: #FFFFFF; font-weight: 700; font-size: 11px; padding: 4px 7px; border-radius: 4px; letter-spacing: 0.5px; font-family: ui-monospace, Menlo, monospace;">PP</td>
+                        <td style="padding-left: 10px; font-size: 13px; font-weight: 600; color: #18181B; letter-spacing: -0.2px;">Piyush Prasad <span style="color: #A1A1AA; font-weight: 400;">/ Dispatch</span></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right">
+                    <span style="display: inline-block; font-size: 11px; font-weight: 600; color: #15803D; background-color: #ECFDF5; border: 1px solid #BBF7D0; padding: 3px 8px; border-radius: 20px; font-family: ui-monospace, Menlo, monospace;">
+                      ● Direct Inquiry
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <table class="table-details">
-      <tr>
-        <td class="label">REFERENCE ID</td>
-        <td style="font-family: ui-monospace, monospace; font-size: 12px;">${escapeHtml(submission.id)}</td>
-      </tr>
-      <tr>
-        <td class="label">SENDER NAME</td>
-        <td><strong>${safeName}</strong></td>
-      </tr>
-      <tr>
-        <td class="label">EMAIL ADDRESS</td>
-        <td><a href="mailto:${safeEmail}" style="color: #0052FF;">${safeEmail}</a></td>
-      </tr>
-      <tr>
-        <td class="label">SUBJECT</td>
-        <td>${safeSubject}</td>
-      </tr>
-      <tr>
-        <td class="label">TIMESTAMP</td>
-        <td style="font-family: ui-monospace, monospace; font-size: 12px;">${escapeHtml(formattedDate)}</td>
-      </tr>
-      <tr>
-        <td class="label">SOURCE</td>
-        <td><a href="${DEFAULT_SITE_URL}" style="color: #0052FF;">piyushprasad.in</a></td>
-      </tr>
-    </table>
+          <!-- Sender Identity Block -->
+          <tr>
+            <td style="padding: 28px 28px 20px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="48" valign="top">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: #F4F4F5; border: 1px solid #E4E4E7; color: #18181B; font-weight: 700; font-size: 14px; text-align: center; line-height: 44px; font-family: ui-monospace, Menlo, monospace;">
+                      ${initials}
+                    </div>
+                  </td>
+                  <td style="padding-left: 14px;" valign="top">
+                    <div style="font-size: 18px; font-weight: 700; color: #09090B; letter-spacing: -0.3px;">${safeName}</div>
+                    <div style="font-size: 13px; color: #52525B; margin-top: 3px;">
+                      <a href="mailto:${safeEmail}" style="color: #2563EB; text-decoration: none;">${safeEmail}</a>
+                      <span style="color: #D4D4D8; margin: 0 6px;">&bull;</span>
+                      <span style="color: #71717A; font-size: 12px;">${escapeHtml(formattedDate)}</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <div style="font-weight: 600; font-size: 13px; color: #666660; font-family: ui-monospace, monospace;">MESSAGE CONTENT:</div>
-    <div class="message-box">
-      ${safeMessage}
-    </div>
+          <!-- Subject Line -->
+          <tr>
+            <td style="padding: 0 28px 16px 28px;">
+              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 14px;">
+                <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.5px;">Subject</span>
+                <div style="font-size: 14px; font-weight: 600; color: #0F172A; margin-top: 2px;">
+                  ${safeSubject}
+                </div>
+              </div>
+            </td>
+          </tr>
 
-    <div style="margin-top: 24px;">
-      <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(submission.subject || "Your Inquiry to Piyush Prasad")}" class="reply-btn">Reply to ${safeName}</a>
-    </div>
+          <!-- Message Body (Hero Content) -->
+          <tr>
+            <td style="padding: 0 28px 24px 28px;">
+              <div style="font-size: 11px; font-weight: 700; color: #71717A; text-transform: uppercase; font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.5px; margin-bottom: 8px;">Message</div>
+              <div style="background-color: #FAFAFA; border: 1px solid #E4E4E7; border-left: 3px solid #18181B; border-radius: 8px; padding: 18px 20px; font-size: 14.5px; line-height: 1.65; color: #18181B;">
+                ${safeMessage}
+              </div>
+            </td>
+          </tr>
 
-    <div class="footer" style="margin-top: 32px;">
-      Sent automatically by the Portfolio Contact Engine. Direct reply goes to ${safeEmail}.
-    </div>
-  </div>
+          <!-- Action Button -->
+          <tr>
+            <td style="padding: 0 28px 28px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(submission.subject || "Your Inquiry to Piyush Prasad")}" style="display: inline-block; background-color: #18181B; color: #FFFFFF; font-size: 13px; font-weight: 600; text-decoration: none; padding: 11px 22px; border-radius: 6px; letter-spacing: -0.1px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">
+                      Reply to ${safeName} &rarr;
+                    </a>
+                  </td>
+                  <td style="padding-left: 12px;">
+                    <a href="${DEFAULT_SITE_URL}" style="display: inline-block; background-color: #FFFFFF; color: #52525B; font-size: 13px; font-weight: 500; text-decoration: none; padding: 10px 16px; border: 1px solid #E4E4E7; border-radius: 6px;">
+                      Visit Portfolio
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Telemetry Specs Footer Strip -->
+          <tr>
+            <td style="background-color: #FAFAFA; border-top: 1px solid #F4F4F5; padding: 16px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-size: 11px; color: #71717A; font-family: ui-monospace, Menlo, monospace;">
+                    <div><strong style="color: #52525B;">REF:</strong> ${escapeHtml(submission.id)}</div>
+                  </td>
+                  <td align="right" style="font-size: 11px; color: #71717A; font-family: ui-monospace, Menlo, monospace;">
+                    <div><strong style="color: #52525B;">SRC:</strong> piyushprasad.in</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- External Footer Note -->
+        <table role="presentation" width="100%" style="max-width: 580px;" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="padding: 16px 8px; text-align: center; font-size: 12px; color: #71717A;">
+              Sent by your portfolio contact engine. Direct replies deliver straight to <a href="mailto:${safeEmail}" style="color: #18181B; text-decoration: underline;">${safeEmail}</a>.
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
