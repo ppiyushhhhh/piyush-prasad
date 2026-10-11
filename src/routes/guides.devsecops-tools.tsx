@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 const URL = "https://www.piyushprasad.in/guides/devsecops-tools";
-const TITLE = "DevSecOps Tools: A Practical Stack Guide";
+const TITLE = "DevSecOps Tools Ecosystem | Piyush Prasad";
 const DESC =
-  "A practical guide to DevSecOps tools — SAST, SCA, container scanning, secrets detection, and monitoring — with how Trivy, GitHub Actions, and Prometheus fit together.";
+  "A practical breakdown of essential DevSecOps tools for SAST, SCA, container scanning, secret detection, and runtime observability.";
 
 export const Route = createFileRoute("/guides/devsecops-tools")({
   head: () => ({

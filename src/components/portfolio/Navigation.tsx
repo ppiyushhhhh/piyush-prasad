@@ -172,9 +172,7 @@ export function Navigation() {
 
             {/* Resume Button */}
             <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noreferrer"
+              href="/resume"
               className="mono inline-flex items-center gap-1.5 border border-carbon bg-carbon px-3.5 py-1.5 text-[10px] font-semibold tracking-wider text-white transition-all hover:border-cobalt hover:bg-cobalt"
             >
               <FileText className="h-3 w-3" />
@@ -195,10 +193,8 @@ export function Navigation() {
             </button>
 
             <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              className="mono inline-flex items-center gap-1 border border-carbon/20 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-carbon"
+              href="/resume"
+              className="mono inline-flex items-center gap-1 border border-carbon/20 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-carbon hover:border-cobalt hover:text-cobalt"
             >
               RESUME
             </a>
@@ -265,10 +261,9 @@ export function Navigation() {
                 GITHUB
               </a>
               <a
-                href="/resume.pdf"
-                target="_blank"
-                rel="noreferrer"
-                className="mono flex items-center justify-center gap-2 bg-cobalt py-3 text-[11px] text-white font-semibold"
+                href="/resume"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mono flex items-center justify-center gap-2 bg-cobalt py-3 text-[11px] text-white font-semibold transition-opacity hover:opacity-95"
               >
                 <FileText className="h-4 w-4" />
                 RESUME

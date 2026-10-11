@@ -16,7 +16,25 @@ import { SITE_URL } from "@/lib/site";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { title: "Cloud & DevOps Engineer | Piyush Prasad" },
+      {
+        name: "description",
+        content:
+          "Portfolio of Piyush Prasad, Cloud & DevOps Engineer specializing in AWS cloud infrastructure, automated CI/CD pipelines, Docker containerization, and DevSecOps.",
+      },
+      { property: "og:title", content: "Cloud & DevOps Engineer | Piyush Prasad" },
+      {
+        property: "og:description",
+        content:
+          "Portfolio of Piyush Prasad, Cloud & DevOps Engineer specializing in AWS cloud infrastructure, automated CI/CD pipelines, Docker containerization, and DevSecOps.",
+      },
       { property: "og:url", content: `${SITE_URL}/` },
+      { name: "twitter:title", content: "Cloud & DevOps Engineer | Piyush Prasad" },
+      {
+        name: "twitter:description",
+        content:
+          "Portfolio of Piyush Prasad, Cloud & DevOps Engineer specializing in AWS cloud infrastructure, automated CI/CD pipelines, Docker containerization, and DevSecOps.",
+      },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/` }],
   }),

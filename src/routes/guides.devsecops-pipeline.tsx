@@ -3,25 +3,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/guides/devsecops-pipeline")({
   head: () => ({
     meta: [
-      { title: "Secure CI/CD with GitHub Actions & Trivy — DevSecOps" },
+      { title: "DevSecOps Pipeline Guide | Piyush Prasad" },
       {
         name: "description",
         content:
-          "A practical DevSecOps guide to building a secure CI/CD pipeline with GitHub Actions, Trivy vulnerability scanning, secrets management, and container hardening.",
+          "A step-by-step technical guide to building secure CI/CD pipelines with GitHub Actions, Trivy vulnerability scanning, automated secrets management, and container hardening.",
       },
       { property: "og:type", content: "article" },
-      { property: "og:title", content: "Building a Secure CI/CD Pipeline with GitHub Actions and Trivy" },
+      { property: "og:title", content: "DevSecOps Pipeline Guide | Piyush Prasad" },
       {
         property: "og:description",
         content:
-          "Step-by-step DevSecOps guide: shift-left security, Trivy scans, GitHub Actions workflows, secrets, SBOMs, and production hardening.",
+          "A step-by-step technical guide to building secure CI/CD pipelines with GitHub Actions, Trivy vulnerability scanning, automated secrets management, and container hardening.",
       },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Building a Secure CI/CD Pipeline with GitHub Actions and Trivy" },
+      { name: "twitter:title", content: "DevSecOps Pipeline Guide | Piyush Prasad" },
       {
         name: "twitter:description",
         content:
-          "Practical DevSecOps pipeline: Trivy, GitHub Actions, SBOMs, secrets management, and hardening.",
+          "A step-by-step technical guide to building secure CI/CD pipelines with GitHub Actions, Trivy vulnerability scanning, automated secrets management, and container hardening.",
       },
       { property: "og:url", content: "https://www.piyushprasad.in/guides/devsecops-pipeline" },
     ],

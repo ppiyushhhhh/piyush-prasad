@@ -77,16 +77,29 @@ export function TelemetryCell({
   value,
   hint,
   status = "neutral",
+  accent,
 }: {
   index?: string | number;
   label: string;
   value?: string | number | null;
   hint?: string;
   status?: "optimal" | "warning" | "critical" | "neutral" | "cobalt";
+  accent?: string;
 }) {
   const empty = value === null || value === undefined || value === "";
   const indexStr =
     typeof index === "number" ? String(index).padStart(2, "0") : index;
+
+  const resolvedStatus =
+    accent === "cobalt"
+      ? "cobalt"
+      : accent === "emerald"
+        ? "optimal"
+        : accent === "amber" || accent === "warning"
+          ? "warning"
+          : accent === "rose" || accent === "critical"
+            ? "critical"
+            : status;
 
   const valueColor = {
     optimal: "text-emerald-700",
@@ -94,7 +107,7 @@ export function TelemetryCell({
     critical: "text-rose-700",
     cobalt: "text-cobalt",
     neutral: "text-carbon",
-  }[status];
+  }[resolvedStatus];
 
   return (
     <div className="relative bg-white p-5 transition-colors hover:bg-[#FAF9F6]/50">

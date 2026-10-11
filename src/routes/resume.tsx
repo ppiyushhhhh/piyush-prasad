@@ -4,14 +4,26 @@ import { useEffect, useState } from "react";
 export const Route = createFileRoute("/resume")({
   head: () => ({
     meta: [
-      { title: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
-      { name: "description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
-      { property: "og:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
-      { property: "og:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
+      { title: "Resume & Engineering Experience | Piyush Prasad" },
+      {
+        name: "description",
+        content:
+          "Professional resume and engineering background of Piyush Prasad, highlighting hands-on expertise in AWS architectures, Linux administration, and CI/CD automation.",
+      },
+      { property: "og:title", content: "Resume & Engineering Experience | Piyush Prasad" },
+      {
+        property: "og:description",
+        content:
+          "Professional resume and engineering background of Piyush Prasad, highlighting hands-on expertise in AWS architectures, Linux administration, and CI/CD automation.",
+      },
       { property: "og:url", content: "https://www.piyushprasad.in/resume" },
       { property: "og:type", content: "profile" },
-      { name: "twitter:title", content: "Resume — Piyush Prasad | Cloud & DevOps Engineer" },
-      { name: "twitter:description", content: "View the full resume of Piyush Prasad — Cloud & DevOps engineer skilled in AWS, CI/CD, Docker, Nginx, and GitHub Actions." },
+      { name: "twitter:title", content: "Resume & Engineering Experience | Piyush Prasad" },
+      {
+        name: "twitter:description",
+        content:
+          "Professional resume and engineering background of Piyush Prasad, highlighting hands-on expertise in AWS architectures, Linux administration, and CI/CD automation.",
+      },
       { name: "robots", content: "index, follow" },
     ],
     links: [

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
@@ -33,6 +34,11 @@ import { Route as ApiPublicMonitoringRouteImport } from './routes/api/public/mon
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -133,6 +139,7 @@ const ApiPublicMonitoringRoute = ApiPublicMonitoringRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
@@ -177,6 +185,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/dashboard'
     | '/resume'
     | '/thank-you'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$'
     | '/dashboard'
     | '/resume'
     | '/thank-you'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ResumeRoute: typeof ResumeRoute
   ThankYouRoute: typeof ThankYouRoute
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -456,6 +476,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ResumeRoute: ResumeRoute,
   ThankYouRoute: ThankYouRoute,
