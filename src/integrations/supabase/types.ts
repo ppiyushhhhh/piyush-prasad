@@ -77,6 +77,51 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          admin_email_sent_at: string | null
+          admin_email_status: string
+          created_at: string
+          email: string
+          email_error: string | null
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string | null
+          visitor_email_sent_at: string | null
+          visitor_email_status: string
+        }
+        Insert: {
+          admin_email_sent_at?: string | null
+          admin_email_status?: string
+          created_at?: string
+          email: string
+          email_error?: string | null
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject?: string | null
+          visitor_email_sent_at?: string | null
+          visitor_email_status?: string
+        }
+        Update: {
+          admin_email_sent_at?: string | null
+          admin_email_status?: string
+          created_at?: string
+          email?: string
+          email_error?: string | null
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string | null
+          visitor_email_sent_at?: string | null
+          visitor_email_status?: string
+        }
+        Relationships: []
+      }
       backup_monthly_reports: {
         Row: {
           created_at: string

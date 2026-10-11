@@ -1,17 +1,9 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 
-// Web3Forms access keys are public client-side identifiers by design (they are
-// visible in any browser request). They are NOT privileged secrets — no SMTP
-// or backend credentials are used in the browser.
-// Vite inlines VITE_* vars at build time; the literal is the deploy-safe fallback
-// so the form keeps working even if the env var is missing on Vercel.
-const ACCESS_KEY =
-  (import.meta.env['VITE_WEB3FORMS_ACCESS_KEY'] as string | undefined)?.trim() ||
-  "752a0c12-46b4-4eec-8ad7-e82e229e3e43";
-const SUBMIT_TIMEOUT_MS = 15_000;
+const SUBMIT_TIMEOUT_MS = 20_000;
 const MIN_MESSAGE_LENGTH = 10;
-const ENDPOINT = "https://api.web3forms.com/submit";
+const ENDPOINT = "/api/contact";
 
 type Fields = { name: string; email: string; subject: string; message: string };
 type Errors = Partial<Record<keyof Fields, string>>;
@@ -57,73 +49,55 @@ export function ContactForm() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    // Silently accept-and-drop honeypot hits so bots get no useful signal.
-    if (botField.trim() !== "") {
-      setValues(EMPTY);
-      setStatus("success");
-      return;
-    }
-
-    if (!ACCESS_KEY) {
-      console.error("[ContactForm] Missing Web3Forms access key (VITE_WEB3FORMS_ACCESS_KEY).");
-      setErrorMessage("The contact form isn't configured yet. Please email me directly.");
-      setStatus("error");
-      return;
-    }
-
     setStatus("sending");
     setErrorMessage("");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
-    try {
-      // FormData (multipart) keeps this a "simple" CORS request. Sending JSON
-      // adds a Content-Type header that triggers a preflight Web3Forms rejects,
-      // which is why submissions previously failed with "Failed to fetch".
-      const payload = new FormData();
-      payload.append("access_key", ACCESS_KEY);
-      payload.append("from_name", "Portfolio Contact Form");
-      payload.append("subject", values.subject.trim());
-      payload.append("name", values.name.trim());
-      payload.append("email", values.email.trim());
-      payload.append("message", values.message.trim());
-      payload.append("replyto", values.email.trim());
 
+    try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
         signal: controller.signal,
-        headers: { Accept: "application/json" },
-        body: payload,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          email: values.email.trim(),
+          subject: values.subject.trim(),
+          message: values.message.trim(),
+          botcheck: botField.trim(),
+        }),
       });
 
-      const raw = await res.text();
-      let data: { success?: boolean; message?: string } = {};
-      try {
-        data = JSON.parse(raw) as { success?: boolean; message?: string };
-      } catch {
-        // Non-JSON response — keep the raw text for the console log below.
-      }
-      console.log("[ContactForm] Web3Forms response", { status: res.status, body: data.message ? data : raw });
+      const data = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+        error?: string;
+      };
 
       if (!res.ok || !data.success) {
-        setErrorMessage(
-          data.message
-            ? `Couldn't send your message: ${data.message}`
-            : "Something went wrong sending your message. Please try again, or email me directly.",
-        );
+        const errorText =
+          data.error ||
+          "Sorry, we couldn't submit your message right now. Please try again in a moment.";
+        setErrorMessage(errorText);
         setStatus("error");
         return;
       }
 
+      // Reset form upon confirmed database save
       setValues(EMPTY);
+      setBotField("");
       setStatus("success");
-      setTimeout(() => setStatus((s) => (s === "success" ? "idle" : s)), 8000);
+      setTimeout(() => setStatus((s) => (s === "success" ? "idle" : s)), 10000);
     } catch (err) {
       const aborted = err instanceof DOMException && err.name === "AbortError";
-      console.error("[ContactForm] Submission failed", err);
+      console.error("[ContactForm] Submission failed:", err);
       setErrorMessage(
         aborted
           ? "The request timed out. Please check your connection and try again."
-          : "Network error — your message couldn't be sent. Please try again, or email me directly.",
+          : "Sorry, we couldn't submit your message right now. Please try again in a moment.",
       );
       setStatus("error");
     } finally {
@@ -255,19 +229,25 @@ export function ContactForm() {
         {sending ? "SENDING MESSAGE…" : "SEND MESSAGE"}
       </button>
 
-      <p aria-live="polite" className="mt-4 text-sm font-medium">
+      <div aria-live="polite" className="mt-4">
         {status === "success" && (
-          <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 inline-block">
-            ✓ Thank you! Your message has been sent successfully. I will get back to you shortly.
-          </span>
+          <div className="flex items-start gap-2.5 text-emerald-800 bg-emerald-50 border border-emerald-200 p-3.5 text-xs sm:text-sm">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+            <span>
+              Thank you for contacting me! Your message has been received. I&#39;ll get back to you soon.
+            </span>
+          </div>
         )}
         {status === "error" && (
-          <span className="text-rose-700 bg-rose-50 border border-rose-200 px-3 py-2 inline-block">
-            {errorMessage ||
-              "Something went wrong sending your message. Please try again, or email me directly."}
-          </span>
+          <div className="flex items-start gap-2.5 text-rose-800 bg-rose-50 border border-rose-200 p-3.5 text-xs sm:text-sm">
+            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+            <span>
+              {errorMessage ||
+                "Sorry, we couldn't submit your message right now. Please try again in a moment."}
+            </span>
+          </div>
         )}
-      </p>
+      </div>
     </form>
   );
 }

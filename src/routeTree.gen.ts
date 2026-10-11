@@ -15,6 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
@@ -59,6 +60,11 @@ const ThankYouRoute = ThankYouRouteImport.update({
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiContactRoute = ApiContactRouteImport.update({
+  id: '/api/contact',
+  path: '/api/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
     | '/dashboard/database'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
     | '/dashboard/database'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/thank-you'
     | '/api/chat'
+    | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
     | '/dashboard/database'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   ResumeRoute: typeof ResumeRoute
   ThankYouRoute: typeof ThankYouRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiContactRoute: typeof ApiContactRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
   ApiPublicDatabaseBackupRoute: typeof ApiPublicDatabaseBackupRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/contact': {
+      id: '/api/contact'
+      path: '/api/contact'
+      fullPath: '/api/contact'
+      preLoaderRoute: typeof ApiContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -481,6 +501,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResumeRoute: ResumeRoute,
   ThankYouRoute: ThankYouRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiContactRoute: ApiContactRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
   ApiPublicDatabaseBackupRoute: ApiPublicDatabaseBackupRoute,
