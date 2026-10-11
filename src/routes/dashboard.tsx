@@ -82,8 +82,8 @@ function DashboardLayout() {
   // Checking session loading state
   if (session === undefined) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 font-mono text-xs gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center text-muted-foreground font-mono text-xs gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-cobalt" />
         <span>Verifying admin authentication…</span>
       </div>
     );
@@ -92,26 +92,26 @@ function DashboardLayout() {
   // If not logged in, show access wall with redirect to login
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-slate-100">
-        <div className="max-w-md w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center backdrop-blur shadow-2xl">
-          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-xl bg-slate-900 border border-slate-800 text-rose-400 mb-4">
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-carbon">
+        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-sm bg-[#FAF9F6] border border-carbon/15 text-cobalt mb-4 shadow-2xs">
             <Lock className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-bold text-slate-100">Admin Authentication Required</h2>
-          <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-            The DevOps monitoring console at <code className="font-mono text-cyan-400">/dashboard</code> is restricted to verified administrators.
+          <h2 className="text-lg font-bold text-carbon">Admin Authentication Required</h2>
+          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+            The DevOps monitoring console at <code className="mono text-cobalt font-semibold">/dashboard</code> is restricted to verified administrators.
           </p>
           <div className="mt-6 flex flex-col gap-2.5">
             <Link
               to="/dashboard/login"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-cyan-600 py-2.5 text-xs font-semibold text-white shadow hover:bg-cyan-500 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-sm bg-cobalt py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 transition-colors"
             >
               <Shield className="h-4 w-4" />
               Sign In to Console
             </Link>
             <Link
               to="/"
-              className="inline-flex items-center justify-center py-2 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              className="inline-flex items-center justify-center py-2 text-xs text-muted-foreground hover:text-carbon transition-colors"
             >
               Return to Public Portfolio
             </Link>
@@ -123,16 +123,33 @@ function DashboardLayout() {
 
   // Authenticated admin view
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
-      <div className="mx-auto flex max-w-[1400px]">
+    <div className="min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white">
+      <div className="mx-auto flex max-w-[1440px]">
         {/* Sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-slate-800 px-4 py-6 md:flex justify-between">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[#E5E5DF] bg-white px-4 py-6 md:flex justify-between">
           <div>
-            <Link to="/" className="mb-8 block px-2">
-              <p className="font-mono text-sm font-semibold text-slate-100">PP · OPS</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">
-                Monitoring console
-              </p>
+            <Link to="/" className="mb-8 flex items-center gap-3 px-2 transition-opacity hover:opacity-90">
+              <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-2xs">
+                <img
+                  src="/pp-logo.png"
+                  alt="PP"
+                  className="h-6 w-auto object-contain"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = "none";
+                    if (target.parentElement) {
+                      target.parentElement.innerHTML =
+                        '<span class="mono font-bold text-cobalt text-[12px]">PP</span>';
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[13px] font-bold tracking-tight text-carbon">PP · OPS</span>
+                <span className="mono text-[9px] text-muted-foreground tracking-widest">
+                  MONITORING CONSOLE
+                </span>
+              </div>
             </Link>
             <nav className="space-y-1">
               {NAV.map(({ to, label, icon: Icon }) => (
@@ -140,10 +157,10 @@ function DashboardLayout() {
                   key={to}
                   to={to}
                   activeOptions={{ exact: to === "/dashboard" }}
-                  activeProps={{ className: "bg-slate-900 text-slate-100" }}
-                  className="flex items-center gap-3 rounded px-3 py-2 text-sm text-slate-400 transition-colors hover:bg-slate-900 hover:text-slate-100"
+                  activeProps={{ className: "bg-cobalt text-white font-semibold shadow-2xs" }}
+                  className="flex items-center gap-3 rounded-sm px-3 py-2 text-xs font-medium text-carbon/75 transition-colors hover:bg-[#FAF9F6] hover:text-cobalt"
                 >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                   {label}
                 </Link>
               ))}
@@ -151,19 +168,19 @@ function DashboardLayout() {
           </div>
 
           {/* User profile & Sign Out in sidebar footer */}
-          <div className="border-t border-slate-800/80 pt-4 mt-6">
-            <div className="px-2 mb-2">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
+          <div className="border-t border-[#E5E5DF] pt-4 mt-6">
+            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-2.5 mb-2">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
                 <Shield className="h-3 w-3" />
                 <span>Admin Session</span>
               </div>
-              <p className="truncate text-[11px] text-slate-400 font-mono mt-0.5" title={session.user.email}>
+              <p className="truncate text-[11px] text-muted-foreground font-mono mt-0.5" title={session.user.email}>
                 {session.user.email}
               </p>
             </div>
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center gap-2 rounded px-3 py-1.5 text-xs text-slate-400 hover:text-rose-400 hover:bg-rose-950/20 transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-sm border border-transparent px-3 py-1.5 text-xs text-muted-foreground hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors"
             >
               <LogOut className="h-3.5 w-3.5" />
               Sign Out
@@ -174,29 +191,34 @@ function DashboardLayout() {
         {/* Main Content Area */}
         <div className="min-w-0 flex-1 flex flex-col min-h-screen">
           {/* Mobile Top Navigation */}
-          <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3 md:hidden">
-            <span className="font-mono text-xs font-semibold text-slate-200">PP &bull; OPS</span>
+          <div className="flex items-center justify-between border-b border-[#E5E5DF] bg-white px-4 py-3 md:hidden">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center border border-carbon/15 bg-white text-cobalt font-mono text-xs font-bold shadow-2xs">
+                PP
+              </div>
+              <span className="mono text-xs font-bold text-carbon">PP · OPS</span>
+            </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-slate-400 font-mono truncate max-w-[120px]">
+              <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[120px]">
                 {session.user.email}
               </span>
               <button
                 onClick={handleSignOut}
-                className="text-slate-400 hover:text-rose-400"
+                className="text-muted-foreground hover:text-rose-600"
                 title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
-          <div className="flex items-center gap-3 overflow-x-auto border-b border-slate-800 px-4 py-2.5 md:hidden">
+          <div className="flex items-center gap-3 overflow-x-auto border-b border-[#E5E5DF] bg-[#FAF9F6] px-4 py-2.5 md:hidden">
             {NAV.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
                 activeOptions={{ exact: to === "/dashboard" }}
-                activeProps={{ className: "text-cyan-400 font-semibold" }}
-                className="whitespace-nowrap text-xs uppercase tracking-[0.14em] text-slate-500"
+                activeProps={{ className: "text-cobalt font-bold border-b-2 border-cobalt pb-0.5" }}
+                className="whitespace-nowrap mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground hover:text-carbon"
               >
                 {label}
               </Link>
@@ -211,3 +233,4 @@ function DashboardLayout() {
     </div>
   );
 }
+

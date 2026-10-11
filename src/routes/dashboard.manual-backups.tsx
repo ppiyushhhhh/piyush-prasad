@@ -281,8 +281,8 @@ function ManualBackupsPage() {
   // Authentication Loading Screen
   if (authChecking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-400 font-mono text-xs gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground mono text-xs gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-cobalt" />
         <span>Verifying administrator permissions…</span>
       </div>
     );
@@ -291,20 +291,20 @@ function ManualBackupsPage() {
   // Access Wall
   if (isAdmin === false) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center text-slate-100">
-        <div className="max-w-md w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 backdrop-blur shadow-2xl">
-          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-xl bg-slate-900 border border-slate-800 text-rose-400 mb-4">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center text-carbon">
+        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 shadow-md">
+          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-sm bg-rose-50 border border-rose-200 text-rose-600 mb-4">
             <ShieldAlert className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-bold text-slate-100">Administrator Role Required</h2>
-          <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+          <h2 className="text-lg font-bold text-carbon">Administrator Role Required</h2>
+          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
             The Manual Backups Console is restricted to authenticated accounts with verified{" "}
-            <code className="font-mono text-cyan-400">admin</code> privileges.
+            <code className="mono text-cobalt bg-cobalt/10 px-1 py-0.5 rounded-sm">admin</code> privileges.
           </p>
           <div className="mt-6 flex flex-col gap-2">
             <a
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-800 border border-slate-700 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#121316] border border-[#121316] py-2.5 text-xs font-semibold text-white hover:bg-black transition-colors"
             >
               Return to Monitoring Overview
             </a>
@@ -317,21 +317,21 @@ function ManualBackupsPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-[#E5E5DF] pb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-400 shadow-sm shadow-emerald-950/40">
-            <HardDrive className="h-6 w-6" />
+          <div className="p-2 rounded-sm bg-cobalt/10 border border-cobalt/20 text-cobalt">
+            <HardDrive className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-100">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
                 Manual Database Backups
               </h1>
-              <span className="rounded-full bg-emerald-950 px-2 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800 font-semibold">
+              <span className="rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] mono text-emerald-700 border border-emerald-200 font-semibold">
                 ON-DEMAND
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Create on-demand database snapshots, inspect the manual backup ledger, and monitor automated daily schedules.
             </p>
           </div>

@@ -10,9 +10,9 @@ export function Panel({
   action?: ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-slate-800 bg-slate-900/60">
-      <header className="flex items-center justify-between border-b border-slate-800 px-5 py-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+    <section className="rounded-sm border border-[#E5E5DF] bg-white shadow-2xs">
+      <header className="flex items-center justify-between border-b border-[#E5E5DF] bg-[#FAF9F6]/60 px-5 py-3">
+        <h2 className="mono text-[11px] font-semibold uppercase tracking-[0.14em] text-carbon">
           {title}
         </h2>
         {action}
@@ -33,16 +33,16 @@ export function MetricCard({
 }) {
   const empty = value === null || value === undefined || value === "";
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+    <div className="rounded-sm border border-[#E5E5DF] bg-white p-4 shadow-2xs transition-colors hover:border-cobalt/40">
+      <p className="mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>
       <p
-        className={`mt-2 font-mono text-2xl ${empty ? "text-slate-600" : "text-slate-100"}`}
+        className={`mt-2 font-mono text-2xl font-bold ${empty ? "text-muted-foreground/60" : "text-carbon"}`}
       >
         {empty ? "—" : value}
       </p>
-      <p className="mt-1 text-xs text-slate-500">{hint ?? "No data yet"}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{hint ?? "No data yet"}</p>
     </div>
   );
 }
@@ -55,9 +55,9 @@ export function EmptyState({
   description?: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-slate-800 bg-slate-950/40 px-6 py-10 text-center">
-      <p className="text-sm font-medium text-slate-300">{title}</p>
-      <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-slate-500">
+    <div className="rounded-sm border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/60 px-6 py-10 text-center">
+      <p className="text-sm font-semibold text-carbon">{title}</p>
+      <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">
         {description ??
           "Data collection is not connected yet. Values appear here once monitoring starts writing results."}
       </p>
@@ -68,8 +68,9 @@ export function EmptyState({
 export function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <header className="mb-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-100">{title}</h1>
-      <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      <h1 className="text-2xl font-bold tracking-tight text-carbon">{title}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
     </header>
   );
 }
+

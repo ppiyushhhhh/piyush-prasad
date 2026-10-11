@@ -110,16 +110,16 @@ function CicdPage() {
           <button
             onClick={() => refetch()}
             disabled={isRefetching || isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/90 px-3.5 py-2 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-800 hover:text-white disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-semibold text-carbon shadow-2xs transition hover:border-cobalt hover:text-cobalt disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 text-cyan-400 ${isRefetching ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 text-cobalt ${isRefetching ? "animate-spin" : ""}`} />
             {isRefetching ? "Syncing..." : "Sync Pipelines"}
           </button>
           <a
             href="https://github.com/ppiyushhhhh/piyush-prasad/actions"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/30 bg-cyan-950/20 px-3.5 py-2 text-xs font-semibold text-cyan-300 hover:bg-cyan-900/40 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-cobalt px-3.5 py-2 text-xs font-semibold text-white hover:bg-cobalt/90 transition-colors shadow-2xs"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             GitHub Actions Console
@@ -148,33 +148,33 @@ function CicdPage() {
                   {pipelineStages.map((stage, idx) => (
                     <div
                       key={stage.num}
-                      className="rounded-lg border border-slate-800 bg-slate-950/70 p-3 relative group hover:border-slate-700 transition-colors"
+                      className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3 relative group hover:border-cobalt/40 transition-colors"
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-mono text-[10px] text-slate-500 font-bold">
+                        <span className="mono text-[10px] text-muted-foreground font-bold">
                           {stage.num}
                         </span>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                       </div>
-                      <p className="font-semibold text-xs text-slate-200">{stage.name}</p>
-                      <p className="mt-0.5 text-[10px] text-slate-500">{stage.desc}</p>
+                      <p className="font-semibold text-xs text-carbon">{stage.name}</p>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">{stage.desc}</p>
                       {idx < pipelineStages.length - 1 && (
-                        <ArrowRight className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-700 z-10" />
+                        <ArrowRight className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40 z-10" />
                       )}
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80 pt-3 text-[11px] text-slate-400">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E5DF] pt-3 text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1.5 text-emerald-400 font-mono">
+                    <span className="flex items-center gap-1.5 text-emerald-700 font-mono font-semibold">
                       <ShieldCheck className="h-4 w-4" /> Automated DevSecOps Policy
                     </span>
                     <span>&bull;</span>
-                    <span className="text-slate-400">Target: <strong className="text-slate-200 font-mono">main branch</strong></span>
+                    <span className="text-muted-foreground">Target: <strong className="text-carbon font-mono">main branch</strong></span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Webhooks & API Synced Live
                   </div>
                 </div>
@@ -189,43 +189,43 @@ function CicdPage() {
               action={
                 <div className="flex flex-wrap items-center gap-3 text-xs">
                   {/* Workflow Type Filters */}
-                  <div className="flex items-center rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-[11px]">
+                  <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-0.5 text-[11px]">
                     <button
                       onClick={() => setWorkflowTypeFilter("all")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         workflowTypeFilter === "all"
-                          ? "bg-slate-800 text-slate-200"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       All Types
                     </button>
                     <button
                       onClick={() => setWorkflowTypeFilter("codeql")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         workflowTypeFilter === "codeql"
-                          ? "bg-slate-800 text-cyan-300"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       CodeQL
                     </button>
                     <button
                       onClick={() => setWorkflowTypeFilter("ci")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         workflowTypeFilter === "ci"
-                          ? "bg-slate-800 text-cyan-300"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       CI Pipeline
                     </button>
                     <button
                       onClick={() => setWorkflowTypeFilter("daily")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         workflowTypeFilter === "daily"
-                          ? "bg-slate-800 text-cyan-300"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       Daily Reports
@@ -236,30 +236,30 @@ function CicdPage() {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setStatusFilter("all")}
-                      className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 text-[11px] font-medium transition cursor-pointer ${
                         statusFilter === "all"
-                          ? "bg-slate-800 text-slate-100"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-carbon text-white font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       All ({total})
                     </button>
                     <button
                       onClick={() => setStatusFilter("success")}
-                      className={`rounded-md px-2.5 py-1 text-[11px] font-medium border transition ${
+                      className={`rounded-sm px-2.5 py-1 text-[11px] font-semibold border transition cursor-pointer ${
                         statusFilter === "success"
-                          ? "bg-emerald-950/80 text-emerald-300 border-emerald-800/80"
-                          : "border-slate-800 text-slate-400 hover:text-slate-200"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                          : "border-[#E5E5DF] text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       Passed ({successCount})
                     </button>
                     <button
                       onClick={() => setStatusFilter("failure")}
-                      className={`rounded-md px-2.5 py-1 text-[11px] font-medium border transition ${
+                      className={`rounded-sm px-2.5 py-1 text-[11px] font-semibold border transition cursor-pointer ${
                         statusFilter === "failure"
-                          ? "bg-rose-950/80 text-rose-300 border-rose-800/80"
-                          : "border-slate-800 text-slate-400 hover:text-slate-200"
+                          ? "bg-rose-50 text-rose-700 border-rose-300"
+                          : "border-[#E5E5DF] text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       Failed ({failedCount})
@@ -289,26 +289,26 @@ function CicdPage() {
                     return (
                       <tr
                         key={row.id}
-                        className="border-b border-slate-800/60 hover:bg-slate-800/20 transition-colors"
+                        className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/50 transition-colors"
                       >
                         <td className="py-3 pr-4">
                           {isSuccess ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                               <CheckCircle2 className="h-3 w-3" />
                               Success
                             </span>
                           ) : isFailure ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-400 border border-rose-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700 border border-rose-200 mono">
                               <XCircle className="h-3 w-3" />
                               Failed
                             </span>
                           ) : isPending ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-400 border border-amber-500/20">
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 border border-amber-200 mono">
                               <Clock className="h-3 w-3 animate-spin" />
                               Running
                             </span>
                           ) : (
-                            <span className="text-slate-500 font-mono text-xs">
+                            <span className="text-muted-foreground font-mono text-xs">
                               {row.conclusion ?? row.status ?? "—"}
                             </span>
                           )}
@@ -316,20 +316,20 @@ function CicdPage() {
 
                         <td className="py-3 pr-4">
                           <div className="flex items-center gap-2">
-                            <Workflow className="h-3.5 w-3.5 text-slate-500" />
-                            <span className="font-semibold text-slate-200 text-xs">
+                            <Workflow className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="font-semibold text-carbon text-xs">
                               {row.workflow_name ?? "CI/CD Run"}
                             </span>
                           </div>
                         </td>
 
-                        <td className="py-3 pr-4 text-xs font-mono text-slate-400">
+                        <td className="py-3 pr-4 text-xs font-mono text-muted-foreground">
                           {fmtDateTime(row.occurred_at)}
                         </td>
 
-                        <td className="py-3 pr-4 text-xs font-mono text-slate-300">
-                          <span className="inline-flex items-center gap-1 text-slate-400">
-                            <GitBranch className="h-3 w-3 text-cyan-400" />
+                        <td className="py-3 pr-4 text-xs font-mono text-carbon">
+                          <span className="inline-flex items-center gap-1 text-carbon/80">
+                            <GitBranch className="h-3 w-3 text-cobalt" />
                             main &bull; Ubuntu
                           </span>
                         </td>
@@ -340,17 +340,17 @@ function CicdPage() {
                               href={`https://github.com/ppiyushhhhh/piyush-prasad/commit/${row.commit_sha}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 rounded bg-slate-800/80 px-1.5 py-0.5 text-[11px] text-cyan-300 hover:text-cyan-200 transition-colors border border-slate-700/60"
+                              className="inline-flex items-center gap-1 rounded-sm bg-[#FAF9F6] px-1.5 py-0.5 text-[11px] text-cobalt hover:border-cobalt transition-colors border border-[#E5E5DF] font-semibold"
                             >
-                              <GitCommit className="h-3 w-3 text-slate-500" />
+                              <GitCommit className="h-3 w-3 text-muted-foreground" />
                               {row.commit_sha.slice(0, 7)}
                             </a>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-muted-foreground/60">—</span>
                           )}
                         </td>
 
-                        <td className="py-3 pr-4 text-xs font-mono text-slate-300">
+                        <td className="py-3 pr-4 text-xs font-mono text-carbon">
                           {row.duration_seconds != null ? `${row.duration_seconds}s` : "—"}
                         </td>
 
@@ -360,13 +360,13 @@ function CicdPage() {
                               href={row.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:underline font-mono"
+                              className="inline-flex items-center gap-1 text-xs text-cobalt hover:underline font-mono font-semibold"
                             >
                               <span>Logs</span>
                               <ExternalLink className="h-3 w-3" />
                             </a>
                           ) : (
-                            <span className="text-slate-600 text-xs">—</span>
+                            <span className="text-muted-foreground/60 text-xs">—</span>
                           )}
                         </td>
                       </tr>

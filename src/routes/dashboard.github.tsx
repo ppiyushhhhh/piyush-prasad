@@ -17,9 +17,7 @@ function GithubPage() {
       />
       <div className="space-y-6">
         <Panel title="Repositories & commits">
-          <div className="rounded bg-white p-4 text-neutral-900">
-            <GithubActivity />
-          </div>
+          <GithubActivity />
         </Panel>
         <Panel title="GitHub Actions">
           <EmptyState

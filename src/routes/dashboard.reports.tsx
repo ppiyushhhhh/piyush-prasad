@@ -25,23 +25,23 @@ function downloadReportFile(report: {
   <meta charset="UTF-8">
   <title>Website Health Report - ${report.report_date} - piyushprasad.in</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 40px; line-height: 1.6; }
-    .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 40px; border-radius: 12px; border: 1px solid #334155; }
-    h1 { margin-top: 0; color: #38bdf8; font-size: 28px; }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-weight: bold; font-size: 14px; background: #065f46; color: #34d399; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; background: #FAF9F6; color: #121316; padding: 40px; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: #FFFFFF; padding: 40px; border-radius: 4px; border: 1px solid #E5E5DF; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    h1 { margin-top: 0; color: #121316; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
-    .card { background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #334155; text-align: center; }
-    .card-num { font-size: 32px; font-weight: bold; color: #38bdf8; font-family: monospace; }
-    .card-label { font-size: 12px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; }
-    table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
-    th { color: #94a3b8; font-size: 12px; text-transform: uppercase; }
-    .footer { margin-top: 40px; font-size: 12px; color: #64748b; text-align: center; border-top: 1px solid #334155; padding-top: 20px; }
+    .card { background: #FAF9F6; padding: 18px; border-radius: 4px; border: 1px solid #E5E5DF; text-align: center; }
+    .card-num { font-size: 30px; font-weight: bold; color: #1A4BFF; font-family: monospace; }
+    .card-label { font-size: 11px; text-transform: uppercase; color: #5A5C66; letter-spacing: 0.1em; font-family: monospace; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E5DF; }
+    th { color: #5A5C66; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace; }
+    .footer { margin-top: 40px; font-size: 12px; color: #5A5C66; text-align: center; border-top: 1px solid #E5E5DF; padding-top: 20px; font-family: monospace; }
     @media print {
       body { background: #fff; color: #000; padding: 0; }
       .container { border: none; box-shadow: none; padding: 0; background: #fff; }
       .card { border: 1px solid #e2e8f0; background: #f8fafc; }
-      .card-num { color: #0284c7; }
+      .card-num { color: #1A4BFF; }
     }
   </style>
 </head>
@@ -50,7 +50,7 @@ function downloadReportFile(report: {
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div>
         <h1>Website Health & Audit Report</h1>
-        <p style="color:#94a3b8; margin: 0;">Target: <strong>https://www.piyushprasad.in</strong> &bull; Generated: ${report.report_date}</p>
+        <p style="color:#5A5C66; margin: 0; font-size: 13px;">Target: <strong style="color:#121316;">https://www.piyushprasad.in</strong> &bull; Generated: ${report.report_date}</p>
       </div>
       <div>
         <span class="badge">${report.status ?? "Grade A+"}</span>
@@ -169,13 +169,13 @@ function ReportsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <PageHeader
           title="Audit Reports"
-          subtitle="Daily website health reports, Lighthouse assessments and executive PDF summaries."
+          subtitle="Daily website health reports, Lighthouse assessments and executive summaries."
         />
         <div className="flex items-center gap-2">
           <button
             onClick={handleGenerateReport}
             disabled={isGenerating}
-            className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-sm bg-cobalt px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 disabled:opacity-50 transition-colors cursor-pointer"
           >
             {isGenerating ? (
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -187,7 +187,7 @@ function ReportsPage() {
           {latest && (
             <button
               onClick={() => downloadReportFile(latest)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-800 bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-1.5 text-xs font-medium text-carbon hover:border-cobalt hover:text-cobalt transition-colors shadow-2xs cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
               Download Latest
@@ -214,7 +214,7 @@ function ReportsPage() {
               action={
                 <button
                   onClick={() => refetch()}
-                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-cobalt cursor-pointer"
                 >
                   <RefreshCw className="h-3 w-3" />
                   Refresh
@@ -224,21 +224,21 @@ function ReportsPage() {
               {data && data.length > 0 ? (
                 <DataTable headers={["Date", "Health Score", "Lighthouse", "Status", "Download / Export"]}>
                   {data.map((row) => (
-                    <tr key={row.id} className="border-b border-slate-900/60 hover:bg-slate-900/40 transition-colors">
-                      <td className="py-2.5 pr-4 font-mono font-medium text-slate-200">
+                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors">
+                      <td className="py-2.5 pr-4 font-mono font-medium text-carbon">
                         {fmtDate(row.report_date)}
                       </td>
                       <td className="py-2.5 pr-4">
-                        <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold font-mono">
+                        <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold font-mono">
                           <CheckCircle2 className="h-3 w-3" />
                           {row.health_score ?? 100}%
                         </span>
                       </td>
-                      <td className="py-2.5 pr-4 font-mono text-cyan-400">
+                      <td className="py-2.5 pr-4 font-mono text-cobalt font-bold">
                         {row.lighthouse_score != null ? `${row.lighthouse_score}/100` : "96/100"}
                       </td>
                       <td className="py-2.5 pr-4">
-                        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 border border-emerald-500/20">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                           {row.status ?? "Grade A+"}
                         </span>
                       </td>
@@ -246,7 +246,7 @@ function ReportsPage() {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => downloadReportFile(row)}
-                            className="inline-flex items-center gap-1 text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1 rounded text-[11px] transition-colors font-sans"
+                            className="inline-flex items-center gap-1 text-carbon hover:text-cobalt hover:border-cobalt bg-white border border-[#E5E5DF] px-2.5 py-1 rounded-sm text-[11px] transition-colors font-sans shadow-2xs cursor-pointer"
                           >
                             <Download className="h-3 w-3" />
                             Download
@@ -256,7 +256,7 @@ function ReportsPage() {
                               href={row.pdf_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-xs text-slate-400 hover:underline"
+                              className="text-xs text-cobalt hover:underline font-medium"
                             >
                               PDF Link
                             </a>
@@ -268,9 +268,9 @@ function ReportsPage() {
                 </DataTable>
               ) : (
                 <div className="text-center py-10">
-                  <FileText className="mx-auto h-8 w-8 text-slate-600 mb-3" />
-                  <p className="text-sm font-medium text-slate-300">No reports archived yet</p>
-                  <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+                  <FileText className="mx-auto h-8 w-8 text-muted-foreground/60 mb-3" />
+                  <p className="text-sm font-semibold text-carbon">No reports archived yet</p>
+                  <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
                     Click the <strong>Run Audit & Generate Report</strong> button above to run an instant health audit and download your report.
                   </p>
                 </div>

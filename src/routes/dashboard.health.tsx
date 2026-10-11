@@ -50,24 +50,24 @@ function HealthChartTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="rounded-lg border border-slate-800 bg-slate-950/95 p-3 text-xs shadow-2xl backdrop-blur">
-        <p className="font-semibold text-slate-300 mb-1">{data.fullTime ?? label}</p>
+      <div className="rounded-sm border border-[#E5E5DF] bg-white p-3 text-xs shadow-md">
+        <p className="font-semibold text-carbon mb-1">{data.fullTime ?? label}</p>
         <div className="space-y-1">
-          <p className="font-mono text-cyan-400 flex items-center justify-between gap-4">
+          <p className="font-mono text-cobalt flex items-center justify-between gap-4">
             <span>Response Latency:</span>
             <span className="font-bold">{data.latency} ms</span>
           </p>
-          <p className="font-mono text-emerald-400 flex items-center justify-between gap-4">
+          <p className="font-mono text-emerald-700 flex items-center justify-between gap-4">
             <span>Health Score:</span>
             <span className="font-bold">{data.score}%</span>
           </p>
-          <p className="font-mono text-slate-400 flex items-center justify-between gap-4">
+          <p className="font-mono text-muted-foreground flex items-center justify-between gap-4">
             <span>HTTP Status:</span>
-            <span className="text-slate-200">{data.status} OK</span>
+            <span className="text-carbon">{data.status} OK</span>
           </p>
-          <p className="font-mono text-purple-400 flex items-center justify-between gap-4">
+          <p className="font-mono text-purple-700 flex items-center justify-between gap-4">
             <span>TLS Certificate:</span>
-            <span className="text-slate-200">{data.ssl ? "Valid (TLS 1.3)" : "N/A"}</span>
+            <span className="text-carbon">{data.ssl ? "Valid (TLS 1.3)" : "N/A"}</span>
           </p>
         </div>
       </div>
@@ -199,17 +199,17 @@ function HealthPage() {
           <button
             onClick={() => probeMutation.mutate()}
             disabled={probeMutation.isPending || isFetching}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/80 px-3.5 py-2 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700 hover:text-white disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-semibold text-carbon shadow-2xs transition hover:border-cobalt hover:text-cobalt disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 text-cyan-400 ${
+              className={`h-3.5 w-3.5 text-cobalt ${
                 probeMutation.isPending || isFetching ? "animate-spin" : ""
               }`}
             />
             {probeMutation.isPending ? "Probing Target..." : "Probe Endpoints Now"}
           </button>
-          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             Active Monitor
           </div>
         </div>
@@ -234,23 +234,23 @@ function HealthPage() {
               title="Interactive Response Latency & TTFB Sparklines"
               action={
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-[11px]">
+                  <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-0.5 text-[11px]">
                     <button
                       onClick={() => setActiveTab("latency")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         activeTab === "latency"
-                          ? "bg-cyan-500/20 text-cyan-400"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       Latency Trend
                     </button>
                     <button
                       onClick={() => setActiveTab("distribution")}
-                      className={`rounded px-2.5 py-1 font-medium transition ${
+                      className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
                         activeTab === "distribution"
-                          ? "bg-cyan-500/20 text-cyan-400"
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-cobalt text-white shadow-2xs font-semibold"
+                          : "text-muted-foreground hover:text-carbon"
                       }`}
                     >
                       Distribution Bar
@@ -261,50 +261,50 @@ function HealthPage() {
             >
               {/* Latency Summary Stat Pills */}
               <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Minimum Latency
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-emerald-400">
-                    {minLatency} <span className="text-xs text-slate-500 font-normal">ms</span>
+                  <p className="mt-1 font-mono text-lg font-bold text-emerald-700">
+                    {minLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-slate-500">Fastest Edge Hit</p>
+                  <p className="text-[11px] text-muted-foreground">Fastest Edge Hit</p>
                 </div>
-                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Average Latency
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-cyan-400">
-                    {avgLatency} <span className="text-xs text-slate-500 font-normal">ms</span>
+                  <p className="mt-1 font-mono text-lg font-bold text-cobalt">
+                    {avgLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-slate-500">Global Rolling Mean</p>
+                  <p className="text-[11px] text-muted-foreground">Global Rolling Mean</p>
                 </div>
-                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     P95 Latency
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-yellow-400">
-                    {p95Latency} <span className="text-xs text-slate-500 font-normal">ms</span>
+                  <p className="mt-1 font-mono text-lg font-bold text-amber-700">
+                    {p95Latency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-slate-500">95% of probes below</p>
+                  <p className="text-[11px] text-muted-foreground">95% of probes below</p>
                 </div>
-                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Max Latency
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-slate-300">
-                    {maxLatency} <span className="text-xs text-slate-500 font-normal">ms</span>
+                  <p className="mt-1 font-mono text-lg font-bold text-carbon">
+                    {maxLatency} <span className="text-xs text-muted-foreground font-normal">ms</span>
                   </p>
-                  <p className="text-[11px] text-slate-500">Peak Cold Spike</p>
+                  <p className="text-[11px] text-muted-foreground">Peak Cold Spike</p>
                 </div>
-                <div className="rounded-lg border border-slate-800/80 bg-slate-950/60 p-3 col-span-2 sm:col-span-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3 col-span-2 sm:col-span-1">
+                  <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Availability
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-emerald-400">
+                  <p className="mt-1 font-mono text-lg font-bold text-emerald-700">
                     100.0%
                   </p>
-                  <p className="text-[11px] text-slate-500">Zero Downtime</p>
+                  <p className="text-[11px] text-muted-foreground">Zero Downtime</p>
                 </div>
               </div>
 
@@ -318,34 +318,34 @@ function HealthPage() {
                     >
                       <defs>
                         <linearGradient id="healthLatencyGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                          <stop offset="5%" stopColor="#1A4BFF" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#1A4BFF" stopOpacity={0.0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
                       <XAxis
                         dataKey="time"
-                        stroke="#64748b"
+                        stroke="#5A5C66"
                         fontSize={11}
                         tickLine={false}
-                        axisLine={{ stroke: "#334155" }}
+                        axisLine={{ stroke: "#E5E5DF" }}
                       />
                       <YAxis
-                        stroke="#64748b"
+                        stroke="#5A5C66"
                         fontSize={11}
                         tickLine={false}
-                        axisLine={{ stroke: "#334155" }}
+                        axisLine={{ stroke: "#E5E5DF" }}
                         unit="ms"
                       />
                       <Tooltip content={<HealthChartTooltip />} />
                       <Area
                         type="monotone"
                         dataKey="latency"
-                        stroke="#06b6d4"
-                        strokeWidth={2.5}
+                        stroke="#1A4BFF"
+                        strokeWidth={2}
                         fill="url(#healthLatencyGradient)"
-                        dot={{ r: 4, fill: "#06b6d4", stroke: "#0f172a", strokeWidth: 1.5 }}
-                        activeDot={{ r: 6, fill: "#38bdf8", stroke: "#fff", strokeWidth: 2 }}
+                        dot={{ r: 3.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 1.5 }}
+                        activeDot={{ r: 5.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       />
                     </AreaChart>
                   ) : (
@@ -353,32 +353,32 @@ function HealthPage() {
                       data={displayChartData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E5DF" vertical={false} />
                       <XAxis
                         dataKey="time"
-                        stroke="#64748b"
+                        stroke="#5A5C66"
                         fontSize={11}
                         tickLine={false}
-                        axisLine={{ stroke: "#334155" }}
+                        axisLine={{ stroke: "#E5E5DF" }}
                       />
                       <YAxis
-                        stroke="#64748b"
+                        stroke="#5A5C66"
                         fontSize={11}
                         tickLine={false}
-                        axisLine={{ stroke: "#334155" }}
+                        axisLine={{ stroke: "#E5E5DF" }}
                         unit="ms"
                       />
                       <Tooltip content={<HealthChartTooltip />} />
-                      <Bar dataKey="latency" radius={[4, 4, 0, 0]}>
+                      <Bar dataKey="latency" radius={[2, 2, 0, 0]}>
                         {displayChartData.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={
                               entry.latency < 130
-                                ? "#10b981"
+                                ? "#059669"
                                 : entry.latency < 180
-                                ? "#06b6d4"
-                                : "#f59e0b"
+                                ? "#1A4BFF"
+                                : "#D97706"
                             }
                           />
                         ))}
@@ -389,20 +389,20 @@ function HealthPage() {
               </div>
 
               {/* SLA Timeline Bars */}
-              <div className="mt-6 border-t border-slate-800/80 pt-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-                  <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              <div className="mt-6 border-t border-[#E5E5DF] pt-4">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                  <span className="font-semibold text-carbon flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
                     Probe Availability & Uptime Timeline
                   </span>
-                  <span className="font-mono text-emerald-400">100% Operational</span>
+                  <span className="font-mono text-emerald-700 font-bold">100% Operational</span>
                 </div>
                 <div className="flex items-center gap-1 h-3">
                   {Array.from({ length: 40 }).map((_, i) => (
                     <div
                       key={i}
                       title={`Probe slice #${40 - i}: 100% reachable`}
-                      className="flex-1 h-full rounded-sm bg-emerald-500/80 hover:bg-emerald-400 transition-colors cursor-pointer"
+                      className="flex-1 h-full rounded-2xs bg-emerald-500 hover:bg-emerald-600 transition-colors cursor-pointer"
                     />
                   ))}
                 </div>
@@ -414,38 +414,38 @@ function HealthPage() {
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <Panel title="Monitored Endpoints & Web Asset Matrix">
               <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
                   <div className="flex items-center gap-3">
-                    <Globe className="h-4 w-4 text-cyan-400" />
+                    <Globe className="h-4 w-4 text-cobalt" />
                     <div>
-                      <p className="font-semibold text-slate-200">Landing Page Root (/)</p>
-                      <p className="text-[11px] text-slate-500 font-mono">https://www.piyushprasad.in/</p>
+                      <p className="font-semibold text-carbon">Landing Page Root (/)</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">https://www.piyushprasad.in/</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-slate-400">
+                    <span className="font-mono text-muted-foreground">
                       {latest?.response_time_ms ? `${latest.response_time_ms} ms` : "—"}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                       <CheckCircle2 className="h-3 w-3" />
                       {latest?.http_status ?? 200} OK
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-4 w-4 text-amber-400" />
+                    <FileText className="h-4 w-4 text-amber-600" />
                     <div>
-                      <p className="font-semibold text-slate-200">Robots Directive (/robots.txt)</p>
-                      <p className="text-[11px] text-slate-500 font-mono">Crawler indexing policies</p>
+                      <p className="font-semibold text-carbon">Robots Directive (/robots.txt)</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">Crawler indexing policies</p>
                     </div>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium border ${
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold border mono ${
                       latest?.robots_ok !== false
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
                     }`}
                   >
                     <CheckCircle2 className="h-3 w-3" />
@@ -453,19 +453,19 @@ function HealthPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
                   <div className="flex items-center gap-3">
-                    <FileCode className="h-4 w-4 text-purple-400" />
+                    <FileCode className="h-4 w-4 text-purple-600" />
                     <div>
-                      <p className="font-semibold text-slate-200">XML Sitemap (/sitemap.xml)</p>
-                      <p className="text-[11px] text-slate-500 font-mono">Search index url discovery</p>
+                      <p className="font-semibold text-carbon">XML Sitemap (/sitemap.xml)</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">Search index url discovery</p>
                     </div>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium border ${
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold border mono ${
                       latest?.sitemap_ok !== false
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
                     }`}
                   >
                     <CheckCircle2 className="h-3 w-3" />
@@ -473,19 +473,19 @@ function HealthPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
                   <div className="flex items-center gap-3">
-                    <Image className="h-4 w-4 text-emerald-400" />
+                    <Image className="h-4 w-4 text-emerald-600" />
                     <div>
-                      <p className="font-semibold text-slate-200">Favicon Asset (/favicon.ico)</p>
-                      <p className="text-[11px] text-slate-500 font-mono">Brand icon cache header</p>
+                      <p className="font-semibold text-carbon">Favicon Asset (/favicon.ico)</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">Brand icon cache header</p>
                     </div>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium border ${
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold border mono ${
                       latest?.favicon_ok !== false
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
                     }`}
                   >
                     <CheckCircle2 className="h-3 w-3" />
@@ -497,13 +497,13 @@ function HealthPage() {
 
             <Panel title="SSL / TLS Certificate & Network Security">
               <div className="space-y-4 text-xs">
-                <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#E5E5DF]">
                     <div className="flex items-center gap-2">
-                      <Lock className="h-4 w-4 text-emerald-400" />
-                      <span className="font-semibold text-slate-200">TLS 1.3 Encryption Handshake</span>
+                      <Lock className="h-4 w-4 text-emerald-700" />
+                      <span className="font-semibold text-carbon">TLS 1.3 Encryption Handshake</span>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                       <ShieldCheck className="h-3 w-3" />
                       Secure
                     </span>
@@ -511,16 +511,16 @@ function HealthPage() {
 
                   <dl className="mt-3 grid grid-cols-2 gap-3">
                     <div>
-                      <dt className="text-[10px] uppercase tracking-wider text-slate-500">Domain Name</dt>
-                      <dd className="mt-0.5 font-mono text-slate-300">www.piyushprasad.in</dd>
+                      <dt className="mono text-[10px] uppercase tracking-wider text-muted-foreground">Domain Name</dt>
+                      <dd className="mt-0.5 font-mono text-carbon font-semibold">www.piyushprasad.in</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] uppercase tracking-wider text-slate-500">Cipher Protocol</dt>
-                      <dd className="mt-0.5 font-mono text-cyan-400">TLS_AES_128_GCM_SHA256</dd>
+                      <dt className="mono text-[10px] uppercase tracking-wider text-muted-foreground">Cipher Protocol</dt>
+                      <dd className="mt-0.5 font-mono text-cobalt font-semibold">TLS_AES_128_GCM_SHA256</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] uppercase tracking-wider text-slate-500">Expiration Date</dt>
-                      <dd className="mt-0.5 font-mono text-emerald-400">
+                      <dt className="mono text-[10px] uppercase tracking-wider text-muted-foreground">Expiration Date</dt>
+                      <dd className="mt-0.5 font-mono text-emerald-700 font-semibold">
                         {latest?.ssl_expires_at
                           ? new Date(latest.ssl_expires_at).toLocaleDateString(undefined, {
                               year: "numeric",
@@ -531,23 +531,23 @@ function HealthPage() {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] uppercase tracking-wider text-slate-500">Validity Remaining</dt>
-                      <dd className="mt-0.5 font-mono text-slate-300">
+                      <dt className="mono text-[10px] uppercase tracking-wider text-muted-foreground">Validity Remaining</dt>
+                      <dd className="mt-0.5 font-mono text-carbon">
                         {daysUntilSslExpiry} days (~{(daysUntilSslExpiry / 30).toFixed(1)} months)
                       </dd>
                     </div>
                   </dl>
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
                   <div className="flex items-center gap-3">
-                    <Server className="h-4 w-4 text-cyan-400" />
+                    <Server className="h-4 w-4 text-cobalt" />
                     <div>
-                      <p className="font-semibold text-slate-200">Anycast DNS Routing</p>
-                      <p className="text-[11px] text-slate-500">Authoritative name servers active</p>
+                      <p className="font-semibold text-carbon">Anycast DNS Routing</p>
+                      <p className="text-[11px] text-muted-foreground">Authoritative name servers active</p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                  <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                     <CheckCircle2 className="h-3 w-3" />
                     Propagated
                   </span>
@@ -561,7 +561,7 @@ function HealthPage() {
             <Panel
               title="Health Check Telemetry & Probe Log"
               action={
-                <span className="text-xs text-slate-500 font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   Showing {data?.length ?? 0} historical probes
                 </span>
               }
@@ -569,15 +569,15 @@ function HealthPage() {
               {data && data.length > 0 ? (
                 <DataTable headers={["Checked At", "Target Host", "Status", "Response Time", "SSL / TLS", "Score"]}>
                   {data.map((row) => (
-                    <tr key={row.id} className="border-b border-slate-800/60 hover:bg-slate-800/20 transition-colors">
-                      <td className="py-2.5 pr-4 text-xs font-mono text-slate-400">
+                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/50 transition-colors">
+                      <td className="py-2.5 pr-4 text-xs font-mono text-muted-foreground">
                         {fmtDateTime(row.checked_at)}
                       </td>
-                      <td className="py-2.5 pr-4 text-xs font-mono text-slate-300">
-                        <span className="text-cyan-400">{row.url}</span>
+                      <td className="py-2.5 pr-4 text-xs font-mono">
+                        <span className="text-cobalt font-semibold">{row.url}</span>
                       </td>
                       <td className="py-2.5 pr-4">
-                        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-500/20">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200 mono">
                           <CheckCircle2 className="h-3 w-3" />
                           {row.http_status ?? "200"} OK
                         </span>
@@ -586,23 +586,23 @@ function HealthPage() {
                         <span
                           className={`font-semibold ${
                             (row.response_time_ms ?? 0) < 150
-                              ? "text-emerald-400"
+                              ? "text-emerald-700"
                               : (row.response_time_ms ?? 0) < 250
-                              ? "text-cyan-400"
-                              : "text-yellow-400"
+                              ? "text-cobalt"
+                              : "text-amber-700"
                           }`}
                         >
                           {row.response_time_ms != null ? `${row.response_time_ms} ms` : "—"}
                         </span>
                       </td>
                       <td className="py-2.5 pr-4 text-xs">
-                        <span className="inline-flex items-center gap-1 text-slate-300">
-                          <Lock className="h-3 w-3 text-emerald-400" />
+                        <span className="inline-flex items-center gap-1 text-carbon font-mono">
+                          <Lock className="h-3 w-3 text-emerald-700" />
                           {boolLabel(row.ssl_valid) ?? "Valid"}
                         </span>
                       </td>
                       <td className="py-2.5 pr-4">
-                        <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-emerald-400">
+                        <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-emerald-700">
                           {row.health_score ?? "100"}%
                         </span>
                       </td>

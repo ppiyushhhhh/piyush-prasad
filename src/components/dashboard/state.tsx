@@ -5,8 +5,8 @@ import { Loader2 } from "lucide-react";
 
 export function LoadingState({ label = "Loading data…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-800 bg-slate-950/40 px-6 py-10 text-sm text-slate-500">
-      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+    <div className="flex items-center justify-center gap-2 rounded-sm border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/60 px-6 py-10 text-sm text-muted-foreground">
+      <Loader2 className="h-4 w-4 animate-spin text-cobalt" aria-hidden="true" />
       {label}
     </div>
   );
@@ -14,9 +14,9 @@ export function LoadingState({ label = "Loading data…" }: { label?: string }) 
 
 export function ErrorState({ message }: { message?: string }) {
   return (
-    <div className="rounded-lg border border-red-900/60 bg-red-950/20 px-6 py-8 text-center">
-      <p className="text-sm font-medium text-red-300">Could not load data</p>
-      <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-red-400/80">
+    <div className="rounded-sm border border-rose-200 bg-rose-50 px-6 py-8 text-center">
+      <p className="text-sm font-semibold text-rose-800">Could not load data</p>
+      <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-rose-600">
         {message ?? "The monitoring database did not respond. Try again shortly."}
       </p>
     </div>
@@ -34,18 +34,18 @@ export function DataTable({
     <div className="-mx-5 overflow-x-auto px-5">
       <table className="w-full min-w-[640px] border-collapse text-left text-xs">
         <thead>
-          <tr className="border-b border-slate-800">
+          <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6]/40">
             {headers.map((h) => (
               <th
                 key={h}
-                className="py-2 pr-4 font-semibold uppercase tracking-[0.14em] text-slate-500"
+                className="mono py-2.5 pr-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
               >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="font-mono text-slate-300">{children}</tbody>
+        <tbody className="font-mono text-carbon divide-y divide-[#E5E5DF]/60">{children}</tbody>
       </table>
     </div>
   );
@@ -59,3 +59,4 @@ export const fmtDate = (value?: string | null) =>
 
 export const boolLabel = (value?: boolean | null) =>
   value === null || value === undefined ? null : value ? "OK" : "Failing";
+

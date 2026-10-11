@@ -584,8 +584,8 @@ function DatabaseAdminPage() {
   // Checking Auth state
   if (authChecking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-400 font-mono text-xs gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground mono text-xs gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-cobalt" />
         <span>Verifying administrator permissions…</span>
       </div>
     );
@@ -594,20 +594,20 @@ function DatabaseAdminPage() {
   // Access Denied Wall
   if (isAdmin === false) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center text-slate-100">
-        <div className="max-w-md w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 backdrop-blur shadow-2xl">
-          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-xl bg-slate-900 border border-slate-800 text-rose-400 mb-4">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center text-carbon">
+        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 shadow-md">
+          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-sm bg-rose-50 border border-rose-200 text-rose-600 mb-4">
             <ShieldAlert className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-bold text-slate-100">Administrator Role Required</h2>
-          <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+          <h2 className="text-lg font-bold text-carbon">Administrator Role Required</h2>
+          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
             The Database Administration Console is restricted to authenticated accounts with the verified{" "}
-            <code className="font-mono text-cyan-400">admin</code> role.
+            <code className="mono text-cobalt bg-cobalt/10 px-1 py-0.5 rounded-sm">admin</code> role.
           </p>
           <div className="mt-6 flex flex-col gap-2">
             <a
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-800 border border-slate-700 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#121316] border border-[#121316] py-2.5 text-xs font-semibold text-white hover:bg-black transition-colors"
             >
               Return to Monitoring Overview
             </a>
@@ -620,17 +620,17 @@ function DatabaseAdminPage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-[#E5E5DF] pb-6">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-cyan-950/80 border border-cyan-800 text-cyan-400 shadow-sm shadow-cyan-950/40">
-              <Database className="h-6 w-6" />
+            <div className="p-2 rounded-sm bg-cobalt/10 border border-cobalt/20 text-cobalt">
+              <Database className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-100">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
                 Database Administration
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Monitor application data, users and database activity.
               </p>
             </div>
@@ -638,13 +638,13 @@ function DatabaseAdminPage() {
         </div>
 
         {/* Right Header Status & Refresh Controls */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-slate-300 flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2 shadow-2xs">
             <span
               className={`h-2 w-2 rounded-full ${
                 overview?.status === "connected"
-                  ? "bg-emerald-400 animate-pulse"
-                  : "bg-amber-400"
+                  ? "bg-emerald-500 animate-pulse"
+                  : "bg-amber-500"
               }`}
             />
             <span>
@@ -654,19 +654,19 @@ function DatabaseAdminPage() {
 
           {/* Database Storage Badge */}
           {overview?.storageUsedPretty && (
-            <div className="rounded-md border border-cyan-800/80 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-slate-300 flex items-center gap-2">
-              <HardDrive className="h-3.5 w-3.5 text-cyan-400" />
+            <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2 shadow-2xs">
+              <HardDrive className="h-3.5 w-3.5 text-cobalt" />
               <span>
-                Storage: <strong className="text-cyan-300">{overview.storageUsedPretty}</strong>
-                <span className="text-slate-500 ml-1">/ {overview.storageQuotaPretty}</span>
+                Storage: <strong className="text-carbon font-bold">{overview.storageUsedPretty}</strong>
+                <span className="text-muted-foreground ml-1">/ {overview.storageQuotaPretty}</span>
               </span>
               <span
-                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm mono ${
                   overview.storageStatus === "critical"
-                    ? "bg-rose-950 text-rose-300 border border-rose-800"
+                    ? "bg-rose-50 text-rose-700 border border-rose-200"
                     : overview.storageStatus === "warning"
-                      ? "bg-amber-950 text-amber-300 border border-amber-800"
-                      : "bg-cyan-950 text-cyan-300 border border-cyan-800"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200"
+                      : "bg-cobalt/10 text-cobalt border border-cobalt/20"
                 }`}
               >
                 {overview.storagePercent}%
@@ -675,8 +675,8 @@ function DatabaseAdminPage() {
           )}
 
           {lastUpdated && (
-            <div className="rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-slate-400 flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-slate-500" />
+            <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-muted-foreground flex items-center gap-1.5 shadow-2xs">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               <span>Last updated: {lastUpdated}</span>
             </div>
           )}
@@ -685,7 +685,7 @@ function DatabaseAdminPage() {
           <button
             onClick={() => handleTakeManualBackup()}
             disabled={isCreatingBackup || isPruning}
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-cobalt px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-cobalt/90 disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
             title="Create manual backup snapshot of database tables"
           >
             {isCreatingBackup ? (
@@ -698,16 +698,16 @@ function DatabaseAdminPage() {
 
           <Link
             to="/dashboard/manual-backups"
-            className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors shadow-2xs cursor-pointer"
           >
-            <HardDrive className="h-3.5 w-3.5 text-emerald-400" />
+            <HardDrive className="h-3.5 w-3.5 text-cobalt" />
             <span>Manual Backups Page</span>
           </Link>
 
           <button
             onClick={handleManualRefresh}
             disabled={isOverviewLoading || isTableLoading}
-            className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${
@@ -720,13 +720,13 @@ function DatabaseAdminPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 overflow-x-auto pb-1 text-xs font-medium">
+      <div className="flex items-center gap-2 border-b border-[#E5E5DF] overflow-x-auto pb-1 text-xs font-medium">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
             activeTab === "overview"
-              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+              ? "border-cobalt text-cobalt bg-cobalt/5"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
           }`}
         >
           <Database className="h-4 w-4" />
@@ -735,16 +735,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("tables")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
             activeTab === "tables"
-              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+              ? "border-cobalt text-cobalt bg-cobalt/5"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
           }`}
         >
           <Layers className="h-4 w-4" />
           Tables
           {overview?.totalTables ? (
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
               {overview.totalTables}
             </span>
           ) : null}
@@ -752,16 +752,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("users")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
             activeTab === "users"
-              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+              ? "border-cobalt text-cobalt bg-cobalt/5"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
           }`}
         >
           <Users className="h-4 w-4" />
           Users
           {overview?.totalUsers ? (
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
               {overview.totalUsers}
             </span>
           ) : null}
@@ -769,16 +769,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("backups")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
             activeTab === "backups"
-              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+              ? "border-cobalt text-cobalt bg-cobalt/5"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
           }`}
         >
           <Archive className="h-4 w-4" />
           Backups &amp; Retention
           {backups?.length ? (
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 mono font-bold">
               {backups.length}
             </span>
           ) : null}
@@ -786,16 +786,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("activity")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-md transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
             activeTab === "activity"
-              ? "border-cyan-500 text-cyan-400 bg-slate-900/60"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30"
+              ? "border-cobalt text-cobalt bg-cobalt/5"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
           }`}
         >
           <Activity className="h-4 w-4" />
           Activity
           {overview?.recentActivityCount ? (
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
               {overview.recentActivityCount}
             </span>
           ) : null}
@@ -806,8 +806,8 @@ function DatabaseAdminPage() {
       <div>
         {activeTab === "overview" && (
           isOverviewLoading && !overview ? (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-500 font-mono text-xs gap-3">
-              <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground mono text-xs gap-3">
+              <Loader2 className="h-6 w-6 animate-spin text-cobalt" />
               <span>Querying database engine & telemetry…</span>
             </div>
           ) : overview ? (
@@ -820,7 +820,7 @@ function DatabaseAdminPage() {
               onTakeManualBackup={() => handleTakeManualBackup()}
             />
           ) : (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-muted-foreground">
               Could not retrieve database overview telemetry.
             </div>
           )

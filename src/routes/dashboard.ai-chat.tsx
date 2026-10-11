@@ -87,9 +87,9 @@ function AiChatPage() {
         <button
           onClick={() => refetch()}
           disabled={isRefetching || isPending}
-          className="self-start sm:self-auto inline-flex items-center gap-2 rounded-md border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-50 transition-colors"
+          className="self-start sm:self-auto inline-flex items-center gap-2 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:border-cobalt hover:text-cobalt disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin text-cyan-400" : ""}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin text-cobalt" : "text-muted-foreground"}`} />
           Refresh Activity
         </button>
       </div>
@@ -110,7 +110,7 @@ function AiChatPage() {
           <div className="mt-8">
             <Panel title="Live AI Chat Diagnostic Console">
               <div className="max-w-2xl">
-                <p className="text-xs text-slate-400 mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   Send a live test message to your portfolio AI chatbot to verify API responsiveness and record real telemetry into your Supabase database:
                 </p>
                 <form onSubmit={handleSendTest} className="flex gap-2">
@@ -119,12 +119,12 @@ function AiChatPage() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Ask something (e.g. 'What are Piyush\'s DevOps skills?')"
-                    className="flex-1 rounded-md border border-slate-800 bg-slate-950 px-3.5 py-2 text-xs text-slate-100 placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+                    className="flex-1 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={isSending || !inputMessage.trim()}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-cyan-600 px-4 py-2 text-xs font-semibold text-white hover:bg-cyan-500 disabled:opacity-50 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-sm bg-cobalt px-4 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 disabled:opacity-50 transition-colors cursor-pointer"
                   >
                     {isSending ? (
                       <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -136,20 +136,20 @@ function AiChatPage() {
                 </form>
 
                 {testResponse && (
-                  <div className="mt-4 rounded-md border border-slate-800 bg-slate-950/80 p-4">
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2 border-b border-slate-800 pb-1.5">
-                      <span className="font-semibold text-cyan-400 flex items-center gap-1">
+                  <div className="mt-4 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4 shadow-2xs">
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-2 border-b border-[#E5E5DF] pb-1.5">
+                      <span className="font-semibold text-cobalt flex items-center gap-1">
                         <Bot className="h-3.5 w-3.5" />
                         AI Assistant Reply
                       </span>
                       {testLatency != null && (
-                        <span className="font-mono text-slate-400 flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-emerald-400" />
+                        <span className="font-mono text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-emerald-600" />
                           Latency: {testLatency} ms
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    <p className="text-xs text-carbon whitespace-pre-wrap leading-relaxed font-sans">
                       {testResponse}
                     </p>
                   </div>
@@ -165,22 +165,22 @@ function AiChatPage() {
                   {data.map((row) => {
                     const isError = Boolean(row.error_code);
                     return (
-                      <tr key={row.id} className="border-b border-slate-900/60 hover:bg-slate-900/40 transition-colors">
-                        <td className="py-2.5 pr-4 text-slate-300 font-mono text-[11px]">
+                      <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors">
+                        <td className="py-2.5 pr-4 text-carbon font-mono text-[11px]">
                           {fmtDateTime(row.occurred_at)}
                         </td>
                         <td className="py-2.5 pr-4">
-                          <span className="inline-flex items-center gap-1.5 rounded bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-200">
-                            <Sparkles className="h-3 w-3 text-cyan-400" />
+                          <span className="inline-flex items-center gap-1.5 rounded-sm bg-white border border-[#E5E5DF] px-2 py-0.5 text-[10px] font-semibold text-carbon mono">
+                            <Sparkles className="h-3 w-3 text-cobalt" />
                             {row.event_type}
                           </span>
                         </td>
-                        <td className="py-2.5 pr-4 font-mono text-slate-300">
+                        <td className="py-2.5 pr-4 font-mono text-carbon">
                           {row.message_count ?? "—"}
                         </td>
                         <td className="py-2.5 pr-4 font-mono">
                           {row.latency_ms != null ? (
-                            <span className={row.latency_ms < 1500 ? "text-emerald-400" : "text-amber-400"}>
+                            <span className={row.latency_ms < 1500 ? "text-emerald-700 font-semibold" : "text-amber-700 font-semibold"}>
                               {row.latency_ms} ms
                             </span>
                           ) : (
@@ -189,12 +189,12 @@ function AiChatPage() {
                         </td>
                         <td className="py-2.5 pr-4">
                           {isError ? (
-                            <span className="inline-flex items-center gap-1 text-rose-400 text-[11px]">
+                            <span className="inline-flex items-center gap-1 text-rose-600 text-[11px] font-semibold">
                               <AlertTriangle className="h-3 w-3" />
                               Error {row.error_code}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-emerald-400 text-[11px]">
+                            <span className="inline-flex items-center gap-1 text-emerald-700 text-[11px] font-semibold">
                               <CheckCircle2 className="h-3 w-3" />
                               OK 200
                             </span>

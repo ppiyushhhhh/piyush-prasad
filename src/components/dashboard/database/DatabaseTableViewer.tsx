@@ -81,17 +81,17 @@ export function DatabaseTableViewer({
   // Format cell display
   function renderCellValue(key: string, val: any, rowId: string) {
     if (val === null || val === undefined) {
-      return <span className="text-slate-600 italic font-mono text-[11px]">null</span>;
+      return <span className="text-neutral-400 italic mono text-[11px]">null</span>;
     }
 
     if (typeof val === "boolean") {
       return val ? (
-        <span className="inline-flex items-center gap-1 text-emerald-400 font-sans text-[11px]">
-          <CheckCircle2 className="h-3 w-3" /> true
+        <span className="inline-flex items-center gap-1 text-emerald-700 mono text-[11px] font-semibold">
+          <CheckCircle2 className="h-3 w-3 text-emerald-600" /> true
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1 text-rose-400 font-sans text-[11px]">
-          <XCircle className="h-3 w-3" /> false
+        <span className="inline-flex items-center gap-1 text-rose-700 mono text-[11px] font-semibold">
+          <XCircle className="h-3 w-3 text-rose-600" /> false
         </span>
       );
     }
@@ -100,7 +100,7 @@ export function DatabaseTableViewer({
       return (
         <button
           onClick={() => setSelectedRecordForModal(val)}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-cyan-300 hover:bg-slate-700 text-[11px] font-mono transition-colors"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] text-cobalt hover:bg-white text-[11px] mono transition-colors"
         >
           <FileJson className="h-3 w-3" />
           <span>JSON ({Object.keys(val).length})</span>
@@ -116,7 +116,7 @@ export function DatabaseTableViewer({
       !isNaN(Date.parse(strVal))
     ) {
       return (
-        <span className="text-slate-300 font-mono text-[11px]" title={strVal}>
+        <span className="text-carbon mono text-[11px]" title={strVal}>
           {new Date(strVal).toLocaleString()}
         </span>
       );
@@ -128,8 +128,8 @@ export function DatabaseTableViewer({
       const isMid = val >= 70;
       return (
         <span
-          className={`font-semibold font-mono ${
-            isHigh ? "text-emerald-400" : isMid ? "text-amber-400" : "text-rose-400"
+          className={`font-semibold mono ${
+            isHigh ? "text-emerald-700" : isMid ? "text-amber-700" : "text-rose-700"
           }`}
         >
           {val}%
@@ -142,8 +142,8 @@ export function DatabaseTableViewer({
       const is2xx = strVal.startsWith("2");
       return (
         <span
-          className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold ${
-            is2xx ? "bg-emerald-950 text-emerald-400 border border-emerald-800" : "bg-rose-950 text-rose-400 border border-rose-800"
+          className={`px-1.5 py-0.5 rounded-sm mono text-[10px] font-bold ${
+            is2xx ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"
           }`}
         >
           {strVal}
@@ -156,16 +156,16 @@ export function DatabaseTableViewer({
       const cellKey = `${rowId}-${key}`;
       return (
         <div className="flex items-center gap-1.5">
-          <span className="truncate max-w-[140px] font-mono text-[11px] text-slate-300" title={strVal}>
+          <span className="truncate max-w-[140px] mono text-[11px] text-muted-foreground" title={strVal}>
             {strVal}
           </span>
           <button
             onClick={() => handleCopy(strVal, cellKey)}
-            className="text-slate-500 hover:text-slate-300 shrink-0"
+            className="text-muted-foreground hover:text-carbon shrink-0"
             title="Copy value"
           >
             {copiedCell === cellKey ? (
-              <Check className="h-3 w-3 text-emerald-400" />
+              <Check className="h-3 w-3 text-emerald-600" />
             ) : (
               <Copy className="h-3 w-3" />
             )}
@@ -174,7 +174,7 @@ export function DatabaseTableViewer({
       );
     }
 
-    return <span className="font-mono text-[11px] text-slate-200">{strVal}</span>;
+    return <span className="mono text-[11px] text-carbon">{strVal}</span>;
   }
 
   const columns = tableData?.columns ?? [];
@@ -183,10 +183,10 @@ export function DatabaseTableViewer({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
       {/* LEFT: Table Selector Sidebar */}
-      <div className="lg:col-span-1 rounded-lg border border-slate-800 bg-slate-900/60 p-3 space-y-1">
-        <div className="px-3 py-2 border-b border-slate-800/80 mb-2">
-          <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500 font-semibold flex items-center gap-1.5">
-            <Layers className="h-3.5 w-3.5 text-cyan-400" />
+      <div className="lg:col-span-1 rounded-sm border border-[#E5E5DF] bg-white p-3 space-y-1 shadow-2xs">
+        <div className="px-3 py-2 border-b border-[#E5E5DF] mb-2">
+          <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground font-semibold flex items-center gap-1.5 mono">
+            <Layers className="h-3.5 w-3.5 text-cobalt" />
             Application Tables ({SUPPORTED_TABLES.length})
           </div>
         </div>
@@ -199,32 +199,32 @@ export function DatabaseTableViewer({
               <button
                 key={t.name}
                 onClick={() => onSelectTable(t.name)}
-                className={`w-full text-left rounded-md px-3 py-2.5 transition-all text-xs flex items-center justify-between group ${
+                className={`w-full text-left rounded-sm px-3 py-2.5 transition-all text-xs flex items-center justify-between group ${
                   isSelected
-                    ? "bg-cyan-950/70 border border-cyan-800 text-cyan-300 font-medium shadow-sm"
-                    : "border border-transparent hover:bg-slate-800/60 text-slate-400 hover:text-slate-200"
+                    ? "bg-cobalt/10 border border-cobalt/20 text-cobalt font-semibold"
+                    : "border border-transparent hover:bg-[#FAF9F6] text-muted-foreground hover:text-carbon"
                 }`}
               >
                 <div className="min-w-0 pr-2">
-                  <div className="truncate font-semibold text-slate-200 group-hover:text-white">
+                  <div className="truncate font-semibold text-carbon">
                     {t.displayName}
                   </div>
-                  <div className="truncate text-[10px] text-slate-500 font-mono mt-0.5">
+                  <div className="truncate text-[10px] text-muted-foreground mono mt-0.5">
                     {t.name}
                   </div>
                 </div>
                 <div className="flex flex-col items-end shrink-0 gap-0.5">
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                    className={`px-2 py-0.5 rounded-sm text-[10px] mono ${
                       isSelected
-                        ? "bg-cyan-800/60 text-cyan-200 font-semibold"
-                        : "bg-slate-800 text-slate-400 group-hover:bg-slate-700"
+                        ? "bg-cobalt/20 text-cobalt font-bold"
+                        : "bg-[#FAF9F6] border border-[#E5E5DF] text-muted-foreground group-hover:text-carbon"
                     }`}
                   >
                     {(stat?.rowCount ?? 0).toLocaleString()}
                   </span>
                   {stat?.totalPretty && (
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="text-[10px] text-muted-foreground mono">
                       {stat.totalPretty}
                     </span>
                   )}
@@ -238,47 +238,47 @@ export function DatabaseTableViewer({
       {/* RIGHT: Selected Table Data Viewer */}
       <div className="lg:col-span-3 space-y-4">
         {/* Table Header & Controls Bar */}
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-800/80">
+        <div className="rounded-sm border border-[#E5E5DF] bg-white p-4 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E5E5DF]">
             <div>
               <div className="flex items-center gap-2">
-                <TableIcon className="h-4 w-4 text-cyan-400" />
-                <h3 className="text-base font-semibold text-slate-100">
+                <TableIcon className="h-4 w-4 text-cobalt" />
+                <h3 className="text-base font-semibold text-carbon">
                   {activeTableMeta.displayName}
                 </h3>
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/80">
+                <span className="mono text-xs px-2 py-0.5 rounded-sm bg-[#FAF9F6] text-muted-foreground border border-[#E5E5DF]">
                   {activeTableName}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                 {activeTableMeta.description}
               </p>
 
-              <div className="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2 border-t border-slate-800/60 text-xs font-mono text-slate-400">
-                <div className="flex items-center gap-1.5 text-slate-300">
-                  <HardDrive className="h-3.5 w-3.5 text-cyan-400" />
+              <div className="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2 border-t border-[#E5E5DF] text-xs mono text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-carbon">
+                  <HardDrive className="h-3.5 w-3.5 text-cobalt" />
                   <span>
                     Storage:{" "}
-                    <strong className="text-cyan-300 font-semibold">
+                    <strong className="text-cobalt font-semibold">
                       {activeStat?.totalPretty ?? tableData?.tableSizePretty ?? "—"}
                     </strong>
                   </span>
                 </div>
                 {(activeStat?.tablePretty || activeStat?.indexPretty) && (
                   <>
-                    <span className="text-slate-600">•</span>
+                    <span className="text-neutral-300">•</span>
                     <span>
-                      Data: <strong className="text-slate-300">{activeStat.tablePretty ?? "—"}</strong>
+                      Data: <strong className="text-carbon">{activeStat.tablePretty ?? "—"}</strong>
                     </span>
-                    <span className="text-slate-600">•</span>
+                    <span className="text-neutral-300">•</span>
                     <span>
-                      Index: <strong className="text-slate-300">{activeStat.indexPretty ?? "—"}</strong>
+                      Index: <strong className="text-carbon">{activeStat.indexPretty ?? "—"}</strong>
                     </span>
                   </>
                 )}
-                <span className="text-slate-600">•</span>
+                <span className="text-neutral-300">•</span>
                 <span>
-                  Records: <strong className="text-slate-300">{totalCount.toLocaleString()}</strong>
+                  Records: <strong className="text-carbon">{totalCount.toLocaleString()}</strong>
                 </span>
               </div>
             </div>
@@ -288,9 +288,9 @@ export function DatabaseTableViewer({
                 onClick={onRefresh}
                 disabled={isLoading}
                 title="Refresh Table Data"
-                className="inline-flex items-center gap-1.5 rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] transition-colors disabled:opacity-50 shadow-2xs"
               >
-                <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin text-cyan-400" : ""}`} />
+                <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin text-cobalt" : ""}`} />
                 Refresh
               </button>
             </div>
@@ -299,27 +299,27 @@ export function DatabaseTableViewer({
           {/* Search & Page Size Filter Strip */}
           <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-between">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={`Search ${activeTableMeta.displayName}…`}
-                className="w-full rounded-md border border-slate-800 bg-slate-950 pl-9 pr-3.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:border-cyan-500 focus:outline-none font-mono"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-white pl-9 pr-3.5 py-1.5 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none mono"
               />
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span className="font-mono text-[11px]">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="mono text-[11px]">
                 Showing {rows.length} of {totalCount} records
               </span>
 
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-slate-500">Rows:</span>
+                <span className="text-[11px] text-muted-foreground">Rows:</span>
                 <select
                   value={pageSize}
                   onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                  className="rounded border border-slate-800 bg-slate-950 px-2 py-1 text-xs text-slate-300 focus:border-cyan-500 focus:outline-none"
+                  className="rounded-sm border border-[#E5E5DF] bg-white px-2 py-1 text-xs text-carbon focus:border-cobalt focus:outline-none mono"
                 >
                   <option value={10}>10</option>
                   <option value={25}>25</option>
@@ -332,31 +332,31 @@ export function DatabaseTableViewer({
         </div>
 
         {/* Dynamic Data Table Container */}
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 overflow-hidden">
+        <div className="rounded-sm border border-[#E5E5DF] bg-white overflow-hidden shadow-2xs">
           {error && (
-            <div className="p-4 bg-rose-950/30 border-b border-rose-900/60 text-xs text-rose-300">
+            <div className="p-4 bg-rose-50 border-b border-rose-200 text-xs text-rose-700">
               {error}
             </div>
           )}
 
           <div className="overflow-x-auto max-h-[600px]">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-10 bg-slate-950 border-b border-slate-800">
-                <tr className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-semibold">
-                  <th className="py-2.5 px-3 w-10 text-center text-slate-600">#</th>
+              <thead className="sticky top-0 z-10 bg-[#FAF9F6] border-b border-[#E5E5DF]">
+                <tr className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-semibold mono">
+                  <th className="py-2.5 px-3 w-10 text-center text-muted-foreground">#</th>
                   {columns.map((col) => {
                     const isSorted = sortBy === col;
                     return (
                       <th
                         key={col}
                         onClick={() => onSortChange(col)}
-                        className="py-2.5 px-3 whitespace-nowrap cursor-pointer hover:text-cyan-400 select-none transition-colors"
+                        className="py-2.5 px-3 whitespace-nowrap cursor-pointer hover:text-cobalt select-none transition-colors"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>{col}</span>
                           <ArrowUpDown
                             className={`h-3 w-3 ${
-                              isSorted ? "text-cyan-400" : "text-slate-600 opacity-60"
+                              isSorted ? "text-cobalt" : "text-muted-foreground opacity-60"
                             }`}
                           />
                         </div>
@@ -366,19 +366,19 @@ export function DatabaseTableViewer({
                   <th className="py-2.5 px-3 text-right">Inspect</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
+              <tbody className="divide-y divide-[#E5E5DF] mono">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={columns.length + 2} className="py-16 text-center text-slate-500 font-sans">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-cyan-400 mb-2" />
+                    <td colSpan={columns.length + 2} className="py-16 text-center text-muted-foreground font-sans">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-cobalt mb-2" />
                       Loading records from {activeTableName}…
                     </td>
                   </tr>
                 ) : rows.length === 0 ? (
                   <tr>
-                    <td colSpan={columns.length + 2} className="py-14 text-center text-slate-500 font-sans">
-                      <div className="text-sm font-medium text-slate-400">No records found</div>
-                      <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto">
+                    <td colSpan={columns.length + 2} className="py-14 text-center text-muted-foreground font-sans">
+                      <div className="text-sm font-medium text-carbon">No records found</div>
+                      <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
                         {search
                           ? `No records matching "${search}" in ${activeTableName}.`
                           : `The table '${activeTableName}' currently has zero recorded rows.`}
@@ -389,8 +389,8 @@ export function DatabaseTableViewer({
                   rows.map((row, idx) => {
                     const rowId = String(row.id ?? idx);
                     return (
-                      <tr key={rowId} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="py-2.5 px-3 text-center text-slate-600 text-[10px]">
+                      <tr key={rowId} className="hover:bg-[#FAF9F6]/80 transition-colors">
+                        <td className="py-2.5 px-3 text-center text-muted-foreground text-[10px]">
                           {(page - 1) * pageSize + idx + 1}
                         </td>
                         {columns.map((col) => (
@@ -401,7 +401,7 @@ export function DatabaseTableViewer({
                         <td className="py-2.5 px-3 text-right">
                           <button
                             onClick={() => setSelectedRecordForModal(row)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-800 text-slate-400 hover:text-cyan-400 transition-colors font-sans text-[11px]"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-sm hover:bg-[#FAF9F6] text-muted-foreground hover:text-cobalt transition-colors font-sans text-[11px]"
                             title="Inspect full row"
                           >
                             <Eye className="h-3.5 w-3.5" />
@@ -417,17 +417,17 @@ export function DatabaseTableViewer({
           </div>
 
           {/* Pagination Controls Footer */}
-          <div className="border-t border-slate-800 px-4 py-3 bg-slate-950/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-            <div className="font-mono text-[11px]">
-              Page <span className="text-slate-200 font-semibold">{page}</span> of{" "}
-              <span className="text-slate-200 font-semibold">{totalPages}</span> ({totalCount} total)
+          <div className="border-t border-[#E5E5DF] px-4 py-3 bg-[#FAF9F6] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+            <div className="mono text-[11px]">
+              Page <span className="text-carbon font-semibold">{page}</span> of{" "}
+              <span className="text-carbon font-semibold">{totalPages}</span> ({totalCount} total)
             </div>
 
             <div className="flex items-center gap-1.5">
               <button
                 disabled={page <= 1 || isLoading}
                 onClick={() => onPageChange(page - 1)}
-                className="inline-flex items-center gap-1 rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Previous
@@ -436,7 +436,7 @@ export function DatabaseTableViewer({
               <button
                 disabled={page >= totalPages || isLoading}
                 onClick={() => onPageChange(page + 1)}
-                className="inline-flex items-center gap-1 rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs"
               >
                 Next
                 <ChevronRight className="h-3.5 w-3.5" />
