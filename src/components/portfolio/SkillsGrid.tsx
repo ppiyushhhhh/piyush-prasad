@@ -127,7 +127,7 @@ export function SkillsGrid() {
                 <div>
                   {/* Service Logo Header Badge */}
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] p-1.5 shadow-2xs group-hover:border-cobalt/60 group-hover:bg-white transition-all">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] p-1 shadow-2xs group-hover:border-cobalt/60 group-hover:bg-white transition-all">
                       <TechLogo name={tech.name} className="h-5 w-5" />
                     </div>
                     <span className="mono text-[8px] font-semibold text-muted-foreground/60 uppercase tracking-widest select-none">
