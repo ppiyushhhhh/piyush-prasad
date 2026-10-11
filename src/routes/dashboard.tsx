@@ -93,13 +93,31 @@ function DashboardLayout() {
   if (!session) {
     return (
       <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-carbon">
-        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto inline-flex items-center justify-center h-12 w-12 rounded-sm bg-[#FAF9F6] border border-carbon/15 text-cobalt mb-4 shadow-2xs">
-            <Lock className="h-6 w-6" />
+        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 text-center shadow-sm overflow-hidden">
+          <div className="h-0.5 w-full bg-cobalt -mt-8 -mx-8 mb-8" />
+          <div className="flex h-14 w-14 items-center justify-center border border-carbon/15 bg-white shadow-xs mx-auto mb-4">
+            <img
+              src="/pp-logo.png"
+              alt="Piyush Prasad"
+              className="h-9 w-auto object-contain"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.style.display = "none";
+                if (target.parentElement) {
+                  target.parentElement.innerHTML =
+                    '<span class="mono font-bold text-cobalt text-base">PP</span>';
+                }
+              }}
+            />
           </div>
-          <h2 className="text-lg font-bold text-carbon">Admin Authentication Required</h2>
-          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-            The DevOps monitoring console at <code className="mono text-cobalt font-semibold">/dashboard</code> is restricted to verified administrators.
+          <h2 className="text-base font-bold tracking-tight text-carbon">
+            Piyush Prasad &bull; Operations Console
+          </h2>
+          <p className="mt-1 mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Privileged Administrator Gateway
+          </p>
+          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+            Access to telemetry probes, production pipelines, and database infrastructure is restricted to verified administrators.
           </p>
           <div className="mt-6 flex flex-col gap-2.5">
             <Link

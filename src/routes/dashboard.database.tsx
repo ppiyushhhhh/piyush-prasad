@@ -622,42 +622,35 @@ function DatabaseAdminPage() {
       {/* Header Banner */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-[#E5E5DF] pb-6">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-sm bg-cobalt/10 border border-cobalt/20 text-cobalt">
-              <Database className="h-5 w-5" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center border border-carbon/15 bg-white shadow-2xs shrink-0">
+              <Database className="h-5 w-5 text-cobalt" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
-                Database Administration
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Monitor application data, users and database activity.
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
+                  Database Administration
+                </h1>
+                <span className="mono text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm font-semibold flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {overview?.status === "connected" ? "PostgreSQL 15 Live" : "Connecting…"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 mono">
+                Supabase Engine &bull; AWS ap-south-1 &bull; 7-Day Continuous Rotation
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right Header Status & Refresh Controls */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2 shadow-2xs">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                overview?.status === "connected"
-                  ? "bg-emerald-500 animate-pulse"
-                  : "bg-amber-500"
-              }`}
-            />
-            <span>
-              {overview?.status === "connected" ? "PostgreSQL Connected" : "Connecting…"}
-            </span>
-          </div>
-
+        {/* Right Header Status & Action Controls */}
+        <div className="flex flex-wrap items-center gap-2">
           {/* Database Storage Badge */}
           {overview?.storageUsedPretty && (
             <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-carbon flex items-center gap-2 shadow-2xs">
               <HardDrive className="h-3.5 w-3.5 text-cobalt" />
               <span>
-                Storage: <strong className="text-carbon font-bold">{overview.storageUsedPretty}</strong>
+                <strong className="text-carbon font-bold">{overview.storageUsedPretty}</strong>
                 <span className="text-muted-foreground ml-1">/ {overview.storageQuotaPretty}</span>
               </span>
               <span
@@ -674,14 +667,7 @@ function DatabaseAdminPage() {
             </div>
           )}
 
-          {lastUpdated && (
-            <div className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs mono text-muted-foreground flex items-center gap-1.5 shadow-2xs">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Last updated: {lastUpdated}</span>
-            </div>
-          )}
-
-          {/* Header Action: Take Manual Backup */}
+          {/* Action: Take Manual Backup */}
           <button
             onClick={() => handleTakeManualBackup()}
             disabled={isCreatingBackup || isPruning}
@@ -693,58 +679,58 @@ function DatabaseAdminPage() {
             ) : (
               <Download className="h-3.5 w-3.5" />
             )}
-            <span>Take Manual Backup</span>
+            <span>Backup Snapshot</span>
           </button>
 
           <Link
             to="/dashboard/manual-backups"
             className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors shadow-2xs cursor-pointer"
           >
-            <HardDrive className="h-3.5 w-3.5 text-cobalt" />
-            <span>Manual Backups Page</span>
+            <Archive className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>Vault</span>
           </Link>
 
           <button
             onClick={handleManualRefresh}
             disabled={isOverviewLoading || isTableLoading}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white p-2 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
+            title="Refresh database telemetry"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${
-                isOverviewLoading || isTableLoading ? "animate-spin" : ""
+                isOverviewLoading || isTableLoading ? "animate-spin text-cobalt" : ""
               }`}
             />
-            Refresh
           </button>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#E5E5DF] overflow-x-auto pb-1 text-xs font-medium">
+      <div className="flex items-center gap-1 border-b border-[#E5E5DF] overflow-x-auto text-xs font-medium">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-colors ${
             activeTab === "overview"
-              ? "border-cobalt text-cobalt bg-cobalt/5"
-              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+              ? "border-cobalt text-carbon font-bold"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:border-[#E5E5DF]"
           }`}
         >
-          <Database className="h-4 w-4" />
-          Overview
+          <Database className="h-3.5 w-3.5" />
+          <span>Overview</span>
         </button>
 
         <button
           onClick={() => setActiveTab("tables")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-colors ${
             activeTab === "tables"
-              ? "border-cobalt text-cobalt bg-cobalt/5"
-              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+              ? "border-cobalt text-carbon font-bold"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:border-[#E5E5DF]"
           }`}
         >
-          <Layers className="h-4 w-4" />
-          Tables
+          <Layers className="h-3.5 w-3.5" />
+          <span>Tables</span>
           {overview?.totalTables ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.totalTables}
             </span>
           ) : null}
@@ -752,16 +738,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("users")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-colors ${
             activeTab === "users"
-              ? "border-cobalt text-cobalt bg-cobalt/5"
-              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+              ? "border-cobalt text-carbon font-bold"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:border-[#E5E5DF]"
           }`}
         >
-          <Users className="h-4 w-4" />
-          Users
+          <Users className="h-3.5 w-3.5" />
+          <span>Users &amp; RBAC</span>
           {overview?.totalUsers ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.totalUsers}
             </span>
           ) : null}
@@ -769,14 +755,14 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("backups")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-colors ${
             activeTab === "backups"
-              ? "border-cobalt text-cobalt bg-cobalt/5"
-              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+              ? "border-cobalt text-carbon font-bold"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:border-[#E5E5DF]"
           }`}
         >
-          <Archive className="h-4 w-4" />
-          Backups &amp; Retention
+          <Archive className="h-3.5 w-3.5" />
+          <span>Backups &amp; Retention</span>
           {backups?.length ? (
             <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 mono font-bold">
               {backups.length}
@@ -786,16 +772,16 @@ function DatabaseAdminPage() {
 
         <button
           onClick={() => setActiveTab("activity")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-sm transition-all border-b-2 font-semibold ${
+          className={`flex items-center gap-2 px-4 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-colors ${
             activeTab === "activity"
-              ? "border-cobalt text-cobalt bg-cobalt/5"
-              : "border-transparent text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+              ? "border-cobalt text-carbon font-bold"
+              : "border-transparent text-muted-foreground hover:text-carbon hover:border-[#E5E5DF]"
           }`}
         >
-          <Activity className="h-4 w-4" />
-          Activity
+          <Activity className="h-3.5 w-3.5" />
+          <span>Audit Trail</span>
           {overview?.recentActivityCount ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.recentActivityCount}
             </span>
           ) : null}
