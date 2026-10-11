@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit.server";
 import {
+  getEnv,
   renderAdminNotificationEmail,
   renderVisitorConfirmationEmail,
   sendEmail,
@@ -150,7 +151,7 @@ export const Route = createFileRoute("/api/contact")({
 
         // 5. Automated Email Dispatches (Submission is safely saved)
         const adminEmailRecipient =
-          process.env.CONTACT_NOTIFICATION_EMAIL?.trim() || DEFAULT_ADMIN_EMAIL;
+          getEnv("CONTACT_NOTIFICATION_EMAIL")?.trim() || DEFAULT_ADMIN_EMAIL;
 
         // A. Send Admin Notification Email
         let adminEmailStatus: "sent" | "failed" = "failed";

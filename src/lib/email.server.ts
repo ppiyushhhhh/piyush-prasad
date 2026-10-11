@@ -261,16 +261,33 @@ ${DEFAULT_SITE_URL}
   return { subject, html, text };
 }
 
+export function getEnv(name: string): string | undefined {
+  if (typeof process !== "undefined" && process?.env) {
+    if (process.env[name]) return process.env[name];
+    if (process.env[`VITE_${name}`]) return process.env[`VITE_${name}`];
+  }
+  if (typeof globalThis !== "undefined") {
+    const g = globalThis as Record<string, unknown>;
+    if (typeof g[name] === "string") return g[name] as string;
+    if (g.process && typeof g.process === "object") {
+      const p = g.process as { env?: Record<string, string> };
+      if (p.env?.[name]) return p.env[name];
+      if (p.env?.[`VITE_${name}`]) return p.env[`VITE_${name}`];
+    }
+  }
+  return undefined;
+}
+
 /**
  * Universal server-side email dispatcher.
  * Supports Resend API (HTTP) as primary provider, with SMTP/Nodemailer fallback.
  */
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const fromAddress =
-    options.from || process.env.CONTACT_FROM_EMAIL || `"Piyush Prasad" <${DEFAULT_SUPPORT_EMAIL}>`;
+    options.from || getEnv("CONTACT_FROM_EMAIL") || `"Piyush Prasad" <${DEFAULT_SUPPORT_EMAIL}>`;
 
   // 1. Primary Provider: Resend (via REST API)
-  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const resendApiKey = getEnv("RESEND_API_KEY")?.trim();
   if (resendApiKey) {
     try {
       const response = await fetch("https://api.resend.com/emails", {
@@ -310,10 +327,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   }
 
   // 2. Secondary Provider: SMTP (via Nodemailer)
-  const smtpHost = process.env.SMTP_HOST?.trim();
-  const smtpUser = process.env.SMTP_USER?.trim();
-  const smtpPass = process.env.SMTP_PASS?.trim();
-  const smtpPort = parseInt(process.env.SMTP_PORT || "465", 10);
+  const smtpHost = getEnv("SMTP_HOST")?.trim();
+  const smtpUser = getEnv("SMTP_USER")?.trim();
+  const smtpPass = getEnv("SMTP_PASS")?.trim();
+  const smtpPort = parseInt(getEnv("SMTP_PORT") || "465", 10);
 
   if (smtpHost && smtpUser && smtpPass) {
     try {
