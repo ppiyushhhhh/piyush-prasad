@@ -15,6 +15,7 @@ import {
   Shield,
   Loader2,
   Lock,
+  Mail,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/dashboard")({
 
 const NAV = [
   { to: "/dashboard", label: "Overview", icon: Gauge, exact: true },
+  { to: "/dashboard/messages", label: "Messages", icon: Mail },
   { to: "/dashboard/health", label: "Website Health", icon: Activity },
   { to: "/dashboard/performance", label: "Performance", icon: BarChart3 },
   { to: "/dashboard/github", label: "GitHub", icon: Github },

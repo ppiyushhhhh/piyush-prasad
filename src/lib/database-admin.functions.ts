@@ -296,6 +296,11 @@ export const SUPPORTED_TABLES = [
     displayName: "Manual Database Backups",
     description: "Dedicated ledger of manual database backup snapshots taken on-demand by administrators.",
   },
+  {
+    name: "contact_submissions",
+    displayName: "Contact Submissions",
+    description: "Inbound messages, sender emails, and delivery statuses from portfolio contact forms.",
+  },
 ] as const;
 
 export type SupportedTableName = (typeof SUPPORTED_TABLES)[number]["name"];
@@ -1854,5 +1859,260 @@ export const runAutomationDiagnosticTest = createServerFn({ method: "POST" }).ha
     };
   },
 );
+
+// =============================================================================
+// Contact Inquiries & Email Submissions Management
+// =============================================================================
+
+export interface ContactSubmissionRecord {
+  id: string;
+  name: string;
+  email: string;
+  subject: string | null;
+  message: string;
+  status: "new" | "read" | "archived" | string;
+  created_at: string;
+  admin_email_status: string;
+  visitor_email_status: string;
+  admin_email_sent_at?: string | null;
+  visitor_email_sent_at?: string | null;
+  email_error?: string | null;
+}
+
+export interface ContactSubmissionsResponse {
+  submissions: ContactSubmissionRecord[];
+  totalCount: number;
+  stats: {
+    total: number;
+    newCount: number;
+    readCount: number;
+    archivedCount: number;
+    todayCount: number;
+  };
+  page: number;
+  pageSize: number;
+}
+
+export const getContactSubmissions = createServerFn({ method: "POST" })
+  .validator(
+    (data: {
+      page?: number;
+      pageSize?: number;
+      search?: string;
+      statusFilter?: "all" | "new" | "read" | "archived";
+      sortBy?: string;
+      sortOrder?: "asc" | "desc";
+    }) => data,
+  )
+  .handler(async ({ data }): Promise<ContactSubmissionsResponse> => {
+    const {
+      page = 1,
+      pageSize = 20,
+      search = "",
+      statusFilter = "all",
+      sortBy = "created_at",
+      sortOrder = "desc",
+    } = data;
+
+    const { db } = await verifyAdminCaller();
+
+    try {
+      // 1. Fetch aggregate statistics
+      const { data: allRows, error: statsError } = await db
+        .from("contact_submissions")
+        .select("id, status, created_at");
+
+      let total = 0;
+      let newCount = 0;
+      let readCount = 0;
+      let archivedCount = 0;
+      let todayCount = 0;
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      if (!statsError && Array.isArray(allRows)) {
+        total = allRows.length;
+        allRows.forEach((row: any) => {
+          if (row.status === "new") newCount++;
+          else if (row.status === "read") readCount++;
+          else if (row.status === "archived") archivedCount++;
+
+          if (row.created_at && row.created_at.slice(0, 10) === todayStr) {
+            todayCount++;
+          }
+        });
+      }
+
+      // 2. Query filtered records
+      let query = db
+        .from("contact_submissions")
+        .select("*", { count: "exact" });
+
+      if (statusFilter && statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      if (search && search.trim() !== "") {
+        const q = `%${search.trim()}%`;
+        query = query.or(`name.ilike.${q},email.ilike.${q},subject.ilike.${q},message.ilike.${q}`);
+      }
+
+      // Order & Pagination
+      const validSortCols = ["created_at", "name", "email", "status"];
+      const col = validSortCols.includes(sortBy) ? sortBy : "created_at";
+      query = query.order(col, { ascending: sortOrder === "asc" });
+
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      query = query.range(from, to);
+
+      const { data: records, count, error: fetchError } = await query;
+
+      if (fetchError) {
+        console.warn("[getContactSubmissions] Query error:", fetchError.message);
+        return {
+          submissions: [],
+          totalCount: 0,
+          stats: { total, newCount, readCount, archivedCount, todayCount },
+          page,
+          pageSize,
+        };
+      }
+
+      return {
+        submissions: (records || []) as ContactSubmissionRecord[],
+        totalCount: count ?? (records?.length || 0),
+        stats: { total, newCount, readCount, archivedCount, todayCount },
+        page,
+        pageSize,
+      };
+    } catch (err: any) {
+      console.warn("[getContactSubmissions] Unexpected error:", err.message);
+      return {
+        submissions: [],
+        totalCount: 0,
+        stats: { total: 0, newCount: 0, readCount: 0, archivedCount: 0, todayCount: 0 },
+        page,
+        pageSize,
+      };
+    }
+  });
+
+export const deleteContactSubmission = createServerFn({ method: "POST" })
+  .validator((data: { submissionId: string }) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; deletedId: string }> => {
+    const { submissionId } = data;
+    if (!submissionId) {
+      throw new Error("Missing submission ID to delete.");
+    }
+
+    const { user: currentAdmin, db } = await verifyAdminCaller();
+
+    // Fetch submission details first to log in audit trail
+    const { data: existing } = await db
+      .from("contact_submissions")
+      .select("id, name, email, subject")
+      .eq("id", submissionId)
+      .maybeSingle();
+
+    const { error } = await db
+      .from("contact_submissions")
+      .delete()
+      .eq("id", submissionId);
+
+    if (error) {
+      throw new Error(`Failed to delete contact submission: ${error.message}`);
+    }
+
+    await logAuditEntry({
+      adminUserId: currentAdmin.id,
+      adminEmail: currentAdmin.email,
+      action: "contact_submission_deleted",
+      targetTable: "contact_submissions",
+      targetRecordId: submissionId,
+      details: {
+        note: "Contact submission permanently deleted from PostgreSQL database",
+        senderName: existing?.name,
+        senderEmail: existing?.email,
+        subject: existing?.subject,
+      },
+      db,
+    });
+
+    return {
+      success: true,
+      deletedId: submissionId,
+    };
+  });
+
+export const batchDeleteContactSubmissions = createServerFn({ method: "POST" })
+  .validator((data: { submissionIds: string[] }) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; deletedCount: number }> => {
+    const { submissionIds } = data;
+    if (!submissionIds || submissionIds.length === 0) {
+      throw new Error("No submissions specified for batch deletion.");
+    }
+
+    const { user: currentAdmin, db } = await verifyAdminCaller();
+
+    const { error } = await db
+      .from("contact_submissions")
+      .delete()
+      .in("id", submissionIds);
+
+    if (error) {
+      throw new Error(`Failed to batch delete contact submissions: ${error.message}`);
+    }
+
+    await logAuditEntry({
+      adminUserId: currentAdmin.id,
+      adminEmail: currentAdmin.email,
+      action: "contact_submissions_batch_deleted",
+      targetTable: "contact_submissions",
+      details: {
+        note: `Permanently deleted ${submissionIds.length} contact submissions from database`,
+        deletedCount: submissionIds.length,
+        deletedIds: submissionIds,
+      },
+      db,
+    });
+
+    return {
+      success: true,
+      deletedCount: submissionIds.length,
+    };
+  });
+
+export const updateContactSubmissionStatus = createServerFn({ method: "POST" })
+  .validator((data: { submissionId: string; status: "new" | "read" | "archived" }) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; status: string }> => {
+    const { submissionId, status } = data;
+    const { user: currentAdmin, db } = await verifyAdminCaller();
+
+    const { error } = await db
+      .from("contact_submissions")
+      .update({ status })
+      .eq("id", submissionId);
+
+    if (error) {
+      throw new Error(`Failed to update contact submission status: ${error.message}`);
+    }
+
+    await logAuditEntry({
+      adminUserId: currentAdmin.id,
+      adminEmail: currentAdmin.email,
+      action: "contact_submission_status_updated",
+      targetTable: "contact_submissions",
+      targetRecordId: submissionId,
+      details: { newStatus: status },
+      db,
+    });
+
+    return {
+      success: true,
+      status,
+    };
+  });
+
 
 
