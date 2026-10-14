@@ -142,7 +142,7 @@ function SettingsPage() {
           title="Settings & Customization"
           subtitle="Customize monitoring thresholds, notification endpoints and run system diagnostic actions."
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <StatusTag status="optimal">CONFIG: SYNCHRONIZED</StatusTag>
           <button
             onClick={handleReset}

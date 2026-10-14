@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { MobileDashboardNav } from "@/components/dashboard/MobileDashboardNav";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -218,43 +219,15 @@ function DashboardLayout() {
         </aside>
 
         {/* Main Content Area */}
-        <div className="min-w-0 flex-1 flex flex-col min-h-screen">
-          {/* Mobile Top Navigation */}
-          <div className="flex items-center justify-between border-b border-[#E5E5DF] bg-white px-4 py-3 md:hidden">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center border border-carbon/15 bg-white text-cobalt font-mono text-xs font-bold shadow-2xs">
-                PP
-              </div>
-              <span className="mono text-xs font-bold text-carbon">PP · OPS</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[120px]">
-                {session.user.email}
-              </span>
-              <button
-                onClick={handleSignOut}
-                className="text-muted-foreground hover:text-rose-600"
-                title="Sign out"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 overflow-x-auto border-b border-[#E5E5DF] bg-[#FAF9F6] px-4 py-2.5 md:hidden">
-            {NAV.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                activeOptions={{ exact: to === "/dashboard" }}
-                activeProps={{ className: "text-cobalt font-bold border-b-2 border-cobalt pb-0.5" }}
-                className="whitespace-nowrap mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground hover:text-carbon"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+        <div className="min-w-0 flex-1 flex flex-col min-h-screen overflow-x-hidden">
+          {/* Mobile Top Navigation with Fast Jump Menu */}
+          <MobileDashboardNav
+            currentPath={pathname}
+            userEmail={session.user.email}
+            onSignOut={handleSignOut}
+          />
 
-          <main className="flex-1 px-5 py-8 md:px-10 md:py-10">
+          <main className="flex-1 px-3.5 py-6 sm:px-6 md:px-10 md:py-10 max-w-full overflow-x-hidden">
             <Outlet />
           </main>
         </div>

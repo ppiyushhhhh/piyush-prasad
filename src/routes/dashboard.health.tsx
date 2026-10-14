@@ -205,7 +205,7 @@ function HealthPage() {
           title="Website Health & Diagnostics"
           subtitle="Real-time latency sparklines, endpoint probing, SSL certificate validation, and crawler availability."
         />
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => probeMutation.mutate()}
             disabled={probeMutation.isPending || isFetching}
