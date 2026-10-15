@@ -2,12 +2,13 @@
 
 A high-performance, dark-themed engineering portfolio and private observability console for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from IT Service Management. Built around a "blueprint grid" motif that reflects modern infrastructure and DevSecOps engineering principles: minimal, data-dense, accessible, and fast.
 
-**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard) &nbsp;•&nbsp; **Database Admin:** [/dashboard/database](https://www.piyushprasad.in/dashboard/database)
+**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard) &nbsp;•&nbsp; **Rate Limiting:** [/dashboard/rate-limiting](https://www.piyushprasad.in/dashboard/rate-limiting) &nbsp;•&nbsp; **Database Admin:** [/dashboard/database](https://www.piyushprasad.in/dashboard/database)
 
 [![Live Site](https://img.shields.io/badge/Live_Site-piyushprasad.in-06b6d4?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
 [![TanStack Start](https://img.shields.io/badge/TanStack_Start-SSR_&_Server_Functions-FF4154?style=flat-square&logo=reactquery&logoColor=white)](https://tanstack.com/start)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_Cloud-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![Rate Limiting](https://img.shields.io/badge/Rate_Limiter-Distributed_Multi--Tier-0047AB?style=flat-square&logo=shield&logoColor=white)](https://www.piyushprasad.in/dashboard/rate-limiting)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.2-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Recharts](https://img.shields.io/badge/Recharts-Interactive_Telemetry-22c55e?style=flat-square&logo=chartdotjs&logoColor=white)](https://recharts.org)
 [![Google Gemini](https://img.shields.io/badge/Gemini_AI-API_Proxy-8E75FF?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev)
@@ -24,11 +25,13 @@ A high-performance, dark-themed engineering portfolio and private observability 
   - [1. Public Engineering Portfolio](#1-public-engineering-portfolio)
   - [2. "Ask Piyush AI" — Gemini Assistant](#2-ask-piyush-ai--gemini-assistant)
   - [3. Private CloudOps & Monitoring Dashboard](#3-private-cloudops--monitoring-dashboard)
-  - [4. Database Administration & Storage Engine](#4-database-administration--storage-engine)
-  - [5. Automated 7-Day Retention & Backup Archive](#5-automated-7-day-retention--backup-archive)
+  - [4. Distributed Rate Limiting & Abuse Defense Engine](#4-distributed-rate-limiting--abuse-defense-engine)
+  - [5. Database Administration & Storage Engine](#5-database-administration--storage-engine)
+  - [6. Automated 7-Day Retention & Backup Archive](#6-automated-7-day-retention--backup-archive)
 - [Tech Stack](#tech-stack)
 - [Project Directory Structure](#project-directory-structure)
 - [Telemetry & Database Schema](#telemetry--database-schema)
+- [Rate Limiting Architecture & Tiers](#rate-limiting-architecture--tiers)
 - [Automated Retention & Backup Policy](#automated-retention--backup-policy)
 - [Environment Variables](#environment-variables)
 - [Getting Started Locally](#getting-started-locally)
@@ -137,7 +140,33 @@ Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated 
   - Webhook & email notification preferences.
   - Polling interval controls and manual telemetry cache purge.
 
-### 4. Database Administration & Storage Engine
+### 4. Distributed Rate Limiting & Abuse Defense Engine
+Located at [`/dashboard/rate-limiting`](https://www.piyushprasad.in/dashboard/rate-limiting) (privileged administrator console):
+
+- **Top-Level Server Middleware (`src/server.ts`):**
+  - All non-static incoming requests are intercepted at the server entrypoint before executing expensive page renders or backend computations.
+  - Excess traffic instantly receives an RFC-compliant HTTP `429 Too Many Requests` response with standard rate-limiting headers: `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
+  - Static bundles (`/_build/*`, `/assets/*`, `.ico`, `.css`, `.js`, `/robots.txt`, `/sitemap.xml`) automatically bypass evaluation to protect user experience.
+- **Multi-Tier Distributed Atomic Storage:**
+  - *Tier 1 — Upstash / Redis Cluster (Atomic REST):* Executes high-throughput sliding window pipelines via `INCR` + `EXPIRE` when Redis credentials are provided.
+  - *Tier 2 — Supabase PostgreSQL Atomic Stored Procedure (`public.consume_rate_limit`):* Uses PostgreSQL row-level locks within an atomic transaction. This guarantees distributed rate-limiting accuracy across multi-process, serverless, and horizontally scaled deployments with zero additional dependencies.
+  - *Tier 3 — In-Memory Fail-Safe Fallback:* Automatically activates if external networks or databases encounter transient downtime, ensuring legitimate traffic is never dropped with 500 errors.
+- **Anti-Evasion Identity Binding:**
+  - Extracts client IP safely using Cloudflare `cf-connecting-ip`, `x-real-ip`, and leftmost `x-forwarded-for` to resist header spoofing.
+  - Automatically identifies authenticated Supabase sessions and binds them to `user:<userId>`. This prevents attackers from bypassing rate limits by cycling IP addresses or rotating proxies.
+- **Configurable Endpoint Tiers:**
+  - `auth` (Login, credential updates & session checks): Default **10 req / 60s**.
+  - `sensitive` (AI chat inference `/api/chat`, contact mailer `/api/contact`, backup exports): Default **15 req / 60s**.
+  - `api` (General REST APIs `/api/*`, server RPCs `/_server`): Default **60 req / 60s**.
+  - `global` (Global master fallback across all dynamic routes): Default **120 req / 60s**.
+- **Operations Console Telemetry & Administration:**
+  - Primary `TelemetryMatrix` displaying System Status (`ACTIVE` / `BYPASS`), Total Inspected Traffic, Blocked Violations, and 24h Violations.
+  - Interactive Recharts visual curve displaying allowed traffic vs. blocked rate-limit violations over time.
+  - Rate Limit Configuration Matrix with an admin modal to adjust request caps, time windows, and tier statuses with live throughput calculations (req/min).
+  - Recent Rate Limit Violations Audit Log displaying real-time streams of blocked requests (timestamp, HTTP method, endpoint, status code 429, masked client IP/user ID, rule triggered, and user agent).
+  - Master kill switch to toggle global enforcement and a danger modal to reset active counters and clear historical audit logs.
+
+### 5. Database Administration & Storage Engine
 Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/database) (restricted strictly to authenticated Administrators):
 
 - **Live PostgreSQL Engine Telemetry:**
@@ -158,7 +187,7 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 - **Immutable Admin Audit Log:**
   - Logs every administrative action (user creation, role modifications, password resets, retention purges, manual backups) with caller email, timestamp, IP address, and metadata.
 
-### 5. Supabase-Based Database Backup System & 7-Day Retention
+### 6. Supabase-Based Database Backup System & 7-Day Retention
 - **Automated Daily Backups:**
   - Automated database backup runs once every 24 hours at `02:00 UTC` via GitHub Actions (`.github/workflows/database-backup.yml`) and background API endpoint (`/api/public/database-backup`).
   - Serializes all application tables into genuine PostgreSQL `.sql` dump archives (`database-backup-YYYY-MM-DD.sql`).
@@ -190,6 +219,7 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 | **Styling & UI** | Tailwind CSS v4, Radix UI Primitives, Lucide React, Framer Motion |
 | **Interactive Telemetry** | Recharts (ResponsiveContainer, AreaChart, BarChart, Custom Tooltips) |
 | **Cloud Database** | Supabase PostgreSQL (AWS Mumbai `ap-south-1`) via `@supabase/supabase-js` |
+| **Rate Limiter & WAF** | Upstash Redis REST, PostgreSQL Row-Level Locks, Multi-Tier Sliding Windows |
 | **Server-Side Runtimes** | TanStack Start Server Functions, Vercel Serverless Functions, Node.js `tls` |
 | **AI / Machine Learning** | Google Gemini API (`gemini-2.5-flash` / `gemini-3.6-flash`) |
 | **Forms & Ingestion** | React Hook Form, Zod Schema Validation, Web3Forms |
@@ -223,6 +253,7 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 │   │   ├── dashboard/                  # Observability UI components
 │   │   │   ├── database/               # Database Admin Console components
 │   │   │   │   ├── ActivityLog.tsx     # Admin audit log viewer
+│   │   │   └── ratelimiting/           # Rate limiting UI modules (charts, tables, modals)
 │   │   │   │   ├── DatabaseBackups.tsx # Backups & 7-day retention management view
 │   │   │   │   ├── DatabaseOverview.tsx# Storage metrics, quota gauge, and table cards
 │   │   │   │   ├── DatabaseTableViewer.tsx # Table browser with pagination and export
@@ -245,7 +276,9 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 │   │   ├── gemini.server.ts            # Server-only Gemini API client with backoff
 │   │   ├── monitoring.functions.ts     # Server functions for health, latency, CI/CD, SSL
 │   │   ├── portfolio-knowledge.server.ts # System prompt & validated knowledge base
-│   │   ├── rate-limit.server.ts        # In-memory IP rate limiter for /api/chat
+│   │   ├── rate-limiter.server.ts      # Multi-tier distributed atomic rate limiting engine
+│   │   ├── rate-limiting-admin.functions.ts # Admin server functions for rate limit telemetry & rules
+│   │   ├── rate-limit.server.ts        # Backward-compatibility rate limiter adapter
 │   │   ├── site.ts                     # Single source of truth for site metadata
 │   │   └── utils.ts                    # Classname and styling helpers
 │   ├── routes/
@@ -258,6 +291,7 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 │   │   ├── dashboard.index.tsx         # Overview: latency charts & infrastructure matrix
 │   │   ├── dashboard.health.tsx        # Health: latency sparklines, endpoint matrix, SSL
 │   │   ├── dashboard.performance.tsx   # Live Performance: Core Web Vitals & Lighthouse
+│   │   ├── dashboard.rate-limiting.tsx # Rate Limiting & Abuse Defense Console
 │   │   ├── dashboard.database.tsx      # Database Administration, Backups & User Management
 │   │   ├── dashboard.cicd.tsx          # CI/CD: live GitHub Actions pipeline feed
 │   │   ├── dashboard.ai-chat.tsx       # AI Telemetry & interactive diagnostic bench
@@ -270,7 +304,8 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 ├── supabase/
 │   ├── config.toml                     # Supabase local/cloud project configuration
 │   ├── migrations/                     # Versioned SQL migrations
-│   │   └── 20261005020000_database_backups_and_retention.sql # Retention proc & backup table
+│   │   ├── 20261005020000_database_backups_and_retention.sql # Retention proc & backup table
+│   │   └── 20261015180000_create_rate_limiting_system.sql # Rate limit configs, events & atomic buckets
 │   └── schema.sql                      # DDL schema for monitoring & telemetry tables
 ├── package.json                        # Dependencies, scripts, and engine specs
 ├── vite.config.ts                      # Vite build, TanStack router plugin & aliases
@@ -294,8 +329,65 @@ The observability console persists metrics to a hosted **Supabase PostgreSQL** i
 | `admin_audit_log` | Security audit trail of admin actions | `id`, `action`, `admin_email`, `target_user_id`, `target_table`, `details`, `ip_address`, `created_at` | Pruned > 7 days (logged events retained) |
 | `auth.users` | Supabase Auth user accounts | `id`, `email`, `encrypted_password`, `email_confirmed_at`, `created_at` | **NEVER PURGED (Strictly Protected)** |
 | `user_roles` | Dashboard authorization & RBAC | `id`, `user_id`, `role` (`admin` / `user`), `created_at` | **NEVER PURGED (Strictly Protected)** |
+| `rate_limit_configs` | Configurable endpoint tiers & quotas | `id` (`auth`/`sensitive`/`api`/`global`), `name`, `endpoint_pattern`, `max_requests`, `window_seconds`, `enabled` | Static / Admin Managed |
+| `rate_limit_events` | Logged violations (HTTP 429) & audit | `id`, `client_identifier`, `endpoint`, `http_method`, `status_code`, `action_taken`, `rule_name`, `request_count`, `user_agent` | Auto-pruned / Reset on demand |
+| `rate_limit_buckets` | Distributed atomic sliding window state | `bucket_key`, `request_count`, `window_start`, `expires_at`, `updated_at` | Rolling per window / Auto-reset |
 
 ---
+
+## Rate Limiting Architecture & Tiers
+
+The application enforces server-side rate limiting to protect APIs from brute-force attempts, denial-of-service, and resource exhaustion.
+
+### 1. Multi-Tier Distributed Storage Engine
+
+```
+   Incoming HTTP Request
+            │
+            ▼
+┌───────────────────────┐   Configured?   ┌───────────────────────────────┐
+│ Tier 1: Upstash Redis ├────────────────►│ Atomic INCR + EXPIRE Pipeline │
+└───────────┬───────────┘                 └───────────────┬───────────────┘
+            │ (Not Configured / Unreachable)              │
+            ▼                                             │
+┌───────────────────────┐   Connected?    ┌───────────────▼───────────────┐
+│ Tier 2: PostgreSQL    ├────────────────►│ public.consume_rate_limit()   │
+│         Stored Proc   │                 │ (Row-Level Locks in Atomic Tx)│
+└───────────┬───────────┘                 └───────────────┬───────────────┘
+            │ (DB Transient Outage)                       │
+            ▼                                             │
+┌───────────────────────┐                 ┌───────────────▼───────────────┐
+│ Tier 3: In-Memory     ├────────────────►│ Bounded Sliding Window Bucket │
+│         Fail-Safe     │                 └───────────────┬───────────────┘
+└───────────────────────┘                                 │
+            │                                             │
+            └──────────────────────┬──────────────────────┘
+                                   │
+                     ┌─────────────┴─────────────┐
+                     │                           │
+          [Count <= Max Limit]          [Count > Max Limit]
+                     │                           │
+                     ▼                           ▼
+            HTTP 200 / Handler          HTTP 429 Too Many Requests
+         • X-RateLimit-Limit            • Retry-After: <seconds>
+         • X-RateLimit-Remaining        • X-RateLimit-Remaining: 0
+         • X-RateLimit-Reset            • Async event write to DB
+```
+
+### 2. Configurable Endpoint Categories
+
+| Tier ID | Rule Name | Target Endpoints | Default Limit | Window | Effective Throughput |
+|---|---|---|---|---|---|
+| `auth` | Authentication | `/dashboard/login`, `/api/auth/*` | **10 req** | 60s (1 min) | 10 req / min |
+| `sensitive` | Sensitive Operations | `/api/contact`, `/api/chat` | **15 req** | 60s (1 min) | 15 req / min |
+| `api` | General REST APIs | `/api/*`, `/_server` RPCs | **60 req** | 60s (1 min) | 60 req / min |
+| `global` | Global Master Limit | All dynamic application routes (`*`) | **120 req** | 60s (1 min) | 120 req / min |
+
+### 3. Client Identity & Anti-Evasion Protection
+
+- **Reverse-Proxy Safe Resolution:** Evaluates Cloudflare `cf-connecting-ip`, `x-real-ip`, and leftmost client IP in `x-forwarded-for` to prevent spoofing.
+- **Authenticated User Binding:** Authenticated callers are identified by their verified user ID (`user:<userId>`). Rotating IP addresses or using proxy pools does not bypass rate limits for logged-in sessions.
+- **Fail-Open Safety:** In the event of network isolation or database failure, the system falls back to in-memory sliding buckets without throwing 500 errors to end users.
 
 ## Automated Retention & Backup Policy
 
@@ -332,6 +424,8 @@ To prevent unbounded database storage growth while guaranteeing zero loss of use
 | `SUPABASE_PUBLISHABLE_KEY` | Client & Server | Config | Supabase public anonymous key |
 | `VITE_SUPABASE_URL` | Client Only | Config | Public Supabase project URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Client Only | Config | Public Supabase anonymous key |
+| `UPSTASH_REDIS_REST_URL` | Server Only | Optional | Upstash Redis REST URL for Tier 1 high-throughput rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Server Only | Optional | Upstash Redis REST bearer token |
 
 > **Security Rule:** Never prefix backend secrets (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) with `VITE_`. Any variable starting with `VITE_` is baked into the browser bundle at compile time.
 
@@ -384,6 +478,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `npm run typecheck` | Validates TypeScript types across the codebase (`tsc --noEmit`) |
 | `npm run lint` | Runs ESLint 9 checks |
 | `npm run format` | Formats all code with Prettier |
+| `npx tsx scripts/test-rate-limiting.ts` | Runs 26-test automated verification suite for rate limiting & fail-safe fallback |
 
 ---
 
@@ -394,6 +489,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - **TLS 1.3 Strict Transport Security:** Enforces HTTPS with automated Let's Encrypt certificate renewals, valid through **December 2026**.
 - **Edge CDN Security:** Served via Cloudflare and Vercel edge networks with DDoS mitigation and HTTP/3 support.
 - **Privacy First:** The AI chat assistant stores strictly quantitative performance telemetry (response latency and token counts); raw user inquiries and message content are never persisted.
+- **Multi-Tier WAF Rate Limiting:** Server-side throttling protects auth and sensitive routes from credential stuffing, brute-force login attacks, and automated API abuse.
+- **Admin-Only RBAC Enforced:** Rate limit configuration and database tables enforce Row Level Security (`public.has_role(auth.uid(), 'admin')`).
 - **Safe Retention Engine:** Telemetry older than 7 days is automatically backed up to JSON before removal; user accounts and roles are strictly protected.
 
 ---
