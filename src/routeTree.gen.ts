@@ -26,6 +26,7 @@ import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardManualBackupsRouteImport } from './routes/dashboard.manual-backups'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
+import { Route as DashboardRateLimitingRouteImport } from './routes/dashboard.rate-limiting'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
@@ -118,6 +119,11 @@ const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
   path: '/performance',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardRateLimitingRoute = DashboardRateLimitingRouteImport.update({
+  id: '/rate-limiting',
+  path: '/rate-limiting',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardReportsRoute = DashboardReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
@@ -436,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPerformanceRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/rate-limiting': {
+      id: '/dashboard/rate-limiting'
+      path: '/rate-limiting'
+      fullPath: '/dashboard/rate-limiting'
+      preLoaderRoute: typeof DashboardRateLimitingRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/reports': {
       id: '/dashboard/reports'
       path: '/reports'
@@ -491,6 +510,7 @@ interface DashboardRouteChildren {
   DashboardManualBackupsRoute: typeof DashboardManualBackupsRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
+  DashboardRateLimitingRoute: typeof DashboardRateLimitingRoute
   DashboardReportsRoute: typeof DashboardReportsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -506,6 +526,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardManualBackupsRoute: DashboardManualBackupsRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
+  DashboardRateLimitingRoute: DashboardRateLimitingRoute,
   DashboardReportsRoute: DashboardReportsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,

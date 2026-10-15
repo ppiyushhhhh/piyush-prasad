@@ -13,6 +13,7 @@ import {
   HardDrive,
   LogOut,
   Shield,
+  ShieldAlert,
   Mail,
   Menu,
   X,
@@ -121,6 +122,15 @@ export const DASHBOARD_NAV_MODULES: NavModule[] = [
     description: "On-demand database snapshot archives, JSON table exports & backup recovery",
     badge: "Storage",
     keywords: ["backup", "snapshots", "dumps", "restore", "export", "archive", "storage"],
+  },
+  {
+    to: "/dashboard/rate-limiting",
+    label: "Rate Limiting",
+    icon: ShieldAlert,
+    category: "System",
+    description: "Distributed request throttling, endpoint rate limit rules & abuse monitoring",
+    badge: "Security",
+    keywords: ["rate", "limit", "throttle", "ddos", "security", "waf", "ip", "abuse", "429"],
   },
   {
     to: "/dashboard/settings",
@@ -278,7 +288,7 @@ export function MobileDashboardNav({
                 Jump
               </span>
               <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white/25 px-1 text-[9px] font-bold text-white">
-                11
+                {DASHBOARD_NAV_MODULES.length}
               </span>
             </button>
 
@@ -328,7 +338,7 @@ export function MobileDashboardNav({
             className="mono flex items-center gap-1 whitespace-nowrap rounded-sm border border-cobalt/30 bg-cobalt/5 px-2.5 py-1 text-[11px] font-bold text-cobalt hover:bg-cobalt/10 active:scale-95 transition-all shrink-0"
           >
             <SlidersHorizontal className="h-3 w-3" />
-            <span>ALL (11) ▾</span>
+            <span>ALL ({DASHBOARD_NAV_MODULES.length}) ▾</span>
           </button>
 
           {/* Individual Route Pills */}
@@ -379,7 +389,7 @@ export function MobileDashboardNav({
                     Jump to Console Module
                   </h2>
                   <p className="mono text-[9px] uppercase tracking-widest text-muted-foreground">
-                    11 Services Available
+                    {DASHBOARD_NAV_MODULES.length} Services Available
                   </p>
                 </div>
               </div>
@@ -601,7 +611,7 @@ export function MobileDashboardNav({
             Jump to Page
           </span>
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white text-cobalt text-[9px] font-bold">
-            11
+            {DASHBOARD_NAV_MODULES.length}
           </span>
         </button>
       )}

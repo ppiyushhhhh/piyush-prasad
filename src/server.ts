@@ -44,6 +44,13 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+import {
+  evaluateRateLimit,
+  createRateLimitResponse,
+  appendRateLimitHeaders,
+  isStaticAssetRequest,
+} from "./lib/rate-limiter.server";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
@@ -60,9 +67,33 @@ export default {
         }
       }
 
+      const url = new URL(request.url);
+      const isStatic = isStaticAssetRequest(url.pathname);
+
+      // Evaluate server-side rate limits on non-static requests
+      let rateLimitResult = null;
+      if (!isStatic) {
+        try {
+          rateLimitResult = await evaluateRateLimit(request);
+          if (!rateLimitResult.allowed) {
+            return createRateLimitResponse(rateLimitResult);
+          }
+        } catch (rlError) {
+          // Resilient fail-open: do not crash application if rate limiter encounters an unexpected internal error
+          console.error("[RateLimiter Middleware Error]:", rlError);
+        }
+      }
+
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const rawResponse = await handler.fetch(request, env, ctx);
+      const response = await normalizeCatastrophicSsrResponse(rawResponse);
+
+      // Append rate limit headers if evaluated
+      if (rateLimitResult && response.status < 500) {
+        return appendRateLimitHeaders(response, rateLimitResult);
+      }
+
+      return response;
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
@@ -72,3 +103,4 @@ export default {
     }
   },
 };
+

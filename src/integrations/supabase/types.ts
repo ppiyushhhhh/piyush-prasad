@@ -410,11 +410,134 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_configs: {
+        Row: {
+          created_at: string
+          description: string
+          endpoint_pattern: string
+          enabled: boolean
+          id: string
+          max_requests: number
+          name: string
+          updated_at: string
+          window_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          endpoint_pattern: string
+          enabled?: boolean
+          id: string
+          max_requests?: number
+          name: string
+          updated_at?: string
+          window_seconds?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          endpoint_pattern?: string
+          enabled?: boolean
+          id?: string
+          max_requests?: number
+          name?: string
+          updated_at?: string
+          window_seconds?: number
+        }
+        Relationships: []
+      }
+      rate_limit_events: {
+        Row: {
+          action_taken: string
+          client_identifier: string
+          created_at: string
+          endpoint: string
+          http_method: string
+          id: string
+          limit_max: number
+          request_count: number
+          rule_name: string
+          status_code: number
+          user_agent: string | null
+          window_seconds: number
+        }
+        Insert: {
+          action_taken?: string
+          client_identifier: string
+          created_at?: string
+          endpoint: string
+          http_method?: string
+          id?: string
+          limit_max?: number
+          request_count?: number
+          rule_name?: string
+          status_code?: number
+          user_agent?: string | null
+          window_seconds?: number
+        }
+        Update: {
+          action_taken?: string
+          client_identifier?: string
+          created_at?: string
+          endpoint?: string
+          http_method?: string
+          id?: string
+          limit_max?: number
+          request_count?: number
+          rule_name?: string
+          status_code?: number
+          user_agent?: string | null
+          window_seconds?: number
+        }
+        Relationships: []
+      }
+      rate_limit_buckets: {
+        Row: {
+          bucket_key: string
+          expires_at: string
+          request_count: number
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          expires_at: string
+          request_count?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          bucket_key?: string
+          expires_at?: string
+          request_count?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      consume_rate_limit: {
+        Args: {
+          p_key: string
+          p_max_requests: number
+          p_window_seconds: number
+        }
+        Returns: {
+          allowed: boolean
+          current_count: number
+          limit_max: number
+          reset_at: string
+          retry_after_seconds: number
+        }[]
+      }
+      reset_rate_limit_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: void
+      }
       get_db_storage_usage: {
         Args: Record<PropertyKey, never>
         Returns: Json

@@ -13,6 +13,7 @@ import {
   HardDrive,
   LogOut,
   Shield,
+  ShieldAlert,
   Loader2,
   Lock,
   Mail,
@@ -52,6 +53,7 @@ const NAV = [
   { to: "/dashboard/reports", label: "Reports", icon: FileText },
   { to: "/dashboard/database", label: "Database", icon: Database },
   { to: "/dashboard/manual-backups", label: "Manual Backups", icon: HardDrive },
+  { to: "/dashboard/rate-limiting", label: "Rate Limiting", icon: ShieldAlert },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 
