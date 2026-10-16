@@ -98,7 +98,7 @@ ${submission.message}
 If you have any questions, please reply directly to this email.
 
 Sincerely,
-The Google Workspace Team
+Piyush Prasad Portfolio System
 `;
 
   const html = `<!DOCTYPE html>
@@ -113,20 +113,22 @@ The Google Workspace Team
     <tr>
       <td align="center">
         
-        <!-- Top Google Workspace Header Logo -->
+        <!-- Top Portfolio Brand Header Logo -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
           <tr>
             <td valign="middle" align="center">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td valign="middle">
-                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="74" height="24" alt="Google" style="display: block; border: 0;" />
-                  </td>
-                  <td valign="middle" style="padding-left: 6px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 400; color: #5F6368; line-height: 24px; letter-spacing: -0.2px;">
-                    Workspace
-                  </td>
-                </tr>
-              </table>
+              <a href="${DEFAULT_SITE_URL}" style="text-decoration: none; display: inline-block;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td valign="middle">
+                      <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="38" height="38" alt="Piyush Prasad Logo" style="display: block; border: 0; border-radius: 6px;" />
+                    </td>
+                    <td valign="middle" style="padding-left: 10px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 600; color: #202124; line-height: 24px; letter-spacing: -0.2px;">
+                      Piyush Prasad
+                    </td>
+                  </tr>
+                </table>
+              </a>
             </td>
           </tr>
         </table>
@@ -216,7 +218,8 @@ The Google Workspace Team
               <!-- Sincerely Sign-off -->
               <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
                 Sincerely,<br>
-                <strong style="color: #202124; font-weight: 500;">The Google Workspace Team</strong>
+                <strong style="color: #202124; font-weight: 500;">Piyush Prasad</strong><br>
+                <span style="color: #5F6368; font-size: 13px;">Portfolio Contact System &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a></span>
               </div>
 
             </td>
@@ -228,26 +231,26 @@ The Google Workspace Team
           <tr>
             <td align="center">
               
-              <!-- Bottom Google Workspace Logo -->
+              <!-- Bottom Portfolio Logo -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
                 <tr>
                   <td valign="middle">
-                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="60" height="19" alt="Google" style="display: block; border: 0;" />
+                    <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="22" height="22" alt="PP" style="display: block; border: 0; border-radius: 4px;" />
                   </td>
-                  <td valign="middle" style="padding-left: 5px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 400; color: #5F6368; line-height: 19px;">
-                    Workspace
+                  <td valign="middle" style="padding-left: 8px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: 600; color: #5F6368; line-height: 22px;">
+                    Piyush Prasad
                   </td>
                 </tr>
               </table>
 
               <!-- Copyright Line -->
               <div style="font-size: 11px; line-height: 1.5; color: #5F6368; margin-bottom: 6px;">
-                &copy; 2026 Google LLC &bull; Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
+                &copy; 2026 Piyush Prasad &bull; Cloud &amp; DevOps Engineering &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
               </div>
 
               <!-- Mandatory Announcement Line -->
               <div style="font-size: 11px; line-height: 1.5; color: #5F6368; max-width: 480px; margin: 0 auto;">
-                You're receiving this mandatory email service announcement to update you about new incoming contact messages from your Google Workspace product or portfolio account.
+                You're receiving this notification to update you about new incoming contact messages from your portfolio website.
               </div>
 
             </td>
@@ -266,7 +269,7 @@ The Google Workspace Team
 /**
  * Generates Visitor Acknowledgment Confirmation Email
  * (sent to the visitor from support@piyushprasad.in)
- * Formatted in the iconic Google Workspace transactional notification layout.
+ * Formatted in the iconic Google Workspace transactional notification layout with portfolio branding.
  */
 export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
   subject: string;
@@ -295,7 +298,8 @@ Date: ${formattedDate}
 If you have any questions, please contact our support team.
 
 Sincerely,
-The Google Workspace Team
+Piyush Prasad
+Support Team
 `;
 
   const html = `<!DOCTYPE html>
@@ -310,20 +314,22 @@ The Google Workspace Team
     <tr>
       <td align="center">
         
-        <!-- Top Google Workspace Header Logo -->
+        <!-- Top Portfolio Brand Header Logo -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
           <tr>
             <td valign="middle" align="center">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td valign="middle">
-                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="74" height="24" alt="Google" style="display: block; border: 0;" />
-                  </td>
-                  <td valign="middle" style="padding-left: 6px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 400; color: #5F6368; line-height: 24px; letter-spacing: -0.2px;">
-                    Workspace
-                  </td>
-                </tr>
-              </table>
+              <a href="${DEFAULT_SITE_URL}" style="text-decoration: none; display: inline-block;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td valign="middle">
+                      <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="38" height="38" alt="Piyush Prasad Logo" style="display: block; border: 0; border-radius: 6px;" />
+                    </td>
+                    <td valign="middle" style="padding-left: 10px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 600; color: #202124; line-height: 24px; letter-spacing: -0.2px;">
+                      Piyush Prasad
+                    </td>
+                  </tr>
+                </table>
+              </a>
             </td>
           </tr>
         </table>
@@ -394,7 +400,8 @@ The Google Workspace Team
               <!-- Sincerely Sign-off -->
               <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
                 Sincerely,<br>
-                <strong style="color: #202124; font-weight: 500;">The Google Workspace Team</strong>
+                <strong style="color: #202124; font-weight: 500;">Piyush Prasad</strong><br>
+                <span style="color: #5F6368; font-size: 13px;">Cloud &amp; DevOps Engineering &bull; <a href="mailto:${DEFAULT_SUPPORT_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_SUPPORT_EMAIL}</a></span>
               </div>
 
             </td>
@@ -406,26 +413,26 @@ The Google Workspace Team
           <tr>
             <td align="center">
               
-              <!-- Bottom Google Workspace Logo -->
+              <!-- Bottom Portfolio Logo -->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
                 <tr>
                   <td valign="middle">
-                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="60" height="19" alt="Google" style="display: block; border: 0;" />
+                    <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="22" height="22" alt="PP" style="display: block; border: 0; border-radius: 4px;" />
                   </td>
-                  <td valign="middle" style="padding-left: 5px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 400; color: #5F6368; line-height: 19px;">
-                    Workspace
+                  <td valign="middle" style="padding-left: 8px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: 600; color: #5F6368; line-height: 22px;">
+                    Piyush Prasad
                   </td>
                 </tr>
               </table>
 
               <!-- Copyright Line -->
               <div style="font-size: 11px; line-height: 1.5; color: #5F6368; margin-bottom: 6px;">
-                &copy; 2026 Google LLC &bull; Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
+                &copy; 2026 Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
               </div>
 
               <!-- Mandatory Announcement Line -->
               <div style="font-size: 11px; line-height: 1.5; color: #5F6368; max-width: 480px; margin: 0 auto;">
-                You're receiving this mandatory email service announcement to update you about important changes to your Google Workspace product or account.
+                You're receiving this notification because you submitted a contact inquiry on piyushprasad.in.
               </div>
 
             </td>
