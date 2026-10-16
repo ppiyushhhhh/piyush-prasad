@@ -61,6 +61,7 @@ function getInitials(name: string): string {
 
 /**
  * Generates Admin Notification Email (sent to support@piyushprasad.in)
+ * Formatted exactly in the iconic Google Workspace transactional notification layout.
  */
 export function renderAdminNotificationEmail(submission: ContactSubmission): {
   subject: string;
@@ -72,23 +73,32 @@ export function renderAdminNotificationEmail(submission: ContactSubmission): {
   const safeSubject = escapeHtml(submission.subject?.trim() || "Portfolio Contact Inquiry");
   const safeMessage = escapeHtml(submission.message).replace(/\n/g, "<br/>");
   const formattedDate = formatSubmissionDate(submission.created_at);
-  const initials = escapeHtml(getInitials(submission.name));
 
   const subject = `New Portfolio Contact: ${submission.name.trim()}`;
 
-  const text = `New Portfolio Message from ${submission.name.trim()}
+  const text = `New Contact Form Submission
 ===================================================
-Sender: ${submission.name.trim()} <${submission.email.trim()}>
+
+Hello Piyush,
+
+You have received a new contact message submitted via your portfolio website (piyushprasad.in).
+
+Account information
+-------------------
+Customer: ${submission.name.trim()}
+Customer ID: ${submission.id}
+Email: ${submission.email.trim()}
 Subject: ${submission.subject?.trim() || "Portfolio Contact Inquiry"}
 Date: ${formattedDate}
-Reference ID: ${submission.id}
-Source: piyushprasad.in
 
 Message:
 --------
 ${submission.message}
 
-Reply directly to: ${submission.email.trim()}
+If you have any questions, please reply directly to this email.
+
+Sincerely,
+The Google Workspace Team
 `;
 
   const html = `<!DOCTYPE html>
@@ -98,124 +108,148 @@ Reply directly to: ${submission.email.trim()}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(subject)}</title>
 </head>
-<body style="margin: 0; padding: 32px 16px; background-color: #F4F4F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #18181B; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 40px 16px; background-color: #F8F9FA; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; color: #202124; -webkit-font-smoothing: antialiased;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td align="center">
-        <!-- Main Card -->
-        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);" cellpadding="0" cellspacing="0" border="0">
-          
-          <!-- Top Header Bar -->
+        
+        <!-- Top Google Workspace Header Logo -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
           <tr>
-            <td style="padding: 20px 28px; border-bottom: 1px solid #F4F4F5; background: #FAFAFA;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td>
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td style="background-color: #18181B; color: #FFFFFF; font-weight: 700; font-size: 11px; padding: 4px 7px; border-radius: 4px; letter-spacing: 0.5px; font-family: ui-monospace, Menlo, monospace;">PP</td>
-                        <td style="padding-left: 10px; font-size: 13px; font-weight: 600; color: #18181B; letter-spacing: -0.2px;">Piyush Prasad <span style="color: #A1A1AA; font-weight: 400;">/ Dispatch</span></td>
-                      </tr>
-                    </table>
-                  </td>
-                  <td align="right">
-                    <span style="display: inline-block; font-size: 11px; font-weight: 600; color: #15803D; background-color: #ECFDF5; border: 1px solid #BBF7D0; padding: 3px 8px; border-radius: 20px; font-family: ui-monospace, Menlo, monospace;">
-                      ● Direct Inquiry
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Sender Identity Block -->
-          <tr>
-            <td style="padding: 28px 28px 20px 28px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td width="48" valign="top">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: #F4F4F5; border: 1px solid #E4E4E7; color: #18181B; font-weight: 700; font-size: 14px; text-align: center; line-height: 44px; font-family: ui-monospace, Menlo, monospace;">
-                      ${initials}
-                    </div>
-                  </td>
-                  <td style="padding-left: 14px;" valign="top">
-                    <div style="font-size: 18px; font-weight: 700; color: #09090B; letter-spacing: -0.3px;">${safeName}</div>
-                    <div style="font-size: 13px; color: #52525B; margin-top: 3px;">
-                      <a href="mailto:${safeEmail}" style="color: #2563EB; text-decoration: none;">${safeEmail}</a>
-                      <span style="color: #D4D4D8; margin: 0 6px;">&bull;</span>
-                      <span style="color: #71717A; font-size: 12px;">${escapeHtml(formattedDate)}</span>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Subject Line -->
-          <tr>
-            <td style="padding: 0 28px 16px 28px;">
-              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 14px;">
-                <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.5px;">Subject</span>
-                <div style="font-size: 14px; font-weight: 600; color: #0F172A; margin-top: 2px;">
-                  ${safeSubject}
-                </div>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Message Body (Hero Content) -->
-          <tr>
-            <td style="padding: 0 28px 24px 28px;">
-              <div style="font-size: 11px; font-weight: 700; color: #71717A; text-transform: uppercase; font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.5px; margin-bottom: 8px;">Message</div>
-              <div style="background-color: #FAFAFA; border: 1px solid #E4E4E7; border-left: 3px solid #18181B; border-radius: 8px; padding: 18px 20px; font-size: 14.5px; line-height: 1.65; color: #18181B;">
-                ${safeMessage}
-              </div>
-            </td>
-          </tr>
-
-          <!-- Action Button -->
-          <tr>
-            <td style="padding: 0 28px 28px 28px;">
+            <td valign="middle" align="center">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td>
-                    <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(submission.subject || "Your Inquiry to Piyush Prasad")}" style="display: inline-block; background-color: #18181B; color: #FFFFFF; font-size: 13px; font-weight: 600; text-decoration: none; padding: 11px 22px; border-radius: 6px; letter-spacing: -0.1px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">
-                      Reply to ${safeName} &rarr;
-                    </a>
+                  <td valign="middle">
+                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="74" height="24" alt="Google" style="display: block; border: 0;" />
                   </td>
-                  <td style="padding-left: 12px;">
-                    <a href="${DEFAULT_SITE_URL}" style="display: inline-block; background-color: #FFFFFF; color: #52525B; font-size: 13px; font-weight: 500; text-decoration: none; padding: 10px 16px; border: 1px solid #E4E4E7; border-radius: 6px;">
-                      Visit Portfolio
-                    </a>
+                  <td valign="middle" style="padding-left: 6px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 400; color: #5F6368; line-height: 24px; letter-spacing: -0.2px;">
+                    Workspace
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
-
-          <!-- Telemetry Specs Footer Strip -->
-          <tr>
-            <td style="background-color: #FAFAFA; border-top: 1px solid #F4F4F5; padding: 16px 28px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="font-size: 11px; color: #71717A; font-family: ui-monospace, Menlo, monospace;">
-                    <div><strong style="color: #52525B;">REF:</strong> ${escapeHtml(submission.id)}</div>
-                  </td>
-                  <td align="right" style="font-size: 11px; color: #71717A; font-family: ui-monospace, Menlo, monospace;">
-                    <div><strong style="color: #52525B;">SRC:</strong> piyushprasad.in</div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
         </table>
 
-        <!-- External Footer Note -->
-        <table role="presentation" width="100%" style="max-width: 580px;" cellpadding="0" cellspacing="0" border="0">
+        <!-- Main White Card Container -->
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #DADCE0; border-radius: 8px; overflow: hidden;" cellpadding="0" cellspacing="0" border="0">
           <tr>
-            <td style="padding: 16px 8px; text-align: center; font-size: 12px; color: #71717A;">
-              Sent by your portfolio contact engine. Direct replies deliver straight to <a href="mailto:${safeEmail}" style="color: #18181B; text-decoration: underline;">${safeEmail}</a>.
+            <td style="padding: 40px 36px 36px 36px; text-align: left;">
+
+              <!-- Email Main Headline -->
+              <h1 style="margin: 0 0 24px 0; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 24px; line-height: 1.33; font-weight: 500; color: #202124;">
+                New contact form submission
+              </h1>
+
+              <!-- Greeting -->
+              <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                Hello,
+              </p>
+
+              <!-- Intro Paragraph -->
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                You have received a new contact inquiry from your portfolio website (<a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>). All submitted details are provided below.
+              </p>
+
+              <!-- Account / Contact Information Gray Box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F1F3F4; border-radius: 4px; margin: 24px 0;">
+                <tr>
+                  <td style="padding: 24px 28px;">
+                    
+                    <!-- Section Title Centered -->
+                    <div style="font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 700; color: #202124; text-align: center; margin-bottom: 20px;">
+                      Account information
+                    </div>
+
+                    <!-- Customer / Sender -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer:</div>
+                      <div style="font-size: 14px; color: #3C4043;">
+                        ${safeName} &lt;<a href="mailto:${safeEmail}" style="color: #1A73E8; text-decoration: none;">${safeEmail}</a>&gt;
+                      </div>
+                    </div>
+
+                    <!-- Customer ID / Reference ID -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer ID:</div>
+                      <div style="font-size: 13px; color: #3C4043; font-family: ui-monospace, Menlo, Consolas, monospace;">${escapeHtml(submission.id)}</div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Subject:</div>
+                      <div style="font-size: 14px; color: #3C4043;">${safeSubject}</div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Date:</div>
+                      <div style="font-size: 14px; color: #3C4043;">${escapeHtml(formattedDate)}</div>
+                    </div>
+
+                    <!-- Message Body Box -->
+                    <div style="margin-bottom: 4px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 6px;">Message:</div>
+                      <div style="background-color: #FFFFFF; border: 1px solid #DADCE0; border-radius: 4px; padding: 14px 16px; font-size: 14px; line-height: 1.6; color: #202124; white-space: pre-wrap; word-break: break-word;">${safeMessage}</div>
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Help / Direct Reply Text -->
+              <p style="margin: 24px 0 20px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                If you have any questions, please contact our support team or <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(submission.subject || "Your Inquiry to Piyush Prasad")}" style="color: #1A73E8; text-decoration: none;">reply directly to this email</a>.
+              </p>
+
+              <!-- Primary Action Button (Google Blue) -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 28px 0;">
+                <tr>
+                  <td>
+                    <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(submission.subject || "Your Inquiry to Piyush Prasad")}" style="display: inline-block; background-color: #1A73E8; color: #FFFFFF; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; padding: 10px 24px; border-radius: 4px; box-shadow: 0 1px 2px rgba(60,64,67,0.3);">
+                      Reply to ${safeName}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Sincerely Sign-off -->
+              <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
+                Sincerely,<br>
+                <strong style="color: #202124; font-weight: 500;">The Google Workspace Team</strong>
+              </div>
+
+            </td>
+          </tr>
+        </table>
+
+        <!-- External Footer (Outside Card) -->
+        <table role="presentation" width="100%" style="max-width: 580px; margin-top: 24px;" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center">
+              
+              <!-- Bottom Google Workspace Logo -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+                <tr>
+                  <td valign="middle">
+                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="60" height="19" alt="Google" style="display: block; border: 0;" />
+                  </td>
+                  <td valign="middle" style="padding-left: 5px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 400; color: #5F6368; line-height: 19px;">
+                    Workspace
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Copyright Line -->
+              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; margin-bottom: 6px;">
+                &copy; 2026 Google LLC &bull; Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
+              </div>
+
+              <!-- Mandatory Announcement Line -->
+              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; max-width: 480px; margin: 0 auto;">
+                You're receiving this mandatory email service announcement to update you about new incoming contact messages from your Google Workspace product or portfolio account.
+              </div>
+
             </td>
           </tr>
         </table>
@@ -232,6 +266,7 @@ Reply directly to: ${submission.email.trim()}
 /**
  * Generates Visitor Acknowledgment Confirmation Email
  * (sent to the visitor from support@piyushprasad.in)
+ * Formatted in the iconic Google Workspace transactional notification layout.
  */
 export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
   subject: string;
@@ -244,86 +279,162 @@ export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
 
   const subject = "We received your message | Piyush Prasad";
 
-  // Exact plain-text structure requested by specification
   const text = `Hi ${submission.name.trim()},
 
 Thank you for reaching out through my portfolio website.
 
 Your message has been successfully received. I appreciate you taking the time to contact me and will review your inquiry and get back to you as soon as possible.
 
-Here are your submission details:
-Reference ID: ${submission.id}
+Account information
+-------------------
+Customer: ${submission.name.trim()}
+Customer ID: ${submission.id}
 Subject: ${submission.subject ? submission.subject.trim() : "General Inquiry"}
 Date: ${formattedDate}
 
-If you need to provide additional information, you can reply to this email.
+If you have any questions, please contact our support team.
 
-Best regards,
-Piyush Prasad
-Support Team
-${DEFAULT_SUPPORT_EMAIL}
-${DEFAULT_SITE_URL}
+Sincerely,
+The Google Workspace Team
 `;
 
-  // Professional responsive HTML matching the exact text requirement
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(subject)}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAF9F6; color: #1A1A1A; margin: 0; padding: 24px; line-height: 1.6; }
-    .container { max-width: 580px; margin: 0 auto; background: #ffffff; border: 1px solid #E5E5DF; padding: 36px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .header { border-bottom: 2px solid #0052FF; padding-bottom: 20px; margin-bottom: 24px; }
-    .brand { font-size: 16px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.02em; }
-    .brand-sub { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #0052FF; text-transform: uppercase; margin-top: 4px; }
-    .content { font-size: 15px; color: #2A2A28; line-height: 1.6; }
-    .details-card { background: #FAF9F6; border: 1px solid #E5E5DF; padding: 20px; margin: 24px 0; }
-    .details-title { font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666660; margin-bottom: 12px; letter-spacing: 0.05em; }
-    .details-row { font-size: 14px; margin-bottom: 8px; }
-    .details-row strong { color: #1A1A1A; display: inline-block; width: 120px; }
-    .mono-value { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #0052FF; }
-    .sign-off { margin-top: 32px; border-top: 1px solid #E5E5DF; padding-top: 20px; font-size: 14px; color: #4A4A46; }
-    .sign-off strong { color: #1A1A1A; }
-    .footer-links { margin-top: 8px; font-size: 13px; }
-    .footer-links a { color: #0052FF; text-decoration: none; }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="brand">Piyush Prasad</div>
-      <div class="brand-sub">Cloud &amp; DevOps Engineering // Message Confirmation</div>
-    </div>
+<body style="margin: 0; padding: 40px 16px; background-color: #F8F9FA; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; color: #202124; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        
+        <!-- Top Google Workspace Header Logo -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+          <tr>
+            <td valign="middle" align="center">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td valign="middle">
+                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="74" height="24" alt="Google" style="display: block; border: 0;" />
+                  </td>
+                  <td valign="middle" style="padding-left: 6px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 400; color: #5F6368; line-height: 24px; letter-spacing: -0.2px;">
+                    Workspace
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
 
-    <div class="content">
-      <p>Hi ${safeName},</p>
-      
-      <p>Thank you for reaching out through my portfolio website.</p>
-      
-      <p>Your message has been successfully received. I appreciate you taking the time to contact me and will review your inquiry and get back to you as soon as possible.</p>
+        <!-- Main White Card Container -->
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #DADCE0; border-radius: 8px; overflow: hidden;" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="padding: 40px 36px 36px 36px; text-align: left;">
 
-      <div class="details-card">
-        <div class="details-title">Here are your submission details:</div>
-        <div class="details-row"><strong>Reference ID:</strong> <span class="mono-value">${escapeHtml(submission.id)}</span></div>
-        <div class="details-row"><strong>Subject:</strong> <span>${safeSubject}</span></div>
-        <div class="details-row"><strong>Date:</strong> <span>${escapeHtml(formattedDate)}</span></div>
-      </div>
+              <!-- Email Main Headline -->
+              <h1 style="margin: 0 0 24px 0; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 24px; line-height: 1.33; font-weight: 500; color: #202124;">
+                We received your message
+              </h1>
 
-      <p>If you need to provide additional information, you can reply directly to this email.</p>
+              <!-- Greeting -->
+              <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                Hello ${safeName},
+              </p>
 
-      <div class="sign-off">
-        Best regards,<br>
-        <strong>Piyush Prasad</strong><br>
-        Support Team<br>
-        <div class="footer-links">
-          <a href="mailto:${DEFAULT_SUPPORT_EMAIL}">${DEFAULT_SUPPORT_EMAIL}</a> &bull; 
-          <a href="${DEFAULT_SITE_URL}">${DEFAULT_SITE_URL}</a>
-        </div>
-      </div>
-    </div>
-  </div>
+              <!-- Intro Paragraph -->
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                Thank you for reaching out through my portfolio website (<a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>). Your message has been successfully received. I appreciate you taking the time to contact me and will review your inquiry and get back to you as soon as possible.
+              </p>
+
+              <!-- Account / Submission Information Gray Box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F1F3F4; border-radius: 4px; margin: 24px 0;">
+                <tr>
+                  <td style="padding: 24px 28px;">
+                    
+                    <!-- Section Title Centered -->
+                    <div style="font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 700; color: #202124; text-align: center; margin-bottom: 20px;">
+                      Account information
+                    </div>
+
+                    <!-- Customer -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer:</div>
+                      <div style="font-size: 14px; color: #3C4043;">${safeName}</div>
+                    </div>
+
+                    <!-- Customer ID -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer ID:</div>
+                      <div style="font-size: 13px; color: #3C4043; font-family: ui-monospace, Menlo, Consolas, monospace;">${escapeHtml(submission.id)}</div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div style="margin-bottom: 16px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Subject:</div>
+                      <div style="font-size: 14px; color: #3C4043;">${safeSubject}</div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div style="margin-bottom: 4px;">
+                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Date:</div>
+                      <div style="font-size: 14px; color: #3C4043;">${escapeHtml(formattedDate)}</div>
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Help / Support Text -->
+              <p style="margin: 24px 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+                If you have any questions or need to provide additional details, please contact our support team by replying directly to this email.
+              </p>
+
+              <!-- Sincerely Sign-off -->
+              <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
+                Sincerely,<br>
+                <strong style="color: #202124; font-weight: 500;">The Google Workspace Team</strong>
+              </div>
+
+            </td>
+          </tr>
+        </table>
+
+        <!-- External Footer (Outside Card) -->
+        <table role="presentation" width="100%" style="max-width: 580px; margin-top: 24px;" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center">
+              
+              <!-- Bottom Google Workspace Logo -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+                <tr>
+                  <td valign="middle">
+                    <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png" width="60" height="19" alt="Google" style="display: block; border: 0;" />
+                  </td>
+                  <td valign="middle" style="padding-left: 5px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 400; color: #5F6368; line-height: 19px;">
+                    Workspace
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Copyright Line -->
+              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; margin-bottom: 6px;">
+                &copy; 2026 Google LLC &bull; Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
+              </div>
+
+              <!-- Mandatory Announcement Line -->
+              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; max-width: 480px; margin: 0 auto;">
+                You're receiving this mandatory email service announcement to update you about important changes to your Google Workspace product or account.
+              </div>
+
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
