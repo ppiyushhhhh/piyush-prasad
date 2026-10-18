@@ -61,14 +61,12 @@
   --border: #E5E5DF;
   --input: #E5E5DF;
   --ring: #1A4BFF;
-  --stack-base-top: 4.25rem;
-  --stack-step: 38px;
+  --stack-base-top: 4.5rem;
 }
 
 @media (min-width: 768px) {
   :root {
-    --stack-base-top: 4.75rem;
-    --stack-step: 46px;
+    --stack-base-top: 5.25rem;
   }
 }
 
