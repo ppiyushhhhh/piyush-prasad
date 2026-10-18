@@ -63,6 +63,17 @@ GitHub Actions CI/CD.
 Technologies: React, Node.js, Express, SQLite, PM2, Nginx, Trivy, GitHub Actions.
 Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
 
+## Project 04 — CloudOps Observability Platform (2026)
+Stack/subtitle: TanStack Start · Supabase · PostgreSQL · DevSecOps
+Purpose: Private cloud observability and database administration console (PP·OPS).
+Details: Engineered a private cloud observability and database administration platform monitoring live
+production endpoints. Features native TLS 1.3 socket inspection, distributed multi-tier rate limiting with
+atomic PostgreSQL row-level locks, automated 7-day database retention with pre-deletion SQL archives,
+and executive health auditing.
+Technologies: TanStack Start, React 19, Supabase, PostgreSQL, Rate Limiting, TLS 1.3, CI/CD.
+Live console: https://www.piyushprasad.in/dashboard
+Repository: https://github.com/ppiyushhhhh/piyush-prasad
+
 # EXPERIENCE
 
 ## Runtime Solutions — Dec 2024 — Present (https://www.runtime-solutions.com/)

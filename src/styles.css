@@ -61,6 +61,13 @@
   --border: #E5E5DF;
   --input: #E5E5DF;
   --ring: #1A4BFF;
+  --stack-base-top: 4.5rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --stack-base-top: 5.25rem;
+  }
 }
 
 @layer base {

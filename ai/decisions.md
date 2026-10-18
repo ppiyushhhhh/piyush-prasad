@@ -227,3 +227,21 @@ This document maintains a chronological record of major technical and architectu
 * **Evidence / Source in Project:**
   * Git commit `fbd1d3f`: "feat(backups): add manual database backups table, dedicated page, and automation health monitor".
 * **Verification Status:** Verified.
+
+---
+
+### 11. Sticky Stacking Cards Scroll Animation in Project / Expertise Section
+* **Decision:** Replace the static vertical project grid with a modern CSS `position: sticky` stacking cards scroll effect across four projects (`01` DevOps CI/CD, `02` AWS EC2 + DevSecOps, `03` CloudOps Sentinel, `04` CloudOps Observability Platform).
+* **Why it was made:** To provide a polished, interactive, modern editorial experience where each project card slides upward and stacks over the previous card, peeking its indexed top strip (`PROJECT // 01 | title | year`) like an organized physical card deck, staying in viewport until the last card completes the stack and naturally releases into the next section.
+* **Current Implementation:**
+  * Pure CSS `position: sticky` with staggered `top: calc(var(--stack-base-top, 5.25rem) + ${i * 28}px)` and layered `z-index: (i + 1) * 10` (10, 20, 30, 40).
+  * Smooth scroll travel driven by `marginBottom: isLast ? "0px" : "clamp(140px, 26vh, 280px)"`.
+  * Top navigation offset variable `--stack-base-top` configured in `src/styles.css` (`4.5rem` on mobile, `5.25rem` on desktop) ensuring cards glide right beneath the fixed navbar.
+  * Preserved full split layout (editorial specifications + visual diagram/image preview), modal image lightbox (`Dialog`), links, and `prefers-reduced-motion` compliance.
+* **Files / Components Affected:**
+  * `src/components/portfolio/Projects.tsx`
+  * `src/styles.css`
+  * `src/lib/portfolio-knowledge.server.ts`
+* **Known Trade-offs:** Requires sufficient scroll height in parent container for sticky travel.
+* **Verification Status:** Verified via browser subagent recording, `npm run typecheck`, and `npm run build`.
+
