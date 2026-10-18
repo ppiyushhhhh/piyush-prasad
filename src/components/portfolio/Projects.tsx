@@ -6,13 +6,7 @@ import {
   Github,
   ExternalLink,
   Maximize2,
-  ShieldCheck,
   Terminal,
-  Server,
-  Layers,
-  Database,
-  Globe,
-  Lock,
 } from "lucide-react";
 import {
   Dialog,
@@ -22,9 +16,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import cicdPipelineImg from "@/assets/projects/cicd-pipeline.jpg";
-import devsecopsImg from "@/assets/projects/devsecops-monitoring.jpg";
-import cloudopsSentinelImg from "@/assets/projects/cloudops-sentinel.jpg";
+import cicdPipelineImg from "@/assets/projects/cicd-pipeline-pro.jpg";
+import devsecopsImg from "@/assets/projects/devsecops-monitoring-pro.jpg";
+import cloudopsSentinelImg from "@/assets/projects/cloudops-sentinel-pro.jpg";
+import cloudopsObservabilityImg from "@/assets/projects/cloudops-observability-pro.jpg";
 
 export interface ProjectItem {
   idx: string;
@@ -35,7 +30,7 @@ export interface ProjectItem {
   tech: string[];
   link: { label: string; href: string } | null;
   repo: { label: string; href: string } | null;
-  image?: string;
+  image: string;
 }
 
 export const PROJECTS: ProjectItem[] = [
@@ -46,7 +41,7 @@ export const PROJECTS: ProjectItem[] = [
     year: "2025",
     image: cicdPipelineImg,
     body:
-      "Designed and implemented a full CI/CD pipeline using GitHub Actions to automate deployment of a React application. Deployed on AWS EC2 (Ubuntu), configured Nginx as a reverse proxy. Managed domain routing with Cloudflare and implemented secure domain-based email via SPF, DKIM, and DMARC.",
+      "Designed and implemented an automated CI/CD pipeline using GitHub Actions to orchestrate zero-downtime deployment. Deployed on AWS EC2 (Ubuntu), configured Nginx reverse proxy with SSL, routed domains via Cloudflare CDN edge, and hardened email delivery with SPF, DKIM, and DMARC.",
     tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
     link: { label: "kamleshprasad.com", href: "https://kamleshprasad.com" },
     repo: {
@@ -61,7 +56,7 @@ export const PROJECTS: ProjectItem[] = [
     year: "2026",
     image: devsecopsImg,
     body:
-      "Deployed a production-grade React + Node.js application on AWS EC2 using Nginx reverse proxy with HTTPS via Certbot SSL. Implemented server hardening: UFW Firewall, rate limiting, and DDoS protection. Built a full monitoring stack with Prometheus, Grafana, and Node Exporter. Integrated Trivy vulnerability scanning in CI/CD.",
+      "Architected a production-grade infrastructure stack on AWS EC2 with automated HTTPS via Certbot SSL. Implemented server hardening with UFW Firewall, rate limiting, and DDoS defense. Built a real-time observability telemetry stack with Prometheus, Grafana, Node Exporter, and automated Trivy vulnerability scanning.",
     tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
     link: null,
     repo: {
@@ -76,7 +71,7 @@ export const PROJECTS: ProjectItem[] = [
     year: "2026",
     image: cloudopsSentinelImg,
     body:
-      "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a login gate. Delivers live server metrics, Docker status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident and alert management, activity logs, and automated PDF reporting. Backed by SQLite persistence with scheduled cron backups, served via Nginx reverse proxy with PM2 process management and GitHub Actions CI/CD.",
+      "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a role-gated login. Delivers real-time server cluster metrics, Docker container fleet status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident alerting, and scheduled automated SQLite backups.",
     tech: ["React", "Node.js", "Express", "SQLite", "PM2", "Nginx", "Trivy", "GitHub Actions"],
     link: null,
     repo: {
@@ -89,6 +84,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "CloudOps Observability Platform",
     subtitle: "TanStack Start · Supabase · PostgreSQL · DevSecOps",
     year: "2026",
+    image: cloudopsObservabilityImg,
     body:
       "Engineered an enterprise-grade private cloud observability and database administration console (PP·OPS) monitoring live production endpoints. Features native TLS 1.3 socket inspection, distributed multi-tier rate limiting with atomic PostgreSQL row-level locks, automated 7-day database retention with pre-deletion SQL archives, and executive health auditing.",
     tech: ["TanStack Start", "React 19", "Supabase", "PostgreSQL", "Rate Limiter", "TLS 1.3"],
@@ -107,167 +103,60 @@ function ProjectVisual({
   project: ProjectItem;
   onOpenPreview: (project: ProjectItem) => void;
 }) {
-  if (project.image) {
-    return (
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => onOpenPreview(project)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onOpenPreview(project);
-          }
-        }}
-        className="group/img relative h-64 sm:h-72 lg:h-full min-h-[220px] w-full cursor-zoom-in overflow-hidden bg-[#14151a] focus:outline-hidden focus:ring-2 focus:ring-cobalt/50"
-        title="Click to view full preview"
-      >
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpenPreview(project)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpenPreview(project);
+        }
+      }}
+      className="group/img relative w-full cursor-zoom-in overflow-hidden rounded-lg border border-white/10 bg-[#12141A] shadow-xl transition-all duration-300 hover:border-cobalt/50 hover:shadow-[0_12px_32px_-8px_rgba(26,75,255,0.25)] focus:outline-hidden focus:ring-2 focus:ring-cobalt/50"
+      title="Click to view high-resolution preview"
+    >
+      {/* Sleek Browser/Console Shell Header */}
+      <div className="flex h-8 items-center justify-between border-b border-white/10 bg-[#161821] px-3">
+        {/* Terminal Window Controls */}
+        <div className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#EF4444]/80 inline-block" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]/80 inline-block" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]/80 inline-block" />
+        </div>
+
+        {/* Monospace Path Bar */}
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-xs bg-[#0F1015] border border-white/5 text-[10px] font-mono text-white/70">
+          <Terminal className="h-2.5 w-2.5 text-cobalt" />
+          <span className="truncate max-w-[140px] sm:max-w-[200px]">
+            spec://{project.idx}·{project.title.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-")}
+          </span>
+        </div>
+
+        {/* Preview Status Pill */}
+        <div className="flex items-center gap-1 text-[10px] font-mono text-white/60">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden sm:inline">LIVE</span>
+        </div>
+      </div>
+
+      {/* High-Resolution Screenshot Area */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0A0B0E]">
         <img
           src={project.image}
           alt={project.title}
           loading="lazy"
-          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover/img:scale-105"
+          className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover/img:scale-[1.03]"
         />
 
-        {/* Ambient subtle vignette */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-60 transition-opacity duration-300 group-hover/img:opacity-40" />
+        {/* Ambient Subtle Vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-40 transition-opacity duration-300 group-hover/img:opacity-20" />
 
-        {/* Floating Spec Tags */}
-        <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-xs border border-white/20 bg-carbon/80 px-2 py-0.5 text-[10px] font-mono font-medium text-white backdrop-blur-xs shadow-xs">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>SPEC // {project.idx}</span>
-        </div>
-
-        <div className="pointer-events-none absolute top-3 right-3 rounded-xs border border-white/20 bg-carbon/80 px-2 py-0.5 text-[9px] font-mono text-white/90 backdrop-blur-xs shadow-xs">
-          {project.year}
-        </div>
-
-        {/* Hover zoom indicator */}
-        <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-1.5 rounded-xs border border-white/25 bg-carbon/85 px-2.5 py-1 text-[11px] font-mono text-white opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover/img:opacity-100 shadow-md">
+        {/* Interactive Hover Zoom Pill */}
+        <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-1.5 rounded-xs border border-white/25 bg-carbon/90 px-2.5 py-1 text-[11px] font-mono text-white opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover/img:opacity-100 shadow-md">
           <Maximize2 className="h-3 w-3 text-cobalt" />
-          <span>Preview</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Editorial Architectural Schematic Visual
-  return (
-    <div className="relative h-64 sm:h-72 lg:h-full min-h-[220px] w-full overflow-hidden bg-[#F5F4EE] p-5 sm:p-6 transition-colors duration-300 group-hover:bg-[#F2F1EA] flex flex-col justify-between">
-      {/* Schematic Grid Pattern */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#121316 1px, transparent 1px), linear-gradient(90deg, #121316 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      <div className="relative flex h-full flex-col justify-between">
-        {/* Top Header of Schematic */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="mono text-[10px] font-bold text-cobalt tracking-wider">
-              SPEC // ARCHITECTURE
-            </span>
-            <span className="text-border">|</span>
-            <span className="mono text-[9px] text-muted-foreground uppercase">
-              {project.idx} · {project.year}
-            </span>
-          </div>
-          <div className="mono text-[9px] rounded-xs border border-border bg-white px-2 py-0.5 text-carbon/70 font-medium">
-            LIVE INFRA
-          </div>
-        </div>
-
-        {/* Center Architectural Node Flow */}
-        <div className="my-auto py-2">
-          {project.idx === "01" && (
-            <div className="flex items-center justify-between gap-1 sm:gap-2 text-center text-xs">
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">VCS</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">GitHub Actions</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">HOST</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">AWS EC2</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">PROXY</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Nginx + SSL</div>
-              </div>
-            </div>
-          )}
-
-          {project.idx === "02" && (
-            <div className="flex items-center justify-between gap-1 sm:gap-2 text-center text-xs">
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">SECURITY</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Trivy + UFW</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">METRICS</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Prometheus</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">DASHBOARD</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Grafana</div>
-              </div>
-            </div>
-          )}
-
-          {project.idx === "03" && (
-            <div className="flex items-center justify-between gap-1 sm:gap-2 text-center text-xs">
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">CORE</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Sentinel React</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">DAEMON</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Node.js / PM2</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">STORAGE</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">SQLite Cron</div>
-              </div>
-            </div>
-          )}
-
-          {project.idx === "04" && (
-            <div className="flex items-center justify-between gap-1 sm:gap-2 text-center text-xs">
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">EDGE</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">Anycast CDN</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">ENGINE</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">TanStack SSR</div>
-              </div>
-              <span className="mono text-cobalt text-[10px]">→</span>
-              <div className="flex-1 rounded border border-border bg-white p-2 shadow-2xs transition-transform duration-300 group-hover:-translate-y-0.5">
-                <div className="mono text-[9px] text-muted-foreground">CLUSTER</div>
-                <div className="font-semibold text-carbon text-[11px] sm:text-xs">PostgreSQL RLS</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Technical Status Line */}
-        <div className="flex items-center justify-between text-[10px] text-carbon/60 border-t border-border/70 pt-2 font-mono">
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Infrastructure Verified
-          </span>
-          <span className="text-cobalt font-medium">Production Stack</span>
+          <span>Inspect Fullscreen</span>
         </div>
       </div>
     </div>
@@ -289,10 +178,10 @@ export function Projects() {
         />
 
         {/* Sticky Stacking Cards Container */}
-        <div className="relative mx-auto mt-12 sm:mt-16 max-w-5xl">
+        <div className="relative mx-auto mt-12 sm:mt-16 max-w-5xl xl:max-w-6xl">
           {PROJECTS.map((project, i) => {
             const isLast = i === PROJECTS.length - 1;
-            // z-index increments with each card so that subsequent cards slide cleanly OVER previous ones
+            // z-index increments with each card so subsequent cards cleanly overlap previous ones
             const zIndex = (i + 1) * 10;
 
             return (
@@ -300,58 +189,56 @@ export function Projects() {
                 key={project.idx}
                 className="sticky transition-all duration-300 ease-out"
                 style={{
-                  // Responsive sticky top offset: staggered so earlier cards' top index strips peek out neatly
-                  // Mobile: 4.25rem (~68px) + i * 20px
-                  // Desktop: 5.25rem (~84px) + i * 28px
-                  top: `calc(var(--stack-base-top, 5.25rem) + ${i * 28}px)`,
+                  // The offset increment matches the tab strip height exactly, ensuring zero text clipping
+                  top: `calc(var(--stack-base-top, 4.75rem) + (${i} * var(--stack-step, 46px)))`,
                   zIndex,
-                  // Margin bottom provides scroll travel for each card to slide upward before the next stacks
-                  marginBottom: isLast ? "0px" : "clamp(140px, 26vh, 280px)",
+                  // Margin bottom provides scroll travel for each card to stack before scrolling continues
+                  marginBottom: isLast ? "0px" : "clamp(160px, 28vh, 320px)",
                 }}
               >
                 <motion.article
-                  initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+                  initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                   className="group relative flex flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-border bg-white shadow-[0_12px_36px_-6px_rgba(18,19,22,0.08),0_2px_8px_-2px_rgba(18,19,22,0.04)] transition-all duration-300 hover:border-cobalt/60 hover:shadow-[0_20px_50px_-10px_rgba(26,75,255,0.12),0_4px_16px_-4px_rgba(18,19,22,0.06)]"
                 >
-                  {/* Top Indexed Tab Strip (Peeks out when cards stack on top) */}
-                  <div className="flex items-center justify-between border-b border-border bg-[#FAF9F6] px-5 py-2.5 sm:px-7 sm:py-3 transition-colors group-hover:bg-[#F6F5EE]">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="mono font-bold text-cobalt tracking-wider text-[11px] shrink-0">
+                  {/* Top Indexed Tab Strip (Fixed height ensures exact matching with stacking step offset) */}
+                  <div className="flex h-[38px] md:h-[46px] items-center justify-between border-b border-border bg-[#FAF9F6] px-4 sm:px-6 transition-colors group-hover:bg-[#F5F4EE]">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <span className="mono font-bold text-cobalt tracking-wider text-[11px] sm:text-xs shrink-0">
                         PROJECT // {project.idx}
                       </span>
                       <span className="text-border shrink-0">|</span>
-                      <span className="mono text-[10px] font-semibold text-carbon/80 uppercase tracking-wide truncate">
+                      <span className="mono text-[10px] sm:text-[11px] font-semibold text-carbon/85 uppercase tracking-wide truncate">
                         {project.title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2.5 shrink-0 ml-3">
-                      <span className="mono text-[10px] text-muted-foreground font-medium">
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-3">
+                      <span className="mono text-[10px] sm:text-[11px] text-muted-foreground font-medium">
                         {project.year}
                       </span>
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     </div>
                   </div>
 
-                  {/* Main Card Body (Split layout: Left Details / Right Visual) */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 min-h-0">
+                  {/* Main Card Body (Equal-height split layout: Left Details / Right Visual) */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch min-h-[440px] sm:min-h-[460px] lg:min-h-[480px]">
                     {/* Left Column: Details & Actions */}
-                    <div className="lg:col-span-7 flex flex-col justify-between p-6 sm:p-7 md:p-8">
+                    <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-between p-6 sm:p-7 md:p-8 bg-white">
                       <div>
                         {/* Meta Category Eyebrow */}
-                        <div className="mono text-[11px] text-cobalt font-medium uppercase tracking-wider">
+                        <div className="mono text-[11px] text-cobalt font-semibold uppercase tracking-wider">
                           {project.subtitle}
                         </div>
 
                         {/* Title */}
-                        <h3 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-carbon group-hover:text-cobalt transition-colors">
+                        <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-carbon group-hover:text-cobalt transition-colors">
                           {project.title}
                         </h3>
 
                         {/* Description */}
-                        <p className="mt-4 text-sm sm:text-base leading-relaxed text-carbon/80">
+                        <p className="mt-3.5 text-xs sm:text-sm leading-relaxed text-carbon/80">
                           {project.body}
                         </p>
 
@@ -369,13 +256,13 @@ export function Projects() {
                       </div>
 
                       {/* Card Action Links */}
-                      <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-border pt-4">
+                      <div className="mt-7 flex flex-wrap items-center gap-4 border-t border-border pt-4">
                         {project.link && (
                           <a
                             href={project.link.href}
                             target={project.link.href.startsWith("http") ? "_blank" : undefined}
                             rel={project.link.href.startsWith("http") ? "noreferrer" : undefined}
-                            className="inline-flex items-center gap-2 text-xs font-semibold text-cobalt hover:underline"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-cobalt hover:underline"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             <span>Visit Live ({project.link.label})</span>
@@ -387,7 +274,7 @@ export function Projects() {
                             href={project.repo.href}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 text-xs font-mono text-carbon/75 hover:text-cobalt transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs font-mono text-carbon/75 hover:text-cobalt transition-colors"
                           >
                             <Github className="h-3.5 w-3.5" />
                             <span className="truncate">{project.repo.label}</span>
@@ -397,8 +284,8 @@ export function Projects() {
                       </div>
                     </div>
 
-                    {/* Right Column: Architectural Visual / Image Preview */}
-                    <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-border bg-[#F5F4EE] flex flex-col justify-center overflow-hidden">
+                    {/* Right Column: Architectural Visual / Image Preview Console */}
+                    <div className="lg:col-span-6 xl:col-span-6 border-t lg:border-t-0 lg:border-l border-border bg-[#0E1015] p-4 sm:p-6 lg:p-7 flex flex-col justify-center items-center overflow-hidden">
                       <ProjectVisual project={project} onOpenPreview={setPreviewProject} />
                     </div>
                   </div>
