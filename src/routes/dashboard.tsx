@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
+  Award,
   BarChart3,
   Bot,
   FileText,
@@ -26,15 +27,24 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Operations Console — Piyush Prasad" },
-      { name: "description", content: "Privileged operations console and infrastructure monitoring." },
+      {
+        name: "description",
+        content: "Privileged operations console and infrastructure monitoring.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Operations Console — Piyush Prasad" },
-      { property: "og:description", content: "Privileged operations console and infrastructure monitoring." },
+      {
+        property: "og:description",
+        content: "Privileged operations console and infrastructure monitoring.",
+      },
       { property: "og:url", content: "https://www.piyushprasad.in/dashboard" },
       { property: "og:image", content: "https://www.piyushprasad.in/og-image.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Operations Console — Piyush Prasad" },
-      { name: "twitter:description", content: "Privileged operations console and infrastructure monitoring." },
+      {
+        name: "twitter:description",
+        content: "Privileged operations console and infrastructure monitoring.",
+      },
       { name: "twitter:image", content: "https://www.piyushprasad.in/og-image.png" },
       { name: "robots", content: "noindex, nofollow" },
     ],
@@ -51,6 +61,7 @@ const NAV = [
   { to: "/dashboard/cicd", label: "CI/CD", icon: Rocket },
   { to: "/dashboard/ai-chat", label: "AI Chat", icon: Bot },
   { to: "/dashboard/reports", label: "Reports", icon: FileText },
+  { to: "/dashboard/credly-badges", label: "Credly Badges", icon: Award },
   { to: "/dashboard/database", label: "Database", icon: Database },
   { to: "/dashboard/manual-backups", label: "Manual Backups", icon: HardDrive },
   { to: "/dashboard/rate-limiting", label: "Rate Limiting", icon: ShieldAlert },
@@ -131,7 +142,8 @@ function DashboardLayout() {
             Privileged Administrator Gateway
           </p>
           <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-            Access to telemetry probes, production pipelines, and database infrastructure is restricted to verified administrators.
+            Access to telemetry probes, production pipelines, and database infrastructure is
+            restricted to verified administrators.
           </p>
           <div className="mt-6 flex flex-col gap-2.5">
             <Link
@@ -160,7 +172,10 @@ function DashboardLayout() {
         {/* Sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[#E5E5DF] bg-white px-4 py-6 md:flex justify-between">
           <div>
-            <Link to="/" className="mb-8 flex items-center gap-3 px-2 transition-opacity hover:opacity-90">
+            <Link
+              to="/"
+              className="mb-8 flex items-center gap-3 px-2 transition-opacity hover:opacity-90"
+            >
               <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-2xs">
                 <img
                   src="/pp-logo.png"
@@ -206,7 +221,10 @@ function DashboardLayout() {
                 <Shield className="h-3 w-3" />
                 <span>Admin Session</span>
               </div>
-              <p className="truncate text-[11px] text-muted-foreground font-mono mt-0.5" title={session.user.email}>
+              <p
+                className="truncate text-[11px] text-muted-foreground font-mono mt-0.5"
+                title={session.user.email}
+              >
                 {session.user.email}
               </p>
             </div>
@@ -237,4 +255,3 @@ function DashboardLayout() {
     </div>
   );
 }
-

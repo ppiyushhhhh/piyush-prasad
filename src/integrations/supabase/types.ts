@@ -1,686 +1,725 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       admin_audit_log: {
         Row: {
-          action: string
-          admin_email: string | null
-          admin_user_id: string | null
-          created_at: string
-          details: Json | null
-          id: string
-          target_record_id: string | null
-          target_table: string | null
-          target_user_id: string | null
-        }
+          action: string;
+          admin_email: string | null;
+          admin_user_id: string | null;
+          created_at: string;
+          details: Json | null;
+          id: string;
+          target_record_id: string | null;
+          target_table: string | null;
+          target_user_id: string | null;
+        };
         Insert: {
-          action: string
-          admin_email?: string | null
-          admin_user_id?: string | null
-          created_at?: string
-          details?: Json | null
-          id?: string
-          target_record_id?: string | null
-          target_table?: string | null
-          target_user_id?: string | null
-        }
+          action: string;
+          admin_email?: string | null;
+          admin_user_id?: string | null;
+          created_at?: string;
+          details?: Json | null;
+          id?: string;
+          target_record_id?: string | null;
+          target_table?: string | null;
+          target_user_id?: string | null;
+        };
         Update: {
-          action?: string
-          admin_email?: string | null
-          admin_user_id?: string | null
-          created_at?: string
-          details?: Json | null
-          id?: string
-          target_record_id?: string | null
-          target_table?: string | null
-          target_user_id?: string | null
-        }
-        Relationships: []
-      }
+          action?: string;
+          admin_email?: string | null;
+          admin_user_id?: string | null;
+          created_at?: string;
+          details?: Json | null;
+          id?: string;
+          target_record_id?: string | null;
+          target_table?: string | null;
+          target_user_id?: string | null;
+        };
+        Relationships: [];
+      };
       chat_activity: {
         Row: {
-          error_code: string | null
-          event_type: string
-          id: string
-          latency_ms: number | null
-          message_count: number | null
-          occurred_at: string
-        }
+          error_code: string | null;
+          event_type: string;
+          id: string;
+          latency_ms: number | null;
+          message_count: number | null;
+          occurred_at: string;
+        };
         Insert: {
-          error_code?: string | null
-          event_type: string
-          id?: string
-          latency_ms?: number | null
-          message_count?: number | null
-          occurred_at?: string
-        }
+          error_code?: string | null;
+          event_type: string;
+          id?: string;
+          latency_ms?: number | null;
+          message_count?: number | null;
+          occurred_at?: string;
+        };
         Update: {
-          error_code?: string | null
-          event_type?: string
-          id?: string
-          latency_ms?: number | null
-          message_count?: number | null
-          occurred_at?: string
-        }
-        Relationships: []
-      }
+          error_code?: string | null;
+          event_type?: string;
+          id?: string;
+          latency_ms?: number | null;
+          message_count?: number | null;
+          occurred_at?: string;
+        };
+        Relationships: [];
+      };
       contact_submissions: {
         Row: {
-          admin_email_sent_at: string | null
-          admin_email_status: string
-          created_at: string
-          email: string
-          email_error: string | null
-          id: string
-          message: string
-          name: string
-          status: string
-          subject: string | null
-          visitor_email_sent_at: string | null
-          visitor_email_status: string
-        }
+          admin_email_sent_at: string | null;
+          admin_email_status: string;
+          created_at: string;
+          email: string;
+          email_error: string | null;
+          id: string;
+          message: string;
+          name: string;
+          status: string;
+          subject: string | null;
+          visitor_email_sent_at: string | null;
+          visitor_email_status: string;
+        };
         Insert: {
-          admin_email_sent_at?: string | null
-          admin_email_status?: string
-          created_at?: string
-          email: string
-          email_error?: string | null
-          id?: string
-          message: string
-          name: string
-          status?: string
-          subject?: string | null
-          visitor_email_sent_at?: string | null
-          visitor_email_status?: string
-        }
+          admin_email_sent_at?: string | null;
+          admin_email_status?: string;
+          created_at?: string;
+          email: string;
+          email_error?: string | null;
+          id?: string;
+          message: string;
+          name: string;
+          status?: string;
+          subject?: string | null;
+          visitor_email_sent_at?: string | null;
+          visitor_email_status?: string;
+        };
         Update: {
-          admin_email_sent_at?: string | null
-          admin_email_status?: string
-          created_at?: string
-          email?: string
-          email_error?: string | null
-          id?: string
-          message?: string
-          name?: string
-          status?: string
-          subject?: string | null
-          visitor_email_sent_at?: string | null
-          visitor_email_status?: string
-        }
-        Relationships: []
-      }
+          admin_email_sent_at?: string | null;
+          admin_email_status?: string;
+          created_at?: string;
+          email?: string;
+          email_error?: string | null;
+          id?: string;
+          message?: string;
+          name?: string;
+          status?: string;
+          subject?: string | null;
+          visitor_email_sent_at?: string | null;
+          visitor_email_status?: string;
+        };
+        Relationships: [];
+      };
+      credly_badges: {
+        Row: {
+          badge_image_url: string;
+          badge_storage_path: string | null;
+          created_at: string;
+          credly_url: string;
+          description: string | null;
+          display_order: number;
+          expiry_date: string | null;
+          id: string;
+          is_published: boolean;
+          issue_date: string;
+          issuer: string;
+          name: string;
+          skills: string[];
+          updated_at: string;
+        };
+        Insert: {
+          badge_image_url: string;
+          badge_storage_path?: string | null;
+          created_at?: string;
+          credly_url: string;
+          description?: string | null;
+          display_order?: number;
+          expiry_date?: string | null;
+          id?: string;
+          is_published?: boolean;
+          issue_date: string;
+          issuer: string;
+          name: string;
+          skills?: string[];
+          updated_at?: string;
+        };
+        Update: {
+          badge_image_url?: string;
+          badge_storage_path?: string | null;
+          created_at?: string;
+          credly_url?: string;
+          description?: string | null;
+          display_order?: number;
+          expiry_date?: string | null;
+          id?: string;
+          is_published?: boolean;
+          issue_date?: string;
+          issuer?: string;
+          name?: string;
+          skills?: string[];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       backup_monthly_reports: {
         Row: {
-          created_at: string
-          deleted_backups_count: number
-          failed_backups: number
-          id: string
-          month: number
-          month_name: string
-          report_file_url: string | null
-          report_generated_date: string
-          report_status: string
-          success_percentage: number
-          successful_backups: number
-          summary_data: Json
-          total_backup_size_bytes: number
-          total_backup_size_pretty: string
-          total_backups: number
-          year: number
-        }
+          created_at: string;
+          deleted_backups_count: number;
+          failed_backups: number;
+          id: string;
+          month: number;
+          month_name: string;
+          report_file_url: string | null;
+          report_generated_date: string;
+          report_status: string;
+          success_percentage: number;
+          successful_backups: number;
+          summary_data: Json;
+          total_backup_size_bytes: number;
+          total_backup_size_pretty: string;
+          total_backups: number;
+          year: number;
+        };
         Insert: {
-          created_at?: string
-          deleted_backups_count?: number
-          failed_backups?: number
-          id?: string
-          month: number
-          month_name: string
-          report_file_url?: string | null
-          report_generated_date?: string
-          report_status?: string
-          success_percentage?: number
-          successful_backups?: number
-          summary_data?: Json
-          total_backup_size_bytes?: number
-          total_backup_size_pretty?: string
-          total_backups?: number
-          year: number
-        }
+          created_at?: string;
+          deleted_backups_count?: number;
+          failed_backups?: number;
+          id?: string;
+          month: number;
+          month_name: string;
+          report_file_url?: string | null;
+          report_generated_date?: string;
+          report_status?: string;
+          success_percentage?: number;
+          successful_backups?: number;
+          summary_data?: Json;
+          total_backup_size_bytes?: number;
+          total_backup_size_pretty?: string;
+          total_backups?: number;
+          year: number;
+        };
         Update: {
-          created_at?: string
-          deleted_backups_count?: number
-          failed_backups?: number
-          id?: string
-          month?: number
-          month_name?: string
-          report_file_url?: string | null
-          report_generated_date?: string
-          report_status?: string
-          success_percentage?: number
-          successful_backups?: number
-          summary_data?: Json
-          total_backup_size_bytes?: number
-          total_backup_size_pretty?: string
-          total_backups?: number
-          year?: number
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          deleted_backups_count?: number;
+          failed_backups?: number;
+          id?: string;
+          month?: number;
+          month_name?: string;
+          report_file_url?: string | null;
+          report_generated_date?: string;
+          report_status?: string;
+          success_percentage?: number;
+          successful_backups?: number;
+          summary_data?: Json;
+          total_backup_size_bytes?: number;
+          total_backup_size_pretty?: string;
+          total_backups?: number;
+          year?: number;
+        };
+        Relationships: [];
+      };
       database_backups: {
         Row: {
-          backup_data: Json | null
-          backup_date: string
-          backup_time: string
-          backup_type: string
-          created_at: string
-          deleted_at: string | null
-          error_message: string | null
-          file_size_bytes: number
-          file_size_pretty: string
-          filename: string
-          id: string
-          metadata: Json | null
-          pruned_records_count: number
-          status: string
-          storage_bucket: string
-          storage_path: string | null
-          tables_included: string[]
-          total_records: number
-        }
+          backup_data: Json | null;
+          backup_date: string;
+          backup_time: string;
+          backup_type: string;
+          created_at: string;
+          deleted_at: string | null;
+          error_message: string | null;
+          file_size_bytes: number;
+          file_size_pretty: string;
+          filename: string;
+          id: string;
+          metadata: Json | null;
+          pruned_records_count: number;
+          status: string;
+          storage_bucket: string;
+          storage_path: string | null;
+          tables_included: string[];
+          total_records: number;
+        };
         Insert: {
-          backup_data?: Json | null
-          backup_date?: string
-          backup_time?: string
-          backup_type?: string
-          created_at?: string
-          deleted_at?: string | null
-          error_message?: string | null
-          file_size_bytes?: number
-          file_size_pretty?: string
-          filename?: string
-          id?: string
-          metadata?: Json | null
-          pruned_records_count?: number
-          status?: string
-          storage_bucket?: string
-          storage_path?: string | null
-          tables_included?: string[]
-          total_records?: number
-        }
+          backup_data?: Json | null;
+          backup_date?: string;
+          backup_time?: string;
+          backup_type?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          error_message?: string | null;
+          file_size_bytes?: number;
+          file_size_pretty?: string;
+          filename?: string;
+          id?: string;
+          metadata?: Json | null;
+          pruned_records_count?: number;
+          status?: string;
+          storage_bucket?: string;
+          storage_path?: string | null;
+          tables_included?: string[];
+          total_records?: number;
+        };
         Update: {
-          backup_data?: Json | null
-          backup_date?: string
-          backup_time?: string
-          backup_type?: string
-          created_at?: string
-          deleted_at?: string | null
-          error_message?: string | null
-          file_size_bytes?: number
-          file_size_pretty?: string
-          filename?: string
-          id?: string
-          metadata?: Json | null
-          pruned_records_count?: number
-          status?: string
-          storage_bucket?: string
-          storage_path?: string | null
-          tables_included?: string[]
-          total_records?: number
-        }
-        Relationships: []
-      }
+          backup_data?: Json | null;
+          backup_date?: string;
+          backup_time?: string;
+          backup_type?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          error_message?: string | null;
+          file_size_bytes?: number;
+          file_size_pretty?: string;
+          filename?: string;
+          id?: string;
+          metadata?: Json | null;
+          pruned_records_count?: number;
+          status?: string;
+          storage_bucket?: string;
+          storage_path?: string | null;
+          tables_included?: string[];
+          total_records?: number;
+        };
+        Relationships: [];
+      };
       deployment_history: {
         Row: {
-          commit_sha: string | null
-          conclusion: string | null
-          duration_seconds: number | null
-          id: string
-          occurred_at: string
-          provider: string | null
-          status: string | null
-          url: string | null
-          workflow_name: string | null
-        }
+          commit_sha: string | null;
+          conclusion: string | null;
+          duration_seconds: number | null;
+          id: string;
+          occurred_at: string;
+          provider: string | null;
+          status: string | null;
+          url: string | null;
+          workflow_name: string | null;
+        };
         Insert: {
-          commit_sha?: string | null
-          conclusion?: string | null
-          duration_seconds?: number | null
-          id?: string
-          occurred_at?: string
-          provider?: string | null
-          status?: string | null
-          url?: string | null
-          workflow_name?: string | null
-        }
+          commit_sha?: string | null;
+          conclusion?: string | null;
+          duration_seconds?: number | null;
+          id?: string;
+          occurred_at?: string;
+          provider?: string | null;
+          status?: string | null;
+          url?: string | null;
+          workflow_name?: string | null;
+        };
         Update: {
-          commit_sha?: string | null
-          conclusion?: string | null
-          duration_seconds?: number | null
-          id?: string
-          occurred_at?: string
-          provider?: string | null
-          status?: string | null
-          url?: string | null
-          workflow_name?: string | null
-        }
-        Relationships: []
-      }
+          commit_sha?: string | null;
+          conclusion?: string | null;
+          duration_seconds?: number | null;
+          id?: string;
+          occurred_at?: string;
+          provider?: string | null;
+          status?: string | null;
+          url?: string | null;
+          workflow_name?: string | null;
+        };
+        Relationships: [];
+      };
       health_reports: {
         Row: {
-          created_at: string
-          health_score: number | null
-          id: string
-          lighthouse_score: number | null
-          pdf_url: string | null
-          report_date: string
-          status: string | null
-        }
+          created_at: string;
+          health_score: number | null;
+          id: string;
+          lighthouse_score: number | null;
+          pdf_url: string | null;
+          report_date: string;
+          status: string | null;
+        };
         Insert: {
-          created_at?: string
-          health_score?: number | null
-          id?: string
-          lighthouse_score?: number | null
-          pdf_url?: string | null
-          report_date: string
-          status?: string | null
-        }
+          created_at?: string;
+          health_score?: number | null;
+          id?: string;
+          lighthouse_score?: number | null;
+          pdf_url?: string | null;
+          report_date: string;
+          status?: string | null;
+        };
         Update: {
-          created_at?: string
-          health_score?: number | null
-          id?: string
-          lighthouse_score?: number | null
-          pdf_url?: string | null
-          report_date?: string
-          status?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          health_score?: number | null;
+          id?: string;
+          lighthouse_score?: number | null;
+          pdf_url?: string | null;
+          report_date?: string;
+          status?: string | null;
+        };
+        Relationships: [];
+      };
       performance_history: {
         Row: {
-          accessibility: number | null
-          best_practices: number | null
-          details: Json | null
-          id: string
-          measured_at: string
-          performance: number | null
-          seo: number | null
-          url: string
-        }
+          accessibility: number | null;
+          best_practices: number | null;
+          details: Json | null;
+          id: string;
+          measured_at: string;
+          performance: number | null;
+          seo: number | null;
+          url: string;
+        };
         Insert: {
-          accessibility?: number | null
-          best_practices?: number | null
-          details?: Json | null
-          id?: string
-          measured_at?: string
-          performance?: number | null
-          seo?: number | null
-          url: string
-        }
+          accessibility?: number | null;
+          best_practices?: number | null;
+          details?: Json | null;
+          id?: string;
+          measured_at?: string;
+          performance?: number | null;
+          seo?: number | null;
+          url: string;
+        };
         Update: {
-          accessibility?: number | null
-          best_practices?: number | null
-          details?: Json | null
-          id?: string
-          measured_at?: string
-          performance?: number | null
-          seo?: number | null
-          url?: string
-        }
-        Relationships: []
-      }
+          accessibility?: number | null;
+          best_practices?: number | null;
+          details?: Json | null;
+          id?: string;
+          measured_at?: string;
+          performance?: number | null;
+          seo?: number | null;
+          url?: string;
+        };
+        Relationships: [];
+      };
       user_roles: {
         Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          role?: Database["public"]["Enums"]["app_role"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       website_health_checks: {
         Row: {
-          checked_at: string
-          details: Json | null
-          dns_ok: boolean | null
-          favicon_ok: boolean | null
-          health_score: number | null
-          http_status: number | null
-          id: string
-          response_time_ms: number | null
-          robots_ok: boolean | null
-          sitemap_ok: boolean | null
-          ssl_expires_at: string | null
-          ssl_valid: boolean | null
-          url: string
-        }
+          checked_at: string;
+          details: Json | null;
+          dns_ok: boolean | null;
+          favicon_ok: boolean | null;
+          health_score: number | null;
+          http_status: number | null;
+          id: string;
+          response_time_ms: number | null;
+          robots_ok: boolean | null;
+          sitemap_ok: boolean | null;
+          ssl_expires_at: string | null;
+          ssl_valid: boolean | null;
+          url: string;
+        };
         Insert: {
-          checked_at?: string
-          details?: Json | null
-          dns_ok?: boolean | null
-          favicon_ok?: boolean | null
-          health_score?: number | null
-          http_status?: number | null
-          id?: string
-          response_time_ms?: number | null
-          robots_ok?: boolean | null
-          sitemap_ok?: boolean | null
-          ssl_expires_at?: string | null
-          ssl_valid?: boolean | null
-          url: string
-        }
+          checked_at?: string;
+          details?: Json | null;
+          dns_ok?: boolean | null;
+          favicon_ok?: boolean | null;
+          health_score?: number | null;
+          http_status?: number | null;
+          id?: string;
+          response_time_ms?: number | null;
+          robots_ok?: boolean | null;
+          sitemap_ok?: boolean | null;
+          ssl_expires_at?: string | null;
+          ssl_valid?: boolean | null;
+          url: string;
+        };
         Update: {
-          checked_at?: string
-          details?: Json | null
-          dns_ok?: boolean | null
-          favicon_ok?: boolean | null
-          health_score?: number | null
-          http_status?: number | null
-          id?: string
-          response_time_ms?: number | null
-          robots_ok?: boolean | null
-          sitemap_ok?: boolean | null
-          ssl_expires_at?: string | null
-          ssl_valid?: boolean | null
-          url?: string
-        }
-        Relationships: []
-      }
+          checked_at?: string;
+          details?: Json | null;
+          dns_ok?: boolean | null;
+          favicon_ok?: boolean | null;
+          health_score?: number | null;
+          http_status?: number | null;
+          id?: string;
+          response_time_ms?: number | null;
+          robots_ok?: boolean | null;
+          sitemap_ok?: boolean | null;
+          ssl_expires_at?: string | null;
+          ssl_valid?: boolean | null;
+          url?: string;
+        };
+        Relationships: [];
+      };
       rate_limit_configs: {
         Row: {
-          created_at: string
-          description: string
-          endpoint_pattern: string
-          enabled: boolean
-          id: string
-          max_requests: number
-          name: string
-          updated_at: string
-          window_seconds: number
-        }
+          created_at: string;
+          description: string;
+          endpoint_pattern: string;
+          enabled: boolean;
+          id: string;
+          max_requests: number;
+          name: string;
+          updated_at: string;
+          window_seconds: number;
+        };
         Insert: {
-          created_at?: string
-          description: string
-          endpoint_pattern: string
-          enabled?: boolean
-          id: string
-          max_requests?: number
-          name: string
-          updated_at?: string
-          window_seconds?: number
-        }
+          created_at?: string;
+          description: string;
+          endpoint_pattern: string;
+          enabled?: boolean;
+          id: string;
+          max_requests?: number;
+          name: string;
+          updated_at?: string;
+          window_seconds?: number;
+        };
         Update: {
-          created_at?: string
-          description?: string
-          endpoint_pattern?: string
-          enabled?: boolean
-          id?: string
-          max_requests?: number
-          name?: string
-          updated_at?: string
-          window_seconds?: number
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          description?: string;
+          endpoint_pattern?: string;
+          enabled?: boolean;
+          id?: string;
+          max_requests?: number;
+          name?: string;
+          updated_at?: string;
+          window_seconds?: number;
+        };
+        Relationships: [];
+      };
       rate_limit_events: {
         Row: {
-          action_taken: string
-          client_identifier: string
-          created_at: string
-          endpoint: string
-          http_method: string
-          id: string
-          limit_max: number
-          request_count: number
-          rule_name: string
-          status_code: number
-          user_agent: string | null
-          window_seconds: number
-        }
+          action_taken: string;
+          client_identifier: string;
+          created_at: string;
+          endpoint: string;
+          http_method: string;
+          id: string;
+          limit_max: number;
+          request_count: number;
+          rule_name: string;
+          status_code: number;
+          user_agent: string | null;
+          window_seconds: number;
+        };
         Insert: {
-          action_taken?: string
-          client_identifier: string
-          created_at?: string
-          endpoint: string
-          http_method?: string
-          id?: string
-          limit_max?: number
-          request_count?: number
-          rule_name?: string
-          status_code?: number
-          user_agent?: string | null
-          window_seconds?: number
-        }
+          action_taken?: string;
+          client_identifier: string;
+          created_at?: string;
+          endpoint: string;
+          http_method?: string;
+          id?: string;
+          limit_max?: number;
+          request_count?: number;
+          rule_name?: string;
+          status_code?: number;
+          user_agent?: string | null;
+          window_seconds?: number;
+        };
         Update: {
-          action_taken?: string
-          client_identifier?: string
-          created_at?: string
-          endpoint?: string
-          http_method?: string
-          id?: string
-          limit_max?: number
-          request_count?: number
-          rule_name?: string
-          status_code?: number
-          user_agent?: string | null
-          window_seconds?: number
-        }
-        Relationships: []
-      }
+          action_taken?: string;
+          client_identifier?: string;
+          created_at?: string;
+          endpoint?: string;
+          http_method?: string;
+          id?: string;
+          limit_max?: number;
+          request_count?: number;
+          rule_name?: string;
+          status_code?: number;
+          user_agent?: string | null;
+          window_seconds?: number;
+        };
+        Relationships: [];
+      };
       rate_limit_buckets: {
         Row: {
-          bucket_key: string
-          expires_at: string
-          request_count: number
-          updated_at: string
-          window_start: string
-        }
+          bucket_key: string;
+          expires_at: string;
+          request_count: number;
+          updated_at: string;
+          window_start: string;
+        };
         Insert: {
-          bucket_key: string
-          expires_at: string
-          request_count?: number
-          updated_at?: string
-          window_start?: string
-        }
+          bucket_key: string;
+          expires_at: string;
+          request_count?: number;
+          updated_at?: string;
+          window_start?: string;
+        };
         Update: {
-          bucket_key?: string
-          expires_at?: string
-          request_count?: number
-          updated_at?: string
-          window_start?: string
-        }
-        Relationships: []
-      }
-    }
+          bucket_key?: string;
+          expires_at?: string;
+          request_count?: number;
+          updated_at?: string;
+          window_start?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
       consume_rate_limit: {
         Args: {
-          p_key: string
-          p_max_requests: number
-          p_window_seconds: number
-        }
+          p_key: string;
+          p_max_requests: number;
+          p_window_seconds: number;
+        };
         Returns: {
-          allowed: boolean
-          current_count: number
-          limit_max: number
-          reset_at: string
-          retry_after_seconds: number
-        }[]
-      }
+          allowed: boolean;
+          current_count: number;
+          limit_max: number;
+          reset_at: string;
+          retry_after_seconds: number;
+        }[];
+      };
       reset_rate_limit_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: void
-      }
+        Args: Record<PropertyKey, never>;
+        Returns: void;
+      };
       get_db_storage_usage: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
       prune_telemetry_older_than: {
         Args: {
-          days_retention?: number
-        }
-        Returns: Json
-      }
+          days_retention?: number;
+        };
+        Returns: Json;
+      };
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-    }
+          _role: Database["public"]["Enums"]["app_role"];
+          _user_id: string;
+        };
+        Returns: boolean;
+      };
+    };
     Enums: {
-      app_role: "admin" | "user"
-    }
+      app_role: "admin" | "user";
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+      Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+      Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
   EnumName extends (DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+    keyof DefaultSchema["CompositeTypes"] | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
 export const Constants = {
   public: {
@@ -688,4 +727,4 @@ export const Constants = {
       app_role: ["admin", "user"],
     },
   },
-} as const
+} as const;

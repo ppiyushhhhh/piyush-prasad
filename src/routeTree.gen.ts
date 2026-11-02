@@ -19,6 +19,7 @@ import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
+import { Route as DashboardCredlyBadgesRouteImport } from './routes/dashboard.credly-badges'
 import { Route as DashboardDatabaseRouteImport } from './routes/dashboard.database'
 import { Route as DashboardGithubRouteImport } from './routes/dashboard.github'
 import { Route as DashboardHealthRouteImport } from './routes/dashboard.health'
@@ -82,6 +83,11 @@ const DashboardAiChatRoute = DashboardAiChatRouteImport.update({
 const DashboardCicdRoute = DashboardCicdRouteImport.update({
   id: '/cicd',
   path: '/cicd',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCredlyBadgesRoute = DashboardCredlyBadgesRouteImport.update({
+  id: '/credly-badges',
+  path: '/credly-badges',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardDatabaseRoute = DashboardDatabaseRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
+  '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
   '/dashboard/github': typeof DashboardGithubRoute
   '/dashboard/health': typeof DashboardHealthRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/credly-badges'
     | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/credly-badges'
     | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/api/contact'
     | '/dashboard/ai-chat'
     | '/dashboard/cicd'
+    | '/dashboard/credly-badges'
     | '/dashboard/database'
     | '/dashboard/github'
     | '/dashboard/health'
@@ -397,6 +409,13 @@ declare module '@tanstack/react-router' {
       path: '/cicd'
       fullPath: '/dashboard/cicd'
       preLoaderRoute: typeof DashboardCicdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/credly-badges': {
+      id: '/dashboard/credly-badges'
+      path: '/credly-badges'
+      fullPath: '/dashboard/credly-badges'
+      preLoaderRoute: typeof DashboardCredlyBadgesRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/database': {
@@ -503,6 +522,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardAiChatRoute: typeof DashboardAiChatRoute
   DashboardCicdRoute: typeof DashboardCicdRoute
+  DashboardCredlyBadgesRoute: typeof DashboardCredlyBadgesRoute
   DashboardDatabaseRoute: typeof DashboardDatabaseRoute
   DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardHealthRoute: typeof DashboardHealthRoute
@@ -519,6 +539,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAiChatRoute: DashboardAiChatRoute,
   DashboardCicdRoute: DashboardCicdRoute,
+  DashboardCredlyBadgesRoute: DashboardCredlyBadgesRoute,
   DashboardDatabaseRoute: DashboardDatabaseRoute,
   DashboardGithubRoute: DashboardGithubRoute,
   DashboardHealthRoute: DashboardHealthRoute,

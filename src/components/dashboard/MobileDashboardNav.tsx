@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
+  Award,
   BarChart3,
   Bot,
   FileText,
@@ -30,7 +31,7 @@ export interface NavModule {
   to: string;
   label: string;
   icon: typeof Gauge;
-  category: "Monitoring" | "Pipelines" | "Data & Storage" | "System";
+  category: "Monitoring" | "Pipelines" | "Credentials" | "Data & Storage" | "System";
   description: string;
   badge?: string;
   keywords: string[];
@@ -133,6 +134,24 @@ export const DASHBOARD_NAV_MODULES: NavModule[] = [
     keywords: ["rate", "limit", "throttle", "ddos", "security", "waf", "ip", "abuse", "429"],
   },
   {
+    to: "/dashboard/credly-badges",
+    label: "Credly Badges",
+    icon: Award,
+    category: "Credentials",
+    description: "Manage, upload, organize and publish verified Credly digital badges",
+    badge: "Credly",
+    keywords: [
+      "badge",
+      "credly",
+      "cert",
+      "certification",
+      "award",
+      "skills",
+      "credential",
+      "verify",
+    ],
+  },
+  {
     to: "/dashboard/settings",
     label: "Settings",
     icon: Settings,
@@ -142,7 +161,14 @@ export const DASHBOARD_NAV_MODULES: NavModule[] = [
   },
 ];
 
-const CATEGORIES = ["All", "Monitoring", "Pipelines", "Data & Storage", "System"] as const;
+const CATEGORIES = [
+  "All",
+  "Monitoring",
+  "Pipelines",
+  "Credentials",
+  "Data & Storage",
+  "System",
+] as const;
 
 interface MobileDashboardNavProps {
   currentPath: string;
@@ -150,11 +176,7 @@ interface MobileDashboardNavProps {
   onSignOut: () => Promise<void> | void;
 }
 
-export function MobileDashboardNav({
-  currentPath,
-  userEmail,
-  onSignOut,
-}: MobileDashboardNavProps) {
+export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: MobileDashboardNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -170,7 +192,7 @@ export function MobileDashboardNav({
       DASHBOARD_NAV_MODULES.find((m) =>
         m.to === "/dashboard"
           ? currentPath === "/dashboard" || currentPath === "/dashboard/"
-          : currentPath.startsWith(m.to)
+          : currentPath.startsWith(m.to),
       ) ?? DASHBOARD_NAV_MODULES[0]
     );
   }, [currentPath]);
@@ -232,8 +254,7 @@ export function MobileDashboardNav({
   const filteredModules = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return DASHBOARD_NAV_MODULES.filter((module) => {
-      const matchesCategory =
-        selectedCategory === "All" || module.category === selectedCategory;
+      const matchesCategory = selectedCategory === "All" || module.category === selectedCategory;
       if (!matchesCategory) return false;
 
       if (!q) return true;
@@ -263,9 +284,7 @@ export function MobileDashboardNav({
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="mono text-xs font-bold tracking-tight text-carbon">
-                  PP · OPS
-                </span>
+                <span className="mono text-xs font-bold tracking-tight text-carbon">PP · OPS</span>
                 <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </div>
               <span className="mono text-[8px] uppercase tracking-wider text-muted-foreground">
@@ -284,9 +303,7 @@ export function MobileDashboardNav({
               aria-label="Open dashboard navigation menu"
             >
               <Compass className="h-3.5 w-3.5" />
-              <span className="font-mono text-[11px] uppercase tracking-wider">
-                Jump
-              </span>
+              <span className="font-mono text-[11px] uppercase tracking-wider">Jump</span>
               <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white/25 px-1 text-[9px] font-bold text-white">
                 {DASHBOARD_NAV_MODULES.length}
               </span>
@@ -607,9 +624,7 @@ export function MobileDashboardNav({
           aria-label="Jump to another dashboard page"
         >
           <Compass className="h-4 w-4" />
-          <span className="mono text-[11px] uppercase tracking-wider font-bold">
-            Jump to Page
-          </span>
+          <span className="mono text-[11px] uppercase tracking-wider font-bold">Jump to Page</span>
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white text-cobalt text-[9px] font-bold">
             {DASHBOARD_NAV_MODULES.length}
           </span>

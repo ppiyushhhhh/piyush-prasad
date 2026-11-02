@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { SectionHeader } from "./SectionHeader";
-import { ArrowUpRight, Award, GraduationCap, ExternalLink } from "lucide-react";
+import {
+  ArrowUpRight,
+  Award,
+  GraduationCap,
+  ExternalLink,
+  Calendar,
+  CheckCircle2,
+  ShieldCheck,
+  Tag,
+} from "lucide-react";
+import { fetchPublishedBadges, type CredlyBadge } from "@/lib/credly-badges";
 
 import packtLogo from "@/assets/packt-logo.jpg";
 import googleLogo from "@/assets/google-logo.jpg";
@@ -100,10 +111,19 @@ export function Certifications() {
   const [showAllCerts, setShowAllCerts] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
+  const { data: credlyBadges = [] } = useQuery({
+    queryKey: ["public-credly-badges"],
+    queryFn: fetchPublishedBadges,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+  });
+
   const displayedCerts = showAllCerts ? CERTS_DATA : CERTS_DATA.slice(0, 5);
 
   return (
-    <section id="certifications" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
+    <section
+      id="certifications"
+      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28"
+    >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
           n="04"
@@ -202,9 +222,7 @@ export function Certifications() {
                   Education History
                 </h3>
               </div>
-              <span className="mono text-[10px] text-muted-foreground">
-                3 MILESTONES
-              </span>
+              <span className="mono text-[10px] text-muted-foreground">3 MILESTONES</span>
             </div>
 
             <div className="space-y-4">
@@ -213,9 +231,7 @@ export function Certifications() {
                   key={edu.degree}
                   className="group border border-border bg-white p-5 sm:p-6 transition-all hover:border-cobalt/60 hover:shadow-2xs"
                 >
-                  <div className="mono text-[10px] font-bold text-cobalt mb-2">
-                    {edu.period}
-                  </div>
+                  <div className="mono text-[10px] font-bold text-cobalt mb-2">{edu.period}</div>
 
                   <div className="flex items-start gap-3.5">
                     {edu.logo && (
@@ -228,12 +244,8 @@ export function Certifications() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <div className="text-base font-bold text-carbon">
-                        {edu.degree}
-                      </div>
-                      <div className="mt-1 text-sm text-carbon/80 leading-snug">
-                        {edu.school}
-                      </div>
+                      <div className="text-base font-bold text-carbon">{edu.degree}</div>
+                      <div className="mt-1 text-sm text-carbon/80 leading-snug">{edu.school}</div>
                       <div className="mono mt-2 text-[10px] text-muted-foreground uppercase">
                         {edu.extra}
                       </div>
@@ -244,6 +256,118 @@ export function Certifications() {
             </div>
           </div>
         </div>
+
+        {/* Credly Digital Badges Section */}
+        {credlyBadges.length > 0 && (
+          <div className="mt-16 md:mt-24 border-t border-border pt-12 md:pt-16">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="h-4 w-4 text-cobalt" />
+                  <span className="mono text-[11px] font-bold tracking-wider text-cobalt uppercase">
+                    CREDENTIAL VERIFICATION
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-carbon">
+                  Credly Digital Badges
+                </h3>
+                <p className="mt-1.5 text-xs text-muted-foreground max-w-2xl leading-relaxed">
+                  Cryptographically verifiable digital credentials earned through Credly, validating
+                  skills in cloud architecture, infrastructure automation, and modern systems
+                  engineering.
+                </p>
+              </div>
+              <span className="mono text-[10px] text-muted-foreground uppercase shrink-0">
+                {credlyBadges.length} {credlyBadges.length === 1 ? "BADGE" : "BADGES"} VERIFIED
+              </span>
+            </div>
+
+            {/* Badges Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {credlyBadges.map((badge, index) => (
+                <motion.div
+                  key={badge.id || badge.name}
+                  initial={shouldReduceMotion ? {} : { opacity: 0, y: 12 }}
+                  whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: index * 0.08 }}
+                  whileHover={shouldReduceMotion ? {} : { y: -4 }}
+                  className="group relative flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-md"
+                >
+                  <div>
+                    {/* Top row: Badge Artwork & Issuer */}
+                    <div className="flex items-start gap-4 mb-5">
+                      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-2 shadow-2xs transition-all duration-300 group-hover:scale-105 group-hover:border-cobalt">
+                        <img
+                          src={badge.badge_image_url}
+                          alt={badge.name}
+                          className="h-full w-full object-contain"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = "none";
+                            if (target.parentElement) {
+                              target.parentElement.innerHTML =
+                                '<div class="flex items-center justify-center w-full h-full text-cobalt font-mono font-bold text-xs">BADGE</div>';
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mono text-[10px] font-semibold text-cobalt uppercase tracking-wide truncate">
+                          {badge.issuer}
+                        </div>
+                        <h4 className="mt-1 text-sm sm:text-base font-bold text-carbon leading-snug group-hover:text-cobalt transition-colors">
+                          {badge.name}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Description if present */}
+                    {badge.description && (
+                      <p className="text-xs text-carbon/75 leading-relaxed line-clamp-3 mb-4">
+                        {badge.description}
+                      </p>
+                    )}
+
+                    {/* Associated Skills */}
+                    {badge.skills && badge.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        {badge.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-medium text-carbon"
+                          >
+                            <Tag className="h-2 w-2 text-cobalt/70" />
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom Row: Issue Date & Verify Button */}
+                  <div className="flex items-center justify-between border-t border-border pt-4 mt-auto">
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono">
+                      <Calendar className="h-3 w-3 text-carbon/40" />
+                      <span>{badge.issue_date}</span>
+                    </div>
+
+                    <a
+                      href={badge.credly_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/link inline-flex items-center gap-1 text-xs font-semibold text-cobalt hover:text-cobalt/80 transition-colors"
+                    >
+                      <span>Verify Credential</span>
+                      <ExternalLink className="h-3 w-3 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+                    </a>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
