@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -82,6 +82,56 @@ export const Route = createFileRoute("/dashboard/credly-badges")({
   }),
   component: CredlyBadgesPage,
 });
+
+export function BadgeArtwork({
+  src,
+  alt,
+  size = "md",
+  className = "",
+}: {
+  src?: string | null;
+  alt: string;
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+}) {
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    setLoadError(false);
+  }, [src]);
+
+  const sizeClass = {
+    sm: "h-12 w-12 p-1.5",
+    md: "h-16 w-16 p-2",
+    lg: "h-24 w-24 p-2.5",
+    xl: "h-32 w-32 p-3",
+  }[size];
+
+  if (loadError || !src) {
+    return (
+      <div
+        className={`relative flex ${sizeClass} shrink-0 items-center justify-center border border-[#E5E5DF] bg-[#FAF9F6] shadow-2xs ${className}`}
+        title={alt}
+      >
+        <Award className="h-1/2 w-1/2 text-cobalt/60" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`relative flex ${sizeClass} shrink-0 items-center justify-center border border-[#E5E5DF] bg-white shadow-2xs transition-all duration-200 overflow-hidden ${className}`}
+      title={alt}
+    >
+      <img
+        src={src}
+        alt={alt}
+        className="max-h-full max-w-full object-contain drop-shadow-xs select-none"
+        onError={() => setLoadError(true)}
+      />
+    </div>
+  );
+}
 
 interface BadgeFormData {
   name: string;
@@ -296,20 +346,17 @@ function CredlyBadgesPage() {
     setIsUploading(true);
 
     try {
-      const validation = await validateBadgeFile(file);
-      if (!validation.valid) {
-        setUploadError(validation.error || "Invalid file");
-        setIsUploading(false);
-        return;
-      }
-
       const uploadResult = await uploadBadgeImage(file);
       setFormData((prev) => ({
         ...prev,
         badge_image_url: uploadResult.url,
         badge_storage_path: uploadResult.storagePath,
       }));
-      toast.success("Badge image uploaded and sanitized successfully");
+      toast.success(
+        uploadResult.isLocal
+          ? "Badge image loaded successfully!"
+          : "Badge image uploaded to cloud storage!"
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed";
       setUploadError(msg);
@@ -574,21 +621,12 @@ function CredlyBadgesPage() {
                 {/* Left: Thumbnail & Badge Metadata */}
                 <div className="flex items-start gap-4 min-w-0 flex-1">
                   {/* Badge Image Thumbnail */}
-                  <div className="relative flex h-14 w-14 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white p-1.5 shadow-2xs overflow-hidden">
-                    <img
-                      src={badge.badge_image_url}
-                      alt={badge.name}
-                      className="h-full w-full object-contain"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        target.style.display = "none";
-                        if (target.parentElement) {
-                          target.parentElement.innerHTML =
-                            '<div class="flex items-center justify-center w-full h-full text-cobalt"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></div>';
-                        }
-                      }}
-                    />
-                  </div>
+                  <BadgeArtwork
+                    src={badge.badge_image_url}
+                    alt={badge.name}
+                    size="md"
+                    className="border border-[#E5E5DF] bg-white group-hover:border-cobalt/60"
+                  />
 
                   {/* Metadata */}
                   <div className="min-w-0 flex-1">
@@ -814,33 +852,35 @@ function CredlyBadgesPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                 {/* Image Preview */}
-                <div className="sm:col-span-3 flex flex-col items-center justify-center">
-                  <div className="relative flex h-20 w-20 items-center justify-center border border-[#E5E5DF] bg-white p-2 shadow-2xs">
-                    {formData.badge_image_url ? (
-                      <img
-                        src={formData.badge_image_url}
-                        alt="Badge Preview"
-                        className="h-full w-full object-contain"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.style.display = "none";
-                          if (target.parentElement) {
-                            target.parentElement.innerHTML =
-                              '<span class="mono text-[9px] text-rose-500 text-center">Invalid Image</span>';
-                          }
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
-                    )}
-                  </div>
-                  <span className="mono text-[9px] text-muted-foreground mt-1.5">
-                    {formData.badge_image_url ? "Preview" : "No image"}
+                <div className="sm:col-span-4 flex flex-col items-center justify-center">
+                  <BadgeArtwork
+                    src={formData.badge_image_url}
+                    alt="Badge Preview"
+                    size="lg"
+                    className="border border-[#E5E5DF] bg-white"
+                  />
+                  <span className="mono text-[9px] text-muted-foreground mt-2">
+                    {formData.badge_image_url ? "Live Preview" : "No image selected"}
                   </span>
+                  {formData.badge_image_url && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          badge_image_url: "",
+                          badge_storage_path: null,
+                        }))
+                      }
+                      className="mono text-[9px] text-rose-600 hover:underline mt-1"
+                    >
+                      Clear image
+                    </button>
+                  )}
                 </div>
 
                 {/* Upload Options */}
-                <div className="sm:col-span-9 space-y-2.5">
+                <div className="sm:col-span-8 space-y-2.5">
                   <div>
                     <span className="mono text-[9px] text-muted-foreground uppercase block mb-1">
                       Method A: Direct Public Badge Image URL

@@ -107,6 +107,30 @@ export const EDUCATION_DATA = [
   },
 ];
 
+function PortfolioBadgeArtwork({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError || !src) {
+    return (
+      <div className="relative flex h-20 w-20 sm:h-22 sm:w-22 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] p-2 shadow-2xs">
+        <Award className="h-8 w-8 text-cobalt/60" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex h-20 w-20 sm:h-22 sm:w-22 shrink-0 items-center justify-center border border-border bg-white p-2.5 shadow-2xs transition-all duration-300 group-hover:scale-105 group-hover:border-cobalt">
+      <img
+        src={src}
+        alt={alt}
+        className="max-h-full max-w-full object-contain drop-shadow-xs transition-transform duration-300"
+        loading="lazy"
+        onError={() => setHasError(true)}
+      />
+    </div>
+  );
+}
+
 export function Certifications() {
   const [showAllCerts, setShowAllCerts] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -297,22 +321,10 @@ export function Certifications() {
                   <div>
                     {/* Top row: Badge Artwork & Issuer */}
                     <div className="flex items-start gap-4 mb-5">
-                      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-2 shadow-2xs transition-all duration-300 group-hover:scale-105 group-hover:border-cobalt">
-                        <img
-                          src={badge.badge_image_url}
-                          alt={badge.name}
-                          className="h-full w-full object-contain"
-                          loading="lazy"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.style.display = "none";
-                            if (target.parentElement) {
-                              target.parentElement.innerHTML =
-                                '<div class="flex items-center justify-center w-full h-full text-cobalt font-mono font-bold text-xs">BADGE</div>';
-                            }
-                          }}
-                        />
-                      </div>
+                      <PortfolioBadgeArtwork
+                        src={badge.badge_image_url}
+                        alt={badge.name}
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="mono text-[10px] font-semibold text-cobalt uppercase tracking-wide truncate">
                           {badge.issuer}

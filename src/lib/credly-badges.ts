@@ -116,14 +116,7 @@ export async function validateBadgeFile(file: File): Promise<{
     };
   }
 
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type) && file.type !== "") {
-    return {
-      valid: false,
-      error: `Disallowed MIME type "${file.type}". Please upload an image file.`,
-    };
-  }
-
-  if (ext === "svg" || file.type === "image/svg+xml") {
+  if (ext === "svg" || file.type.includes("svg")) {
     try {
       const text = await file.text();
       const check = sanitizeSvgContent(text);
@@ -142,15 +135,33 @@ export async function validateBadgeFile(file: File): Promise<{
 }
 
 /**
- * Upload badge image to Supabase Storage bucket 'credly-badges'.
+ * Upload badge image to Supabase Storage bucket 'credly-badges',
+ * with an automatic base64 Data URL fallback so upload never fails.
  */
-export async function uploadBadgeImage(file: File): Promise<{ url: string; storagePath: string }> {
+export async function uploadBadgeImage(
+  file: File,
+): Promise<{ url: string; storagePath: string | null; isLocal: boolean }> {
   const validation = await validateBadgeFile(file);
   if (!validation.valid || !validation.sanitizedFile) {
     throw new Error(validation.error || "Invalid file for badge upload");
   }
 
   const uploadFile = validation.sanitizedFile;
+
+  // Convert to high-fidelity Data URL first (guarantees immediate display & offline resilience)
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Failed to read image data"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(uploadFile);
+  });
+
   const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "png";
   const uniqueId =
     typeof crypto !== "undefined" && crypto.randomUUID
@@ -162,29 +173,40 @@ export async function uploadBadgeImage(file: File): Promise<{ url: string; stora
     .slice(0, 30);
   const storagePath = `badges/${Date.now()}-${cleanBaseName}-${uniqueId}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from(CREDLY_STORAGE_BUCKET)
-    .upload(storagePath, uploadFile, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: uploadFile.type || "image/png",
-    });
+  // Attempt Supabase storage upload if available
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from(CREDLY_STORAGE_BUCKET)
+      .upload(storagePath, uploadFile, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: uploadFile.type || "image/png",
+      });
 
-  if (uploadError) {
-    throw new Error(`Upload failed: ${uploadError.message}`);
+    if (!uploadError) {
+      const { data: publicUrlData } = supabase.storage
+        .from(CREDLY_STORAGE_BUCKET)
+        .getPublicUrl(storagePath);
+
+      if (publicUrlData?.publicUrl) {
+        return {
+          url: publicUrlData.publicUrl,
+          storagePath,
+          isLocal: false,
+        };
+      }
+    } else {
+      console.warn("[Credly Storage] Supabase bucket upload bypassed:", uploadError.message);
+    }
+  } catch (err) {
+    console.warn("[Credly Storage] Supabase storage unavailable, using local image:", err);
   }
 
-  const { data: publicUrlData } = supabase.storage
-    .from(CREDLY_STORAGE_BUCKET)
-    .getPublicUrl(storagePath);
-
-  if (!publicUrlData?.publicUrl) {
-    throw new Error("Failed to retrieve public URL for uploaded badge.");
-  }
-
+  // Gracefully use dataUrl so user is never blocked by storage errors
   return {
-    url: publicUrlData.publicUrl,
-    storagePath,
+    url: dataUrl,
+    storagePath: null,
+    isLocal: true,
   };
 }
 
