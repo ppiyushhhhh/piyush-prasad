@@ -95,6 +95,7 @@ export function BadgeArtwork({
   className?: string;
 }) {
   const [loadError, setLoadError] = useState(false);
+  const safeSrc = sanitizeImageUrl(src);
 
   useEffect(() => {
     setLoadError(false);
@@ -107,7 +108,7 @@ export function BadgeArtwork({
     xl: "h-32 w-32 p-3",
   }[size];
 
-  if (loadError || !src) {
+  if (loadError || !safeSrc) {
     return (
       <div
         className={`relative flex ${sizeClass} shrink-0 items-center justify-center border border-[#E5E5DF] bg-[#FAF9F6] shadow-2xs ${className}`}
@@ -124,7 +125,7 @@ export function BadgeArtwork({
       title={alt}
     >
       <img
-        src={src}
+        src={safeSrc}
         alt={alt}
         className="max-h-full max-w-full object-contain drop-shadow-xs select-none"
         onError={() => setLoadError(true)}
@@ -160,6 +161,23 @@ const INITIAL_FORM: BadgeFormData = {
   is_published: true,
   display_order: 1,
 };
+
+function sanitizeImageUrl(url?: string | null): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return parsed.toString();
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
 
 function CredlyBadgesPage() {
   const queryClient = useQueryClient();
@@ -892,7 +910,7 @@ function CredlyBadgesPage() {
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          badge_image_url: e.target.value,
+                          badge_image_url: sanitizeImageUrl(e.target.value) ?? "",
                           badge_storage_path: null,
                         })
                       }
