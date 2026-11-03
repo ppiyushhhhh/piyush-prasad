@@ -82,7 +82,7 @@ Repository: https://github.com/ppiyushhhhh/piyush-prasad
 - Own domain registration, DNS records and hosting across five providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for multiple client environments, including renewals and ongoing maintenance.
 - Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.
 
-### IT Support & Service Management (Full-Time) — Dec 2024 — Aug 2026
+### IT Support & Service Management (Full-Time) — Dec 2025 — Aug 2026
 - Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.
 - Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.
 - Collaborate with internal teams and vendors to resolve technical problems and reduce downtime, contributing to a more reliable and efficient IT environment.

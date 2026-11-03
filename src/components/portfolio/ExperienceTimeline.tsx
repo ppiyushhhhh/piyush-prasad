@@ -10,37 +10,42 @@ interface DatePoint {
 }
 
 /**
- * Calculates a human-readable duration between a start date and an end date.
- * If endDate is omitted or set to 'PRESENT', uses the current system date dynamically.
- * For fixed intervals (e.g. DEC 2024 — AUG 2026), inclusive = true counts both boundary months.
+ * Formats a duration in months into a concise, professional LinkedIn-style string
+ * Examples: '1 yr 11 mos', '2 yrs 8 mos', '3 yrs', '8 mos', '1 mo'
  */
-function calculateExperienceDuration(
-  start: DatePoint,
-  end?: DatePoint | "PRESENT",
-  inclusive = false,
-): string {
-  const now = new Date();
-  const endYear = !end || end === "PRESENT" ? now.getFullYear() : end.year;
-  const endMonth = !end || end === "PRESENT" ? now.getMonth() + 1 : end.month;
-
-  let totalMonths = (endYear - start.year) * 12 + (endMonth - start.month);
-  if (inclusive) {
-    totalMonths += 1;
-  }
-  if (totalMonths < 0) totalMonths = 0;
-
+function formatLinkedInDuration(totalMonths: number): string {
+  if (totalMonths <= 0) return "0 mos";
   const years = Math.floor(totalMonths / 12);
   const months = totalMonths % 12;
 
   const parts: string[] = [];
   if (years > 0) {
-    parts.push(`${years} ${years === 1 ? "YEAR" : "YEARS"}`);
+    parts.push(years === 1 ? "1 yr" : `${years} yrs`);
   }
-  if (months > 0 || years === 0) {
-    parts.push(`${months} ${months === 1 ? "MONTH" : "MONTHS"}`);
+  if (months > 0) {
+    parts.push(months === 1 ? "1 mo" : `${months} mos`);
   }
-
   return parts.join(" ");
+}
+
+/**
+ * Calculates a dynamic, human-readable LinkedIn duration between a start date and an end date.
+ * If endDate is omitted or set to 'PRESENT', uses the current system date.
+ * Handles month differences across year transitions seamlessly.
+ */
+function calculateExperienceDuration(
+  start?: DatePoint,
+  end?: DatePoint | "PRESENT",
+): string | null {
+  if (!start || !start.year || !start.month) return null;
+  const now = new Date();
+  const endYear = !end || end === "PRESENT" ? now.getFullYear() : end.year;
+  const endMonth = !end || end === "PRESENT" ? now.getMonth() + 1 : end.month;
+
+  let totalMonths = (endYear - start.year) * 12 + (endMonth - start.month);
+  if (totalMonths < 0) totalMonths = 0;
+
+  return formatLinkedInDuration(totalMonths);
 }
 
 interface Position {
@@ -49,7 +54,6 @@ interface Position {
   period: string;
   startDate?: DatePoint;
   endDate?: DatePoint | "PRESENT";
-  inclusive?: boolean;
   isCurrent?: boolean;
   bullets: string[];
 }
@@ -81,7 +85,6 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         period: "SEP 2026 — PRESENT",
         startDate: { year: 2026, month: 9 },
         endDate: "PRESENT",
-        inclusive: true,
         isCurrent: true,
         bullets: [
           "Administer Google Workspace for the organization: account creation, email configuration, groups, aliases and access permissions.",
@@ -92,10 +95,9 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
       {
         role: "IT Support & Service Management",
         type: "FULL-TIME",
-        period: "DEC 2024 — AUG 2026",
-        startDate: { year: 2024, month: 12 },
+        period: "DEC 2025 — AUG 2026",
+        startDate: { year: 2025, month: 12 },
         endDate: { year: 2026, month: 8 },
-        inclusive: true,
         bullets: [
           "Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.",
           "Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.",
@@ -108,12 +110,17 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     company: "Credence Infotech",
     logo: credenceLogo,
     url: "https://www.credenceinfotech.in/",
-    period: "Feb 2022 — Oct 2024",
+    period: "FEB 2022 — OCT 2024",
+    startDate: { year: 2022, month: 2 },
+    endDate: { year: 2024, month: 10 },
+    showTotalExperience: true,
     positions: [
       {
         role: "IT Service Management Consultant",
-        type: "Full-Time",
-        period: "Feb 2022 — Oct 2024",
+        type: "FULL-TIME",
+        period: "FEB 2022 — OCT 2024",
+        startDate: { year: 2022, month: 2 },
+        endDate: { year: 2024, month: 10 },
         bullets: [
           "Provided operational support for IT infrastructure, service management, and change management processes.",
           "Acted as a coordination point between technical teams and stakeholders to ensure smooth and efficient service delivery.",
@@ -145,10 +152,9 @@ export function ExperienceTimeline() {
         {/* Editorial Vertical Timeline */}
         <div className="space-y-16">
           {EXPERIENCE_DATA.map((companyExp, companyIndex) => {
-            const totalExp =
-              companyExp.showTotalExperience && companyExp.startDate
-                ? calculateExperienceDuration(companyExp.startDate, companyExp.endDate)
-                : null;
+            const totalExp = companyExp.showTotalExperience
+              ? calculateExperienceDuration(companyExp.startDate, companyExp.endDate)
+              : null;
 
             return (
               <motion.div
@@ -157,11 +163,11 @@ export function ExperienceTimeline() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.45, delay: companyIndex * 0.15 }}
-                className="border border-border bg-white p-6 sm:p-8 md:p-10 shadow-2xs"
+                className="border border-border bg-white p-6 sm:p-8 md:p-10 shadow-2xs transition-all duration-300 hover:border-carbon/30 hover:shadow-xs"
               >
                 {/* Company Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-start sm:items-center gap-4">
                     {companyExp.logo ? (
                       <a
                         href={companyExp.url}
@@ -169,7 +175,7 @@ export function ExperienceTimeline() {
                         rel="noreferrer"
                         title={`Visit ${companyExp.company}`}
                         aria-label={`Visit ${companyExp.company} website`}
-                        className="group/logo relative flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-white p-1.5 shadow-2xs transition-all duration-300 hover:border-cobalt hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                        className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-white p-2 shadow-2xs transition-all duration-300 hover:border-cobalt hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
                       >
                         <img
                           src={
@@ -188,16 +194,16 @@ export function ExperienceTimeline() {
                         rel="noreferrer"
                         title={`Visit ${companyExp.company}`}
                         aria-label={`Visit ${companyExp.company} website`}
-                        className="group/logo flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt font-mono font-bold transition-all duration-300 hover:border-cobalt hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                        className="group/logo flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt font-mono font-bold transition-all duration-300 hover:border-cobalt hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
                       >
-                        <span className="transition-transform duration-300 group-hover/logo:scale-110">
+                        <span className="text-sm transition-transform duration-300 group-hover/logo:scale-110">
                           {companyExp.company.slice(0, 2).toUpperCase()}
                         </span>
                       </a>
                     )}
 
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <a
                           href={companyExp.url}
                           target="_blank"
@@ -210,30 +216,24 @@ export function ExperienceTimeline() {
                           </h3>
                           <ArrowUpRight className="h-4 w-4 opacity-40 transition-all duration-200 group-hover/name:opacity-100 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 text-cobalt" />
                         </a>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1">
-                        <span className="mono text-[11px] text-muted-foreground">
-                          {companyExp.period}
-                        </span>
+
+                        {/* Prominent LinkedIn-style company tenure badge next to company name */}
                         {totalExp && (
-                          <>
-                            <span className="text-border select-none">•</span>
-                            <div className="inline-flex items-center gap-1.5 border border-border bg-[#FAF9F6] px-2 py-0.5 shadow-2xs">
-                              <span className="mono text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                                TOTAL EXPERIENCE
-                              </span>
-                              <span className="mono text-[10px] font-bold text-cobalt">
-                                {totalExp}
-                              </span>
-                            </div>
-                          </>
+                          <span className="mono inline-flex items-center border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[11px] font-bold text-cobalt">
+                            {totalExp}
+                          </span>
                         )}
+                      </div>
+
+                      <div className="mono text-[11px] text-muted-foreground font-medium mt-1">
+                        {companyExp.period}
                       </div>
                     </div>
                   </div>
 
-                  <div className="mono text-[11px] text-cobalt font-medium">
-                    {companyExp.positions.length}{" "}
+                  {/* Role Count on the right */}
+                  <div className="mono text-[11px] text-muted-foreground uppercase font-semibold shrink-0 sm:text-right">
+                    <span className="text-cobalt font-bold">{companyExp.positions.length}</span>{" "}
                     {companyExp.positions.length === 1 ? "ROLE" : "PROGRESSIVE ROLES"}
                   </div>
                 </div>
@@ -241,21 +241,23 @@ export function ExperienceTimeline() {
                 {/* Roles Timeline within this company */}
                 <div className="relative mt-8 ml-2 sm:ml-4 border-l-2 border-border pl-6 sm:pl-8 space-y-12">
                   {companyExp.positions.map((pos) => {
-                    const roleDuration = pos.startDate
-                      ? calculateExperienceDuration(pos.startDate, pos.endDate, pos.inclusive)
-                      : null;
+                    const roleDuration = calculateExperienceDuration(pos.startDate, pos.endDate);
 
                     return (
-                      <div key={pos.role} className="relative">
+                      <div key={pos.role} className="relative group/role">
                         {/* Timeline Node Bullet */}
                         <div
-                          className={`absolute -left-[31px] sm:-left-[39px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white ring-2 ${
-                            pos.isCurrent ? "ring-cobalt" : "ring-border"
+                          className={`absolute -left-[31px] sm:-left-[39px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white ring-2 transition-all duration-200 ${
+                            pos.isCurrent
+                              ? "ring-cobalt shadow-xs"
+                              : "ring-border group-hover/role:ring-carbon/40"
                           }`}
                         >
                           <div
-                            className={`h-2 w-2 rounded-full ${
-                              pos.isCurrent ? "bg-cobalt animate-pulse" : "bg-carbon/40"
+                            className={`h-2 w-2 rounded-full transition-transform duration-200 ${
+                              pos.isCurrent
+                                ? "bg-cobalt animate-pulse"
+                                : "bg-carbon/40 group-hover/role:scale-125"
                             }`}
                           />
                         </div>
@@ -264,26 +266,27 @@ export function ExperienceTimeline() {
                         <div className="flex flex-wrap items-center gap-2.5">
                           <h4 className="text-lg sm:text-xl font-bold text-carbon">{pos.role}</h4>
 
-                          <span className="mono border border-border bg-[#FAF9F6] px-2.5 py-0.5 text-[10px] text-carbon/80 font-semibold">
+                          <span className="mono border border-border bg-[#FAF9F6] px-2.5 py-0.5 text-[10px] text-carbon/80 font-semibold uppercase">
                             {pos.type}
                           </span>
 
                           {pos.isCurrent && (
-                            <span className="mono inline-flex items-center gap-1 border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[9px] font-bold text-cobalt">
+                            <span className="mono inline-flex items-center gap-1.5 border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[9px] font-bold text-cobalt">
                               <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
                               CURRENT
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                        {/* Role Dates & Role-level Duration */}
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
                           <span className="mono text-[11px] text-muted-foreground font-medium">
                             {pos.period}
                           </span>
                           {roleDuration && (
                             <>
                               <span className="text-border select-none">•</span>
-                              <span className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-bold text-carbon/85">
+                              <span className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-semibold text-carbon/85">
                                 {roleDuration}
                               </span>
                             </>
