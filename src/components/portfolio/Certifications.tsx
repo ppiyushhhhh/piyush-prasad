@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { SectionHeader } from "./SectionHeader";
@@ -107,6 +107,22 @@ export const EDUCATION_DATA = [
   },
 ];
 
+function getBadgeYear(issueDate?: string | null): string {
+  if (!issueDate) return "Other Achievements";
+  const str = String(issueDate).trim();
+  const match = str.match(/^(\d{4})/);
+  if (match) {
+    const y = parseInt(match[1], 10);
+    if (y >= 1990 && y <= 2100) return String(y);
+  }
+  const parsed = new Date(str);
+  if (!isNaN(parsed.getTime())) {
+    const y = parsed.getFullYear();
+    if (y >= 1990 && y <= 2100) return String(y);
+  }
+  return "Other Achievements";
+}
+
 function PortfolioBadgeArtwork({ src, alt }: { src?: string; alt: string }) {
   const [hasError, setHasError] = useState(false);
 
@@ -140,6 +156,69 @@ export function Certifications() {
     queryFn: fetchPublishedBadges,
     staleTime: 1000 * 60 * 5, // 5 minutes cache
   });
+
+  const INITIAL_BADGE_LIMIT = 6;
+  const [showAllBadges, setShowAllBadges] = useState(false);
+  const credlySectionRef = useRef<HTMLDivElement>(null);
+
+  // 1. Sort all published badges by issue date, newest first (secondary sort by display_order)
+  const sortedBadges = useMemo(() => {
+    return [...credlyBadges].sort((a, b) => {
+      const timeA = a.issue_date ? new Date(a.issue_date).getTime() : 0;
+      const timeB = b.issue_date ? new Date(b.issue_date).getTime() : 0;
+      const validTimeA = isNaN(timeA) ? 0 : timeA;
+      const validTimeB = isNaN(timeB) ? 0 : timeB;
+      if (validTimeA !== validTimeB) {
+        return validTimeB - validTimeA; // Descending: newest first
+      }
+      return (a.display_order ?? 0) - (b.display_order ?? 0);
+    });
+  }, [credlyBadges]);
+
+  // 2. Select initial 6 badges or all badges based on state
+  const displayedBadges = useMemo(() => {
+    if (showAllBadges) return sortedBadges;
+    return sortedBadges.slice(0, INITIAL_BADGE_LIMIT);
+  }, [sortedBadges, showAllBadges]);
+
+  const remainingCount = Math.max(0, sortedBadges.length - INITIAL_BADGE_LIMIT);
+
+  // 3. Group displayed badges by year
+  const yearGroups = useMemo(() => {
+    const map = new Map<string, CredlyBadge[]>();
+    for (const badge of displayedBadges) {
+      const year = getBadgeYear(badge.issue_date);
+      if (!map.has(year)) {
+        map.set(year, []);
+      }
+      map.get(year)!.push(badge);
+    }
+
+    const groups = Array.from(map.entries()).map(([year, badges]) => ({
+      year,
+      badges,
+    }));
+
+    // Sort year headings: newest year first (e.g. 2026, 2025, 2024), "Other Achievements" at end
+    groups.sort((a, b) => {
+      if (a.year === "Other Achievements") return 1;
+      if (b.year === "Other Achievements") return -1;
+      return Number(b.year) - Number(a.year);
+    });
+
+    return groups;
+  }, [displayedBadges]);
+
+  function handleToggleBadgesView() {
+    if (showAllBadges) {
+      setShowAllBadges(false);
+      if (credlySectionRef.current) {
+        credlySectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else {
+      setShowAllBadges(true);
+    }
+  }
 
   const displayedCerts = showAllCerts ? CERTS_DATA : CERTS_DATA.slice(0, 5);
 
@@ -282,9 +361,13 @@ export function Certifications() {
         </div>
 
         {/* Credly Digital Badges Section */}
-        {credlyBadges.length > 0 && (
-          <div className="mt-16 md:mt-24 border-t border-border pt-12 md:pt-16">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        {sortedBadges.length > 0 && (
+          <div
+            ref={credlySectionRef}
+            id="credly-badges"
+            className="mt-16 md:mt-24 border-t border-border pt-12 md:pt-16 scroll-mt-24"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Award className="h-4 w-4 text-cobalt" />
@@ -302,82 +385,128 @@ export function Certifications() {
                 </p>
               </div>
               <span className="mono text-[10px] text-muted-foreground uppercase shrink-0">
-                {credlyBadges.length} {credlyBadges.length === 1 ? "BADGE" : "BADGES"} VERIFIED
+                {sortedBadges.length} {sortedBadges.length === 1 ? "BADGE" : "BADGES"} VERIFIED
               </span>
             </div>
 
-            {/* Badges Responsive Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {credlyBadges.map((badge, index) => (
-                <motion.div
-                  key={badge.id || badge.name}
-                  initial={shouldReduceMotion ? {} : { opacity: 0, y: 12 }}
-                  whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.35, delay: index * 0.08 }}
-                  whileHover={shouldReduceMotion ? {} : { y: -4 }}
-                  className="group relative flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-md"
-                >
-                  <div>
-                    {/* Top row: Badge Artwork & Issuer */}
-                    <div className="flex items-start gap-4 mb-5">
-                      <PortfolioBadgeArtwork
-                        src={badge.badge_image_url}
-                        alt={badge.name}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="mono text-[10px] font-semibold text-cobalt uppercase tracking-wide truncate">
-                          {badge.issuer}
-                        </div>
-                        <h4 className="mt-1 text-sm sm:text-base font-bold text-carbon leading-snug group-hover:text-cobalt transition-colors">
-                          {badge.name}
+            {/* Year-wise Grouped Badges */}
+            <div className="space-y-12">
+              <AnimatePresence mode="sync">
+                {yearGroups.map((group) => (
+                  <motion.div
+                    key={group.year}
+                    layout
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={shouldReduceMotion ? undefined : { opacity: 0, y: -12 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="space-y-6"
+                  >
+                    {/* Year Heading & Divider */}
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="h-2 w-2 bg-cobalt shrink-0" />
+                        <h4 className="mono text-base sm:text-lg font-bold tracking-tight text-carbon">
+                          {group.year}
                         </h4>
                       </div>
+                      <span className="mono text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
+                        {group.badges.length}{" "}
+                        {group.badges.length === 1 ? "CREDENTIAL" : "CREDENTIALS"}
+                      </span>
                     </div>
 
-                    {/* Description if present */}
-                    {badge.description && (
-                      <p className="text-xs text-carbon/75 leading-relaxed line-clamp-3 mb-4">
-                        {badge.description}
-                      </p>
-                    )}
+                    {/* Responsive Badges Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {group.badges.map((badge, idx) => (
+                        <motion.div
+                          key={badge.id || `${badge.name}-${idx}`}
+                          layout
+                          initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3, delay: idx * 0.05 }}
+                          whileHover={shouldReduceMotion ? {} : { y: -4 }}
+                          className="group relative flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-md"
+                        >
+                          <div>
+                            {/* Top row: Badge Artwork & Issuer */}
+                            <div className="flex items-start gap-4 mb-5">
+                              <PortfolioBadgeArtwork src={badge.badge_image_url} alt={badge.name} />
+                              <div className="min-w-0 flex-1">
+                                <div className="mono text-[10px] font-semibold text-cobalt uppercase tracking-wide truncate">
+                                  {badge.issuer}
+                                </div>
+                                <h5 className="mt-1 text-sm sm:text-base font-bold text-carbon leading-snug group-hover:text-cobalt transition-colors">
+                                  {badge.name}
+                                </h5>
+                              </div>
+                            </div>
 
-                    {/* Associated Skills */}
-                    {badge.skills && badge.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-5">
-                        {badge.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-medium text-carbon"
-                          >
-                            <Tag className="h-2 w-2 text-cobalt/70" />
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                            {/* Description if present */}
+                            {badge.description && (
+                              <p className="text-xs text-carbon/75 leading-relaxed line-clamp-3 mb-4">
+                                {badge.description}
+                              </p>
+                            )}
 
-                  {/* Bottom Row: Issue Date & Verify Button */}
-                  <div className="flex items-center justify-between border-t border-border pt-4 mt-auto">
-                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono">
-                      <Calendar className="h-3 w-3 text-carbon/40" />
-                      <span>{badge.issue_date}</span>
+                            {/* Associated Skills */}
+                            {badge.skills && badge.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mb-5">
+                                {badge.skills.map((skill) => (
+                                  <span
+                                    key={skill}
+                                    className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-medium text-carbon"
+                                  >
+                                    <Tag className="h-2 w-2 text-cobalt/70" />
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Bottom Row: Issue Date & Verify Button */}
+                          <div className="flex items-center justify-between border-t border-border pt-4 mt-auto">
+                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono">
+                              <Calendar className="h-3 w-3 text-carbon/40" />
+                              <span>{badge.issue_date || "N/A"}</span>
+                            </div>
+
+                            <a
+                              href={badge.credly_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group/link inline-flex items-center gap-1 text-xs font-semibold text-cobalt hover:text-cobalt/80 transition-colors"
+                            >
+                              <span>Verify Credential</span>
+                              <ExternalLink className="h-3 w-3 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+                            </a>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
-
-                    <a
-                      href={badge.credly_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/link inline-flex items-center gap-1 text-xs font-semibold text-cobalt hover:text-cobalt/80 transition-colors"
-                    >
-                      <span>Verify Credential</span>
-                      <ExternalLink className="h-3 w-3 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
-                    </a>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
+
+            {/* View More / Show Less Button */}
+            {sortedBadges.length > INITIAL_BADGE_LIMIT && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleToggleBadgesView}
+                  aria-expanded={showAllBadges}
+                  className="mono inline-flex items-center gap-2 border border-border bg-white px-5 py-3 text-xs font-semibold text-cobalt transition-all duration-200 hover:border-cobalt hover:bg-[#FAF9F6] shadow-2xs cursor-pointer active:scale-[0.99]"
+                >
+                  <span>
+                    {showAllBadges ? "SHOW LESS" : `VIEW MORE BADGES (${remainingCount} REMAINING)`}
+                  </span>
+                  <span className="text-carbon/40">{showAllBadges ? "↑" : "↓"}</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
