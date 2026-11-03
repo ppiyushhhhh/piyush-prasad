@@ -12,7 +12,7 @@ interface DatePoint {
 /**
  * Calculates a human-readable duration between a start date and an end date.
  * If endDate is omitted or set to 'PRESENT', uses the current system date dynamically.
- * For fixed intervals (e.g. DEC 2025 — AUG 2026), inclusive = true counts both boundary months.
+ * For fixed intervals (e.g. DEC 2024 — AUG 2026), inclusive = true counts both boundary months.
  */
 function calculateExperienceDuration(
   start: DatePoint,
@@ -76,18 +76,30 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     showTotalExperience: true,
     positions: [
       {
+        role: "Junior Cloud Engineer",
+        type: "FULL-TIME",
+        period: "SEP 2026 — PRESENT",
+        startDate: { year: 2026, month: 9 },
+        endDate: "PRESENT",
+        inclusive: true,
+        isCurrent: true,
+        bullets: [
+          "Administer Google Workspace for the organization: account creation, email configuration, groups, aliases and access permissions.",
+          "Own domain registration, DNS records and hosting across five providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for multiple client environments, including renewals and ongoing maintenance.",
+          "Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.",
+        ],
+      },
+      {
         role: "IT Support & Service Management",
         type: "FULL-TIME",
-        period: "DEC 2025 — AUG 2026",
-        startDate: { year: 2025, month: 12 },
+        period: "DEC 2024 — AUG 2026",
+        startDate: { year: 2024, month: 12 },
         endDate: { year: 2026, month: 8 },
         inclusive: true,
         bullets: [
-          "Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and escalations across multiple locations using ManageEngine ServiceDesk Plus.",
-          "Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and ensuring timely resolution.",
-          "Administered IT asset lifecycle for laptops, desktops, access points, and biometric devices with accurate tracking and documentation.",
-          "Coordinated with internal teams and external vendors to resolve hardware, network, and system issues within defined SLAs.",
-          "Supported daily IT operations including ticket logging, categorization, escalation handling, and documentation.",
+          "Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.",
+          "Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.",
+          "Collaborate with internal teams and vendors to resolve technical problems and reduce downtime, contributing to a more reliable and efficient IT environment.",
         ],
       },
     ],

@@ -77,17 +77,15 @@ Repository: https://github.com/ppiyushhhhh/piyush-prasad
 # EXPERIENCE
 
 ## Runtime Solutions — Dec 2024 — Present (https://www.runtime-solutions.com/)
-### IT Support & Service Management (Full-Time) — DEC 2025 — AUG 2026
-- Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and
-  escalations across multiple locations using ManageEngine ServiceDesk Plus.
-- Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and
-  ensuring timely resolution.
-- Administered IT asset lifecycle for laptops, desktops, access points, and biometric
-  devices with accurate tracking and documentation.
-- Coordinated with internal teams and external vendors to resolve hardware, network, and
-  system issues within defined SLAs.
-- Supported daily IT operations including ticket logging, categorization, escalation
-  handling, and documentation.
+### Junior Cloud Engineer (Full-Time) — Sep 2026 — PRESENT
+- Administer Google Workspace for the organization: account creation, email configuration, groups, aliases and access permissions.
+- Own domain registration, DNS records and hosting across five providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for multiple client environments, including renewals and ongoing maintenance.
+- Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.
+
+### IT Support & Service Management (Full-Time) — Dec 2024 — Aug 2026
+- Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.
+- Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.
+- Collaborate with internal teams and vendors to resolve technical problems and reduce downtime, contributing to a more reliable and efficient IT environment.
 
 ## Credence Infotech — IT Service Management Consultant (Full-Time), Feb 2022 — Oct 2024
 (https://www.credenceinfotech.in/)
