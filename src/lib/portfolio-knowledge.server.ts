@@ -77,15 +77,7 @@ Repository: https://github.com/ppiyushhhhh/piyush-prasad
 # EXPERIENCE
 
 ## Runtime Solutions — Dec 2024 — Present (https://www.runtime-solutions.com/)
-### Junior Cloud Engineer (Full-Time) — Sep 2026 — PRESENT
-- Administer Google Workspace for organizational users, including creating and deleting user
-  accounts, configuring email, and managing groups, aliases, and access permissions.
-- Manage domain registration, DNS, and hosting infrastructure across JaguarPC, ResellerClub,
-  Tasjeel, and SiteGround platforms for client accounts, including client Cosmos, plus domain
-  renewals for client Runwal.
-- Run Windows patching cycles end to end: apply patches, verify system status, and produce
-  infrastructure and patching reports.
-### IT Support & Service Management (Full-Time) — JUL 2025 — AUG 2026
+### IT Support & Service Management (Full-Time) — DEC 2025 — AUG 2026
 - Managed end-to-end ITSM ticket lifecycle including incidents, service requests, and
   escalations across multiple locations using ManageEngine ServiceDesk Plus.
 - Maintained SLA compliance by prioritizing critical issues, minimizing downtime, and
@@ -96,16 +88,6 @@ Repository: https://github.com/ppiyushhhhh/piyush-prasad
   system issues within defined SLAs.
 - Supported daily IT operations including ticket logging, categorization, escalation
   handling, and documentation.
-### I.T Office Assistant - Intern — Dec 2024 — Jun 2025
-- Assisted the IT support desk with first-level troubleshooting of desktops, laptops,
-  printers, and peripherals across office locations.
-- Logged, categorized, and tracked support tickets in ManageEngine ServiceDesk Plus,
-  escalating complex issues to senior engineers.
-- Supported user onboarding including system setup, account provisioning, software
-  installation, and access configuration.
-- Helped maintain IT asset inventory and documentation, keeping hardware records and
-  warranty details up to date.
-- Performed routine checks on network connectivity, access points, and biometric devices.
 
 ## Credence Infotech — IT Service Management Consultant (Full-Time), Feb 2022 — Oct 2024
 (https://www.credenceinfotech.in/)
