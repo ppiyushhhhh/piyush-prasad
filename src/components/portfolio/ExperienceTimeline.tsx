@@ -11,7 +11,7 @@ interface DatePoint {
 
 /**
  * Formats a duration in months into a concise, professional LinkedIn-style string
- * Examples: '1 yr 11 mos', '2 yrs 8 mos', '3 yrs', '8 mos', '1 mo'
+ * Examples: '1 yr 11 mos', '1 yr 9 mos', '2 yrs 8 mos', '3 yrs', '8 mos', '1 mo'
  */
 function formatLinkedInDuration(totalMonths: number): string {
   if (totalMonths <= 0) return "0 mos";
@@ -30,12 +30,13 @@ function formatLinkedInDuration(totalMonths: number): string {
 
 /**
  * Calculates a dynamic, human-readable LinkedIn duration between a start date and an end date.
- * If endDate is omitted or set to 'PRESENT', uses the current system date.
- * Handles month differences across year transitions seamlessly.
+ * If endDate is omitted or set to 'PRESENT', uses the current system date dynamically.
+ * When inclusive = true, both start and end months are included (standard LinkedIn convention).
  */
 function calculateExperienceDuration(
   start?: DatePoint,
   end?: DatePoint | "PRESENT",
+  inclusive = false,
 ): string | null {
   if (!start || !start.year || !start.month) return null;
   const now = new Date();
@@ -43,6 +44,9 @@ function calculateExperienceDuration(
   const endMonth = !end || end === "PRESENT" ? now.getMonth() + 1 : end.month;
 
   let totalMonths = (endYear - start.year) * 12 + (endMonth - start.month);
+  if (inclusive) {
+    totalMonths += 1;
+  }
   if (totalMonths < 0) totalMonths = 0;
 
   return formatLinkedInDuration(totalMonths);
@@ -54,6 +58,7 @@ interface Position {
   period: string;
   startDate?: DatePoint;
   endDate?: DatePoint | "PRESENT";
+  inclusive?: boolean;
   isCurrent?: boolean;
   bullets: string[];
 }
@@ -65,6 +70,7 @@ interface CompanyExperience {
   period: string;
   startDate?: DatePoint;
   endDate?: DatePoint | "PRESENT";
+  inclusive?: boolean;
   showTotalExperience?: boolean;
   positions: Position[];
 }
@@ -77,6 +83,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     period: "DEC 2024 — PRESENT",
     startDate: { year: 2024, month: 12 },
     endDate: "PRESENT",
+    inclusive: false,
     showTotalExperience: true,
     positions: [
       {
@@ -85,6 +92,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         period: "SEP 2026 — PRESENT",
         startDate: { year: 2026, month: 9 },
         endDate: "PRESENT",
+        inclusive: true,
         isCurrent: true,
         bullets: [
           "Administer Google Workspace for the organization: account creation, email configuration, groups, aliases and access permissions.",
@@ -95,9 +103,10 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
       {
         role: "IT Support & Service Management",
         type: "FULL-TIME",
-        period: "DEC 2025 — AUG 2026",
-        startDate: { year: 2025, month: 12 },
+        period: "DEC 2024 — AUG 2026",
+        startDate: { year: 2024, month: 12 },
         endDate: { year: 2026, month: 8 },
+        inclusive: true,
         bullets: [
           "Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.",
           "Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.",
@@ -113,6 +122,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     period: "FEB 2022 — OCT 2024",
     startDate: { year: 2022, month: 2 },
     endDate: { year: 2024, month: 10 },
+    inclusive: false,
     showTotalExperience: true,
     positions: [
       {
@@ -121,6 +131,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         period: "FEB 2022 — OCT 2024",
         startDate: { year: 2022, month: 2 },
         endDate: { year: 2024, month: 10 },
+        inclusive: false,
         bullets: [
           "Provided operational support for IT infrastructure, service management, and change management processes.",
           "Acted as a coordination point between technical teams and stakeholders to ensure smooth and efficient service delivery.",
@@ -153,7 +164,11 @@ export function ExperienceTimeline() {
         <div className="space-y-16">
           {EXPERIENCE_DATA.map((companyExp, companyIndex) => {
             const totalExp = companyExp.showTotalExperience
-              ? calculateExperienceDuration(companyExp.startDate, companyExp.endDate)
+              ? calculateExperienceDuration(
+                  companyExp.startDate,
+                  companyExp.endDate,
+                  companyExp.inclusive ?? false,
+                )
               : null;
 
             return (
@@ -241,7 +256,11 @@ export function ExperienceTimeline() {
                 {/* Roles Timeline within this company */}
                 <div className="relative mt-8 ml-2 sm:ml-4 border-l-2 border-border pl-6 sm:pl-8 space-y-12">
                   {companyExp.positions.map((pos) => {
-                    const roleDuration = calculateExperienceDuration(pos.startDate, pos.endDate);
+                    const roleDuration = calculateExperienceDuration(
+                      pos.startDate,
+                      pos.endDate,
+                      pos.inclusive ?? true,
+                    );
 
                     return (
                       <div key={pos.role} className="relative group/role">
