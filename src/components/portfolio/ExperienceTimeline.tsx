@@ -60,7 +60,8 @@ interface Position {
   endDate?: DatePoint | "PRESENT";
   inclusive?: boolean;
   isCurrent?: boolean;
-  bullets: string[];
+  description: string;
+  bullets?: string[];
 }
 
 interface CompanyExperience {
@@ -94,11 +95,8 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         endDate: "PRESENT",
         inclusive: true,
         isCurrent: true,
-        bullets: [
-          "Administer Google Workspace for the organization: account creation, email configuration, groups, aliases and access permissions.",
-          "Own domain registration, DNS records and hosting across five providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for multiple client environments, including renewals and ongoing maintenance.",
-          "Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.",
-        ],
+        description:
+          "Administer Google Workspace, manage domain registration and DNS configurations, coordinate hosting infrastructure across multiple platforms, and perform Windows patch management with infrastructure reporting.",
       },
       {
         role: "IT Support & Service Management",
@@ -107,11 +105,8 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         startDate: { year: 2024, month: 12 },
         endDate: { year: 2026, month: 8 },
         inclusive: true,
-        bullets: [
-          "Manage daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining proper documentation to ensure timely support delivery and consistent service availability.",
-          "Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.",
-          "Collaborate with internal teams and vendors to resolve technical problems and reduce downtime, contributing to a more reliable and efficient IT environment.",
-        ],
+        description:
+          "Managed ITSM ticket lifecycles, including incidents, service requests and escalations. Monitored SLA compliance, maintained IT asset inventory and coordinated with internal teams and external vendors to resolve technical issues across multiple locations.",
       },
     ],
   },
@@ -132,13 +127,8 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         startDate: { year: 2022, month: 2 },
         endDate: { year: 2024, month: 10 },
         inclusive: false,
-        bullets: [
-          "Provided operational support for IT infrastructure, service management, and change management processes.",
-          "Acted as a coordination point between technical teams and stakeholders to ensure smooth and efficient service delivery.",
-          "Monitored service performance and maintained adherence to defined operational standards and client SLAs.",
-          "Contributed to process improvement initiatives to enhance service efficiency and overall customer satisfaction.",
-          "Provided operational support and consultation to improve IT service quality and system reliability.",
-        ],
+        description:
+          "Managed IT service management operations, handled incident and service request workflows, coordinated technical issue resolution and maintained IT asset records and operational documentation.",
       },
     ],
   },
@@ -254,7 +244,7 @@ export function ExperienceTimeline() {
                 </div>
 
                 {/* Roles Timeline within this company */}
-                <div className="relative mt-8 ml-2 sm:ml-4 border-l-2 border-border pl-6 sm:pl-8 space-y-12">
+                <div className="relative mt-8 ml-2 sm:ml-4 border-l-2 border-border pl-6 sm:pl-8 space-y-10 sm:space-y-12">
                   {companyExp.positions.map((pos) => {
                     const roleDuration = calculateExperienceDuration(
                       pos.startDate,
@@ -281,27 +271,30 @@ export function ExperienceTimeline() {
                           />
                         </div>
 
-                        {/* Role Header */}
+                        {/* Role Header: Job Title | Current Position Indicator */}
                         <div className="flex flex-wrap items-center gap-2.5">
                           <h4 className="text-lg sm:text-xl font-bold text-carbon">{pos.role}</h4>
 
-                          <span className="mono border border-border bg-[#FAF9F6] px-2.5 py-0.5 text-[10px] text-carbon/80 font-semibold uppercase">
-                            {pos.type}
-                          </span>
-
                           {pos.isCurrent && (
                             <span className="mono inline-flex items-center gap-1.5 border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[9px] font-bold text-cobalt">
-                              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-pulse" />
                               CURRENT
                             </span>
                           )}
                         </div>
 
-                        {/* Role Dates & Role-level Duration */}
+                        {/* Sub-Header: Employment Type | Role Dates | Role Duration */}
                         <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                          <span className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] text-carbon/80 font-semibold uppercase">
+                            {pos.type}
+                          </span>
+
+                          <span className="text-border select-none">•</span>
+
                           <span className="mono text-[11px] text-muted-foreground font-medium">
                             {pos.period}
                           </span>
+
                           {roleDuration && (
                             <>
                               <span className="text-border select-none">•</span>
@@ -312,20 +305,12 @@ export function ExperienceTimeline() {
                           )}
                         </div>
 
-                        {/* Bullets */}
-                        <ul className="mt-4 space-y-3">
-                          {pos.bullets.map((bullet, bIndex) => (
-                            <li
-                              key={bIndex}
-                              className="flex items-start gap-3 text-sm sm:text-base leading-relaxed text-carbon/85"
-                            >
-                              <span className="mono mt-1 text-cobalt text-xs font-bold select-none shrink-0">
-                                →
-                              </span>
-                              <span>{bullet}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        {/* Job Description */}
+                        {pos.description && (
+                          <p className="mt-3 text-[13px] sm:text-sm leading-relaxed text-carbon/85 max-w-4xl">
+                            {pos.description}
+                          </p>
+                        )}
                       </div>
                     );
                   })}
