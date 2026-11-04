@@ -417,7 +417,7 @@ export function Certifications() {
                     </div>
 
                     {/* Responsive Badges Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {group.badges.map((badge, idx) => (
                         <motion.div
                           key={badge.id || `${badge.name}-${idx}`}
@@ -427,7 +427,7 @@ export function Certifications() {
                           exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.3, delay: idx * 0.05 }}
                           whileHover={shouldReduceMotion ? {} : { y: -4 }}
-                          className="group relative flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-md"
+                          className="group relative flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-md h-full"
                         >
                           <div>
                             {/* Top row: Badge Artwork & Issuer */}
@@ -443,10 +443,14 @@ export function Certifications() {
                               </div>
                             </div>
 
-                            {/* Description if present */}
-                            {badge.description && (
-                              <p className="text-xs text-carbon/75 leading-relaxed line-clamp-3 mb-4">
+                            {/* Full Description with fallback */}
+                            {badge.description && badge.description.trim() ? (
+                              <p className="text-xs text-carbon/75 leading-relaxed whitespace-pre-line break-words mb-4">
                                 {badge.description}
+                              </p>
+                            ) : (
+                              <p className="text-xs italic text-muted-foreground/60 leading-relaxed mb-4">
+                                No description provided.
                               </p>
                             )}
 
