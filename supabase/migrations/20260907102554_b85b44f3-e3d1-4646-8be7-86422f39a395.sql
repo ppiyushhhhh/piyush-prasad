@@ -4,7 +4,7 @@ EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
 
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   role public.app_role NOT NULL,
@@ -14,6 +14,7 @@ CREATE TABLE public.user_roles (
 GRANT SELECT ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own roles" ON public.user_roles;
 CREATE POLICY "Users can read own roles" ON public.user_roles FOR SELECT TO authenticated USING (user_id = auth.uid());
 
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role public.app_role)
@@ -36,7 +37,7 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.claim_admin() TO authenticated;
 
-CREATE TABLE public.website_health_checks (
+CREATE TABLE IF NOT EXISTS public.website_health_checks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   checked_at timestamptz NOT NULL DEFAULT now(),
   url text NOT NULL,
@@ -52,7 +53,7 @@ CREATE TABLE public.website_health_checks (
   details jsonb
 );
 
-CREATE TABLE public.performance_history (
+CREATE TABLE IF NOT EXISTS public.performance_history (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   measured_at timestamptz NOT NULL DEFAULT now(),
   url text NOT NULL,
@@ -63,7 +64,7 @@ CREATE TABLE public.performance_history (
   details jsonb
 );
 
-CREATE TABLE public.deployment_history (
+CREATE TABLE IF NOT EXISTS public.deployment_history (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   occurred_at timestamptz NOT NULL DEFAULT now(),
   provider text,
@@ -75,7 +76,7 @@ CREATE TABLE public.deployment_history (
   url text
 );
 
-CREATE TABLE public.chat_activity (
+CREATE TABLE IF NOT EXISTS public.chat_activity (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   occurred_at timestamptz NOT NULL DEFAULT now(),
   event_type text NOT NULL,
@@ -84,7 +85,7 @@ CREATE TABLE public.chat_activity (
   error_code text
 );
 
-CREATE TABLE public.health_reports (
+CREATE TABLE IF NOT EXISTS public.health_reports (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   report_date date NOT NULL,
   health_score integer,
@@ -103,8 +104,17 @@ ALTER TABLE public.deployment_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_activity ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.health_reports ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can read health checks" ON public.website_health_checks;
 CREATE POLICY "Admins can read health checks" ON public.website_health_checks FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+
+DROP POLICY IF EXISTS "Admins can read performance" ON public.performance_history;
 CREATE POLICY "Admins can read performance" ON public.performance_history FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+
+DROP POLICY IF EXISTS "Admins can read deployments" ON public.deployment_history;
 CREATE POLICY "Admins can read deployments" ON public.deployment_history FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+
+DROP POLICY IF EXISTS "Admins can read chat activity" ON public.chat_activity;
 CREATE POLICY "Admins can read chat activity" ON public.chat_activity FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+
+DROP POLICY IF EXISTS "Admins can read reports" ON public.health_reports;
 CREATE POLICY "Admins can read reports" ON public.health_reports FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
