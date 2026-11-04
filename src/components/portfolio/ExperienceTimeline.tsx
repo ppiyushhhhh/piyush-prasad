@@ -36,7 +36,7 @@ function formatLinkedInDuration(totalMonths: number): string {
 function calculateExperienceDuration(
   start?: DatePoint,
   end?: DatePoint | "PRESENT",
-  inclusive = false,
+  inclusive = true,
 ): string | null {
   if (!start || !start.year || !start.month) return null;
   const now = new Date();
@@ -83,7 +83,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     period: "DEC 2024 — PRESENT",
     startDate: { year: 2024, month: 12 },
     endDate: "PRESENT",
-    inclusive: false,
+    inclusive: true,
     showTotalExperience: true,
     positions: [
       {
@@ -122,7 +122,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     period: "FEB 2022 — OCT 2024",
     startDate: { year: 2022, month: 2 },
     endDate: { year: 2024, month: 10 },
-    inclusive: false,
+    inclusive: true,
     showTotalExperience: true,
     positions: [
       {
@@ -131,7 +131,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
         period: "FEB 2022 — OCT 2024",
         startDate: { year: 2022, month: 2 },
         endDate: { year: 2024, month: 10 },
-        inclusive: false,
+        inclusive: true,
         bullets: [
           "Provided operational support for IT infrastructure, service management, and change management processes.",
           "Acted as a coordination point between technical teams and stakeholders to ensure smooth and efficient service delivery.",
@@ -167,7 +167,7 @@ export function ExperienceTimeline() {
               ? calculateExperienceDuration(
                   companyExp.startDate,
                   companyExp.endDate,
-                  companyExp.inclusive ?? false,
+                  companyExp.inclusive ?? true,
                 )
               : null;
 
