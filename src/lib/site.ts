@@ -6,4 +6,4 @@ export const SUPPORT_EMAIL = "support@piyushprasad.in";
 export const PHONE = "+91 9324236673";
 export const LINKEDIN = "https://linkedin.com/in/ppiyushhhh";
 export const GITHUB = "https://github.com/ppiyushhhhh";
-
+export const CREDLY_PROFILE = "https://www.credly.com/users/ppiyushhhhh";
