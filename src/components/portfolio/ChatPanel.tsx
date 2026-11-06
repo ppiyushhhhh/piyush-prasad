@@ -15,13 +15,15 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 type Msg = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
-  "What's Piyush's CloudOps experience?",
-  "Tell me about CloudOps-Sentinel",
-  "What AWS projects has Piyush built?",
-  "What technologies does Piyush use?",
-  "Tell me about his DevOps projects",
+  "What Credly badges does Piyush have?",
+  "What AWS certifications has Piyush earned?",
+  "What's his experience at Runtime Solutions?",
+  "Tell me about CloudOps Sentinel",
+  "Which certification is his latest?",
   "How can I contact Piyush?",
 ];
+
+const CHAT_STORAGE_KEY = "piyush_portfolio_chat_history";
 
 const MAX_LENGTH = 1000;
 
@@ -124,11 +126,32 @@ function FormattedMessage({ text }: { text: string }) {
  * Format inline tokens: **bold**, `code`, URLs, and prioritized tech tags
  */
 function renderInlineFormatting(line: string) {
-  // Regex matches URLs, backtick code, and **bold**
-  const regex = /((?:https?:\/\/[^\s]+)|(?:`[^`]+`)|(?:\*\*[^*]+\*\*))/g;
+  // Regex matches markdown links [text](url), raw URLs, backtick code, and **bold**
+  const regex =
+    /(\[[^\]]+\]\(https?:\/\/[^\s)]+\)|(?:https?:\/\/[^\s]+)|(?:`[^`]+`)|(?:\*\*[^*]+\*\*))/g;
   const tokens = line.split(regex);
 
   return tokens.map((token, i) => {
+    // 1. Markdown link: [Title](url)
+    const mdLinkMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
+    if (mdLinkMatch) {
+      const linkText = mdLinkMatch[1];
+      const linkUrl = mdLinkMatch[2];
+      return (
+        <a
+          key={i}
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-0.5 text-cobalt font-semibold underline underline-offset-2 hover:text-carbon"
+        >
+          <span>{linkText}</span>
+          <ExternalLink className="h-2.5 w-2.5" />
+        </a>
+      );
+    }
+
+    // 2. Raw URL
     if (token.startsWith("http://") || token.startsWith("https://")) {
       const cleanUrl = token.replace(/[.,;)]+$/, "");
       return (
@@ -169,7 +192,19 @@ function renderInlineFormatting(line: string) {
 }
 
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [messages, setMessages] = useState<Msg[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +212,19 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastSentRef = useRef<Msg[] | null>(null);
   const shouldReduceMotion = useReducedMotion();
+
+  // Persist conversation to sessionStorage so closing/reopening chat restores memory
+  useEffect(() => {
+    try {
+      if (messages.length > 0) {
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+      } else {
+        sessionStorage.removeItem(CHAT_STORAGE_KEY);
+      }
+    } catch {
+      // ignore quota errors
+    }
+  }, [messages]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -238,6 +286,11 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const clearConversation = useCallback(() => {
     setMessages([]);
     setError(null);
+    try {
+      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
     inputRef.current?.focus();
   }, []);
 

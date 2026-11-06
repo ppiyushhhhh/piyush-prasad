@@ -61,12 +61,14 @@ interface Position {
   inclusive?: boolean;
   isCurrent?: boolean;
   bullets: string[];
+  skills?: string[];
 }
 
 interface CompanyExperience {
   company: string;
   logo?: string | { url: string };
   url: string;
+  location?: string;
   period: string;
   startDate?: DatePoint;
   endDate?: DatePoint | "PRESENT";
@@ -80,6 +82,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     company: "Runtime Solutions",
     logo: runtimeLogo,
     url: "https://www.runtime-solutions.com/",
+    location: "Andheri West, Maharashtra, India · On-site",
     period: "DEC 2024 — PRESENT",
     startDate: { year: 2024, month: 12 },
     endDate: "PRESENT",
@@ -99,6 +102,13 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
           "Own domain registration, DNS records and hosting across five providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for multiple client environments, including renewals and ongoing maintenance.",
           "Run Windows patching cycles end to end: apply patches, verify system status, and produce infrastructure and patching reports.",
         ],
+        skills: [
+          "User Account Management",
+          "DNS Management",
+          "Google Workspace",
+          "Windows Patching",
+          "Multi-Provider Hosting",
+        ],
       },
       {
         role: "IT Support & Service Management",
@@ -112,6 +122,13 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
           "Provide day-to-day technical support for hardware, software, network, and system access issues, and maintain IT asset records including device allocation and inventory tracking across teams to improve employee productivity.",
           "Collaborate with internal teams and vendors to resolve technical problems and reduce downtime, contributing to a more reliable and efficient IT environment.",
         ],
+        skills: [
+          "Service-Level Agreements (SLA)",
+          "IT Asset Management (ITAM)",
+          "Incident Resolution",
+          "Hardware & System Support",
+          "Vendor Coordination",
+        ],
       },
     ],
   },
@@ -119,6 +136,7 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
     company: "Credence Infotech",
     logo: credenceLogo,
     url: "https://www.credenceinfotech.in/",
+    location: "Mumbai, Maharashtra, India · On-site",
     period: "FEB 2022 — OCT 2024",
     startDate: { year: 2022, month: 2 },
     endDate: { year: 2024, month: 10 },
@@ -138,6 +156,13 @@ export const EXPERIENCE_DATA: CompanyExperience[] = [
           "Monitored service performance and maintained adherence to defined operational standards and client SLAs.",
           "Contributed to process improvement initiatives to enhance service efficiency and overall customer satisfaction.",
           "Provided operational support and consultation to improve IT service quality and system reliability.",
+        ],
+        skills: [
+          "IT Service Management (ITSM)",
+          "ITIL Methodologies",
+          "Change Management",
+          "SLA Adherence",
+          "Service Delivery Coordination",
         ],
       },
     ],
@@ -240,8 +265,14 @@ export function ExperienceTimeline() {
                         )}
                       </div>
 
-                      <div className="mono text-[11px] text-muted-foreground font-medium mt-1">
-                        {companyExp.period}
+                      <div className="mono text-[11px] text-muted-foreground font-medium mt-1 flex flex-wrap items-center gap-2">
+                        <span>{companyExp.period}</span>
+                        {companyExp.location && (
+                          <>
+                            <span className="text-border select-none">•</span>
+                            <span>{companyExp.location}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -326,6 +357,23 @@ export function ExperienceTimeline() {
                             </li>
                           ))}
                         </ul>
+
+                        {/* Skills */}
+                        {pos.skills && pos.skills.length > 0 && (
+                          <div className="mt-4 flex flex-wrap items-center gap-1.5 pt-1">
+                            <span className="mono text-[10px] uppercase font-bold text-muted-foreground mr-1">
+                              Skills:
+                            </span>
+                            {pos.skills.map((skill) => (
+                              <span
+                                key={skill}
+                                className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-semibold text-carbon/80"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

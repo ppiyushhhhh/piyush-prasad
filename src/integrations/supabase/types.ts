@@ -167,6 +167,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      portfolio_custom_knowledge: {
+        Row: {
+          category: string;
+          content: string;
+          created_at: string;
+          display_order: number;
+          id: string;
+          is_published: boolean;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          category?: string;
+          content: string;
+          created_at?: string;
+          display_order?: number;
+          id?: string;
+          is_published?: boolean;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          category?: string;
+          content?: string;
+          created_at?: string;
+          display_order?: number;
+          id?: string;
+          is_published?: boolean;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       backup_monthly_reports: {
         Row: {
           created_at: string;

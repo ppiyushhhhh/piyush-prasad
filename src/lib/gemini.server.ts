@@ -2,7 +2,7 @@
  * Server-only Gemini client. The API key is read from the server environment
  * inside the call and is never returned, logged, or sent to the browser.
  */
-import { SYSTEM_INSTRUCTION } from "./portfolio-knowledge.server";
+import { getDynamicSystemInstruction } from "./portfolio-knowledge.server";
 
 export type ChatRole = "user" | "assistant";
 export type ChatMessage = { role: ChatRole; content: string };
@@ -28,13 +28,14 @@ export async function generateReply(messages: ChatMessage[]): Promise<GeminiResu
     return { ok: false, status: 503, message: SAFE_ERROR };
   }
 
+  const { systemInstruction } = await getDynamicSystemInstruction();
   const model = process.env["GEMINI_MODEL"] || DEFAULT_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
     model,
   )}:generateContent`;
 
   const body = {
-    systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+    systemInstruction: { parts: [{ text: systemInstruction }] },
     contents: messages.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
