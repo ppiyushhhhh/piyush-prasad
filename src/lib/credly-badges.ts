@@ -315,11 +315,17 @@ export async function createBadge(input: CredlyBadgeInput): Promise<CredlyBadge>
   const currentBadges = getLocalBadges();
   let order = input.display_order ?? 0;
   if (order === 0) {
-    order = currentBadges.length > 0 ? Math.max(...currentBadges.map((b) => b.display_order || 0)) + 1 : 1;
+    order =
+      currentBadges.length > 0
+        ? Math.max(...currentBadges.map((b) => b.display_order || 0)) + 1
+        : 1;
   }
 
   const newBadge: CredlyBadge = {
-    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `badge-${Date.now()}`,
+    id:
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `badge-${Date.now()}`,
     name: input.name.trim(),
     issuer: input.issuer.trim(),
     description: input.description?.trim() || null,
@@ -335,36 +341,31 @@ export async function createBadge(input: CredlyBadgeInput): Promise<CredlyBadge>
     updated_at: new Date().toISOString(),
   };
 
-  // Try Supabase first
-  try {
-    const insertData: CredlyBadgeInsert = {
-      name: newBadge.name,
-      issuer: newBadge.issuer,
-      description: newBadge.description,
-      badge_image_url: newBadge.badge_image_url,
-      badge_storage_path: newBadge.badge_storage_path,
-      credly_url: newBadge.credly_url,
-      issue_date: newBadge.issue_date,
-      expiry_date: newBadge.expiry_date,
-      skills: newBadge.skills,
-      is_published: newBadge.is_published,
-      display_order: newBadge.display_order,
-    };
+  // Execute database insert
+  const insertData: CredlyBadgeInsert = {
+    name: newBadge.name,
+    issuer: newBadge.issuer,
+    description: newBadge.description,
+    badge_image_url: newBadge.badge_image_url,
+    badge_storage_path: newBadge.badge_storage_path,
+    credly_url: newBadge.credly_url,
+    issue_date: newBadge.issue_date,
+    expiry_date: newBadge.expiry_date,
+    skills: newBadge.skills,
+    is_published: newBadge.is_published,
+    display_order: newBadge.display_order,
+  };
 
-    const { data, error } = await supabase.from("credly_badges").insert(insertData).select().single();
-    if (!error && data) {
-      const updatedList = [...currentBadges.filter((b) => b.id !== data.id), data];
-      setLocalBadges(updatedList);
-      return data;
-    }
-  } catch (err) {
-    console.warn("[Credly] Supabase insert failed, saving locally:", err);
+  const { data, error } = await supabase.from("credly_badges").insert(insertData).select().single();
+
+  if (error || !data) {
+    console.error("[Credly] Supabase insert failed:", error?.message);
+    throw new Error(error?.message ?? "Database insert failed");
   }
 
-  // Save locally so the action succeeds
-  const updatedList = [...currentBadges, newBadge];
+  const updatedList = [...currentBadges.filter((b) => b.id !== data.id), data];
   setLocalBadges(updatedList);
-  return newBadge;
+  return data;
 }
 
 /**
@@ -381,68 +382,84 @@ export async function updateBadge(
 
   const updatedBadge: CredlyBadge = {
     id,
-    name: input.name !== undefined ? input.name.trim() : existing?.name ?? "",
-    issuer: input.issuer !== undefined ? input.issuer.trim() : existing?.issuer ?? "",
-    description: input.description !== undefined ? input.description?.trim() || null : existing?.description ?? null,
-    badge_image_url: input.badge_image_url !== undefined ? input.badge_image_url.trim() : existing?.badge_image_url ?? "",
-    badge_storage_path: input.badge_storage_path !== undefined ? input.badge_storage_path : existing?.badge_storage_path ?? null,
-    credly_url: input.credly_url !== undefined ? input.credly_url.trim() : existing?.credly_url ?? "",
-    issue_date: input.issue_date !== undefined ? input.issue_date : existing?.issue_date ?? new Date().toISOString().split("T")[0],
-    expiry_date: input.expiry_date !== undefined ? input.expiry_date || null : existing?.expiry_date ?? null,
-    skills: input.skills !== undefined ? input.skills : existing?.skills ?? [],
-    is_published: input.is_published !== undefined ? input.is_published : existing?.is_published ?? true,
-    display_order: input.display_order !== undefined ? input.display_order : existing?.display_order ?? 1,
+    name: input.name !== undefined ? input.name.trim() : (existing?.name ?? ""),
+    issuer: input.issuer !== undefined ? input.issuer.trim() : (existing?.issuer ?? ""),
+    description:
+      input.description !== undefined
+        ? input.description?.trim() || null
+        : (existing?.description ?? null),
+    badge_image_url:
+      input.badge_image_url !== undefined
+        ? input.badge_image_url.trim()
+        : (existing?.badge_image_url ?? ""),
+    badge_storage_path:
+      input.badge_storage_path !== undefined
+        ? input.badge_storage_path
+        : (existing?.badge_storage_path ?? null),
+    credly_url:
+      input.credly_url !== undefined ? input.credly_url.trim() : (existing?.credly_url ?? ""),
+    issue_date:
+      input.issue_date !== undefined
+        ? input.issue_date
+        : (existing?.issue_date ?? new Date().toISOString().split("T")[0]),
+    expiry_date:
+      input.expiry_date !== undefined ? input.expiry_date || null : (existing?.expiry_date ?? null),
+    skills: input.skills !== undefined ? input.skills : (existing?.skills ?? []),
+    is_published:
+      input.is_published !== undefined ? input.is_published : (existing?.is_published ?? true),
+    display_order:
+      input.display_order !== undefined ? input.display_order : (existing?.display_order ?? 1),
     created_at: existing?.created_at ?? new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
-  try {
-    const updateData: CredlyBadgeUpdate = {
-      name: updatedBadge.name,
-      issuer: updatedBadge.issuer,
-      description: updatedBadge.description,
-      badge_image_url: updatedBadge.badge_image_url,
-      badge_storage_path: updatedBadge.badge_storage_path,
-      credly_url: updatedBadge.credly_url,
-      issue_date: updatedBadge.issue_date,
-      expiry_date: updatedBadge.expiry_date,
-      skills: updatedBadge.skills,
-      is_published: updatedBadge.is_published,
-      display_order: updatedBadge.display_order,
-    };
+  const updateData: CredlyBadgeUpdate = {
+    name: updatedBadge.name,
+    issuer: updatedBadge.issuer,
+    description: updatedBadge.description,
+    badge_image_url: updatedBadge.badge_image_url,
+    badge_storage_path: updatedBadge.badge_storage_path,
+    credly_url: updatedBadge.credly_url,
+    issue_date: updatedBadge.issue_date,
+    expiry_date: updatedBadge.expiry_date,
+    skills: updatedBadge.skills,
+    is_published: updatedBadge.is_published,
+    display_order: updatedBadge.display_order,
+  };
 
-    const { data, error } = await supabase.from("credly_badges").update(updateData).eq("id", id).select().single();
-    if (!error && data) {
-      if (input.badge_storage_path && previousStoragePath && input.badge_storage_path !== previousStoragePath) {
-        await deleteBadgeStorageFile(previousStoragePath);
-      }
-      const updatedList = currentBadges.map((b) => (b.id === id ? data : b));
-      setLocalBadges(updatedList);
-      return data;
-    }
-  } catch (err) {
-    console.warn("[Credly] Supabase update failed, saving locally:", err);
+  const { data, error } = await supabase
+    .from("credly_badges")
+    .update(updateData)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error("[Credly] Supabase update failed:", error?.message);
+    throw new Error(error?.message ?? "Database update failed");
   }
 
-  // Update locally
-  const updatedList = currentBadges.map((b) => (b.id === id ? updatedBadge : b));
-  setLocalBadges(updatedList);
-
-  if (input.badge_storage_path && previousStoragePath && input.badge_storage_path !== previousStoragePath) {
+  if (
+    input.badge_storage_path &&
+    previousStoragePath &&
+    input.badge_storage_path !== previousStoragePath
+  ) {
     await deleteBadgeStorageFile(previousStoragePath);
   }
 
-  return updatedBadge;
+  const updatedList = currentBadges.map((b) => (b.id === id ? data : b));
+  setLocalBadges(updatedList);
+  return data;
 }
 
 /**
  * Delete a badge and its associated storage file.
  */
 export async function deleteBadge(id: string, storagePath?: string | null): Promise<void> {
-  try {
-    await supabase.from("credly_badges").delete().eq("id", id);
-  } catch (err) {
-    console.warn("[Credly] Supabase delete failed:", err);
+  const { error } = await supabase.from("credly_badges").delete().eq("id", id);
+  if (error) {
+    console.error("[Credly] Supabase delete failed:", error.message);
+    throw new Error(error.message);
   }
 
   if (storagePath) {
@@ -460,47 +477,22 @@ export async function deleteBadge(id: string, storagePath?: string | null): Prom
  */
 export async function toggleBadgePublish(id: string, is_published: boolean): Promise<CredlyBadge> {
   const currentBadges = getLocalBadges();
-  const existing = currentBadges.find((b) => b.id === id);
 
-  try {
-    const { data, error } = await supabase
-      .from("credly_badges")
-      .update({ is_published })
-      .eq("id", id)
-      .select()
-      .single();
+  const { data, error } = await supabase
+    .from("credly_badges")
+    .update({ is_published })
+    .eq("id", id)
+    .select()
+    .single();
 
-    if (!error && data) {
-      const updatedList = currentBadges.map((b) => (b.id === id ? data : b));
-      setLocalBadges(updatedList);
-      return data;
-    }
-  } catch (err) {
-    console.warn("[Credly] Supabase toggle publish failed, saving locally:", err);
+  if (error || !data) {
+    console.error("[Credly] Supabase toggle publish failed:", error?.message);
+    throw new Error(error?.message ?? "Database toggle publish failed");
   }
 
-  const updated: CredlyBadge = existing
-    ? { ...existing, is_published, updated_at: new Date().toISOString() }
-    : {
-        id,
-        name: "Badge",
-        issuer: "Issuer",
-        description: null,
-        badge_image_url: "",
-        badge_storage_path: null,
-        credly_url: "",
-        issue_date: new Date().toISOString().split("T")[0],
-        expiry_date: null,
-        skills: [],
-        is_published,
-        display_order: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-  const updatedList = currentBadges.map((b) => (b.id === id ? updated : b));
+  const updatedList = currentBadges.map((b) => (b.id === id ? data : b));
   setLocalBadges(updatedList);
-  return updated;
+  return data;
 }
 
 /**

@@ -373,17 +373,12 @@ function AiChatPage() {
                 <div className="border border-border bg-[#FAF9F6] p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="mono text-[10px] font-bold text-muted-foreground uppercase">
-                      Core Portfolio Units
+                      Total Indexed Units
                     </span>
                     <Layers className="h-4 w-4 text-cobalt" />
                   </div>
                   <div className="text-2xl font-bold text-carbon">
-                    {knowledge
-                      ? (knowledge.projectsCount ?? 4) +
-                        (knowledge.experiencesCount ?? 2) +
-                        (knowledge.skillsCategoriesCount ?? 9) +
-                        8
-                      : "23"}
+                    {knowledge?.totalRecords ?? 0}
                   </div>
                   <div className="mt-2 text-[11px] text-muted-foreground">
                     Projects, Roles, Skills & Education
@@ -399,7 +394,15 @@ function AiChatPage() {
                     <Database className="h-4 w-4 text-cobalt" />
                   </div>
                   <div className="text-base font-bold text-carbon flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        knowledge?.status === "degraded"
+                          ? "bg-amber-500 animate-pulse"
+                          : knowledge?.status === "error"
+                            ? "bg-rose-500"
+                            : "bg-emerald-500"
+                      }`}
+                    />
                     <span className="capitalize">{knowledge?.status ?? "synced"}</span>
                   </div>
                   <div className="mt-2 mono text-[10px] text-muted-foreground">
@@ -407,6 +410,65 @@ function AiChatPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Degradation Warning Banner if any source failed */}
+              {knowledge?.error && (
+                <div className="mb-4 border border-amber-300 bg-amber-50/80 p-3 text-xs text-amber-900 flex items-start gap-2.5">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-amber-950">
+                      Knowledge Synchronization Degraded
+                    </div>
+                    <div className="mt-0.5 text-amber-800 mono text-[11px]">{knowledge.error}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Granular Source Breakdown Table */}
+              {knowledge?.sources && knowledge.sources.length > 0 && (
+                <div className="mb-4 border border-border/80 bg-white">
+                  <div className="border-b border-border/60 bg-[#FAF9F6] px-4 py-2 flex items-center justify-between">
+                    <span className="mono text-[10px] uppercase font-bold text-muted-foreground">
+                      Independent Knowledge Sources ({knowledge.sources.length} sources)
+                    </span>
+                    <span className="mono text-[10px] text-muted-foreground">
+                      Multi-instance synchronized
+                    </span>
+                  </div>
+                  <div className="divide-y divide-border/40">
+                    {knowledge.sources.map((src) => (
+                      <div
+                        key={src.name}
+                        className="px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="mono font-semibold text-carbon">{src.name}</span>
+                          <span className="mono text-[9px] uppercase border border-border bg-[#FAF9F6] px-1.5 py-0.2 text-muted-foreground">
+                            {src.sourceType}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="mono text-[11px] text-muted-foreground">
+                            <span className="font-bold text-carbon">{src.recordCount}</span>{" "}
+                            {src.recordCount === 1 ? "record" : "records"}
+                          </span>
+                          <span
+                            className={`mono text-[10px] uppercase font-bold px-2 py-0.5 border ${
+                              src.status === "error"
+                                ? "border-rose-300 bg-rose-50 text-rose-700"
+                                : src.status === "empty"
+                                  ? "border-amber-300 bg-amber-50 text-amber-700"
+                                  : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                            }`}
+                          >
+                            {src.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="border border-border/80 bg-white p-3.5 text-xs text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
@@ -754,8 +816,8 @@ function AiChatPage() {
               Delete Knowledge Item?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground">
-              Are you sure you want to delete "{deletingFact?.title}"? It will no longer be available
-              to the AI chatbot.
+              Are you sure you want to delete "{deletingFact?.title}"? It will no longer be
+              available to the AI chatbot.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">

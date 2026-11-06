@@ -1,15 +1,21 @@
 /**
- * Centralized, dynamic knowledge layer for the AI Portfolio Assistant (Ask Piyush AI).
- * Automatically queries Supabase for live Credly digital credentials and custom portfolio facts,
- * unifying them with published portfolio projects, experience, skills, and contact data.
+ * Server-Side Dynamic Knowledge Layer for Ask Piyush AI.
  *
- * Implements in-memory TTL caching with on-demand invalidation so newly added/edited
- * badges or content reflect automatically without redeployment.
+ * Grounded in verified portfolio sources:
+ * 1. Single source of truth code modules (@/data/portfolio-data, @/lib/site)
+ * 2. Dedicated server-only Supabase queries using supabaseAdmin for:
+ *    - public.credly_badges (strictly published, verified digital credentials)
+ *    - public.portfolio_custom_knowledge (strictly published custom facts & FAQs)
  *
- * Server-only module: never import into client-side code.
+ * ARCHITECTURAL GUARANTEES:
+ * - Server-only execution: Service role credentials never leak to the client.
+ * - No browser fallbacks: Never uses localStorage, window, or static mock badges on the server.
+ * - Cross-Instance Synchronization: Checks a lightweight database fingerprint (record counts + max timestamps)
+ *   so cache invalidations on one server instance instantly propagate across all Vercel/serverless instances.
+ * - Granular Diagnostic Telemetry: Tracks every source independently, distinguishing empty tables from database errors.
+ * - Conversation Memory & Anti-Hallucination: Strictly grounds answers in current database facts and guides pronoun resolution.
  */
 
-import { fetchPublishedBadges, type CredlyBadge } from "./credly-badges";
 import {
   SITE_URL,
   GH_USER,
@@ -21,6 +27,29 @@ import {
   CREDLY_PROFILE,
 } from "./site";
 
+import {
+  EXPERIENCE_DATA,
+  PROJECTS,
+  PRIORITY_TECHS,
+  SKILL_CATEGORIES_DATA,
+  CERTS_DATA,
+  EDUCATION_DATA,
+  calculateExperienceDuration,
+} from "@/data/portfolio-data";
+
+export interface ServerCredlyBadge {
+  id: string;
+  name: string;
+  issuer: string;
+  description: string | null;
+  issue_date: string;
+  expiry_date: string | null;
+  skills: string[];
+  credly_url: string;
+  is_published: boolean;
+  updated_at: string;
+}
+
 export interface CustomKnowledgeRow {
   id: string;
   category: string;
@@ -28,10 +57,21 @@ export interface CustomKnowledgeRow {
   content: string;
   is_published: boolean;
   display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KnowledgeSourceStatus {
+  name: string;
+  sourceType: "database" | "code_module";
+  recordCount: number;
+  lastSuccessfulRetrieval: string | null;
+  status: "synced" | "empty" | "error";
+  errorMessage: string | null;
 }
 
 export interface KnowledgeStatusTelemetry {
-  status: "synced" | "cached" | "fallback" | "degraded";
+  status: "synced" | "cached" | "degraded" | "error";
   lastSync: string;
   cacheAgeSeconds: number;
   totalRecords: number;
@@ -39,84 +79,162 @@ export interface KnowledgeStatusTelemetry {
   customFactsCount: number;
   projectsCount: number;
   experiencesCount: number;
-  skillsCategoriesCount: number;
+  rolesCount: number;
+  skillsCount: number;
+  courseCertsCount: number;
+  educationCount: number;
+  sources: KnowledgeSourceStatus[];
   error: string | null;
 }
 
 interface CacheEntry {
   systemInstruction: string;
   telemetry: KnowledgeStatusTelemetry;
+  fingerprint: string;
   cachedAt: number;
 }
 
-// In-memory cache (60-second TTL to balance database load & real-time responsiveness)
+// In-memory cache with cross-instance database fingerprinting
 let memoryCache: CacheEntry | null = null;
 const CACHE_TTL_MS = 60 * 1000;
 
 /**
- * Manually invalidate knowledge cache (invoked after admin edits or manual refresh)
+ * Invalidate the local server instance's in-memory cache.
  */
 export function invalidateKnowledgeCache(): void {
   memoryCache = null;
 }
 
 /**
- * Fetch dynamic custom portfolio facts / FAQs from Supabase
+ * Dedicated server-only query for published Credly badges using supabaseAdmin.
+ * Does NOT fall back to localStorage or mock data.
  */
-async function fetchCustomKnowledge(): Promise<CustomKnowledgeRow[]> {
+export async function fetchServerPublishedCredlyBadges(): Promise<{
+  data: ServerCredlyBadge[];
+  error: string | null;
+}> {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("portfolio_custom_knowledge")
-      .select("id, category, title, content, is_published, display_order")
+      .from("credly_badges")
+      .select(
+        "id, name, issuer, description, issue_date, expiry_date, skills, credly_url, is_published, updated_at",
+      )
       .eq("is_published", true)
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
 
-    if (!error && Array.isArray(data)) {
-      return data as CustomKnowledgeRow[];
+    if (error) {
+      console.error("[portfolio-knowledge] Supabase credly_badges query error:", error.message);
+      return { data: [], error: error.message };
     }
-  } catch {
-    // Table may not yet be provisioned or Supabase offline; fail gracefully
+
+    return { data: (data ?? []) as ServerCredlyBadge[], error: null };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[portfolio-knowledge] Supabase connection error in credly_badges:", msg);
+    return { data: [], error: msg };
   }
-  return [];
 }
 
 /**
- * Compiles the comprehensive, dynamically synchronized portfolio knowledge string
+ * Dedicated server-only query for published custom knowledge & FAQs using supabaseAdmin.
+ */
+export async function fetchServerCustomKnowledge(): Promise<{
+  data: CustomKnowledgeRow[];
+  error: string | null;
+}> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("portfolio_custom_knowledge")
+      .select("id, category, title, content, is_published, display_order, created_at, updated_at")
+      .eq("is_published", true)
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(
+        "[portfolio-knowledge] Supabase portfolio_custom_knowledge error:",
+        error.message,
+      );
+      return { data: [], error: error.message };
+    }
+
+    return { data: (data ?? []) as CustomKnowledgeRow[], error: null };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[portfolio-knowledge] Supabase connection error in custom knowledge:", msg);
+    return { data: [], error: msg };
+  }
+}
+
+/**
+ * Computes a lightweight database fingerprint across credly_badges, portfolio_custom_knowledge,
+ * and admin_audit_log. When an admin creates, updates, deletes, toggles publish, or forces sync
+ * on ANY server instance, this fingerprint changes, forcing all other instances to refresh their cache.
+ */
+async function getDatabaseKnowledgeFingerprint(): Promise<string> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [credlyMeta, customMeta, auditMeta] = await Promise.all([
+      supabaseAdmin
+        .from("credly_badges")
+        .select("updated_at", { count: "exact" })
+        .order("updated_at", { ascending: false })
+        .limit(1),
+      supabaseAdmin
+        .from("portfolio_custom_knowledge")
+        .select("updated_at", { count: "exact" })
+        .order("updated_at", { ascending: false })
+        .limit(1),
+      supabaseAdmin
+        .from("admin_audit_log")
+        .select("created_at")
+        .like("action", "AI_KNOWLEDGE_%")
+        .order("created_at", { ascending: false })
+        .limit(1),
+    ]);
+
+    const cCount = credlyMeta.count ?? 0;
+    const cMax = credlyMeta.data?.[0]?.updated_at ?? "0";
+    const kCount = customMeta.count ?? 0;
+    const kMax = customMeta.data?.[0]?.updated_at ?? "0";
+    const aMax = auditMeta.data?.[0]?.created_at ?? "0";
+
+    return `${cCount}:${cMax}|${kCount}:${kMax}|${aMax}`;
+  } catch {
+    return `fallback-${Date.now()}`;
+  }
+}
+
+/**
+ * Builds the comprehensive verified portfolio knowledge text from all live sources.
  */
 async function buildDynamicKnowledge(): Promise<{
   knowledgeText: string;
-  credlyCount: number;
-  customCount: number;
-  error: string | null;
+  credlyResult: { data: ServerCredlyBadge[]; error: string | null };
+  customResult: { data: CustomKnowledgeRow[]; error: string | null };
 }> {
-  let credlyBadges: CredlyBadge[] = [];
-  let customFacts: CustomKnowledgeRow[] = [];
-  let fetchError: string | null = null;
-
-  try {
-    const [badges, facts] = await Promise.all([
-      fetchPublishedBadges().catch((err) => {
-        fetchError = err instanceof Error ? err.message : String(err);
-        return [] as CredlyBadge[];
-      }),
-      fetchCustomKnowledge().catch(() => [] as CustomKnowledgeRow[]),
-    ]);
-
-    credlyBadges = badges;
-    customFacts = facts;
-  } catch (err) {
-    fetchError = err instanceof Error ? err.message : String(err);
-  }
+  const [credlyResult, customResult] = await Promise.all([
+    fetchServerPublishedCredlyBadges(),
+    fetchServerCustomKnowledge(),
+  ]);
 
   // 1. Dynamic Credly Credentials Section
   let credlySection = "";
-  if (credlyBadges.length > 0) {
-    const badgeEntries = credlyBadges.map((b, idx) => {
+  if (credlyResult.error) {
+    credlySection = `
+# DYNAMIC CREDLY DIGITAL BADGES
+[Source Error: Credly credentials database query failed: ${credlyResult.error}]
+Note: Do not claim credentials that are not verified in this document.
+`;
+  } else if (credlyResult.data.length > 0) {
+    const badgeEntries = credlyResult.data.map((b, idx) => {
       const skillsStr = b.skills && b.skills.length > 0 ? b.skills.join(", ") : "N/A";
       const expiryStr = b.expiry_date ? b.expiry_date : "Valid Indefinitely";
-      const descStr = b.description && b.description.trim() ? b.description.trim() : "Description not provided.";
+      const descStr =
+        b.description && b.description.trim() ? b.description.trim() : "Description not provided.";
       return `### Badge ${idx + 1}: ${b.name}
 - Issuer: ${b.issuer}
 - Issue Date: ${b.issue_date}
@@ -127,34 +245,107 @@ async function buildDynamicKnowledge(): Promise<{
     });
 
     credlySection = `
-# DYNAMIC CREDLY DIGITAL BADGES (${credlyBadges.length} VERIFIED CREDENTIALS)
-The following digital credentials are cryptographically verifiable through Credly and directly published from Piyush's database:
+# DYNAMIC CREDLY DIGITAL BADGES (${credlyResult.data.length} VERIFIED CREDENTIALS FROM DATABASE)
+The following digital credentials are cryptographically verifiable through Credly and directly retrieved from Piyush's live database:
 ${badgeEntries.join("\n\n")}
 `;
   } else {
     credlySection = `
 # DYNAMIC CREDLY DIGITAL BADGES
-No additional Credly badges are currently published.
+No Credly badges are currently published in the database.
 `;
   }
 
-  // 2. Custom Knowledge / FAQs Section
+  // 2. Dynamic Custom Knowledge & FAQs Section
   let customSection = "";
-  if (customFacts.length > 0) {
-    const factEntries = customFacts.map((f, idx) => {
+  if (customResult.error) {
+    customSection = `
+# VERIFIED PORTFOLIO FAQS & CUSTOM FACTS
+[Source Error: Custom knowledge database query failed: ${customResult.error}]
+`;
+  } else if (customResult.data.length > 0) {
+    const factEntries = customResult.data.map((f, idx) => {
       return `### Fact ${idx + 1}: [${f.category}] ${f.title}
 ${f.content}`;
     });
 
     customSection = `
-# VERIFIED PORTFOLIO FAQS & CUSTOM FACTS (${customFacts.length} ITEMS)
+# VERIFIED PORTFOLIO FAQS & CUSTOM FACTS (${customResult.data.length} ITEMS FROM DATABASE)
 ${factEntries.join("\n\n")}
+`;
+  } else {
+    customSection = `
+# VERIFIED PORTFOLIO FAQS & CUSTOM FACTS
+No custom portfolio facts are currently published.
 `;
   }
 
-  // 3. Centralized Complete Published Portfolio Knowledge Base
+  // 3. Work Experience Section from shared source of truth
+  const experienceSection = EXPERIENCE_DATA.map((comp, cIdx) => {
+    const duration = calculateExperienceDuration(
+      comp.startDate,
+      comp.endDate,
+      comp.inclusive ?? true,
+    );
+    const roles = comp.positions
+      .map((pos) => {
+        const roleDur = calculateExperienceDuration(
+          pos.startDate,
+          pos.endDate,
+          pos.inclusive ?? true,
+        );
+        const bullets = pos.bullets.map((b) => `  • ${b}`).join("\n");
+        const skillsStr =
+          pos.skills && pos.skills.length > 0
+            ? `\n  - Associated Skills: ${pos.skills.join(", ")}`
+            : "";
+        return `### Role: ${pos.role} (${pos.type})
+- Period: ${pos.period}${roleDur ? ` (Duration: ${roleDur})` : ""}${pos.isCurrent ? " [CURRENT POSITION]" : ""}
+- Core Responsibilities:
+${bullets}${skillsStr}`;
+      })
+      .join("\n\n");
+
+    return `## Company ${cIdx + 1}: ${comp.company} (${comp.url})
+- Total Employment Period: ${comp.period}
+- Total Company Tenure: ${duration || "N/A"}
+- Work Location: ${comp.location || "N/A"}
+
+${roles}`;
+  }).join("\n\n");
+
+  // 4. Featured Projects Section from shared source of truth
+  const projectsSection = PROJECTS.map((proj) => {
+    return `## Project ${proj.idx} — ${proj.title} (${proj.year})
+- Subtitle: ${proj.subtitle}
+- Architecture & Implementation: ${proj.body}
+- Technologies: ${proj.tech.join(", ")}
+${proj.link ? `- Live URL: ${proj.link.href}` : "- Live URL: Internal / Private Environment"}
+${proj.repo ? `- GitHub Repository: ${proj.repo.href}` : ""}`.trim();
+  }).join("\n\n");
+
+  // 5. Technical Skills Section from shared source of truth
+  const priorityTechsSection = PRIORITY_TECHS.map(
+    (t) => `• ${t.name} (${t.category}): ${t.detail}`,
+  ).join("\n");
+
+  const categoriesSection = SKILL_CATEGORIES_DATA.map(
+    (c) => `- ${c.label}: ${c.tags.join(", ")}`,
+  ).join("\n");
+
+  // 6. Academic Education & Course Certifications from shared source of truth
+  const educationSection = EDUCATION_DATA.map(
+    (edu) => `- ${edu.period}: ${edu.degree}, ${edu.school} (${edu.extra})`,
+  ).join("\n");
+
+  const certsSection = CERTS_DATA.map((c, idx) => {
+    const verify = c.url ? ` [Verify: ${c.url}]` : "";
+    return `${idx + 1}. ${c.name} — ${c.issuer}${verify}`;
+  }).join("\n");
+
+  // Compile full dynamic knowledge base
   const knowledgeText = `
-# PERSONAL PROFILE
+# PERSONAL PROFILE & CONTACT
 Name: Piyush Prasad
 Professional Title: Cloud & DevOps Engineer
 Location: Navi Mumbai, Maharashtra, India
@@ -173,121 +364,50 @@ automating end-to-end CI/CD pipelines, containerizing workloads with Docker and 
 DevSecOps hardening across Linux server environments. He possesses a strong operational foundation in
 IT Service Management (ITSM), ITIL methodologies, incident lifecycle management, and SLA compliance.
 
-# CURRENT & HISTORICAL WORK EXPERIENCE
-
-## 1. Runtime Solutions (https://www.runtime-solutions.com/)
-- Employment Period: December 2024 — Present
-- Total Company Tenure: 2 years (Full-time)
-- Location: Andheri West, Maharashtra, India · On-site
-
-### Role A: Junior Cloud Engineer (Full-Time)
-- Period: September 2026 — Present (Current Position)
-- Core Responsibilities:
-  • Administer Google Workspace for the organization: handle user account creation, enterprise email configuration, groups, aliases, and granular access permissions.
-  • Own domain registration, DNS management, and web hosting infrastructure across five hosting providers (JaguarPC, GoDaddy, ResellerClub, Tasjeel, SiteGround) for diverse client environments, including renewals and proactive maintenance.
-  • Run Windows patching cycles end to end: plan and apply patches, verify system health post-patch, and produce infrastructure compliance reports.
-  • Associated Skills: User Account Management, DNS Management, Cloud Hosting, Windows Patching.
-
-### Role B: IT Support & Service Management (Full-Time)
-- Period: December 2024 — August 2026 (Duration: 1 year 9 months)
-- Core Responsibilities:
-  • Managed daily IT service operations across multiple locations, handling ticket tracking, prioritization, and resolution while maintaining detailed documentation to ensure SLA adherence and high service availability.
-  • Provided day-to-day technical support for hardware, operating systems, network connectivity, and access issues; maintained IT asset records (ITAM) including device allocation and inventory tracking across teams.
-  • Collaborated with internal technical teams and external hardware/software vendors to resolve escalations and reduce downtime.
-  • Associated Skills: Service-Level Agreements (SLA), IT Asset Management (ITAM), Incident Management, Technical Support.
-
-## 2. Credence Infotech (https://www.credenceinfotech.in/)
-- Role: IT Service Management Consultant (Full-Time)
-- Period: February 2022 — October 2024 (Duration: 2 years 9 months)
-- Core Responsibilities:
-  • Provided operational support for IT infrastructure, service management, and change management processes.
-  • Acted as the primary coordination point between technical teams and business stakeholders to ensure efficient service delivery.
-  • Monitored system availability and maintained strict adherence to operational standards and client SLAs.
-  • Contributed to continuous process improvement initiatives to elevate service efficiency and customer satisfaction.
-  • Associated Skills: ITSM, ITIL, SLA Compliance, Service Delivery Coordination.
+# WORK EXPERIENCE & EMPLOYMENT HISTORY
+${experienceSection}
 
 # FEATURED PROJECTS
-
-## Project 01 — DevOps CI/CD Pipeline (2025)
-- Subtitle: AWS · Nginx · Cloudflare · GitHub Actions
-- Purpose: Automated, zero-downtime continuous integration and deployment for a production React web application.
-- Architecture: Designed a full CI/CD pipeline in GitHub Actions that triggers on git push, runs automated build steps, and deploys via SSH to an AWS EC2 Ubuntu instance. Configured Nginx as a hardened reverse proxy with Let's Encrypt SSL/TLS. Routed DNS through Cloudflare CDN edge and hardened email authentication with SPF, DKIM, and DMARC.
-- Tech Stack: CI/CD, AWS EC2, Nginx, Cloudflare, GitHub Actions, SSH Auth.
-- Live URL: https://kamleshprasad.com
-- GitHub Repository: https://github.com/ppiyushhhhh/Kamlesh-Prasad
-
-## Project 02 — Production AWS EC2 + DevSecOps (2026)
-- Subtitle: Monitoring · Security · Prometheus · Grafana
-- Purpose: Production-grade cloud infrastructure with full-stack observability and automated security scanning.
-- Architecture: Deployed a production React and Node.js application on AWS EC2 behind an Nginx reverse proxy with automated HTTPS via Certbot. Hardened Linux host using UFW firewall rules, connection rate limiting, and DDoS defense. Configured a complete monitoring stack with Prometheus, Grafana, and Node Exporter. Integrated automated Trivy vulnerability and secret scanning into GitHub Actions CI/CD to block high-severity vulnerabilities before deployment.
-- Tech Stack: Prometheus, Grafana, Node Exporter, Trivy, UFW, Certbot, AWS EC2, Linux.
-- GitHub Repository: https://github.com/ppiyushhhhh/onixmall
-
-## Project 03 — CloudOps Sentinel (2026)
-- Subtitle: React · Node.js · SQLite · Nginx · PM2
-- Purpose: Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a role-gated login.
-- Architecture: Deployed on AWS EC2 with PM2 process manager and Nginx reverse proxy. Delivers live server cluster telemetry (CPU, RAM, disk, load averages), Docker container fleet status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident alerting, and automated scheduled SQLite database backups with cron.
-- Tech Stack: React, Node.js, Express, SQLite, PM2, Nginx, Trivy, GitHub Actions, AWS EC2.
-- GitHub Repository: https://github.com/ppiyushhhhh/sentinel-cloud-view
-
-## Project 04 — CloudOps Observability Platform (2026)
-- Subtitle: TanStack Start · Supabase · PostgreSQL · DevSecOps
-- Purpose: Enterprise private cloud observability and database administration console (PP·OPS) monitoring live production endpoints.
-- Architecture: Engineered with TanStack Start SSR on Vercel edge and Supabase PostgreSQL. Features native TLS 1.3 socket inspection, distributed multi-tier rate limiting with atomic PostgreSQL row-level locks, automated 7-day database retention with pre-deletion SQL archives, and executive health auditing.
-- Tech Stack: TanStack Start, React 19, Supabase, PostgreSQL, Rate Limiting, TLS 1.3, CI/CD.
-- Live Console: https://www.piyushprasad.in/dashboard
-- GitHub Repository: https://github.com/ppiyushhhhh/piyush-prasad
+${projectsSection}
 
 # TECHNICAL SKILLS & COMPETENCIES
-- Cloud Platforms: AWS (EC2, S3, IAM, VPC), Cloudflare (DNS Edge, CDN, SSL)
-- Operating Systems & Linux: Linux (Ubuntu LTS, Debian), Server Administration, Bash Scripting, Systemd Services, UFW Firewall
-- Containers & Orchestration: Docker, Docker Compose, Kubernetes container isolation
-- CI/CD Automation: GitHub Actions workflows, Pipeline Automation, Continuous Deployment, SSH Key Authentication, Git
-- Web Servers & Proxies: Nginx (Reverse Proxy, SSL Termination, Load Balancing, Rate Limiting), Certbot SSL/TLS
-- Observability & Monitoring: Prometheus (Time-Series TSDB), Grafana Dashboards, Node Exporter, Telemetry Ingestion
-- DevSecOps & Security: Trivy (Container & Secret Vulnerability Scanning), SSL/HTTPS, UFW Firewall, Distributed Rate Limiting, SPF, DKIM, DMARC
-- Relational Databases: PostgreSQL, MySQL, SQLite, Supabase Database
-- ITSM & Operations: ManageEngine ServiceDesk Plus, ITIL Best Practices, SLA Management, IT Asset Management (ITAM), Incident Management
+### Core Priority Technologies:
+${priorityTechsSection}
+
+### Categorized Skills:
+${categoriesSection}
 
 # ACADEMIC EDUCATION
-- Jan 2022 — Mar 2025: Bachelor of Commerce (B.Com), Tilak Education Society's J.K. College of Science & Commerce (University of Mumbai)
-- Aug 2019 — Jun 2021: Higher Secondary (Commerce), Allen Swami Vivekanand Junior College (MSSBHS)
-- Jun 2008 — Mar 2019: Secondary School, Tilak Education Society's Tilak Global School (MSSBHS)
+${educationSection}
 
-# PROFESSIONAL CERTIFICATIONS (ACADEMIC / COURSE CERTIFICATES)
-1. Foundation Course on AI Readiness — Google & YouTube (Ministry of Information and Broadcasting) [Verify: ${SITE_URL}/certificates/ai-readiness.pdf]
-2. DevOps Complete Course Specialization — Packt (Coursera) [Verify: https://www.coursera.org/account/accomplishments/specialization/592LMXYN7KZK]
-3. Google AI Essentials Specialization — Google (Coursera) [Verify: https://www.coursera.org/account/accomplishments/specialization/EZS8GLRIG535]
-4. Ubuntu Linux Professional Certificate — Canonical [Verify: https://www.linkedin.com/learning/certificates/9d7f2b805f126a9612c6b1be485f14f90d4362bb9f0c6875bcb7702bc1274dbf]
-5. Docker Foundations Professional Certificate — Docker, Inc [Verify: https://www.linkedin.com/learning/certificates/3f8f006fe458d2f993ddba0bd0f3c357f3caf92a5e15bad0718a01e1709241e0]
-6. Career Essentials in GitHub Professional Certificate — GitHub [Verify: https://www.linkedin.com/learning/certificates/9a7cce8c73b57d5e8629e5ac94a454a78c5fda6957c901ca4854a7c93e13a3e7]
-7. AWS Knowledge: Cloud Essentials — Training Badge — Amazon Web Services [Verify: https://www.credly.com/badges/1d7245e6-ebba-4b7b-970f-ad1d214a1c91/linked_in_profile]
-8. DNS — Packt [Verify: https://www.coursera.org/account/accomplishments/verify/JJJLW2JGJZBS]
+# PROFESSIONAL COURSE CERTIFICATES (ACADEMIC & PLATFORM)
+${certsSection}
 
 ${credlySection}
 
 ${customSection}
 `.trim();
 
-  return {
-    knowledgeText,
-    credlyCount: credlyBadges.length,
-    customCount: customFacts.length,
-    error: fetchError,
-  };
+  return { knowledgeText, credlyResult, customResult };
 }
 
 /**
  * Returns the up-to-date dynamic system instruction for Google Gemini.
- * Uses 60-second caching to prevent excessive database calls while keeping data fresh.
+ * Uses 60-second caching backed by cross-instance database fingerprinting.
  */
 export async function getDynamicSystemInstruction(): Promise<{
   systemInstruction: string;
   telemetry: KnowledgeStatusTelemetry;
 }> {
   const now = Date.now();
+  const dbFingerprint = await getDatabaseKnowledgeFingerprint();
 
-  if (memoryCache && now - memoryCache.cachedAt < CACHE_TTL_MS) {
+  // If memory cache exists and fingerprint matches and within TTL, serve cached
+  if (
+    memoryCache &&
+    memoryCache.fingerprint === dbFingerprint &&
+    now - memoryCache.cachedAt < CACHE_TTL_MS
+  ) {
     return {
       systemInstruction: memoryCache.systemInstruction,
       telemetry: {
@@ -298,34 +418,121 @@ export async function getDynamicSystemInstruction(): Promise<{
     };
   }
 
-  const { knowledgeText, credlyCount, customCount, error } = await buildDynamicKnowledge();
+  // Otherwise, compile fresh knowledge from all sources
+  const { knowledgeText, credlyResult, customResult } = await buildDynamicKnowledge();
 
-  const systemInstruction = `You are Piyush Prasad's AI Portfolio Assistant.
+  const totalRoles = EXPERIENCE_DATA.reduce((acc, c) => acc + c.positions.length, 0);
+  const totalSkills = PRIORITY_TECHS.length + SKILL_CATEGORIES_DATA.length;
+  const credlyCount = credlyResult.data.length;
+  const customCount = customResult.data.length;
+
+  const sources: KnowledgeSourceStatus[] = [
+    {
+      name: "credly_badges",
+      sourceType: "database",
+      recordCount: credlyCount,
+      lastSuccessfulRetrieval: credlyResult.error ? null : new Date().toISOString(),
+      status: credlyResult.error ? "error" : credlyCount === 0 ? "empty" : "synced",
+      errorMessage: credlyResult.error,
+    },
+    {
+      name: "portfolio_custom_knowledge",
+      sourceType: "database",
+      recordCount: customCount,
+      lastSuccessfulRetrieval: customResult.error ? null : new Date().toISOString(),
+      status: customResult.error ? "error" : customCount === 0 ? "empty" : "synced",
+      errorMessage: customResult.error,
+    },
+    {
+      name: "projects",
+      sourceType: "code_module",
+      recordCount: PROJECTS.length,
+      lastSuccessfulRetrieval: new Date().toISOString(),
+      status: "synced",
+      errorMessage: null,
+    },
+    {
+      name: "work_experience",
+      sourceType: "code_module",
+      recordCount: EXPERIENCE_DATA.length,
+      lastSuccessfulRetrieval: new Date().toISOString(),
+      status: "synced",
+      errorMessage: null,
+    },
+    {
+      name: "technical_skills",
+      sourceType: "code_module",
+      recordCount: totalSkills,
+      lastSuccessfulRetrieval: new Date().toISOString(),
+      status: "synced",
+      errorMessage: null,
+    },
+    {
+      name: "course_certifications",
+      sourceType: "code_module",
+      recordCount: CERTS_DATA.length,
+      lastSuccessfulRetrieval: new Date().toISOString(),
+      status: "synced",
+      errorMessage: null,
+    },
+    {
+      name: "academic_education",
+      sourceType: "code_module",
+      recordCount: EDUCATION_DATA.length,
+      lastSuccessfulRetrieval: new Date().toISOString(),
+      status: "synced",
+      errorMessage: null,
+    },
+  ];
+
+  const hasDbError = credlyResult.error !== null || customResult.error !== null;
+  const overallStatus = hasDbError ? "degraded" : "synced";
+  const overallError = hasDbError
+    ? [
+        credlyResult.error ? `Credly DB: ${credlyResult.error}` : null,
+        customResult.error ? `Custom Knowledge DB: ${customResult.error}` : null,
+      ]
+        .filter(Boolean)
+        .join("; ")
+    : null;
+
+  const totalRecords =
+    PROJECTS.length +
+    EXPERIENCE_DATA.length +
+    totalRoles +
+    totalSkills +
+    CERTS_DATA.length +
+    EDUCATION_DATA.length +
+    credlyCount +
+    customCount;
+
+  const systemInstruction = `You are Piyush Prasad's AI Portfolio Assistant (Ask Piyush AI).
 
 Your mission is to provide accurate, helpful, and professional answers about Piyush Prasad based strictly on the verified portfolio knowledge provided below.
 
 === CORE GUIDELINES ===
-1. CONVERSATION CONTEXT & MEMORY:
-   - Understand follow-up questions within the conversational flow.
-   - When the user refers to "it", "that", "which one is the latest", "who issued it", or "can I verify it", reference the specific items discussed in the preceding turns.
+1. CONVERSATION CONTEXT, FOLLOW-UPS & PRONOUN RESOLUTION:
+   - Preserve conversation flow across follow-up questions.
+   - When the user refers to "it", "that", "which one is the latest", "who issued it", "can I verify it", or "tell me more about that project", inspect the preceding conversation messages to identify the exact entity being discussed.
    - For comparative questions (e.g., "Which certification is latest?"), compare the actual issue dates from the verified knowledge and name the most recent one.
+   - GROUND TRUTH PRECEDENCE: If previous assistant responses in the conversation contradict the verified portfolio knowledge base below, ALWAYS treat the verified portfolio knowledge base as the ground truth. Previous conversation turns provide conversational context (identifying which credential, project, or role the user is referring to), but current factual data (dates, issuers, URLs, counts, descriptions) MUST strictly come from the verified knowledge base.
 
 2. CREDLY DIGITAL CREDENTIALS & CERTIFICATIONS:
    - When asked about Credly badges, list all published Credly badges from the knowledge base with their issuer, issue date, and direct verification link.
    - For AWS certifications: identify "AWS Knowledge: Cloud Essentials" issued by Amazon Web Services Training and Certification, and provide its verification link.
    - For Linux certifications: identify "Ubuntu Linux Professional Certificate" issued by Canonical.
-   - When asked "How many certifications does he have?", provide the exact total from the knowledge base (combining course certificates and published Credly badges).
-   - Always include the official verification link (e.g., [Verify on Credly](https://www.credly.com/badges/...)) whenever discussing certifications.
+   - When asked "How many certifications does he have?", calculate the exact total from the knowledge base (combining course certificates and published Credly badges).
+   - Always include official verification links (e.g., [Verify on Credly](https://www.credly.com/badges/...)) whenever discussing certifications.
 
 3. WORK EXPERIENCE & CURRENT EMPLOYMENT:
    - Current Role: Junior Cloud Engineer at Runtime Solutions (since September 2026).
-   - Total Tenure at Runtime Solutions: 2 years (since December 2024).
+   - Total Tenure at Runtime Solutions: 2 years (since December 2024, Full-Time).
    - Previous Role at Runtime Solutions: IT Support & Service Management (Dec 2024 — Aug 2026, 1 yr 9 mos).
    - Past Company: Credence Infotech (IT Service Management Consultant, Feb 2022 — Oct 2024, 2 yrs 9 mos).
    - Never confuse past employment with current positions.
 
 4. PROJECTS & REPOSITORIES:
-   - When asked about projects, detail the problem solved, architecture, cloud technologies, CI/CD pipeline, and observability stack.
+   - Detail the problem solved, architecture, cloud technologies, CI/CD pipeline, and observability stack.
    - Provide direct markdown links to the live URL and GitHub repository where available.
 
 5. ACCURACY & ANTI-HALLUCINATION:
@@ -335,7 +542,6 @@ Your mission is to provide accurate, helpful, and professional answers about Piy
 
 6. FORMATTING & STYLE:
    - Maintain a concise, confident, professional tone suitable for engineering hiring managers and recruiters.
-   - Use clear paragraphs and bulleted dashes where helpful.
    - Format URLs as readable markdown links, e.g. [Project Link](https://...) or [Verify Credential](https://...).
 
 7. SECURITY & INTEGRITY:
@@ -348,21 +554,26 @@ ${knowledgeText}
 --- END VERIFIED PORTFOLIO KNOWLEDGE BASE ---`;
 
   const telemetry: KnowledgeStatusTelemetry = {
-    status: error ? "degraded" : "synced",
+    status: overallStatus,
     lastSync: new Date().toISOString(),
     cacheAgeSeconds: 0,
-    totalRecords: 4 + 2 + 9 + 8 + credlyCount + customCount,
+    totalRecords,
     credlyBadgesCount: credlyCount,
     customFactsCount: customCount,
-    projectsCount: 4,
-    experiencesCount: 2,
-    skillsCategoriesCount: 9,
-    error,
+    projectsCount: PROJECTS.length,
+    experiencesCount: EXPERIENCE_DATA.length,
+    rolesCount: totalRoles,
+    skillsCount: totalSkills,
+    courseCertsCount: CERTS_DATA.length,
+    educationCount: EDUCATION_DATA.length,
+    sources,
+    error: overallError,
   };
 
   memoryCache = {
     systemInstruction,
     telemetry,
+    fingerprint: dbFingerprint,
     cachedAt: now,
   };
 
@@ -370,7 +581,7 @@ ${knowledgeText}
 }
 
 /**
- * Returns diagnostic telemetry for the admin dashboard
+ * Returns dynamic diagnostic telemetry for the admin dashboard.
  */
 export async function getKnowledgeStatus(): Promise<KnowledgeStatusTelemetry> {
   const result = await getDynamicSystemInstruction();

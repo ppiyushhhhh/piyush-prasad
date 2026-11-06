@@ -1,6 +1,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { invalidateAiKnowledgeCacheServerFn } from "@/lib/ai-knowledge.functions";
 import {
   Award,
   Plus,
@@ -211,12 +213,16 @@ function CredlyBadgesPage() {
     queryFn: fetchAllBadges,
   });
 
+  // AI Knowledge Sync Trigger
+  const triggerSyncAiKnowledge = useServerFn(invalidateAiKnowledgeCacheServerFn);
+
   // Mutations
   const createMutation = useMutation({
     mutationFn: createBadge,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-credly-badges"] });
       queryClient.invalidateQueries({ queryKey: ["public-credly-badges"] });
+      triggerSyncAiKnowledge().catch((e) => console.warn("[Credly] AI cache sync notice:", e));
       toast.success("Credly badge created successfully");
       closeDialog();
     },
@@ -238,6 +244,7 @@ function CredlyBadgesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-credly-badges"] });
       queryClient.invalidateQueries({ queryKey: ["public-credly-badges"] });
+      triggerSyncAiKnowledge().catch((e) => console.warn("[Credly] AI cache sync notice:", e));
       toast.success("Credly badge updated successfully");
       closeDialog();
     },
@@ -252,6 +259,7 @@ function CredlyBadgesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-credly-badges"] });
       queryClient.invalidateQueries({ queryKey: ["public-credly-badges"] });
+      triggerSyncAiKnowledge().catch((e) => console.warn("[Credly] AI cache sync notice:", e));
       toast.success("Credly badge and associated files deleted");
       setDeletingBadge(null);
     },
@@ -266,6 +274,7 @@ function CredlyBadgesPage() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["admin-credly-badges"] });
       queryClient.invalidateQueries({ queryKey: ["public-credly-badges"] });
+      triggerSyncAiKnowledge().catch((e) => console.warn("[Credly] AI cache sync notice:", e));
       toast.success(
         updated.is_published
           ? "Badge published to portfolio"
@@ -282,6 +291,7 @@ function CredlyBadgesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-credly-badges"] });
       queryClient.invalidateQueries({ queryKey: ["public-credly-badges"] });
+      triggerSyncAiKnowledge().catch((e) => console.warn("[Credly] AI cache sync notice:", e));
       toast.success("Badge order updated");
     },
     onError: (err: Error) => {
@@ -373,7 +383,7 @@ function CredlyBadgesPage() {
       toast.success(
         uploadResult.isLocal
           ? "Badge image loaded successfully!"
-          : "Badge image uploaded to cloud storage!"
+          : "Badge image uploaded to cloud storage!",
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed";

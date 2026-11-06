@@ -1,75 +1,6 @@
 import { SectionHeader } from "./SectionHeader";
 import { ArrowUpRight, Github, ExternalLink } from "lucide-react";
-
-export interface ProjectItem {
-  idx: string;
-  title: string;
-  subtitle: string;
-  year: string;
-  body: string;
-  tech: string[];
-  link: { label: string; href: string } | null;
-  repo: { label: string; href: string } | null;
-}
-
-export const PROJECTS: ProjectItem[] = [
-  {
-    idx: "01",
-    title: "DevOps CI/CD Pipeline",
-    subtitle: "AWS · Nginx · Cloudflare · GitHub Actions",
-    year: "2025",
-    body:
-      "Designed and implemented an automated CI/CD pipeline using GitHub Actions to orchestrate zero-downtime deployment. Deployed on AWS EC2 (Ubuntu), configured Nginx reverse proxy with SSL, routed domains via Cloudflare CDN edge, and hardened email delivery with SPF, DKIM, and DMARC.",
-    tech: ["CI/CD", "AWS EC2", "Nginx", "Cloudflare", "GitHub Actions", "SSH Auth"],
-    link: { label: "kamleshprasad.com", href: "https://kamleshprasad.com" },
-    repo: {
-      label: "github.com/ppiyushhhhh/Kamlesh-Prasad",
-      href: "https://github.com/ppiyushhhhh/Kamlesh-Prasad",
-    },
-  },
-  {
-    idx: "02",
-    title: "Production AWS EC2 + DevSecOps",
-    subtitle: "Monitoring · Security · Prometheus · Grafana",
-    year: "2026",
-    body:
-      "Architected a production-grade infrastructure stack on AWS EC2 with automated HTTPS via Certbot SSL. Implemented server hardening with UFW Firewall, rate limiting, and DDoS defense. Built a real-time observability telemetry stack with Prometheus, Grafana, Node Exporter, and automated Trivy vulnerability scanning.",
-    tech: ["Prometheus", "Grafana", "Node Exporter", "Trivy", "UFW", "Certbot"],
-    link: null,
-    repo: {
-      label: "github.com/ppiyushhhhh/onixmall",
-      href: "https://github.com/ppiyushhhhh/onixmall",
-    },
-  },
-  {
-    idx: "03",
-    title: "CloudOps Sentinel",
-    subtitle: "React · Node.js · SQLite · Nginx · PM2",
-    year: "2026",
-    body:
-      "Full-stack DevOps monitoring and operations dashboard deployed on AWS EC2 behind a role-gated login. Delivers real-time server cluster metrics, Docker container fleet status, CI/CD deployment tracking, Trivy vulnerability monitoring, incident alerting, and scheduled automated SQLite backups.",
-    tech: ["React", "Node.js", "Express", "SQLite", "PM2", "Nginx", "Trivy", "GitHub Actions"],
-    link: null,
-    repo: {
-      label: "github.com/ppiyushhhhh/sentinel-cloud-view",
-      href: "https://github.com/ppiyushhhhh/sentinel-cloud-view",
-    },
-  },
-  {
-    idx: "04",
-    title: "CloudOps Observability Platform",
-    subtitle: "TanStack Start · Supabase · PostgreSQL · DevSecOps",
-    year: "2026",
-    body:
-      "Engineered an enterprise-grade private cloud observability and database administration console (PP·OPS) monitoring live production endpoints. Features native TLS 1.3 socket inspection, distributed multi-tier rate limiting with atomic PostgreSQL row-level locks, automated 7-day database retention with pre-deletion SQL archives, and executive health auditing.",
-    tech: ["TanStack Start", "React 19", "Supabase", "PostgreSQL", "Rate Limiter", "TLS 1.3"],
-    link: { label: "piyushprasad.in/dashboard", href: "/dashboard" },
-    repo: {
-      label: "github.com/ppiyushhhhh/piyush-prasad",
-      href: "https://github.com/ppiyushhhhh/piyush-prasad",
-    },
-  },
-];
+import { PROJECTS } from "@/data/portfolio-data";
 
 export function Projects() {
   return (
@@ -116,7 +47,10 @@ export function Projects() {
                       <span className="mono text-[10px] sm:text-[11px] text-muted-foreground font-medium">
                         {project.year}
                       </span>
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" title="Production System" />
+                      <span
+                        className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"
+                        title="Production System"
+                      />
                     </div>
                   </div>
 

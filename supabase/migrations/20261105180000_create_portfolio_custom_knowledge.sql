@@ -64,3 +64,4 @@ CREATE POLICY "Admin manage custom knowledge"
 GRANT SELECT ON public.portfolio_custom_knowledge TO anon, authenticated;
 GRANT ALL ON public.portfolio_custom_knowledge TO authenticated;
 GRANT ALL ON public.portfolio_custom_knowledge TO service_role;
+

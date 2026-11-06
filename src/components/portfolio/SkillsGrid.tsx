@@ -15,74 +15,24 @@ import {
 } from "lucide-react";
 import { TechLogo } from "./TechLogos";
 
-interface PriorityTech {
-  name: string;
-  category: string;
-  detail: string;
-}
+import { PRIORITY_TECHS, SKILL_CATEGORIES_DATA } from "@/data/portfolio-data";
 
-const PRIORITY_TECHS: PriorityTech[] = [
-  { name: "AWS", category: "Cloud Infrastructure", detail: "EC2 · S3 · IAM · Networking" },
-  { name: "Linux", category: "Operating System", detail: "Ubuntu LTS · CLI · Administration" },
-  { name: "Docker", category: "Containers", detail: "Containerization · Isolation" },
-  { name: "Kubernetes", category: "Orchestration", detail: "Workloads · Deployments" },
-  { name: "GitHub Actions", category: "CI/CD Automation", detail: "Automated Workflows · Runners" },
-  { name: "Nginx", category: "Web & Reverse Proxy", detail: "Reverse Proxy · SSL Termination" },
-  { name: "MySQL", category: "Relational Database", detail: "Data Persistence · Queries" },
-  { name: "Prometheus", category: "Metrics Collection", detail: "Time-Series TSDB · Node Exporter" },
-  { name: "Grafana", category: "Observability", detail: "Dashboards · Alerting" },
-  { name: "Terraform", category: "IaC", detail: "Infrastructure as Code" },
-  { name: "Git", category: "Version Control", detail: "Branching · SSH Keys · VCS" },
-  { name: "Trivy", category: "DevSecOps", detail: "Vulnerability & Secret Scans" },
+const CATEGORY_ICONS = [
+  Cloud,
+  Terminal,
+  Layers,
+  GitBranch,
+  Server,
+  Activity,
+  Shield,
+  Database,
+  Settings,
 ];
 
-const SKILL_CATEGORIES = [
-  {
-    icon: Cloud,
-    label: "Cloud & Infrastructure",
-    tags: ["AWS EC2", "AWS S3", "AWS IAM", "Cloudflare", "DNS Routing"],
-  },
-  {
-    icon: Terminal,
-    label: "Operating Systems & Linux",
-    tags: ["Linux (Ubuntu)", "Server Administration", "Bash Scripting", "Systemd Services"],
-  },
-  {
-    icon: Layers,
-    label: "Containers & Orchestration",
-    tags: ["Docker", "Docker Compose", "Kubernetes", "Container Hardening"],
-  },
-  {
-    icon: GitBranch,
-    label: "CI/CD & Version Control",
-    tags: ["GitHub Actions", "Pipeline Automation", "Continuous Deployment", "SSH Auth", "Git"],
-  },
-  {
-    icon: Server,
-    label: "Web Servers & Reverse Proxy",
-    tags: ["Nginx", "Reverse Proxy", "Load Balancing", "PM2 Process Manager"],
-  },
-  {
-    icon: Activity,
-    label: "Observability & Metrics",
-    tags: ["Prometheus", "Grafana", "Node Exporter", "Server Health Telemetry"],
-  },
-  {
-    icon: Shield,
-    label: "Security & DevSecOps",
-    tags: ["Trivy Vulnerability Scan", "UFW Firewall", "Certbot SSL/HTTPS", "Rate Limiting", "DKIM/SPF/DMARC"],
-  },
-  {
-    icon: Database,
-    label: "Databases & Runtimes",
-    tags: ["MySQL", "SQLite", "Node.js", "Express"],
-  },
-  {
-    icon: Settings,
-    label: "ITSM & Operations",
-    tags: ["ManageEngine ServiceDesk Plus", "ITIL Practices", "SLA Management", "Incident Management"],
-  },
-];
+const SKILL_CATEGORIES = SKILL_CATEGORIES_DATA.map((cat, idx) => ({
+  ...cat,
+  icon: CATEGORY_ICONS[idx] ?? Settings,
+}));
 
 export function SkillsGrid() {
   const shouldReduceMotion = useReducedMotion();
@@ -232,9 +182,7 @@ export function SkillsGrid() {
                   PIPELINE DEPLOY GATE
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-carbon">
-                    Auto-Deploy Trigger
-                  </span>
+                  <span className="text-xs font-medium text-carbon">Auto-Deploy Trigger</span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -261,12 +209,13 @@ export function SkillsGrid() {
               {/* Utilization Simulator Slider */}
               <div className="mt-6 border-t border-border pt-5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="workbench-slider" className="mono text-[10px] text-muted-foreground uppercase tracking-wider">
+                  <label
+                    htmlFor="workbench-slider"
+                    className="mono text-[10px] text-muted-foreground uppercase tracking-wider"
+                  >
                     TARGET CPU UTILIZATION
                   </label>
-                  <span className="mono text-[10px] font-bold text-cobalt">
-                    {util}%
-                  </span>
+                  <span className="mono text-[10px] font-bold text-cobalt">{util}%</span>
                 </div>
                 <input
                   id="workbench-slider"
@@ -286,7 +235,8 @@ export function SkillsGrid() {
 
               {/* Status Note */}
               <div className="mono mt-6 border-t border-dashed border-border pt-4 text-[10px] text-carbon/60">
-                PROD RUNNER: <span className="text-emerald-600 font-semibold">HEALTHY (0 FAILS)</span>
+                PROD RUNNER:{" "}
+                <span className="text-emerald-600 font-semibold">HEALTHY (0 FAILS)</span>
               </div>
             </div>
           </div>
