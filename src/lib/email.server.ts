@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { isStaging } from "./staging.guard";
 
 export type ContactSubmission = {
   id: string;
@@ -470,6 +471,17 @@ export function getEnv(name: string): string | undefined {
  * Supports Resend API (HTTP) as primary provider, with SMTP/Nodemailer fallback.
  */
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
+  // Staging Isolation Guard: Prevent sending live emails in staging test environment
+  if (isStaging || getEnv("SKIP_EMAIL") === "1") {
+    console.info(
+      `[STAGING EMAIL GUARD] Intercepted email delivery in staging:\n  To: ${options.to}\n  Subject: "${options.subject}"\n  Action: Simulated delivery only (no live outbound requests).`
+    );
+    return {
+      success: true,
+      messageId: `staging-simulated-${Date.now()}`,
+    };
+  }
+
   const fromAddress =
     options.from || getEnv("CONTACT_FROM_EMAIL") || `"Piyush Prasad" <${DEFAULT_SUPPORT_EMAIL}>`;
 

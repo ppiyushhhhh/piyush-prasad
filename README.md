@@ -1,17 +1,21 @@
 # Piyush Prasad — Cloud & DevOps Engineering Portfolio & Observability Platform
 
-A high-performance, dark-themed engineering portfolio and private observability console for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer transitioning from IT Service Management. Built around a "blueprint grid" motif that reflects modern infrastructure and DevSecOps engineering principles: minimal, data-dense, accessible, and fast.
+A high-performance, precision-engineered cloud & DevOps portfolio, dynamic GitHub repository showcase, and private observability console for **Piyush Prasad**, an aspiring Cloud & DevOps Engineer specializing in AWS infrastructure, CI/CD automation, Linux system administration, and DevSecOps.
 
-**Live Deployment:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Monitoring Console:** [/dashboard](https://www.piyushprasad.in/dashboard) &nbsp;•&nbsp; **Rate Limiting:** [/dashboard/rate-limiting](https://www.piyushprasad.in/dashboard/rate-limiting) &nbsp;•&nbsp; **Database Admin:** [/dashboard/database](https://www.piyushprasad.in/dashboard/database)
+Built with **React 19**, **TanStack Start (SSR)**, **Tailwind CSS v4**, and **Supabase PostgreSQL**, the platform combines an editorial architectural design system (Cream `#FAF9F6`, Carbon `#121316`, Cobalt `#1A4BFF`) with enterprise-grade operational tooling, AI assistant integration, and multi-tier rate limiting.
 
-[![Live Site](https://img.shields.io/badge/Live_Site-piyushprasad.in-06b6d4?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
+---
+
+**Production Website:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Staging Environment:** [test.piyushprasad.in](https://test.piyushprasad.in) &nbsp;•&nbsp; **GitHub Showcase:** [/github](https://www.piyushprasad.in/github) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Observability Console:** [/dashboard](https://www.piyushprasad.in/dashboard)
+
+[![Live Production](https://img.shields.io/badge/Production-piyushprasad.in-1A4BFF?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
+[![Staging Environment](https://img.shields.io/badge/Staging-test.piyushprasad.in-f59e0b?style=flat-square&logo=vercel&logoColor=white)](https://test.piyushprasad.in)
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
 [![TanStack Start](https://img.shields.io/badge/TanStack_Start-SSR_&_Server_Functions-FF4154?style=flat-square&logo=reactquery&logoColor=white)](https://tanstack.com/start)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_Cloud-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 [![Rate Limiting](https://img.shields.io/badge/Rate_Limiter-Distributed_Multi--Tier-0047AB?style=flat-square&logo=shield&logoColor=white)](https://www.piyushprasad.in/dashboard/rate-limiting)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.2-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Recharts](https://img.shields.io/badge/Recharts-Interactive_Telemetry-22c55e?style=flat-square&logo=chartdotjs&logoColor=white)](https://recharts.org)
-[![Google Gemini](https://img.shields.io/badge/Gemini_AI-API_Proxy-8E75FF?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev)
+[![Google Gemini](https://img.shields.io/badge/Gemini_AI-2.5_Flash_Proxy-8E75FF?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev)
 [![Vercel](https://img.shields.io/badge/Hosted-Vercel_Edge-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com)
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/ppiyushhhhh/piyush-prasad/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald?style=flat-square)](LICENSE)
@@ -22,21 +26,23 @@ A high-performance, dark-themed engineering portfolio and private observability 
 
 - [Architectural Overview](#architectural-overview)
 - [System Highlights](#system-highlights)
-  - [1. Public Engineering Portfolio](#1-public-engineering-portfolio)
-  - [2. "Ask Piyush AI" — Gemini Assistant](#2-ask-piyush-ai--gemini-assistant)
-  - [3. Private CloudOps & Monitoring Dashboard](#3-private-cloudops--monitoring-dashboard)
-  - [4. Distributed Rate Limiting & Abuse Defense Engine](#4-distributed-rate-limiting--abuse-defense-engine)
-  - [5. Database Administration & Storage Engine](#5-database-administration--storage-engine)
-  - [6. Automated 7-Day Retention & Backup Archive](#6-automated-7-day-retention--backup-archive)
-- [Tech Stack](#tech-stack)
+  - [1. Public Cloud & DevOps Portfolio](#1-public-cloud--devops-portfolio)
+  - [2. GitHub Projects & Dedicated Repository Page (`/github`)](#2-github-projects--dedicated-repository-page-github)
+  - [3. Verified Credly Digital Badges](#3-verified-credly-digital-badges)
+  - [4. "Ask Piyush AI" — Grounded Gemini 2.5 Assistant](#4-ask-piyush-ai--grounded-gemini-25-assistant)
+  - [5. Secure Staging & Production Isolation Engine](#5-secure-staging--production-isolation-engine)
+  - [6. Private CloudOps & Observability Console (`/dashboard`)](#6-private-cloudops--observability-console-dashboard)
+  - [7. Distributed Multi-Tier Rate Limiting Engine](#7-distributed-multi-tier-rate-limiting-engine)
+  - [8. Automated Database Backup & 7-Day Retention Engine](#8-automated-database-backup--7-day-retention-engine)
+- [Tech Stack Matrix](#tech-stack-matrix)
 - [Project Directory Structure](#project-directory-structure)
 - [Telemetry & Database Schema](#telemetry--database-schema)
 - [Rate Limiting Architecture & Tiers](#rate-limiting-architecture--tiers)
-- [Automated Retention & Backup Policy](#automated-retention--backup-policy)
-- [Environment Variables](#environment-variables)
+- [Environment Configuration & Isolation Matrix](#environment-configuration--isolation-matrix)
 - [Getting Started Locally](#getting-started-locally)
+- [Local Staging Execution](#local-staging-execution)
 - [Available Scripts](#available-scripts)
-- [CI/CD, Security & Compliance](#cicd-security--compliance)
+- [CI/CD & Multi-Branch Git Strategy](#cicd--multi-branch-git-strategy)
 - [Automated Daily Health Audit](#automated-daily-health-audit)
 - [Author & Connect](#author--connect)
 - [License](#license)
@@ -45,187 +51,123 @@ A high-performance, dark-themed engineering portfolio and private observability 
 
 ## Architectural Overview
 
-The repository combines two interconnected applications within a unified **TanStack Start (React 19)** codebase:
-
-1. **A public single-scroll portfolio** showcasing Cloud/DevOps projects, hands-on infrastructure architecture, work history, verified certifications, live GitHub commits, and an AI chat assistant.
-2. **A private cloud observability & database administration console (`/dashboard`)** that continuously monitors `piyushprasad.in`, measures HTTP response latencies, inspects live TLS 1.3 socket handshakes, aggregates GitHub Actions workflow runs, benchmarks AI inference latency, tracks PostgreSQL physical disk footprints, orchestrates automated 7-day retention cleanup with pre-deletion backups, and sends real-time email alerts.
+The repository unifies a public-facing engineering showcase with a private cloud telemetry platform and an isolated staging subsystem within a single **TanStack Start (React 19)** codebase:
 
 ```
-                    ┌────────────────────────────────────────────────────────┐
-                    │               Cloudflare & Vercel Edge                 │
-                    │               https://www.piyushprasad.in               │
-                    └──────────────────────────┬─────────────────────────────┘
-                                               │
-                       ┌───────────────────────┴───────────────────────┐
-                       │                                               │
-            [Public Web Visitors]                             [Admin Console]
-                       │                                               │
-         ┌─────────────▼─────────────┐                   ┌─────────────▼─────────────┐
-         │  Single-Page Portfolio    │                   │  /dashboard (Auth Guard)  │
-         │  • Blueprint Grid Layout  │                   │  • Overview & SLA Trend   │
-         │  • Selected Work / Guides │                   │  • Endpoint Health & TLS  │
-         │  • Live GitHub Activity   │                   │  • Live Performance CWV   │
-         │  • Web3Forms Contact Form │                   │  • CI/CD Pipeline Runs    │
-         └─────────────┬─────────────┘                   │  • AI Telemetry Console   │
-                       │                                 │  • Database Admin Console │
-         ┌─────────────▼─────────────┐                   │  • Backups & 7-Day Purge  │
-         │   Ask Piyush AI Widget    │                   │  • Audit Reports (PDF)    │
-         │   (POST /api/chat)        │                   │  • Custom Settings        │
-         └─────────────┬─────────────┘                   └─────────────┬─────────────┘
-                       │                                               │
-                       ▼                                               ▼
-         ┌───────────────────────────┐                   ┌───────────────────────────┐
-         │     Google Gemini API     │                   │   Supabase PostgreSQL     │
-         │  (Grounded System Prompt) │                   │     (AWS ap-south-1)      │
-         └───────────────────────────┘                   └─────────────┬─────────────┘
-                                                                       │
-                                                         ┌─────────────▼─────────────┐
-                                                         │ 7-Day Retention & Backup  │
-                                                         │ • Auto Pre-Delete Backup  │
-                                                         │ • Auth Users Strictly Kept│
-                                                         │ • Web3Forms Email Alerts  │
-                                                         └───────────────────────────┘
+                          ┌────────────────────────────────────────────────────────┐
+                          │               Cloudflare Edge & DNS                    │
+                          │   piyushprasad.in (Prod)  •  test.piyushprasad.in (Stg)│
+                          └──────────────────────────┬─────────────────────────────┘
+                                                     │
+                             ┌───────────────────────┴───────────────────────┐
+                             │                                               │
+                  [Public Visitors]                                   [Admin Console]
+                             │                                               │
+               ┌─────────────▼─────────────┐                   ┌─────────────▼─────────────┐
+               │  Single-Page Portfolio    │                   │  /dashboard (Auth Guard)  │
+               │  • Editorial Theme        │                   │  • Overview & SLA Trend   │
+               │  • GitHub Projects Grid   │                   │  • Endpoint Health & TLS  │
+               │  • Credly Digital Badges  │                   │  • Live Performance CWV   │
+               │  • Work History & Skills  │                   │  • CI/CD Pipeline Runs    │
+               │  • Command Palette (⌘K)   │                   │  • AI Telemetry Console   │
+               │  • Resend / SMTP Contact  │                   │  • Database Admin Console │
+               └─────────────┬─────────────┘                   │  • 7-Day Purge & Backups  │
+                             │                                 └─────────────┬─────────────┘
+               ┌─────────────▼─────────────┐                                 │
+               │   Ask Piyush AI Widget    │                                 │
+               │   (POST /api/chat)        │                                 │
+               └─────────────┬─────────────┘                                 │
+                             │                                               │
+                             ▼                                               ▼
+               ┌───────────────────────────┐                   ┌───────────────────────────┐
+               │     Google Gemini API     │                   │   Supabase PostgreSQL     │
+               │ (Server-Side Knowledge)   │                   │     (AWS ap-south-1)      │
+               └───────────────────────────┘                   └─────────────┬─────────────┘
+                                                                             │
+                                                               ┌─────────────▼─────────────┐
+                                                               │ Staging Isolation Guard   │
+                                                               │ • Production Write-Lock   │
+                                                               │ • Email Simulation Only   │
+                                                               │ • noindex Robots Meta     │
+                                                               └───────────────────────────┘
 ```
 
 ---
 
 ## System Highlights
 
-### 1. Public Engineering Portfolio
-- **Blueprint Grid Motif:** Dark slate carbon theme (`#030712` / `#0b0f19`) paired with subtle grid lines, cyan accents (`#06b6d4`), and monospace section headers (`001 · SELECTED WORK`).
-- **Selected DevOps Projects:**
-  - *DevOps CI/CD Pipeline (2025):* Multi-stage automated deployments on AWS EC2, Nginx reverse proxy, and GitHub Actions.
-  - *Production AWS EC2 + DevSecOps (2026):* Hardened Linux server with Prometheus, Grafana, UFW, Let's Encrypt TLS, and Trivy image scanning.
-  - *CloudOps Sentinel (2026):* Full-stack ops monitoring platform with SQLite and PM2 process management.
-- **Live GitHub Activity Feed:** Fetches real-time public commit history, repository updates, and active branches via the GitHub REST API.
-- **Client-Side Form Validation:** Web3Forms integration protected with React Hook Form, Zod schema validation, honeypot spam traps, and accessible `aria-live` state announcements.
+### 1. Public Cloud & DevOps Portfolio
+- **Editorial Architectural Design System:** Cream backdrop (`#FAF9F6`), crisp white elevation cards (`#FFFFFF`), carbon high-contrast typography (`#121316`), and electric cobalt accents (`#1A4BFF`).
+- **Typography Standards:** Scaled with **Inter** for headings and narrative body copy, paired with **JetBrains Mono** for technical labels, system telemetry, and metadata.
+- **Interactive Command Palette:** Global keyboard search shortcut (`⌘K` / `Ctrl+K` or header trigger) allowing instant navigation to sections, external repositories, credentials, and documentation.
+- **Transactional Contact Dispatch:** Dual-engine notification dispatcher using **Resend REST API** as primary provider and **Nodemailer SMTP** as fallback. Outputs verified transactional layouts with anti-bot honeypots and HTML injection protection.
 
-### 2. "Ask Piyush AI" — Gemini Assistant
-- Fixed floating launcher on every page that lazy-loads a lightweight chat interface.
-- **Server-Side Proxy (`/api/chat`):** TanStack Start server route that validates input payloads with Zod, applies an in-memory per-IP rate limiter (10 req/hour), and truncates context windows to protect token quotas.
-- **Grounded Knowledge Base:** The AI is strictly seeded with verified portfolio details (experience, certifications, tooling) from `portfolio-knowledge.server.ts` to prevent hallucinations.
-- **Security:** The `GEMINI_API_KEY` is strictly accessed via server functions and is never exposed in the client JavaScript bundle.
+### 2. GitHub Projects & Dedicated Repository Page (`/github`)
+- **Homepage GitHub Projects Grid:** Showcases 6 default curated repositories with responsive layout (3-column desktop, 2-column tablet, 1-column mobile).
+- **Expandable Project Drawer:** Smooth animated expansion ("View More Projects" &harr; "Show Less") with real-time counter indicators (`Showing 6 of 14 Projects`).
+- **Dedicated GitHub Page ([`/github`](https://www.piyushprasad.in/github)):**
+  - Live profile header displaying avatar, bio, follower metrics, and direct GitHub links.
+  - Interactive repository search, language category filtering (DevOps, Cloud, TypeScript, Shell, Python), and sorting (stars, forks, recently updated).
+  - Real-time commit message readouts, star counters, fork tallies, and direct repository links fetched via the GitHub REST API.
 
-### 3. Private CloudOps & Monitoring Dashboard
-Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) with dedicated operational views:
+### 3. Verified Credly Digital Badges
+- Direct integration with verified digital certifications hosted on [Credly](https://www.credly.com/users/ppiyushhhh/badges/credly).
+- Displays certified credentials with issuing authority (AWS, Linux Foundation, Docker), issue dates, expiry milestones, and verified validation links.
+- Synced dynamically through the server-side portfolio knowledge layer to ensure AI responses accurately reflect certified competencies.
 
-- **Admin Login & Session Guard (`/dashboard/login`):** Passcode & Supabase Auth session authentication with role verification (`admin`) and sign-out controls.
-- **Overview Dashboard (`/dashboard`):**
-  - **Latency Area Chart:** Interactive Recharts visual curve displaying real-time response time (ms) and status codes.
-  - **30-Day Rolling Uptime SLA:** Segmented availability timeline with 100% operational guarantee.
-  - **Infrastructure Matrix:** Live status badges for Web Gateway, PostgreSQL DB, CI/CD Pipelines, and AI Inference.
-- **Website Health & Diagnostics (`/dashboard/health`):**
-  - **Interactive Latency & Distribution Sparklines:** Dual-mode chart toggling between latency trends and distribution bars.
-  - **Key Performance Indicators:** Min latency, average latency, P95 latency, max latency, and availability percentage.
-  - **Endpoint Probe Matrix:** Verifies `/`, `/robots.txt`, `/sitemap.xml`, and `/favicon.ico`.
-  - **Native TLS 1.3 Inspection:** Direct `node:tls` socket handshake extracting live certificate expiry date, days remaining, and cipher suite (`TLS_AES_128_GCM_SHA256`).
-  - **On-Demand Probe Action:** "Probe Endpoints Now" button triggers an immediate live server-side probe.
-- **Live Performance & Core Web Vitals (`/dashboard/performance`):**
-  - Live telemetry queried directly from Supabase `performance_history` and `website_health_checks`.
-  - Real-time Core Web Vitals: First Contentful Paint (FCP), Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), Total Blocking Time (TBT), and Time to First Byte (TTFB).
-  - Live Lighthouse metric scores (Performance, Accessibility, Best Practices, SEO) with dynamic grade assignments.
-  - Device distribution benchmarks (Desktop vs Mobile) and historical performance trend curves.
-- **CI/CD Pipeline Telemetry (`/dashboard/cicd`):**
-  - Connects to GitHub Actions API to display recent workflows (CodeQL, Daily Reports, CI).
-  - Status badges, commit SHA deep links, execution durations, and direct links to GitHub run logs.
-- **AI Chat Telemetry & Diagnostic Console (`/dashboard/ai-chat`):**
-  - Telemetry logging for all assistant interactions (timestamp, message count, latency ms).
-  - Live interactive benchmark console to send diagnostic prompts directly to `/api/chat`.
-- **Audit Reports & Generator (`/dashboard/reports`):**
-  - Historical health grades and Lighthouse scores.
-  - "Run Audit & Generate Report" server function to generate on-demand reports.
-  - Instant print/PDF export formatted for executive distribution.
-- **Custom Settings & Alerts (`/dashboard/settings`):**
-  - Adjustable response time thresholds (warning / critical ms).
-  - Webhook & email notification preferences.
-  - Polling interval controls and manual telemetry cache purge.
+### 4. "Ask Piyush AI" — Grounded Gemini 2.5 Assistant
+- Floating launcher on all pages that lazy-loads an interactive AI terminal widget.
+- **Server-Side API Proxy (`/api/chat`):** TanStack Start server route validating input payloads via Zod, enforcing distributed IP rate limiting, and authenticating server-side without exposing API keys.
+- **Dynamic Portfolio Knowledge Layer:** Powered by `portfolio-knowledge.server.ts` and `ai-knowledge.functions.ts`. Aggregates verified work experience, infrastructure projects, Credly credentials, and GitHub repositories.
+- **Administrative Knowledge Management:** Allows authorized administrators to inspect, add, toggle, and refresh custom knowledge records dynamically from the dashboard without redeploying code.
 
-### 4. Distributed Rate Limiting & Abuse Defense Engine
-Located at [`/dashboard/rate-limiting`](https://www.piyushprasad.in/dashboard/rate-limiting) (privileged administrator console):
+### 5. Secure Staging & Production Isolation Engine
+- **Dedicated Staging Port & URL:** Runs locally on **port 3001** (`http://localhost:3001`) and targets `https://test.piyushprasad.in` for preview deployments.
+- **Runtime Staging Guard (`src/lib/staging.guard.ts`):** Automatically detects `VITE_APP_ENV=staging`.
+- **Production Database Write-Lock:** If the staging environment points to the production Supabase database (`xseiuzpzzfvtrkmohogn`), the Staging Guard intercepts mutations (`INSERT`, `UPDATE`, `DELETE`) and throws an explicit isolation violation error to protect live data.
+- **Simulated Email Dispatch:** In staging mode, outbound emails to Resend or SMTP are intercepted and logged to stdout as `[STAGING EMAIL GUARD]`, preventing test emails from reaching users.
+- **SEO Protection:** Injects `<meta name="robots" content="noindex, nofollow" />` in staging to ensure search engines never index test or preview URLs.
+- **Staging Header Badge:** Subtle, professional `STAGING` badge with a pulsing amber indicator rendered in the navigation bar only when in staging mode.
 
-- **Top-Level Server Middleware (`src/server.ts`):**
-  - All non-static incoming requests are intercepted at the server entrypoint before executing expensive page renders or backend computations.
-  - Excess traffic instantly receives an RFC-compliant HTTP `429 Too Many Requests` response with standard rate-limiting headers: `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
-  - Static bundles (`/_build/*`, `/assets/*`, `.ico`, `.css`, `.js`, `/robots.txt`, `/sitemap.xml`) automatically bypass evaluation to protect user experience.
-- **Multi-Tier Distributed Atomic Storage:**
-  - *Tier 1 — Upstash / Redis Cluster (Atomic REST):* Executes high-throughput sliding window pipelines via `INCR` + `EXPIRE` when Redis credentials are provided.
-  - *Tier 2 — Supabase PostgreSQL Atomic Stored Procedure (`public.consume_rate_limit`):* Uses PostgreSQL row-level locks within an atomic transaction. This guarantees distributed rate-limiting accuracy across multi-process, serverless, and horizontally scaled deployments with zero additional dependencies.
-  - *Tier 3 — In-Memory Fail-Safe Fallback:* Automatically activates if external networks or databases encounter transient downtime, ensuring legitimate traffic is never dropped with 500 errors.
-- **Anti-Evasion Identity Binding:**
-  - Extracts client IP safely using Cloudflare `cf-connecting-ip`, `x-real-ip`, and leftmost `x-forwarded-for` to resist header spoofing.
-  - Automatically identifies authenticated Supabase sessions and binds them to `user:<userId>`. This prevents attackers from bypassing rate limits by cycling IP addresses or rotating proxies.
-- **Configurable Endpoint Tiers:**
-  - `auth` (Login, credential updates & session checks): Default **10 req / 60s**.
-  - `sensitive` (AI chat inference `/api/chat`, contact mailer `/api/contact`, backup exports): Default **15 req / 60s**.
-  - `api` (General REST APIs `/api/*`, server RPCs `/_server`): Default **60 req / 60s**.
-  - `global` (Global master fallback across all dynamic routes): Default **120 req / 60s**.
-- **Operations Console Telemetry & Administration:**
-  - Primary `TelemetryMatrix` displaying System Status (`ACTIVE` / `BYPASS`), Total Inspected Traffic, Blocked Violations, and 24h Violations.
-  - Interactive Recharts visual curve displaying allowed traffic vs. blocked rate-limit violations over time.
-  - Rate Limit Configuration Matrix with an admin modal to adjust request caps, time windows, and tier statuses with live throughput calculations (req/min).
-  - Recent Rate Limit Violations Audit Log displaying real-time streams of blocked requests (timestamp, HTTP method, endpoint, status code 429, masked client IP/user ID, rule triggered, and user agent).
-  - Master kill switch to toggle global enforcement and a danger modal to reset active counters and clear historical audit logs.
+### 6. Private CloudOps & Observability Console (`/dashboard`)
+Located at [`/dashboard`](https://www.piyushprasad.in/dashboard) (protected by Supabase Auth and admin RBAC):
+- **SLA & Uptime Tracking:** Rolling 30-day availability timeline and latency area charts powered by Recharts.
+- **Endpoint Health & Native TLS 1.3 Inspection:** Socket handshakes via `node:tls` inspecting live certificate validity, days to expiration, and cipher suites (`TLS_AES_128_GCM_SHA256`).
+- **Core Web Vitals Telemetry (`/dashboard/performance`):** Real-time monitoring of FCP, LCP, CLS, TBT, and TTFB alongside Lighthouse grade benchmarks.
+- **CI/CD Pipeline Telemetry (`/dashboard/cicd`):** Live GitHub Actions execution status, commit SHAs, run durations, and deep links to workflow logs.
 
-### 5. Database Administration & Storage Engine
-Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/database) (restricted strictly to authenticated Administrators):
+### 7. Distributed Multi-Tier Rate Limiting Engine
+Located at [`/dashboard/rate-limiting`](https://www.piyushprasad.in/dashboard/rate-limiting):
+- **Top-Level Server Middleware (`src/server.ts`):** Intercepts requests at server entry before page renders, returning RFC-compliant HTTP `429 Too Many Requests` responses with `Retry-After` headers.
+- **Multi-Tier Storage:**
+  1. *Tier 1:* Upstash Redis REST atomic pipeline (`INCR` + `EXPIRE`).
+  2. *Tier 2:* Supabase PostgreSQL atomic stored procedure (`public.consume_rate_limit`) using row-level transactional locks.
+  3. *Tier 3:* In-memory sliding window fail-safe fallback.
+- **Identity Anti-Evasion:** Evaluates Cloudflare `cf-connecting-ip`, `x-real-ip`, and binds authenticated sessions to `user:<userId>`.
 
-- **Live PostgreSQL Engine Telemetry:**
-  - Real-time disk footprint calculation via `pg_total_relation_size()`, `pg_relation_size()`, and `pg_indexes_size()`.
-  - Quota gauge displaying exact consumed bytes, remaining capacity, and percentage used against Supabase limits (500 MB default quota).
-  - Visual status alerts: Optimal (<75%), Warning (75-90%), and Critical (>90%).
-  - Per-table physical storage breakdown table detailing table rows, data footprint, index size, total disk space, and percentage share of the database.
-- **Interactive Database Table Viewer:**
-  - Live browsing across monitored application tables (`website_health_checks`, `performance_history`, `deployment_history`, `chat_activity`, `health_reports`, `database_backups`, `admin_audit_log`, `user_roles`).
-  - Server-side pagination (10, 25, 50, 100 records per page), multi-column search, and sortable headers.
-  - Quick **"Export JSON"** button to download table records locally.
-- **Administrator User Management:**
-  - Create new application users with verified roles (`admin` / `user`).
-  - Secure password reset utility.
-  - Real-time role promotion and demotion (`admin` &harr; `user`).
-  - Enable/disable user accounts with immediate authentication lockout.
-  - Permanent account deletion with confirmation safeguards.
-- **Immutable Admin Audit Log:**
-  - Logs every administrative action (user creation, role modifications, password resets, retention purges, manual backups) with caller email, timestamp, IP address, and metadata.
-
-### 6. Supabase-Based Database Backup System & 7-Day Retention
-- **Automated Daily Backups:**
-  - Automated database backup runs once every 24 hours at `02:00 UTC` via GitHub Actions (`.github/workflows/database-backup.yml`) and background API endpoint (`/api/public/database-backup`).
-  - Serializes all application tables into genuine PostgreSQL `.sql` dump archives (`database-backup-YYYY-MM-DD.sql`).
-- **Private Supabase Storage:**
-  - Backups are stored strictly in a private Supabase Storage bucket (`database-backups`) with `public = false`. Credentials and service-role keys are never exposed to the frontend.
-- **7-Day Rolling Retention & Rotation:**
-  - Continuously maintains a rolling 7-day retention window.
-  - Backups older than 7 days are automatically pruned from Supabase Storage and marked with `deleted_at` timestamps.
-  - Historical records remain permanently available in `public.database_backups` for monthly reporting even after physical file deletion.
-  - Strict failure handling: recent successful backups are NEVER deleted if a new backup fails.
-- **Operational Email Notifications:**
-  - Dispatches immediate operational status notifications ("Daily database backup completed successfully" or "Daily database backup failed") with date/time, status, backup size, and failure reason.
-  - Web3Forms is strictly not used as a backup mechanism; email is used only for operational notifications.
-- **End-of-Month Backup Summaries & History:**
-  - Automatically queries all backup history records for the month and calculates: scheduled backups, successful, failed, success percentage, failed dates/reasons, total created storage, and backups deleted via 7-day rotation.
-  - Permanently persisted in `public.backup_monthly_reports` and viewable via `/dashboard/database` under **Backup Reports**.
-- **Admin UI & Secure Downloads:**
-  - Manual on-demand backup button and 7-day cleanup runner.
-  - One-click secure signed download of `.sql` backup files.
-  - Interactive monthly summary viewer matching executive audit standards.
+### 8. Automated Database Backup & 7-Day Retention Engine
+- **Scheduled Daily Dumps:** Automated backup runs every 24 hours at `02:00 UTC` via GitHub Actions (`.github/workflows/database-backup.yml`).
+- **PostgreSQL Dump Archives:** Generates structured `.sql` snapshot files stored in a private Supabase Storage bucket (`database-backups`).
+- **7-Day Rolling Retention:** Automatically rotates and prunes backups older than 7 days while preserving immutable audit logs and monthly summary reports.
+- **User Account Safeguard:** `auth.users` and `public.user_roles` are hard-coded as non-deletable to prevent administrative lockouts.
 
 ---
 
-## Tech Stack
+## Tech Stack Matrix
 
 | Layer | Technologies |
 |---|---|
-| **Core Framework** | React 19, TanStack Start (SSR, Server Functions, File-based Routing) |
-| **Styling & UI** | Tailwind CSS v4, Radix UI Primitives, Lucide React, Framer Motion |
+| **Core Framework** | React 19, TanStack Start 1.168, TanStack Router 1.170 |
+| **Styling & Design** | Tailwind CSS v4, Radix UI Primitives, Lucide React, Framer Motion |
 | **Interactive Telemetry** | Recharts (ResponsiveContainer, AreaChart, BarChart, Custom Tooltips) |
-| **Cloud Database** | Supabase PostgreSQL (AWS Mumbai `ap-south-1`) via `@supabase/supabase-js` |
+| **Cloud Database** | Supabase PostgreSQL (AWS Mumbai `ap-south-1`), `@supabase/supabase-js` |
 | **Rate Limiter & WAF** | Upstash Redis REST, PostgreSQL Row-Level Locks, Multi-Tier Sliding Windows |
-| **Server-Side Runtimes** | TanStack Start Server Functions, Vercel Serverless Functions, Node.js `tls` |
-| **AI / Machine Learning** | Google Gemini API (`gemini-2.5-flash` / `gemini-3.6-flash`) |
-| **Forms & Ingestion** | React Hook Form, Zod Schema Validation, Web3Forms |
+| **Server Runtimes** | TanStack Start Server Functions, Nitro 3.0, Vercel Serverless, Node.js `tls` |
+| **AI / Machine Learning** | Google Gemini API (`gemini-2.5-flash`), Dynamic Grounding Knowledge Service |
+| **Email Dispatch** | Resend REST API, Nodemailer SMTP, Web3Forms Fallback |
 | **Tooling & Bundler** | Vite 8, TypeScript 5.8, ESLint 9, Prettier |
 | **Hosting & CDN** | Vercel Edge Network, Cloudflare Anycast DNS & SSL Termination |
-| **CI/CD & Security** | GitHub Actions, GitHub CodeQL Advanced Security, Dependabot |
+| **CI/CD & Security** | GitHub Actions, GitHub CodeQL SAST Analysis, Dependabot |
 
 ---
 
@@ -236,110 +178,86 @@ Located at [`/dashboard/database`](https://www.piyushprasad.in/dashboard/databas
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml                      # Automated lint, typecheck, and build on push/PR
-│       ├── codeql.yml                  # CodeQL SAST security scanning for TS and workflows
+│       ├── codeql.yml                  # CodeQL SAST security scanning
 │       └── daily-report.yml            # Scheduled daily health check & email report
 ├── public/
 │   ├── favicon.ico                     # Brand favicon
-│   ├── llms.txt                        # Context guide for LLM crawlers
+│   ├── pp-logo.png                     # Identity monogram
 │   ├── resume.pdf                      # Downloadable engineering resume
 │   ├── robots.txt                      # Search engine crawl directives
 │   └── sitemap.xml                     # XML sitemap index
 ├── scripts/
-│   ├── generate-report.mjs             # End-to-end site probe, Lighthouse audit & PDF mailer
-│   └── assets/                         # Branding and visual assets for reports
+│   ├── generate-report.mjs             # End-to-end site probe & PDF mailer
+│   └── assets/                         # Report branding assets
 ├── src/
 │   ├── components/
-│   │   ├── ContactForm.tsx             # Zod-validated Web3Forms contact form
+│   │   ├── ContactForm.tsx             # Validated transactional contact form
 │   │   ├── dashboard/                  # Observability UI components
-│   │   │   ├── database/               # Database Admin Console components
-│   │   │   │   ├── ActivityLog.tsx     # Admin audit log viewer
-│   │   │   └── ratelimiting/           # Rate limiting UI modules (charts, tables, modals)
-│   │   │   │   ├── DatabaseBackups.tsx # Backups & 7-day retention management view
-│   │   │   │   ├── DatabaseOverview.tsx# Storage metrics, quota gauge, and table cards
-│   │   │   │   ├── DatabaseTableViewer.tsx # Table browser with pagination and export
-│   │   │   │   └── UserManagement.tsx  # User creation, password, and RBAC controls
-│   │   │   ├── primitives.tsx          # Panel, MetricCard, PageHeader, EmptyState
-│   │   │   └── state.tsx               # DataTable, LoadingState, ErrorState, formatters
-│   │   ├── portfolio/                  # Public portfolio modules
-│   │   │   ├── AskPiyushAI.tsx         # Floating chat button & lazy bundle loader
-│   │   │   ├── ChatPanel.tsx           # AI chat conversation panel & suggestions
-│   │   │   ├── GithubActivity.tsx      # Real-time GitHub commits and repository feed
-│   │   │   └── SectionLabel.tsx        # Blueprint monospace section titles
-│   │   └── ui/                         # Accessible Radix primitives
+│   │   │   ├── database/               # Database Admin & Storage Console
+│   │   │   └── ratelimiting/           # Rate limiting telemetry & rule modals
+│   │   └── portfolio/                  # Public portfolio modules
+│   │       ├── AskPiyushAI.tsx         # Floating chat trigger & lazy loader
+│   │       ├── ChatPanel.tsx           # AI chat conversation panel
+│   │       ├── GithubProjects.tsx      # Curated 6-project expandable showcase
+│   │       ├── Navigation.tsx          # Desktop/mobile nav + STAGING indicator
+│   │       └── SectionLabel.tsx        # Monospace section headers
 │   ├── integrations/
 │   │   └── supabase/
-│   │       ├── client.ts               # Browser Supabase client
-│   │       ├── client.server.ts        # Server-only service role client (bypasses RLS)
+│   │       ├── client.ts               # Browser Supabase client with staging guard
+│   │       ├── client.server.ts        # Server admin client (service-role)
 │   │       └── types.ts                # TypeScript database schema types
 │   ├── lib/
-│   │   ├── database-admin.functions.ts # Server functions for DB metrics, users, backups & retention
-│   │   ├── gemini.server.ts            # Server-only Gemini API client with backoff
-│   │   ├── monitoring.functions.ts     # Server functions for health, latency, CI/CD, SSL
-│   │   ├── portfolio-knowledge.server.ts # System prompt & validated knowledge base
-│   │   ├── rate-limiter.server.ts      # Multi-tier distributed atomic rate limiting engine
-│   │   ├── rate-limiting-admin.functions.ts # Admin server functions for rate limit telemetry & rules
-│   │   ├── rate-limit.server.ts        # Backward-compatibility rate limiter adapter
-│   │   ├── site.ts                     # Single source of truth for site metadata
-│   │   └── utils.ts                    # Classname and styling helpers
+│   │   ├── ai-knowledge.functions.ts   # AI knowledge base CRUD server functions
+│   │   ├── database-admin.functions.ts # Storage metrics, user RBAC & backup routines
+│   │   ├── email.server.ts             # Resend / SMTP dispatcher with staging simulation
+│   │   ├── gemini.server.ts            # Server-side Gemini API client
+│   │   ├── github.ts                   # GitHub REST API repository sync
+│   │   ├── portfolio-knowledge.server.ts # Grounded knowledge base for AI assistant
+│   │   ├── rate-limiter.server.ts      # Multi-tier distributed atomic rate limiter
+│   │   ├── staging.guard.ts            # Staging environment detector & write isolation lock
+│   │   └── site.ts                     # Single source of truth for portfolio constants
 │   ├── routes/
-│   │   ├── __root.tsx                  # Root layout, JSON-LD schemas, global fonts
+│   │   ├── __root.tsx                  # Root layout, dynamic robots meta, JSON-LD
 │   │   ├── index.tsx                   # Main single-scroll engineering portfolio
-│   │   ├── resume.tsx                  # Clean in-browser resume viewer
-│   │   ├── thank-you.tsx               # Contact submission confirmation page
-│   │   ├── api/chat.ts                 # Secure POST /api/chat endpoint
-│   │   ├── dashboard.tsx               # Monitoring layout, sidebar navigation & auth guard
-│   │   ├── dashboard.index.tsx         # Overview: latency charts & infrastructure matrix
-│   │   ├── dashboard.health.tsx        # Health: latency sparklines, endpoint matrix, SSL
-│   │   ├── dashboard.performance.tsx   # Live Performance: Core Web Vitals & Lighthouse
-│   │   ├── dashboard.rate-limiting.tsx # Rate Limiting & Abuse Defense Console
-│   │   ├── dashboard.database.tsx      # Database Administration, Backups & User Management
-│   │   ├── dashboard.cicd.tsx          # CI/CD: live GitHub Actions pipeline feed
-│   │   ├── dashboard.ai-chat.tsx       # AI Telemetry & interactive diagnostic bench
-│   │   ├── dashboard.reports.tsx       # Audit reports history & on-demand generator
-│   │   ├── dashboard.settings.tsx      # Alert thresholds & monitoring customization
-│   │   └── dashboard.login.tsx         # Admin passcode login screen
-│   ├── server.ts                       # SSR fetch handler
-│   ├── start.ts                        # TanStack Start instance configuration
+│   │   ├── github.tsx                  # Dedicated GitHub repository & activity page
+│   │   ├── resume.tsx                  # In-browser engineering resume viewer
+│   │   ├── api/chat.ts                 # Secure POST /api/chat AI proxy
+│   │   └── dashboard.*.tsx             # Observability console routes
+│   ├── server.ts                       # SSR fetch handler & rate-limit middleware
 │   └── styles.css                      # Tailwind CSS v4 design system
 ├── supabase/
-│   ├── config.toml                     # Supabase local/cloud project configuration
-│   ├── migrations/                     # Versioned SQL migrations
-│   │   ├── 20261005020000_database_backups_and_retention.sql # Retention proc & backup table
-│   │   └── 20261015180000_create_rate_limiting_system.sql # Rate limit configs, events & atomic buckets
-│   └── schema.sql                      # DDL schema for monitoring & telemetry tables
-├── package.json                        # Dependencies, scripts, and engine specs
-├── vite.config.ts                      # Vite build, TanStack router plugin & aliases
-└── tsconfig.json                       # TypeScript compiler options
+│   ├── config.toml                     # Supabase project configuration
+│   └── migrations/                     # Versioned SQL migrations
+├── .env.example                        # Production environment variable template
+├── .env.staging.example                # Staging environment variable template
+├── package.json                        # Scripts, dependencies, and engines
+├── tsconfig.json                       # TypeScript compiler options
+└── vite.config.ts                      # Vite build & TanStack configuration
 ```
 
 ---
 
 ## Telemetry & Database Schema
 
-The observability console persists metrics to a hosted **Supabase PostgreSQL** instance (`ap-south-1`). All tables are secured with Row Level Security (RLS) and queried through service-role server functions:
+All database interactions leverage hosted **Supabase PostgreSQL** (`ap-south-1`), protected by Row Level Security (RLS) policies:
 
-| Table | Purpose | Key Columns | Retention Policy |
-|---|---|---|---|
-| `website_health_checks` | Real-time endpoint probes & SSL | `url`, `http_status`, `response_time_ms`, `ssl_valid`, `ssl_expires_at`, `dns_ok`, `health_score`, `checked_at` | Auto-pruned > 7 days (backed up) |
-| `performance_history` | Historical Lighthouse audits | `url`, `performance`, `accessibility`, `best_practices`, `seo`, `measured_at` | Auto-pruned > 7 days (backed up) |
-| `deployment_history` | CI/CD execution telemetry | `workflow_name`, `provider`, `status`, `conclusion`, `commit_sha`, `duration_seconds`, `occurred_at` | Auto-pruned > 7 days (backed up) |
-| `chat_activity` | Anonymized AI telemetry | `event_type`, `message_count`, `latency_ms`, `error_code`, `occurred_at` *(User message text is never stored)* | Auto-pruned > 7 days (backed up) |
-| `health_reports` | Generated executive audits | `report_date`, `health_score`, `lighthouse_score`, `status`, `pdf_url` | Auto-pruned > 7 days (backed up) |
-| `database_backups` | JSON snapshots of database data | `id`, `backup_type` (`manual` / `auto_prune_7d`), `tables_included`, `total_records`, `file_size_pretty`, `pruned_records_count`, `backup_data`, `metadata` | Permanent archive (downloadable) |
-| `admin_audit_log` | Security audit trail of admin actions | `id`, `action`, `admin_email`, `target_user_id`, `target_table`, `details`, `ip_address`, `created_at` | Pruned > 7 days (logged events retained) |
-| `auth.users` | Supabase Auth user accounts | `id`, `email`, `encrypted_password`, `email_confirmed_at`, `created_at` | **NEVER PURGED (Strictly Protected)** |
-| `user_roles` | Dashboard authorization & RBAC | `id`, `user_id`, `role` (`admin` / `user`), `created_at` | **NEVER PURGED (Strictly Protected)** |
-| `rate_limit_configs` | Configurable endpoint tiers & quotas | `id` (`auth`/`sensitive`/`api`/`global`), `name`, `endpoint_pattern`, `max_requests`, `window_seconds`, `enabled` | Static / Admin Managed |
-| `rate_limit_events` | Logged violations (HTTP 429) & audit | `id`, `client_identifier`, `endpoint`, `http_method`, `status_code`, `action_taken`, `rule_name`, `request_count`, `user_agent` | Auto-pruned / Reset on demand |
-| `rate_limit_buckets` | Distributed atomic sliding window state | `bucket_key`, `request_count`, `window_start`, `expires_at`, `updated_at` | Rolling per window / Auto-reset |
+| Table | Purpose | Retention Policy |
+|---|---|---|
+| `website_health_checks` | Real-time endpoint probes, TTFB, and SSL telemetry | Auto-pruned > 7 days (backed up) |
+| `performance_history` | Core Web Vitals and Lighthouse audit scores | Auto-pruned > 7 days (backed up) |
+| `deployment_history` | CI/CD workflow executions from GitHub Actions | Auto-pruned > 7 days (backed up) |
+| `chat_activity` | Quantitative AI assistant metrics (latency, token count) | Auto-pruned > 7 days (backed up) |
+| `database_backups` | PostgreSQL `.sql` dump manifests and JSON snapshots | Permanent archive in private Storage |
+| `admin_audit_log` | Immutable security audit trail of privileged administrative operations | Pruned > 7 days (logs retained) |
+| `auth.users` | Supabase Auth user accounts | **NEVER PURGED (Strictly Excluded)** |
+| `user_roles` | Role-based access control mappings (`admin` / `user`) | **NEVER PURGED (Strictly Excluded)** |
+| `rate_limit_configs` | Dynamic quotas and window durations for rate limiting tiers | Managed by Administrators |
+| `rate_limit_events` | Logged HTTP 429 rate limit violations | Auto-pruned / Reset on demand |
+| `rate_limit_buckets` | Atomic sliding-window state counters | Auto-expires per window |
 
 ---
 
 ## Rate Limiting Architecture & Tiers
-
-The application enforces server-side rate limiting to protect APIs from brute-force attempts, denial-of-service, and resource exhaustion.
-
-### 1. Multi-Tier Distributed Storage Engine
 
 ```
    Incoming HTTP Request
@@ -348,13 +266,13 @@ The application enforces server-side rate limiting to protect APIs from brute-fo
 ┌───────────────────────┐   Configured?   ┌───────────────────────────────┐
 │ Tier 1: Upstash Redis ├────────────────►│ Atomic INCR + EXPIRE Pipeline │
 └───────────┬───────────┘                 └───────────────┬───────────────┘
-            │ (Not Configured / Unreachable)              │
+            │ (Not Configured / Fallback)                 │
             ▼                                             │
 ┌───────────────────────┐   Connected?    ┌───────────────▼───────────────┐
 │ Tier 2: PostgreSQL    ├────────────────►│ public.consume_rate_limit()   │
-│         Stored Proc   │                 │ (Row-Level Locks in Atomic Tx)│
+│         Stored Proc   │                 │ (Row-Level Transaction Locks) │
 └───────────┬───────────┘                 └───────────────┬───────────────┘
-            │ (DB Transient Outage)                       │
+            │ (DB Outage Fallback)                        │
             ▼                                             │
 ┌───────────────────────┐                 ┌───────────────▼───────────────┐
 │ Tier 3: In-Memory     ├────────────────►│ Bounded Sliding Window Bucket │
@@ -374,68 +292,41 @@ The application enforces server-side rate limiting to protect APIs from brute-fo
          • X-RateLimit-Reset            • Async event write to DB
 ```
 
-### 2. Configurable Endpoint Categories
-
-| Tier ID | Rule Name | Target Endpoints | Default Limit | Window | Effective Throughput |
-|---|---|---|---|---|---|
-| `auth` | Authentication | `/dashboard/login`, `/api/auth/*` | **10 req** | 60s (1 min) | 10 req / min |
-| `sensitive` | Sensitive Operations | `/api/contact`, `/api/chat` | **15 req** | 60s (1 min) | 15 req / min |
-| `api` | General REST APIs | `/api/*`, `/_server` RPCs | **60 req** | 60s (1 min) | 60 req / min |
-| `global` | Global Master Limit | All dynamic application routes (`*`) | **120 req** | 60s (1 min) | 120 req / min |
-
-### 3. Client Identity & Anti-Evasion Protection
-
-- **Reverse-Proxy Safe Resolution:** Evaluates Cloudflare `cf-connecting-ip`, `x-real-ip`, and leftmost client IP in `x-forwarded-for` to prevent spoofing.
-- **Authenticated User Binding:** Authenticated callers are identified by their verified user ID (`user:<userId>`). Rotating IP addresses or using proxy pools does not bypass rate limits for logged-in sessions.
-- **Fail-Open Safety:** In the event of network isolation or database failure, the system falls back to in-memory sliding buckets without throwing 500 errors to end users.
-
-## Automated Retention & Backup Policy
-
-To prevent unbounded database storage growth while guaranteeing zero loss of user profiles or critical logs, the system operates an automated 7-day retention engine:
-
-1. **Pre-Deletion Backup Guarantee:**
-   - Before executing a deletion of aged telemetry, the server function queries all records across monitored tables where `created_at < NOW() - INTERVAL '7 days'`.
-   - Records are compiled into a structured JSON archive containing table names, schemas, counts, and ISO timestamps.
-   - The backup is committed to `public.database_backups` with a unique ID and `backup_type = 'auto_prune_7d'`.
-2. **Strict User Account Protection:**
-   - `auth.users` and `public.user_roles` are hard-coded as excluded from all deletion routines.
-   - User credentials, roles, and session states are never modified by retention routines.
-3. **Operational Notification Dispatch:**
-   - Immediate operational email notifications are dispatched server-side upon backup completion or failure.
-   - Status: "Daily database backup completed successfully" or "Daily database backup failed" with date/time, archive size, and error detail.
-   - Web3Forms is not used as a backup mechanism; email is used strictly for operational notifications.
-4. **On-Demand Manual Backups & Secure Downloads:**
-   - Administrators can trigger manual backups from `/dashboard/database` at any time, producing `.sql` PostgreSQL dumps saved to private Supabase Storage.
-   - Available backups can be downloaded via secure signed URLs or direct SQL text exports.
+| Tier ID | Rule Name | Target Endpoints | Default Limit | Window |
+|---|---|---|---|---|
+| `auth` | Authentication | `/dashboard/login`, `/api/auth/*` | **10 requests** | 60s (1 min) |
+| `sensitive` | Sensitive Operations | `/api/contact`, `/api/chat` | **15 requests** | 60s (1 min) |
+| `api` | General REST APIs | `/api/*`, `/_server` RPCs | **60 requests** | 60s (1 min) |
+| `global` | Global Master Limit | All dynamic application routes (`*`) | **120 requests** | 60s (1 min) |
 
 ---
 
-## Environment Variables
+## Environment Configuration & Isolation Matrix
 
-### Application Variables (`.env` / Vercel Settings)
+| Variable | Scope | Production (`.env`) | Staging (`.env.staging`) | Purpose |
+|---|---|---|---|---|
+| `VITE_APP_ENV` | Client/Server | `production` | `staging` | Drives `isStaging` guards & UI badge |
+| `VITE_SITE_URL` | Client/Server | `https://piyushprasad.in` | `http://localhost:3001` | Base site URL & canonical tags |
+| `SITE_DOMAIN` | Server | `piyushprasad.in` | `test.piyushprasad.in` | Domain identifier for audit reports |
+| `VITE_SUPABASE_URL` | Client | Production Supabase URL | Staging Supabase URL | Supabase API endpoint |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Client | Production Publishable Key | Staging Publishable Key | Supabase client auth token |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server | **Secret** (Server Only) | Staging Service Key | Service-role administrative access |
+| `SKIP_EMAIL` | Server | `0` (or unset) | `1` | Forces email delivery simulation |
+| `CONTACT_FROM_EMAIL` | Server | `support@piyushprasad.in` | `staging@test.piyushprasad.in` | From address header |
+| `CONTACT_NOTIFICATION_EMAIL` | Server | `support@piyushprasad.in` | `dev-staging@piyushprasad.in` | Notification recipient |
+| `GEMINI_API_KEY` | Server | **Secret** (Server Only) | Staging API Key | Google AI Studio access key |
+| `GEMINI_MODEL` | Server | `gemini-2.5-flash` | `gemini-2.5-flash` | LLM model identifier |
 
-| Variable | Environment | Scope | Description |
-|---|---|---|---|
-| `VITE_SITE_URL` | Client & Server | Public | Canonical URL (`https://www.piyushprasad.in`) |
-| `GEMINI_API_KEY` | Server Only | **Secret** | Google AI Studio API key for the chat assistant |
-| `GEMINI_MODEL` | Server Only | Optional | Override model identifier (default: `gemini-3.6-flash`) |
-| `SUPABASE_URL` | Server Only | Config | Supabase project URL (`https://cdofblftvzhqsrdlhqmd.supabase.co`) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server Only | **Secret** | Supabase service-role secret key for server function RLS bypass |
-| `SUPABASE_PUBLISHABLE_KEY` | Client & Server | Config | Supabase public anonymous key |
-| `VITE_SUPABASE_URL` | Client Only | Config | Public Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Client Only | Config | Public Supabase anonymous key |
-| `UPSTASH_REDIS_REST_URL` | Server Only | Optional | Upstash Redis REST URL for Tier 1 high-throughput rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | Server Only | Optional | Upstash Redis REST bearer token |
-
-> **Security Rule:** Never prefix backend secrets (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) with `VITE_`. Any variable starting with `VITE_` is baked into the browser bundle at compile time.
+> **Security Rule:** Never prefix server credentials (`SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`) with `VITE_`. Any variable prefixed with `VITE_` is automatically bundled into public client JavaScript.
 
 ---
 
 ## Getting Started Locally
 
 ### Prerequisites
-- **Node.js** (v20+ LTS recommended) or **Bun** (v1.1+)
-- Git
+- **Node.js** (v20+ LTS recommended)
+- **Git**
+- **npm** or **bun**
 
 ### 1. Clone the repository
 ```bash
@@ -446,24 +337,50 @@ cd piyush-prasad
 ### 2. Install dependencies
 ```bash
 npm install
-# or
-bun install
 ```
 
-### 3. Configure local environment
-Copy the example file and add your credentials:
+### 3. Configure production-mode local environment
 ```bash
 cp .env.example .env
 ```
-Fill in your `GEMINI_API_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
+Fill in your `GEMINI_API_KEY`, `SUPABASE_URL`, and `SUPABASE_PUBLISHABLE_KEY`.
 
-### 4. Start the development server
+### 4. Run standard development server
 ```bash
 npm run dev
-# or
-bun run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:3000](http://localhost:3000) (or the displayed Vite port) in your browser.
+
+---
+
+## Local Staging Execution
+
+The repository provides an isolated local staging workflow that mirrors production while enforcing strict database write-locks and email simulation:
+
+### 1. Configure staging environment
+```bash
+# Copy the staging template
+cp .env.staging.example .env.staging
+```
+
+### 2. Start staging server on dedicated port 3001
+```bash
+npm run dev:staging
+```
+The application will boot in **staging mode** on [http://localhost:3001](http://localhost:3001) with:
+- `STAGING` badge displayed in navigation.
+- Diagnostic startup readout verifying write protection.
+- Email delivery safely mocked to the console.
+- Search indexing blocked (`noindex, nofollow`).
+
+### 3. Build & preview staging bundles
+```bash
+# Build with staging environment mode
+npm run build:staging
+
+# Preview the built staging artifact on port 3001
+npm run preview:staging
+```
 
 ---
 
@@ -471,40 +388,48 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 | Command | Action |
 |---|---|
-| `npm run dev` | Starts Vite dev server with hot module replacement (HMR) |
-| `npm run build` | Compiles production bundle with TanStack Start SSR |
-| `npm run build:dev` | Compiles production bundle in development mode for debugging |
+| `npm run dev` | Starts Vite dev server with Hot Module Replacement (HMR) |
+| `npm run dev:staging` | Starts isolated staging dev server on **port 3001** (`--mode staging`) |
+| `npm run build` | Compiles optimized production bundle with TanStack Start SSR |
+| `npm run build:staging` | Compiles staging bundle with staging environment variables |
 | `npm run preview` | Previews the compiled production build locally |
-| `npm run typecheck` | Validates TypeScript types across the codebase (`tsc --noEmit`) |
-| `npm run lint` | Runs ESLint 9 checks |
-| `npm run format` | Formats all code with Prettier |
-| `npx tsx scripts/test-rate-limiting.ts` | Runs 26-test automated verification suite for rate limiting & fail-safe fallback |
+| `npm run preview:staging` | Previews the compiled staging build on **port 3001** |
+| `npm run typecheck` | Validates TypeScript compiler types across all files (`tsc --noEmit`) |
+| `npm run lint` | Runs ESLint 9 checks across the codebase |
+| `npm run format` | Formats all files using Prettier |
 
 ---
 
-## CI/CD, Security & Compliance
+## CI/CD & Multi-Branch Git Strategy
 
-- **Continuous Integration (`ci.yml`):** Automatically executes lint checks, TypeScript strict compilation, and a full production build on every push and pull request to `main`.
-- **CodeQL SAST Analysis (`codeql.yml`):** Performs deep static analysis on TypeScript/JavaScript source code and GitHub Actions workflow definitions to prevent supply-chain attacks and vulnerabilities.
-- **TLS 1.3 Strict Transport Security:** Enforces HTTPS with automated Let's Encrypt certificate renewals, valid through **December 2026**.
-- **Edge CDN Security:** Served via Cloudflare and Vercel edge networks with DDoS mitigation and HTTP/3 support.
-- **Privacy First:** The AI chat assistant stores strictly quantitative performance telemetry (response latency and token counts); raw user inquiries and message content are never persisted.
-- **Multi-Tier WAF Rate Limiting:** Server-side throttling protects auth and sensitive routes from credential stuffing, brute-force login attacks, and automated API abuse.
-- **Admin-Only RBAC Enforced:** Rate limit configuration and database tables enforce Row Level Security (`public.has_role(auth.uid(), 'admin')`).
-- **Safe Retention Engine:** Telemetry older than 7 days is automatically backed up to JSON before removal; user accounts and roles are strictly protected.
+The repository follows a Git branching workflow designed for safe deployment:
+
+```
+[Feature Branch] ──► [staging branch] ──► [Vercel Preview: test.piyushprasad.in]
+                           │
+                    (Manual Approval)
+                           │
+                           ▼
+                     [main branch]    ──► [Vercel Production: piyushprasad.in]
+```
+
+- **`main` Branch:** Represents the live, audited production release deployed to `https://piyushprasad.in`.
+- **`staging` Branch:** Dedicated testing branch deployed to `https://test.piyushprasad.in` for verifying UI changes, database migrations, and integrations before production promotion.
+- **Continuous Integration (`ci.yml`):** Automatically executes lint checks, strict TypeScript verification, and full production build bundling on every push and pull request.
+- **CodeQL SAST Analysis (`codeql.yml`):** Automated static analysis scanning for security vulnerabilities and supply-chain weaknesses.
 
 ---
 
 ## Automated Daily Health Audit
 
-The repository contains a standalone auditing script in `scripts/generate-report.mjs` triggered automatically every day at 19:00 IST (13:30 UTC) via GitHub Actions (`daily-report.yml`).
+The repository contains an automated health probe in `scripts/generate-report.mjs` executed daily at 19:00 IST (13:30 UTC) via GitHub Actions (`daily-report.yml`).
 
-### Audit Parameters:
-- **HTTP Reachability & TTFB:** Validates status codes and edge response latency.
-- **TLS Handshake Inspection:** Checks certificate expiration, hostname verification, and cipher strength.
+### Audit Verifications:
+- **HTTP TTFB & Status:** Verifies global edge response times and status codes.
+- **TLS 1.3 Socket Verification:** Inspects certificate expiration and cipher security.
 - **DNS Resolution:** Anycast A/AAAA record verification.
-- **Asset Integrity:** Verifies crawler accessibility for `robots.txt`, `sitemap.xml`, and `favicon.ico`.
-- **Headless Chrome Lighthouse:** Benchmarks Performance, Accessibility, Best Practices, and SEO.
+- **Asset Integrity:** Verifies accessibility of `robots.txt`, `sitemap.xml`, and `favicon.ico`.
+- **Headless Lighthouse Audit:** Measures Performance, Accessibility, Best Practices, and SEO.
 
 ### Running Audits Locally:
 ```bash
@@ -512,19 +437,21 @@ cd scripts
 npm install
 SITE_DOMAIN=piyushprasad.in SKIP_EMAIL=1 node generate-report.mjs
 ```
-The generated executive audit report is saved to `scripts/reports/Daily-Website-Report-YYYY-MM-DD.pdf`.
+The output PDF is saved to `scripts/reports/Daily-Website-Report-YYYY-MM-DD.pdf`.
 
 ---
 
 ## Author & Connect
 
 **Piyush Prasad**  
-*Aspiring Cloud & DevOps Engineer*  
-Ranchi, Jharkhand, India
+*Cloud & DevOps Engineer*  
+Navi Mumbai, Maharashtra, India
 
 - **Website:** [www.piyushprasad.in](https://www.piyushprasad.in)
-- **LinkedIn:** [linkedin.com/in/ppiyushhhh](https://linkedin.com/in/ppiyushhhh)
+- **Staging Portal:** [test.piyushprasad.in](https://test.piyushprasad.in)
 - **GitHub:** [@ppiyushhhhh](https://github.com/ppiyushhhhh)
+- **LinkedIn:** [linkedin.com/in/ppiyushhhh](https://linkedin.com/in/ppiyushhhh)
+- **Credly:** [credly.com/users/ppiyushhhh/badges/credly](https://www.credly.com/users/ppiyushhhh/badges/credly)
 - **Email:** [hello@piyushprasad.in](mailto:hello@piyushprasad.in)
 
 ---
