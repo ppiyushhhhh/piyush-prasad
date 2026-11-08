@@ -21,6 +21,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { isStaging, logStagingDiagnostics } from "../lib/staging.guard";
 
 function NotFoundComponent() {
   return (
@@ -221,11 +222,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
+      { title: isStaging ? "[STAGING] Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" : "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
       { name: "description", content: "Cloud & DevOps engineer building AWS infrastructure, CI/CD pipelines, and DevSecOps automation with Docker, Nginx, and GitHub Actions." },
       { name: "author", content: "Piyush Prasad" },
       { name: "keywords", content: "Piyush Prasad, Cloud Engineer, DevOps Engineer, AWS, CI/CD, Docker, Nginx, GitHub Actions, Linux, DevSecOps, Portfolio" },
-      { name: "robots", content: "index, follow" },
+      { name: "robots", content: isStaging ? "noindex, nofollow" : "index, follow" },
       { name: "google-site-verification", content: "K1jY27s3c8in51n399XWyedM9KQrwIQb0gYdcLoinBk" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Piyush Prasad — Portfolio" },
@@ -331,6 +332,10 @@ import { Toaster } from "@/components/ui/sonner";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    logStagingDiagnostics();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

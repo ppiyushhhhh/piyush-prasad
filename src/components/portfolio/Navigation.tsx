@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
 import { Github, FileText, Menu, X, Search } from "lucide-react";
+import { isStaging } from "@/lib/staging.guard";
 
 interface NavItem {
   id: string;
@@ -110,36 +111,50 @@ export function Navigation() {
         }`}
       >
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-10">
-          {/* Identity: PP Monogram + Name */}
-          <a
-            href={isHome ? "#hero" : "/#hero"}
-            className="group flex items-center gap-3 transition-opacity hover:opacity-90"
-            aria-label="Piyush Prasad — Cloud & DevOps Engineer home"
-          >
-            <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-xs transition-colors group-hover:border-cobalt">
-              <img
-                src="/pp-logo.png"
-                alt="PP"
-                className="h-6 w-auto object-contain"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.style.display = "none";
-                  if (target.parentElement) {
-                    target.parentElement.innerHTML =
-                      '<span class="mono font-bold text-cobalt text-[12px]">PP</span>';
-                  }
-                }}
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[14px] font-bold tracking-tight text-carbon">
-                Piyush Prasad
-              </span>
-              <span className="mono text-[9px] text-muted-foreground tracking-widest">
-                Cloud & DevOps
-              </span>
-            </div>
-          </a>
+          {/* Identity: PP Monogram + Name + Optional Staging Badge */}
+          <div className="flex items-center gap-3">
+            <a
+              href={isHome ? "#hero" : "/#hero"}
+              className="group flex items-center gap-3 transition-opacity hover:opacity-90"
+              aria-label="Piyush Prasad — Cloud & DevOps Engineer home"
+            >
+              <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-xs transition-colors group-hover:border-cobalt">
+                <img
+                  src="/pp-logo.png"
+                  alt="PP"
+                  className="h-6 w-auto object-contain"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = "none";
+                    if (target.parentElement) {
+                      target.parentElement.innerHTML =
+                        '<span class="mono font-bold text-cobalt text-[12px]">PP</span>';
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[14px] font-bold tracking-tight text-carbon">
+                  Piyush Prasad
+                </span>
+                <span className="mono text-[9px] text-muted-foreground tracking-widest">
+                  Cloud & DevOps
+                </span>
+              </div>
+            </a>
+
+            {isStaging && (
+              <div
+                className="mono inline-flex items-center gap-1.5 border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold tracking-widest text-amber-700 select-none shadow-2xs"
+                title="Staging Test Environment (Local / test.piyushprasad.in)"
+                role="status"
+                aria-label="Staging environment active"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span>STAGING</span>
+              </div>
+            )}
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Main Navigation">
@@ -241,6 +256,14 @@ export function Navigation() {
           style={{ height: "calc(100dvh - 65px)" }}
         >
           <div className="flex flex-col gap-2">
+            {isStaging && (
+              <div className="mb-2 flex items-center justify-between border border-amber-500/30 bg-amber-500/10 px-3 py-1.5">
+                <span className="mono text-[10px] font-bold tracking-widest text-amber-700">
+                  STAGING ENVIRONMENT
+                </span>
+                <span className="mono text-[9px] text-amber-600">TEST BUILD</span>
+              </div>
+            )}
             <span className="mono mb-2 text-[10px] text-muted-foreground tracking-widest">
               NAVIGATION
             </span>

@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { logStagingDiagnostics } from "./lib/staging.guard";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -53,6 +54,7 @@ import {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    logStagingDiagnostics();
     try {
       if (env && typeof env === "object") {
         try {

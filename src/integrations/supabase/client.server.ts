@@ -4,6 +4,7 @@
 // For user-authenticated queries (with RLS), use the auth middleware instead.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { isStaging, PRODUCTION_SUPABASE_PROJECT_ID } from '@/lib/staging.guard';
 
 function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
@@ -41,6 +42,12 @@ function createSupabaseAdminClient() {
     const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
+  }
+
+  if (isStaging && SUPABASE_URL.includes(PRODUCTION_SUPABASE_PROJECT_ID)) {
+    console.warn(
+      '[STAGING ISOLATION] Supabase server admin client initialized with production read-only fallback in staging environment. Database write operations will be blocked to protect production integrity.'
+    );
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
