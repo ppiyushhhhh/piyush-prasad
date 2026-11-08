@@ -33,7 +33,7 @@ export function ContactSection() {
     <section id="contact" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
-          n="06"
+          n="05"
           label="GET IN TOUCH"
           title="Let's Build Something Great"
           description="Available for Cloud, DevOps, and DevSecOps engineering roles. Open to discussing infrastructure projects, automated deployment pipelines, and observability systems."

@@ -5,7 +5,6 @@ import { GithubProjects } from "@/components/portfolio/GithubProjects";
 import { SkillsGrid } from "@/components/portfolio/SkillsGrid";
 import { ExperienceTimeline } from "@/components/portfolio/ExperienceTimeline";
 import { Certifications } from "@/components/portfolio/Certifications";
-import { GithubActivity } from "@/components/portfolio/GithubActivity";
 import { ContactSection } from "@/components/portfolio/ContactSection";
 import { Footer } from "@/components/portfolio/Footer";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
@@ -66,7 +65,6 @@ function PortfolioPage() {
         <SkillsGrid />
         <ExperienceTimeline />
         <Certifications />
-        <GithubActivity />
         <ContactSection />
       </main>
 
