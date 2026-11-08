@@ -208,3 +208,4 @@ export const VERIFIED_PROJECT_DETAILS: Record<string, VerifiedProjectDetails> = 
       "Provisioned via AWS CLI (aws cloudformation deploy) or Terraform CLI targeting AWS region ap-south-1.",
   },
 };
+
