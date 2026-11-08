@@ -103,9 +103,7 @@ function lsWrite<T>(key: string, value: T) {
 async function fetchRepos(): Promise<Repo[]> {
   let res: Response;
   try {
-    res = await ghFetch(
-      `https://api.github.com/users/${GH_USER}/repos?sort=pushed&per_page=12`,
-    );
+    res = await ghFetch(`https://api.github.com/users/${GH_USER}/repos?sort=pushed&per_page=12`);
   } catch {
     const cached = lsRead<Repo[]>("repos");
     if (cached) return cached.v;
@@ -114,8 +112,7 @@ async function fetchRepos(): Promise<Repo[]> {
   if (!res.ok) {
     const cached = lsRead<Repo[]>("repos");
     if (cached) return cached.v;
-    const rateLimited =
-      res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0";
+    const rateLimited = res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0";
     throw new Error(
       rateLimited || res.status === 429
         ? "GitHub API rate limit reached — activity will refresh shortly."
@@ -123,36 +120,40 @@ async function fetchRepos(): Promise<Repo[]> {
     );
   }
   const data = (await res.json()) as Repo[];
-  const filtered = Array.isArray(data)
-    ? data.filter((r) => !r.fork).slice(0, 10)
-    : [];
+  const filtered = Array.isArray(data) ? data.filter((r) => !r.fork).slice(0, 10) : [];
   lsWrite("repos", filtered);
   return filtered;
 }
 
 async function fetchLatestCommit(repo: string): Promise<Commit | null> {
   try {
-    const res = await ghFetch(
-      `https://api.github.com/repos/${GH_USER}/${repo}/commits?per_page=1`,
-    );
+    const res = await ghFetch(`https://api.github.com/repos/${GH_USER}/${repo}/commits?per_page=1`);
     if (!res.ok) {
       const cached = lsRead<Commit | null>(`commit:${repo}`);
       return cached ? cached.v : null;
     }
-    const data = (await res.json()) as any[];
-    const latest = Array.isArray(data) && data[0]
-      ? {
-          sha: data[0].sha,
-          html_url: data[0].html_url,
-          commit: {
-            message: data[0].commit?.message ?? "Update repository",
-            author: {
-              date: data[0].commit?.author?.date ?? new Date().toISOString(),
-              name: data[0].commit?.author?.name ?? GH_USER,
+    const data = (await res.json()) as Array<{
+      sha: string;
+      html_url?: string;
+      commit?: {
+        message?: string;
+        author?: { date?: string; name?: string };
+      };
+    }>;
+    const latest =
+      Array.isArray(data) && data[0]
+        ? {
+            sha: data[0].sha,
+            html_url: data[0].html_url,
+            commit: {
+              message: data[0].commit?.message ?? "Update repository",
+              author: {
+                date: data[0].commit?.author?.date ?? new Date().toISOString(),
+                name: data[0].commit?.author?.name ?? GH_USER,
+              },
             },
-          },
-        }
-      : null;
+          }
+        : null;
     lsWrite(`commit:${repo}`, latest);
     return latest;
   } catch {
@@ -185,17 +186,17 @@ function RepoCard({ repo }: { repo: Repo }) {
     refetchOnWindowFocus: false,
   });
 
-  const langColor = repo.language ? LANGUAGE_COLORS[repo.language] ?? "#06b6d4" : "#94a3b8";
+  const langColor = repo.language ? (LANGUAGE_COLORS[repo.language] ?? "#06b6d4") : "#94a3b8";
 
   // Derive contextual topic tags if not present
   const tags =
     repo.topics && repo.topics.length > 0
       ? repo.topics.slice(0, 3)
       : repo.name.toLowerCase().includes("pipeline") || repo.name.toLowerCase().includes("sentinel")
-      ? ["devops", "ci-cd", "cloud"]
-      : repo.name.toLowerCase().includes("aws") || repo.name.toLowerCase().includes("onix")
-      ? ["aws", "monitoring", "linux"]
-      : ["open-source", repo.language?.toLowerCase() ?? "devops"];
+        ? ["devops", "ci-cd", "cloud"]
+        : repo.name.toLowerCase().includes("aws") || repo.name.toLowerCase().includes("onix")
+          ? ["aws", "monitoring", "linux"]
+          : ["open-source", repo.language?.toLowerCase() ?? "devops"];
 
   return (
     <div className="group flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-2xs">
@@ -235,7 +236,8 @@ function RepoCard({ repo }: { repo: Repo }) {
 
         {/* Description */}
         <p className="mt-3 text-xs leading-relaxed text-carbon/75 line-clamp-2">
-          {repo.description || "Cloud infrastructure automation, configuration templates, and DevOps pipeline scripts."}
+          {repo.description ||
+            "Cloud infrastructure automation, configuration templates, and DevOps pipeline scripts."}
         </p>
 
         {/* Topic Pills */}
@@ -344,11 +346,7 @@ export function GithubActivity() {
       );
     }
     if (activeFilter === "web") {
-      return (
-        r.language === "TypeScript" ||
-        r.language === "JavaScript" ||
-        r.language === "HTML"
-      );
+      return r.language === "TypeScript" || r.language === "JavaScript" || r.language === "HTML";
     }
     return true;
   });
@@ -364,7 +362,7 @@ export function GithubActivity() {
           <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-carbon/60">
             <span className="inline-flex items-center gap-1.5 font-bold text-cobalt">
               <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
-              05
+              04
             </span>
             <span className="text-carbon/30">/</span>
             <span className="tracking-[0.16em] text-carbon/80">GITHUB ACTIVITY</span>
@@ -377,7 +375,8 @@ export function GithubActivity() {
                 Live Commits &amp; Telemetry
               </h2>
               <p className="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-muted-foreground font-sans">
-                Real-time feed of active GitHub repositories, automation scripts, and continuous integration workflows synchronized via the GitHub REST API.
+                Real-time feed of active GitHub repositories, automation scripts, and continuous
+                integration workflows synchronized via the GitHub REST API.
               </p>
             </div>
 
@@ -465,7 +464,8 @@ export function GithubActivity() {
             {(error as Error).message} — view full commit activity directly on{" "}
             <a href={GITHUB} target="_blank" rel="noreferrer" className="underline font-bold">
               GitHub
-            </a>.
+            </a>
+            .
           </div>
         )}
 
@@ -485,8 +485,8 @@ export function GithubActivity() {
               ))}
             </div>
 
-            {hasMore && (
-              <div className="mt-8 flex justify-start">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {hasMore && (
                 <button
                   type="button"
                   onClick={() => setShowAll((s) => !s)}
@@ -498,18 +498,30 @@ export function GithubActivity() {
                     </>
                   ) : (
                     <>
-                      VIEW ALL REPOSITORIES ({filteredRepos.length}) <Plus className="h-3.5 w-3.5" />
+                      VIEW ALL HERE ({filteredRepos.length}) <Plus className="h-3.5 w-3.5" />
                     </>
                   )}
                 </button>
-              </div>
-            )}
+              )}
+
+              <a
+                href="/github"
+                className="mono inline-flex items-center gap-2 bg-cobalt px-5 py-2.5 text-[11px] tracking-[0.14em] font-semibold text-white transition-all hover:bg-carbon hover:shadow-sm"
+              >
+                <span>OPEN FULL GITHUB DASHBOARD</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
 
             {dataUpdatedAt > 0 && (
               <div className="mono mt-6 flex flex-wrap items-center justify-between gap-2 text-[10px] text-carbon/50 pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
                   {isFetching && <Loader2 className="h-3 w-3 animate-spin text-cobalt" />}
-                  <span>{isFetching ? "Revalidating GitHub cache…" : `Cache updated ${relTime(new Date(dataUpdatedAt).toISOString())}`}</span>
+                  <span>
+                    {isFetching
+                      ? "Revalidating GitHub cache…"
+                      : `Cache updated ${relTime(new Date(dataUpdatedAt).toISOString())}`}
+                  </span>
                 </div>
                 <span>REST API Ingestion &bull; 60 req/hr rate-safe</span>
               </div>

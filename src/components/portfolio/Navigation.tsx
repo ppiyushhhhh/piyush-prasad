@@ -1,25 +1,32 @@
 import { useState, useEffect } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
 import { Github, FileText, Menu, X, Search } from "lucide-react";
 
 interface NavItem {
   id: string;
   label: string;
+  href: string;
+  isExternalPage?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "hero", label: "Home" },
-  { id: "projects", label: "Projects" },
-  { id: "skills", label: "Skills" },
-  { id: "experience", label: "Experience" },
-  { id: "certifications", label: "Certifications" },
-  { id: "contact", label: "Contact" },
+  { id: "hero", label: "Home", href: "/#hero" },
+  { id: "github", label: "GitHub", href: "/github", isExternalPage: true },
+  { id: "skills", label: "Skills", href: "/#skills" },
+  { id: "experience", label: "Experience", href: "/#experience" },
+  { id: "certifications", label: "Certifications", href: "/#certifications" },
+  { id: "contact", label: "Contact", href: "/#contact" },
 ];
 
 export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/" || pathname === "";
+  const isGithub = pathname === "/github";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,9 +38,16 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
-    const sectionElements = NAV_ITEMS.map((item) =>
-      document.getElementById(item.id),
-    ).filter((el): el is HTMLElement => !!el);
+    if (!isHome) {
+      if (isGithub) {
+        setActiveSection("github");
+      }
+      return;
+    }
+
+    const sectionElements = NAV_ITEMS.filter((item) => !item.isExternalPage)
+      .map((item) => document.getElementById(item.id))
+      .filter((el): el is HTMLElement => !!el);
 
     if (sectionElements.length === 0) return;
 
@@ -51,7 +65,7 @@ export function Navigation() {
 
     sectionElements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, []);
+  }, [isHome, isGithub]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -76,6 +90,16 @@ export function Navigation() {
     };
   }, [mobileMenuOpen]);
 
+  const getItemHref = (item: NavItem) => {
+    if (item.isExternalPage) {
+      return item.href;
+    }
+    if (isHome) {
+      return `#${item.id}`;
+    }
+    return item.href;
+  };
+
   return (
     <>
       <header
@@ -88,7 +112,7 @@ export function Navigation() {
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-10">
           {/* Identity: PP Monogram + Name */}
           <a
-            href="#hero"
+            href={isHome ? "#hero" : "/#hero"}
             className="group flex items-center gap-3 transition-opacity hover:opacity-90"
             aria-label="Piyush Prasad — Cloud & DevOps Engineer home"
           >
@@ -98,7 +122,6 @@ export function Navigation() {
                 alt="PP"
                 className="h-6 w-auto object-contain"
                 onError={(e) => {
-                  // Fallback if image fails
                   const target = e.currentTarget;
                   target.style.display = "none";
                   if (target.parentElement) {
@@ -119,21 +142,19 @@ export function Navigation() {
           </a>
 
           {/* Desktop Navigation */}
-          <nav
-            className="hidden items-center gap-7 lg:flex"
-            aria-label="Main Navigation"
-          >
+          <nav className="hidden items-center gap-7 lg:flex" aria-label="Main Navigation">
             {NAV_ITEMS.map((item) => {
-              const isActive = activeSection === item.id;
+              const isActive = isGithub
+                ? item.id === "github"
+                : isHome && activeSection === item.id;
+
               return (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={getItemHref(item)}
                   aria-current={isActive ? "page" : undefined}
                   className={`mono relative py-1 text-[11px] font-medium tracking-wider transition-colors ${
-                    isActive
-                      ? "text-cobalt font-semibold"
-                      : "text-carbon/75 hover:text-cobalt"
+                    isActive ? "text-cobalt font-semibold" : "text-carbon/75 hover:text-cobalt"
                   }`}
                 >
                   {item.label}
@@ -159,7 +180,7 @@ export function Navigation() {
               <span className="text-[10px] tracking-wider uppercase font-semibold">SEARCH</span>
             </button>
 
-            {/* GitHub Icon Link */}
+            {/* GitHub Profile Icon Link */}
             <a
               href={GITHUB}
               target="_blank"
@@ -206,11 +227,7 @@ export function Navigation() {
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
@@ -228,16 +245,17 @@ export function Navigation() {
             </span>
 
             {NAV_ITEMS.map((item) => {
-              const isActive = activeSection === item.id;
+              const isActive = isGithub
+                ? item.id === "github"
+                : isHome && activeSection === item.id;
+
               return (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={getItemHref(item)}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between border-b border-border py-3.5 text-base font-medium transition-colors ${
-                    isActive
-                      ? "text-cobalt font-semibold"
-                      : "text-carbon hover:text-cobalt"
+                    isActive ? "text-cobalt font-semibold" : "text-carbon hover:text-cobalt"
                   }`}
                 >
                   <span>{item.label}</span>

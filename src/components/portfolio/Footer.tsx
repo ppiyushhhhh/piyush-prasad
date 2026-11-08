@@ -26,12 +26,12 @@ interface SectionLink {
 }
 
 const SECTION_LINKS: SectionLink[] = [
-  { num: "00", label: "Home", href: "#hero" },
-  { num: "01", label: "Featured Projects", href: "#projects" },
-  { num: "02", label: "Technical Skills", href: "#skills" },
-  { num: "03", label: "Experience Journey", href: "#experience" },
-  { num: "04", label: "Credentials & Education", href: "#certifications" },
-  { num: "05", label: "Get In Touch", href: "#contact" },
+  { num: "00", label: "Home", href: "/#hero" },
+  { num: "01", label: "GitHub Repositories", href: "/github" },
+  { num: "02", label: "Technical Skills", href: "/#skills" },
+  { num: "03", label: "Experience Journey", href: "/#experience" },
+  { num: "04", label: "Credentials & Education", href: "/#certifications" },
+  { num: "05", label: "Get In Touch", href: "/#contact" },
 ];
 
 export function Footer() {
@@ -120,9 +120,7 @@ export function Footer() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold tracking-tight text-carbon">
-                    Piyush Prasad
-                  </h3>
+                  <h3 className="text-base font-bold tracking-tight text-carbon">Piyush Prasad</h3>
                   <p className="mono text-[10px] text-muted-foreground uppercase tracking-wider">
                     Cloud &amp; DevOps Engineer
                   </p>
@@ -131,9 +129,9 @@ export function Footer() {
 
               {/* Bio summary */}
               <p className="mt-4 max-w-md text-sm leading-relaxed text-carbon/75">
-                Specializing in AWS cloud infrastructure, Linux server hardening,
-                automated CI/CD pipelines, Docker containerization, and production
-                observability with Prometheus &amp; Grafana.
+                Specializing in AWS cloud infrastructure, Linux server hardening, automated CI/CD
+                pipelines, Docker containerization, and production observability with Prometheus
+                &amp; Grafana.
               </p>
 
               {/* Status pill & 1-click copy */}
@@ -369,7 +367,9 @@ export function Footer() {
         {/* Bottom Technical Bar */}
         <div className="mt-8 flex flex-col items-center justify-between gap-4 text-[11px] font-mono text-muted-foreground sm:flex-row">
           <div>
-            &copy; {new Date().getFullYear()} <span className="font-semibold text-carbon">PIYUSH PRASAD</span> &mdash; ALL RIGHTS RESERVED
+            &copy; {new Date().getFullYear()}{" "}
+            <span className="font-semibold text-carbon">PIYUSH PRASAD</span> &mdash; ALL RIGHTS
+            RESERVED
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

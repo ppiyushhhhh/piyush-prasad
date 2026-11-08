@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GithubRouteImport } from './routes/github'
 import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -48,6 +49,11 @@ const SplatRoute = SplatRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GithubRoute = GithubRouteImport.update({
+  id: '/github',
+  path: '/github',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResumeRoute = ResumeRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/dashboard'
+    | '/github'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/github'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/dashboard'
+    | '/github'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
@@ -329,6 +341,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  GithubRoute: typeof GithubRoute
   ResumeRoute: typeof ResumeRoute
   ThankYouRoute: typeof ThankYouRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -360,6 +373,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/github': {
+      id: '/github'
+      path: '/github'
+      fullPath: '/github'
+      preLoaderRoute: typeof GithubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resume': {
@@ -561,6 +581,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  GithubRoute: GithubRoute,
   ResumeRoute: ResumeRoute,
   ThankYouRoute: ThankYouRoute,
   ApiChatRoute: ApiChatRoute,

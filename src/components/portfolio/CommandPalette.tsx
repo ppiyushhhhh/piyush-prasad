@@ -99,14 +99,14 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search sections, projects, tech..." />
+      <CommandInput placeholder="Type a command or search sections, repositories, tech..." />
       <CommandList className="max-h-[380px] p-2">
         <CommandEmpty>No results found.</CommandEmpty>
 
         {/* Navigation Group */}
         <CommandGroup heading="Navigation">
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#hero"))}
+            onSelect={() => runCommand(() => navigateTo("/#hero"))}
             className="cursor-pointer"
           >
             <Home className="mr-2 h-4 w-4 text-cobalt" />
@@ -115,16 +115,16 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#projects"))}
+            onSelect={() => runCommand(() => navigateTo("/github"))}
             className="cursor-pointer"
           >
-            <Folder className="mr-2 h-4 w-4 text-cobalt" />
-            <span>Featured Projects</span>
-            <CommandShortcut className="font-mono text-[10px]">#projects</CommandShortcut>
+            <Github className="mr-2 h-4 w-4 text-cobalt" />
+            <span>GitHub Repositories & Open Source</span>
+            <CommandShortcut className="font-mono text-[10px]">/github</CommandShortcut>
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#skills"))}
+            onSelect={() => runCommand(() => navigateTo("/#skills"))}
             className="cursor-pointer"
           >
             <Code2 className="mr-2 h-4 w-4 text-cobalt" />
@@ -133,7 +133,7 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#experience"))}
+            onSelect={() => runCommand(() => navigateTo("/#experience"))}
             className="cursor-pointer"
           >
             <Briefcase className="mr-2 h-4 w-4 text-cobalt" />
@@ -142,7 +142,7 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#certifications"))}
+            onSelect={() => runCommand(() => navigateTo("/#certifications"))}
             className="cursor-pointer"
           >
             <Award className="mr-2 h-4 w-4 text-cobalt" />
@@ -151,16 +151,7 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#github-activity"))}
-            className="cursor-pointer"
-          >
-            <Github className="mr-2 h-4 w-4 text-cobalt" />
-            <span>GitHub Live Activity</span>
-            <CommandShortcut className="font-mono text-[10px]">#github</CommandShortcut>
-          </CommandItem>
-
-          <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#contact"))}
+            onSelect={() => runCommand(() => navigateTo("/#contact"))}
             className="cursor-pointer"
           >
             <Mail className="mr-2 h-4 w-4 text-cobalt" />
@@ -171,15 +162,19 @@ export function CommandPalette() {
 
         <CommandSeparator className="my-1" />
 
-        {/* Projects Quick Jump */}
-        <CommandGroup heading="Featured Projects">
+        {/* Repositories Quick Jump */}
+        <CommandGroup heading="GitHub Repositories">
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#projects"))}
+            onSelect={() =>
+              runCommand(() =>
+                window.open("https://github.com/ppiyushhhhh/Kamlesh-Prasad", "_blank"),
+              )
+            }
             className="cursor-pointer"
           >
             <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
             <div className="flex flex-col">
-              <span className="font-medium">01. DevOps CI/CD Pipeline</span>
+              <span className="font-medium">Kamlesh-Prasad</span>
               <span className="mono text-[10px] text-muted-foreground">
                 AWS EC2 · Nginx · Cloudflare · GitHub Actions
               </span>
@@ -187,12 +182,14 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#projects"))}
+            onSelect={() =>
+              runCommand(() => window.open("https://github.com/ppiyushhhhh/onixmall", "_blank"))
+            }
             className="cursor-pointer"
           >
             <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
             <div className="flex flex-col">
-              <span className="font-medium">02. Production AWS EC2 + DevSecOps</span>
+              <span className="font-medium">onixmall</span>
               <span className="mono text-[10px] text-muted-foreground">
                 Prometheus · Grafana · Trivy · UFW · Certbot
               </span>
@@ -200,14 +197,33 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
-            onSelect={() => runCommand(() => navigateTo("#projects"))}
+            onSelect={() =>
+              runCommand(() =>
+                window.open("https://github.com/ppiyushhhhh/sentinel-cloud-view", "_blank"),
+              )
+            }
             className="cursor-pointer"
           >
             <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
             <div className="flex flex-col">
-              <span className="font-medium">03. CloudOps Sentinel</span>
+              <span className="font-medium">sentinel-cloud-view</span>
               <span className="mono text-[10px] text-muted-foreground">
-                React · Node.js · SQLite · Nginx · PM2
+                Docker Fleet Telemetry · SQLite · Nginx · PM2
+              </span>
+            </div>
+          </CommandItem>
+
+          <CommandItem
+            onSelect={() => runCommand(() => navigateTo("/github"))}
+            className="cursor-pointer"
+          >
+            <Github className="mr-2 h-4 w-4 text-cobalt" />
+            <div className="flex flex-col">
+              <span className="font-medium text-cobalt">
+                View All Repositories on GitHub Page →
+              </span>
+              <span className="mono text-[10px] text-muted-foreground">
+                Search, filter by language, sort, and commits
               </span>
             </div>
           </CommandItem>
@@ -253,10 +269,7 @@ export function CommandPalette() {
             <CommandShortcut className="font-mono text-[10px]">/resume</CommandShortcut>
           </CommandItem>
 
-          <CommandItem
-            onSelect={() => runCommand(openAiChat)}
-            className="cursor-pointer"
-          >
+          <CommandItem onSelect={() => runCommand(openAiChat)} className="cursor-pointer">
             <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
             <span>Ask Piyush's AI Assistant</span>
             <CommandShortcut className="font-mono text-[10px]">AI Chat</CommandShortcut>
@@ -291,13 +304,22 @@ export function CommandPalette() {
       <div className="flex items-center justify-between border-t border-border bg-[#FAF9F6] px-4 py-2.5 text-[11px] font-mono text-muted-foreground">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">↑↓</kbd> Navigate
+            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+              ↑↓
+            </kbd>{" "}
+            Navigate
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">↵</kbd> Select
+            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+              ↵
+            </kbd>{" "}
+            Select
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">ESC</kbd> Close
+            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+              ESC
+            </kbd>{" "}
+            Close
           </span>
         </div>
         <span className="text-[10px] text-cobalt font-medium">PIYUSH PRASAD // CLI</span>

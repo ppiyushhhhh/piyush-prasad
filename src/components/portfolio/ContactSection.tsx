@@ -33,7 +33,7 @@ export function ContactSection() {
     <section id="contact" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
-          n="06"
+          n="05"
           label="GET IN TOUCH"
           title="Let's Build Something Great"
           description="Available for Cloud, DevOps, and DevSecOps engineering roles. Open to discussing infrastructure projects, automated deployment pipelines, and observability systems."
@@ -42,11 +42,10 @@ export function ContactSection() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-14">
           {/* Left Column: Contact Form */}
           <div className="border border-border bg-white p-6 sm:p-8 md:p-10 shadow-2xs lg:col-span-7">
-            <h3 className="text-xl sm:text-2xl font-bold text-carbon">
-              Start a Conversation
-            </h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-carbon">Start a Conversation</h3>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              Fill out the form below to connect directly with Piyush. Messages are delivered straight to my primary inbox.
+              Fill out the form below to connect directly with Piyush. Messages are delivered
+              straight to my primary inbox.
             </p>
 
             <ContactForm />

@@ -49,7 +49,7 @@ export function SkillsGrid() {
     <section id="skills" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
-          n="02"
+          n="01"
           label="TECHNICAL SKILLS"
           title="Tools & Technologies"
           description="A production-tested technology matrix across cloud infrastructure, container orchestration, CI/CD automation, and DevSecOps tooling."

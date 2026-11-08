@@ -214,7 +214,7 @@ export function Certifications() {
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
-          n="04"
+          n="03"
           label="CREDENTIALS & EDUCATION"
           title="Certifications & Education"
           description="Verified professional certifications in cloud architecture, containerization, Linux systems, and foundational academic background."

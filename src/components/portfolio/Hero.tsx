@@ -2,6 +2,7 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { EMAIL, GITHUB, LINKEDIN } from "@/lib/site";
 import {
   ArrowDown,
+  ArrowUpRight,
   Download,
   Github,
   Linkedin,
@@ -101,8 +102,8 @@ export function Hero() {
               transition={{ delay: 0.3 }}
               className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground"
             >
-              Specializing in AWS cloud infrastructure, Linux server administration,
-              Docker containerization, automated CI/CD pipelines, Prometheus &amp; Grafana monitoring,
+              Specializing in AWS cloud infrastructure, Linux server administration, Docker
+              containerization, automated CI/CD pipelines, Prometheus &amp; Grafana monitoring,
               security hardening, and infrastructure automation.
             </motion.p>
 
@@ -115,11 +116,11 @@ export function Hero() {
               className="mt-8 flex flex-wrap items-center gap-4"
             >
               <a
-                href="#projects"
+                href="/github"
                 className="mono inline-flex items-center gap-2.5 bg-cobalt px-6 py-3.5 text-[11px] font-semibold tracking-wider text-white transition-all hover:bg-carbon hover:shadow-sm"
               >
-                <span>VIEW MY PROJECTS</span>
-                <ArrowDown className="h-3.5 w-3.5" />
+                <span>EXPLORE GITHUB</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
 
               <a
@@ -194,9 +195,7 @@ export function Hero() {
                     INFRASTRUCTURE TOPOLOGY
                   </span>
                 </div>
-                <span className="mono text-[10px] text-cobalt font-semibold">
-                  ap-south-1
-                </span>
+                <span className="mono text-[10px] text-cobalt font-semibold">ap-south-1</span>
               </div>
 
               {/* Technical Spec List */}
@@ -261,15 +260,14 @@ export function Hero() {
               {/* Bottom Operational Summary Box */}
               <div className="mt-6 border border-dashed border-border bg-[#FAF9F6] p-4">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="mono text-[10px] text-muted-foreground">
-                    CORE SPECIALTY
-                  </span>
+                  <span className="mono text-[10px] text-muted-foreground">CORE SPECIALTY</span>
                   <span className="mono text-[10px] font-semibold text-cobalt">
                     PRODUCTION GRADE
                   </span>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-carbon/80">
-                  Bridging IT Service Management with DevSecOps — turning ticket queues into reliable, automated, observable pipelines.
+                  Bridging IT Service Management with DevSecOps — turning ticket queues into
+                  reliable, automated, observable pipelines.
                 </p>
               </div>
             </motion.div>
