@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Navigation } from "@/components/portfolio/Navigation";
 import { Hero } from "@/components/portfolio/Hero";
+import { GithubProjects } from "@/components/portfolio/GithubProjects";
 import { SkillsGrid } from "@/components/portfolio/SkillsGrid";
 import { ExperienceTimeline } from "@/components/portfolio/ExperienceTimeline";
 import { Certifications } from "@/components/portfolio/Certifications";
@@ -61,6 +62,7 @@ function PortfolioPage() {
       {/* Main Content Sections */}
       <main className="relative z-10">
         <Hero />
+        <GithubProjects />
         <SkillsGrid />
         <ExperienceTimeline />
         <Certifications />

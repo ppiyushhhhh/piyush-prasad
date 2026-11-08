@@ -12,7 +12,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
-  { id: "github", label: "GitHub", href: "/github", isExternalPage: true },
+  { id: "projects", label: "GitHub Projects", href: "/#projects" },
   { id: "skills", label: "Skills", href: "/#skills" },
   { id: "experience", label: "Experience", href: "/#experience" },
   { id: "certifications", label: "Certifications", href: "/#certifications" },
@@ -182,11 +182,12 @@ export function Navigation() {
 
             {/* GitHub Profile Icon Link */}
             <a
-              href={GITHUB}
+              href="https://github.com/ppiyushhhhh?tab=repositories"
               target="_blank"
               rel="noreferrer"
               className="inline-flex h-8 w-8 items-center justify-center border border-border bg-white text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt"
-              aria-label="Piyush Prasad on GitHub"
+              aria-label="Explore All Projects on GitHub"
+              title="Explore All Projects on GitHub"
             >
               <Github className="h-4 w-4" />
             </a>

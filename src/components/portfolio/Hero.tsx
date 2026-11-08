@@ -116,11 +116,11 @@ export function Hero() {
               className="mt-8 flex flex-wrap items-center gap-4"
             >
               <a
-                href="/github"
+                href="#projects"
                 className="mono inline-flex items-center gap-2.5 bg-cobalt px-6 py-3.5 text-[11px] font-semibold tracking-wider text-white transition-all hover:bg-carbon hover:shadow-sm"
               >
-                <span>EXPLORE GITHUB</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <span>VIEW GITHUB PROJECTS</span>
+                <ArrowDown className="h-3.5 w-3.5" />
               </a>
 
               <a

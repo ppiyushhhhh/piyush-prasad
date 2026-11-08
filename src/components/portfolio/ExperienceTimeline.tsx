@@ -13,7 +13,7 @@ export function ExperienceTimeline() {
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
-          n="02"
+          n="03"
           label="EXPERIENCE"
           title="My Journey"
           description="A chronological record of hands-on infrastructure administration, ITSM operations, and evolution into production Cloud & DevOps engineering."

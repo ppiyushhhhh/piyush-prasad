@@ -362,7 +362,7 @@ export function GithubActivity() {
           <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-carbon/60">
             <span className="inline-flex items-center gap-1.5 font-bold text-cobalt">
               <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
-              04
+              05
             </span>
             <span className="text-carbon/30">/</span>
             <span className="tracking-[0.16em] text-carbon/80">GITHUB ACTIVITY</span>

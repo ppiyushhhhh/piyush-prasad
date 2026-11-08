@@ -3,6 +3,7 @@ import {
   Search,
   Terminal,
   Folder,
+  FolderGit2,
   Code2,
   Briefcase,
   Award,
@@ -115,11 +116,20 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
+            onSelect={() => runCommand(() => navigateTo("/#projects"))}
+            className="cursor-pointer"
+          >
+            <FolderGit2 className="mr-2 h-4 w-4 text-cobalt" />
+            <span>GitHub Projects (Infrastructure & Automation)</span>
+            <CommandShortcut className="font-mono text-[10px]">#projects</CommandShortcut>
+          </CommandItem>
+
+          <CommandItem
             onSelect={() => runCommand(() => navigateTo("/github"))}
             className="cursor-pointer"
           >
             <Github className="mr-2 h-4 w-4 text-cobalt" />
-            <span>GitHub Repositories & Open Source</span>
+            <span>GitHub Dashboard & All Repositories</span>
             <CommandShortcut className="font-mono text-[10px]">/github</CommandShortcut>
           </CommandItem>
 

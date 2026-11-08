@@ -27,11 +27,12 @@ interface SectionLink {
 
 const SECTION_LINKS: SectionLink[] = [
   { num: "00", label: "Home", href: "/#hero" },
-  { num: "01", label: "GitHub Repositories", href: "/github" },
+  { num: "01", label: "GitHub Projects", href: "/#projects" },
   { num: "02", label: "Technical Skills", href: "/#skills" },
   { num: "03", label: "Experience Journey", href: "/#experience" },
   { num: "04", label: "Credentials & Education", href: "/#certifications" },
-  { num: "05", label: "Get In Touch", href: "/#contact" },
+  { num: "05", label: "Live Telemetry & Activity", href: "/#github" },
+  { num: "06", label: "Get In Touch", href: "/#contact" },
 ];
 
 export function Footer() {
