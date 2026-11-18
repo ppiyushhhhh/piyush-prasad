@@ -28,11 +28,14 @@ import { Route as DashboardLoginRouteImport } from './routes/dashboard.login'
 import { Route as DashboardManualBackupsRouteImport } from './routes/dashboard.manual-backups'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
 import { Route as DashboardPerformanceRouteImport } from './routes/dashboard.performance'
+import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projects'
 import { Route as DashboardRateLimitingRouteImport } from './routes/dashboard.rate-limiting'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as GuidesDevsecopsPipelineRouteImport } from './routes/guides.devsecops-pipeline'
 import { Route as GuidesDevsecopsToolsRouteImport } from './routes/guides.devsecops-tools'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as ApiPublicDatabaseBackupRouteImport } from './routes/api/public/database-backup'
 import { Route as ApiPublicMonitoringRouteImport } from './routes/api/public/monitoring'
 
@@ -131,6 +134,11 @@ const DashboardPerformanceRoute = DashboardPerformanceRouteImport.update({
   path: '/performance',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardProjectsRoute = DashboardProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardRateLimitingRoute = DashboardRateLimitingRouteImport.update({
   id: '/rate-limiting',
   path: '/rate-limiting',
@@ -154,6 +162,16 @@ const GuidesDevsecopsPipelineRoute = GuidesDevsecopsPipelineRouteImport.update({
 const GuidesDevsecopsToolsRoute = GuidesDevsecopsToolsRouteImport.update({
   id: '/guides/devsecops-tools',
   path: '/guides/devsecops-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicDatabaseBackupRoute = ApiPublicDatabaseBackupRouteImport.update({
@@ -186,12 +204,15 @@ export interface FileRoutesByFullPath {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
@@ -213,12 +234,15 @@ export interface FileRoutesByTo {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/projects': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
@@ -242,12 +266,15 @@ export interface FileRoutesById {
   '/dashboard/manual-backups': typeof DashboardManualBackupsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/performance': typeof DashboardPerformanceRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/rate-limiting': typeof DashboardRateLimitingRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
   '/api/public/monitoring': typeof ApiPublicMonitoringRoute
 }
@@ -272,12 +299,15 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/projects'
     | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/projects/$slug'
     | '/dashboard/'
+    | '/projects/'
     | '/api/public/database-backup'
     | '/api/public/monitoring'
   fileRoutesByTo: FileRoutesByTo
@@ -299,12 +329,15 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/projects'
     | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/projects/$slug'
     | '/dashboard'
+    | '/projects'
     | '/api/public/database-backup'
     | '/api/public/monitoring'
   id:
@@ -327,12 +360,15 @@ export interface FileRouteTypes {
     | '/dashboard/manual-backups'
     | '/dashboard/messages'
     | '/dashboard/performance'
+    | '/dashboard/projects'
     | '/dashboard/rate-limiting'
     | '/dashboard/reports'
     | '/dashboard/settings'
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
+    | '/projects/$slug'
     | '/dashboard/'
+    | '/projects/'
     | '/api/public/database-backup'
     | '/api/public/monitoring'
   fileRoutesById: FileRoutesById
@@ -348,6 +384,8 @@ export interface RootRouteChildren {
   ApiContactRoute: typeof ApiContactRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
+  ProjectsSlugRoute: typeof ProjectsSlugRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
   ApiPublicDatabaseBackupRoute: typeof ApiPublicDatabaseBackupRoute
   ApiPublicMonitoringRoute: typeof ApiPublicMonitoringRoute
 }
@@ -487,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPerformanceRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/projects': {
+      id: '/dashboard/projects'
+      path: '/projects'
+      fullPath: '/dashboard/projects'
+      preLoaderRoute: typeof DashboardProjectsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/rate-limiting': {
       id: '/dashboard/rate-limiting'
       path: '/rate-limiting'
@@ -522,6 +567,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesDevsecopsToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$slug': {
+      id: '/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/projects/$slug'
+      preLoaderRoute: typeof ProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/database-backup': {
       id: '/api/public/database-backup'
       path: '/api/public/database-backup'
@@ -550,6 +609,7 @@ interface DashboardRouteChildren {
   DashboardManualBackupsRoute: typeof DashboardManualBackupsRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardPerformanceRoute: typeof DashboardPerformanceRoute
+  DashboardProjectsRoute: typeof DashboardProjectsRoute
   DashboardRateLimitingRoute: typeof DashboardRateLimitingRoute
   DashboardReportsRoute: typeof DashboardReportsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
@@ -567,6 +627,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardManualBackupsRoute: DashboardManualBackupsRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardPerformanceRoute: DashboardPerformanceRoute,
+  DashboardProjectsRoute: DashboardProjectsRoute,
   DashboardRateLimitingRoute: DashboardRateLimitingRoute,
   DashboardReportsRoute: DashboardReportsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
@@ -588,6 +649,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiContactRoute: ApiContactRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
+  ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
   ApiPublicDatabaseBackupRoute: ApiPublicDatabaseBackupRoute,
   ApiPublicMonitoringRoute: ApiPublicMonitoringRoute,
 }

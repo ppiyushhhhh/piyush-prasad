@@ -13,7 +13,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
-  { id: "projects", label: "GitHub Projects", href: "/#projects" },
+  { id: "projects", label: "Projects", href: "/projects", isExternalPage: true },
   { id: "skills", label: "Skills", href: "/#skills" },
   { id: "experience", label: "Experience", href: "/#experience" },
   { id: "certifications", label: "Certifications", href: "/#certifications" },
@@ -28,6 +28,7 @@ export function Navigation() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/" || pathname === "";
   const isGithub = pathname === "/github";
+  const isProjects = pathname.startsWith("/projects");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -159,9 +160,11 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Main Navigation">
             {NAV_ITEMS.map((item) => {
-              const isActive = isGithub
-                ? item.id === "github"
-                : isHome && activeSection === item.id;
+              const isActive = isProjects
+                ? item.id === "projects"
+                : isGithub
+                  ? item.id === "github"
+                  : isHome && activeSection === item.id;
 
               return (
                 <a
@@ -269,9 +272,11 @@ export function Navigation() {
             </span>
 
             {NAV_ITEMS.map((item) => {
-              const isActive = isGithub
-                ? item.id === "github"
-                : isHome && activeSection === item.id;
+              const isActive = isProjects
+                ? item.id === "projects"
+                : isGithub
+                  ? item.id === "github"
+                  : isHome && activeSection === item.id;
 
               return (
                 <a

@@ -509,6 +509,33 @@ export function GithubProjects() {
                 </span>
               </div>
             )}
+
+            {/* Engineering Case Studies CTA Banner */}
+            <div className="mt-12 rounded-lg border border-cobalt/30 bg-blue-50/50 dark:bg-blue-950/20 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="mono text-[10px] font-bold uppercase tracking-wider text-cobalt">
+                    Technical Case Studies & Deep Dives
+                  </span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-pulse" />
+                </div>
+                <h4 className="text-xl font-bold text-carbon dark:text-white">
+                  Explore Full Engineering Projects & Architecture
+                </h4>
+                <p className="mt-1 text-xs md:text-sm text-muted-foreground max-w-2xl">
+                  Inspect detailed case studies featuring interactive infrastructure diagrams, CI/CD
+                  delivery workflows, CIS Linux hardening benchmarks, and measurable production
+                  outcomes.
+                </p>
+              </div>
+              <a
+                href="/projects"
+                className="mono inline-flex items-center gap-2 rounded bg-cobalt px-5 py-2.5 text-xs font-bold text-white hover:bg-carbon transition-colors shrink-0 shadow-sm"
+              >
+                <span>VIEW CASE STUDIES</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         ) : (
           !isLoading && (
@@ -664,6 +691,14 @@ export function GithubProjects() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={`/projects/${activeModalRepo.repo.name.toLowerCase()}`}
+                    className="mono inline-flex items-center gap-1.5 border border-cobalt bg-blue-50 dark:bg-blue-950/40 text-cobalt px-4 py-2 text-xs font-semibold hover:bg-cobalt hover:text-white transition-colors"
+                  >
+                    <span>CASE STUDY</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+
                   <a
                     href={activeModalRepo.repo.html_url}
                     target="_blank"
