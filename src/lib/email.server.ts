@@ -30,7 +30,7 @@ export type SendEmailResult = {
  * All incoming contact form submissions are routed directly to this address.
  */
 export const DEFAULT_NOTIFICATION_EMAIL = "hello@piyushprasad.in";
-export const DEFAULT_SENDER_EMAIL = "notifications@piyushprasad.in";
+export const DEFAULT_SENDER_EMAIL = "notification@piyushprasad.in";
 export const DEFAULT_SUPPORT_EMAIL = "hello@piyushprasad.in";
 const DEFAULT_SITE_URL = "https://piyushprasad.in";
 
@@ -321,7 +321,7 @@ export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
 
 Thank you for reaching out through my portfolio website.
 
-Your message has been successfully received. I appreciate you taking the time to contact me and will review your inquiry and get back to you as soon as possible.
+Your message has been successfully received. I appreciate you taking the time to contact me. I will review your inquiry and get back to you within 24 hours.
 
 Account information
 -------------------
@@ -386,7 +386,7 @@ Cloud & DevOps Engineer
 
               <!-- Intro Paragraph -->
               <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
-                Thank you for reaching out through my portfolio website (<a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>). Your message has been successfully received. I appreciate you taking the time to contact me and will review your inquiry and get back to you as soon as possible.
+                Thank you for reaching out through my portfolio website (<a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>). Your message has been successfully received. I appreciate you taking the time to contact me. I will review your inquiry and get back to you within 24 hours.
               </p>
 
               <!-- Account / Submission Information Gray Box -->
