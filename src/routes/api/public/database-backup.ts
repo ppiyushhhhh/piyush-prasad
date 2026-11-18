@@ -174,6 +174,12 @@ export const Route = createFileRoute("/api/public/database-backup")({
           backupType: "daily",
           triggererEmail: recipientEmail,
         });
+        const safeBackupResult = {
+          ...backupResult,
+          errorMessage: backupResult.success ? null : "Backup workflow failed. Check server logs for details.",
+          sqlContent: undefined,
+          emailDetails: undefined,
+        };
 
         let monthlyReportResult = null;
 
@@ -200,7 +206,7 @@ export const Route = createFileRoute("/api/public/database-backup")({
         return jsonResponse({
           ok: backupResult.success,
           action: "full_cycle",
-          backup: backupResult,
+          backup: safeBackupResult,
           isEndOfMonth: isLastDayOfMonth,
           monthlyReport: monthlyReportResult ? {
             month: monthlyReportResult.monthName,
