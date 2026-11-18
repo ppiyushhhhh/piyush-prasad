@@ -66,10 +66,7 @@ export function sanitizeSvgContent(rawSvg: string): {
   }
 
   // Reject script tags and external foreign objects
-  if (
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(rawSvg) ||
-    /<script/i.test(rawSvg)
-  ) {
+  if (/<script/i.test(rawSvg)) {
     return { safe: false, error: "SVG contains unsafe <script> elements." };
   }
 
