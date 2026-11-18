@@ -3,9 +3,10 @@ import { z } from "zod";
 
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit.server";
 import {
-  getEnv,
+  getContactNotificationEmail,
   renderAdminNotificationEmail,
   renderVisitorConfirmationEmail,
+  sanitizeEmailError,
   sendEmail,
   type ContactSubmission,
 } from "@/lib/email.server";
@@ -41,8 +42,6 @@ function jsonResponse(body: unknown, status: number, headers?: Record<string, st
     headers: { "content-type": "application/json", ...headers },
   });
 }
-
-const DEFAULT_ADMIN_EMAIL = "support@piyushprasad.in";
 
 export const Route = createFileRoute("/api/contact")({
   server: {
@@ -95,12 +94,37 @@ export const Route = createFileRoute("/api/contact")({
           );
         }
 
-        // 4. Database persistence (authoritative record with graceful fallback)
+        // 4. Duplicate prevention & database persistence
         let savedRecord: ContactSubmission | null = null;
         let dbSaveSucceeded = false;
 
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+          // Duplicate prevention: If identical message was submitted in the last 60s, return success without duplicate emails
+          const recentThreshold = new Date(Date.now() - 60 * 1000).toISOString();
+          const { data: duplicate } = await supabaseAdmin
+            .from("contact_submissions")
+            .select("id, name, email, subject, message, created_at, admin_email_status")
+            .eq("email", email)
+            .eq("message", message)
+            .gte("created_at", recentThreshold)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (duplicate) {
+            console.warn(`[Contact API] Duplicate submission ignored from ${email} (already received)`);
+            return jsonResponse(
+              {
+                success: true,
+                id: duplicate.id,
+                message:
+                  "Thank you for contacting me! Your message has been received. I'll get back to you soon.",
+              },
+              200,
+            );
+          }
 
           const { data, error } = await supabaseAdmin
             .from("contact_submissions")
@@ -150,8 +174,8 @@ export const Route = createFileRoute("/api/contact")({
         }
 
         // 5. Automated Email Dispatches (Submission is safely saved)
-        const adminEmailRecipient =
-          getEnv("CONTACT_NOTIFICATION_EMAIL")?.trim() || DEFAULT_ADMIN_EMAIL;
+        // Centralized notification email configuration: strictly routes to hello@piyushprasad.in
+        const adminEmailRecipient = getContactNotificationEmail();
 
         // A. Send Admin Notification Email
         let adminEmailStatus: "sent" | "failed" = "failed";
@@ -172,10 +196,10 @@ export const Route = createFileRoute("/api/contact")({
             adminEmailStatus = "sent";
             adminEmailSentAt = new Date().toISOString();
           } else {
-            adminErrorMsg = `Admin email failed: ${adminResult.error || "Unknown error"}`;
+            adminErrorMsg = `Admin email failed: ${sanitizeEmailError(adminResult.error || "Unknown error")}`;
           }
         } catch (err) {
-          adminErrorMsg = `Admin email exception: ${err instanceof Error ? err.message : String(err)}`;
+          adminErrorMsg = `Admin email exception: ${sanitizeEmailError(err)}`;
         }
 
         // B. Send Visitor Confirmation Email
@@ -187,6 +211,7 @@ export const Route = createFileRoute("/api/contact")({
           const visitorTemplate = renderVisitorConfirmationEmail(savedRecord);
           const visitorResult = await sendEmail({
             to: savedRecord.email,
+            replyTo: adminEmailRecipient,
             subject: visitorTemplate.subject,
             html: visitorTemplate.html,
             text: visitorTemplate.text,
@@ -196,10 +221,10 @@ export const Route = createFileRoute("/api/contact")({
             visitorEmailStatus = "sent";
             visitorEmailSentAt = new Date().toISOString();
           } else {
-            visitorErrorMsg = `Visitor email failed: ${visitorResult.error || "Unknown error"}`;
+            visitorErrorMsg = `Visitor email failed: ${sanitizeEmailError(visitorResult.error || "Unknown error")}`;
           }
         } catch (err) {
-          visitorErrorMsg = `Visitor email exception: ${err instanceof Error ? err.message : String(err)}`;
+          visitorErrorMsg = `Visitor email exception: ${sanitizeEmailError(err)}`;
         }
 
         // C. Record email outcomes in database (if table exists)

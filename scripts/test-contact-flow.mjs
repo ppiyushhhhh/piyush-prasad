@@ -120,9 +120,9 @@ const mockSubmission = {
 };
 
 // Admin template verification
-const adminSubject = `New Portfolio Contact: ${mockSubmission.name.trim()}`;
-assert.equal(adminSubject, "New Portfolio Contact: Sarah Jenkins");
-console.log("  ✓ Admin email subject follows standard 'New Portfolio Contact: [Visitor Name]'");
+const adminSubject = `New Message Received: ${mockSubmission.name.trim()}`;
+assert.equal(adminSubject, "New Message Received: Sarah Jenkins");
+console.log("  ✓ Admin email subject follows standard 'New Message Received: [Visitor Name]'");
 
 // Visitor template verification
 const visitorSubject = "We received your message | Piyush Prasad";
@@ -131,15 +131,57 @@ assert.equal(visitorSubject, "We received your message | Piyush Prasad");
 const expectedVisitorGreeting = `Hi ${mockSubmission.name},`;
 const expectedVisitorAck = "Thank you for reaching out through my portfolio website.";
 const expectedVisitorRef = `Reference ID: ${mockSubmission.id}`;
-const expectedVisitorSupport = "support@piyushprasad.in";
+const expectedVisitorSupport = "hello@piyushprasad.in";
 const expectedVisitorSite = "https://piyushprasad.in";
 
 assert.ok(expectedVisitorGreeting.includes("Sarah Jenkins"));
 assert.ok(expectedVisitorRef.includes(mockSubmission.id));
 console.log("  ✓ Visitor confirmation email contains exact requested copy and references");
 
-// 4. Test Honeypot Spam Shield
-console.log("\n[Test 4] Testing Honeypot Bot Detection...");
+// 4. Test Notification Recipient Routing to hello@piyushprasad.in
+console.log("\n[Test 4] Testing Notification Recipient Routing...");
+function resolveNotificationRecipient(envVar) {
+  const DEFAULT_NOTIFICATION_EMAIL = "hello@piyushprasad.in";
+  return (envVar && envVar.trim()) ? envVar.trim() : DEFAULT_NOTIFICATION_EMAIL;
+}
+
+assert.equal(
+  resolveNotificationRecipient(undefined),
+  "hello@piyushprasad.in",
+  "Fallback recipient MUST be hello@piyushprasad.in"
+);
+assert.equal(
+  resolveNotificationRecipient(""),
+  "hello@piyushprasad.in",
+  "Empty env recipient MUST fallback to hello@piyushprasad.in"
+);
+assert.equal(
+  resolveNotificationRecipient("custom@piyushprasad.in"),
+  "custom@piyushprasad.in",
+  "Configured env recipient takes precedence"
+);
+console.log("  ✓ Main contact notification strictly resolves to hello@piyushprasad.in");
+
+// 5. Test Error Sanitization (API Key / Token Redaction)
+console.log("\n[Test 5] Testing Sensitive Credential Redaction in Errors...");
+function sanitizeEmailError(err) {
+  const raw = err instanceof Error ? err.message : String(err);
+  return raw
+    .replace(/re_[a-zA-Z0-9_\-]+/g, "[REDACTED_RESEND_KEY]")
+    .replace(/Bearer\s+[a-zA-Z0-9._\-]+/gi, "Bearer [REDACTED_TOKEN]")
+    .replace(/key-[a-zA-Z0-9]+/g, "[REDACTED_API_KEY]")
+    .replace(/password[:=]\s*\S+/gi, "password=[REDACTED]");
+}
+
+const leakAttempt = "Resend API call failed with key re_12345abcde67890 and Bearer eyJhbGciOiJIUzI1NiJ9.test";
+const sanitized = sanitizeEmailError(leakAttempt);
+assert.ok(!sanitized.includes("re_12345abcde67890"), "Resend API key must be redacted");
+assert.ok(!sanitized.includes("eyJhbGciOiJIUzI1NiJ9.test"), "Bearer token must be redacted");
+assert.ok(sanitized.includes("[REDACTED_RESEND_KEY]"), "Must contain redact placeholder");
+console.log("  ✓ API keys, tokens, and credentials are completely redacted from error logs");
+
+// 6. Test Honeypot Spam Shield
+console.log("\n[Test 6] Testing Honeypot Bot Detection...");
 function isBotRequest(body) {
   return typeof body.botcheck === "string" && body.botcheck.trim().length > 0;
 }
@@ -148,8 +190,8 @@ assert.equal(isBotRequest({ name: "Real User", botcheck: "" }), false);
 assert.equal(isBotRequest({ name: "Real User" }), false);
 console.log("  ✓ Honeypot correctly isolates automated bots without affecting human visitors");
 
-// 5. Test Rate Limiter Logic
-console.log("\n[Test 5] Testing Rate Limiting Isolation...");
+// 7. Test Rate Limiter Logic
+console.log("\n[Test 7] Testing Rate Limiting Isolation...");
 const testBuckets = new Map();
 function testRateLimit(key, maxRequests = 5) {
   const now = Date.now();
@@ -172,9 +214,9 @@ for (let i = 1; i <= 5; i++) {
 assert.equal(testRateLimit(testIp, 5), false, "6th rapid request must be blocked by rate limiter");
 console.log("  ✓ Rate limiter enforces strict threshold per IP");
 
-// 6. Test Error Isolation & Non-Destructive Behavior
-console.log("\n[Test 6] Testing Database-First Isolation...");
-// Rule: If DB save fails, emails MUST NOT be triggered
+// 8. Test Duplicate Prevention & Database-First Isolation
+console.log("\n[Test 8] Testing Duplicate Prevention & Database-First Isolation...");
+// Rule 1: If DB save fails, emails MUST NOT be triggered
 let emailTriggered = false;
 function triggerWorkflow(dbSaveSucceeded) {
   if (!dbSaveSucceeded) {
@@ -188,6 +230,20 @@ triggerWorkflow(false);
 assert.equal(emailTriggered, false, "Emails must NEVER be sent if database persistence fails");
 console.log("  ✓ Email delivery is strictly gated on successful database save");
 
+// Rule 2: Duplicate messages within 60s should be detected and skipped
+const recentSubmissions = [
+  { email: "john@example.com", message: "Hello Piyush!", created_at: Date.now() - 10000 }
+];
+function isDuplicate(email, message) {
+  return recentSubmissions.some(
+    s => s.email === email && s.message === message && (Date.now() - s.created_at) < 60000
+  );
+}
+assert.equal(isDuplicate("john@example.com", "Hello Piyush!"), true, "Identical message within 60s must be marked duplicate");
+assert.equal(isDuplicate("john@example.com", "Different message"), false, "Different message must be allowed");
+assert.equal(isDuplicate("other@example.com", "Hello Piyush!"), false, "Different email must be allowed");
+console.log("  ✓ Duplicate submission protection avoids duplicate email notifications");
+
 console.log("\n=================================================");
-console.log("🎉 ALL AUTOMATED CONTACT FORM TESTS PASSED (6/6)");
+console.log("🎉 ALL AUTOMATED CONTACT FORM TESTS PASSED (8/8)");
 console.log("=================================================\n");

@@ -312,8 +312,8 @@ All database interactions leverage hosted **Supabase PostgreSQL** (`ap-south-1`)
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Client | Production Publishable Key | Staging Publishable Key | Supabase client auth token |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server | **Secret** (Server Only) | Staging Service Key | Service-role administrative access |
 | `SKIP_EMAIL` | Server | `0` (or unset) | `1` | Forces email delivery simulation |
-| `CONTACT_FROM_EMAIL` | Server | `support@piyushprasad.in` | `staging@test.piyushprasad.in` | From address header |
-| `CONTACT_NOTIFICATION_EMAIL` | Server | `support@piyushprasad.in` | `dev-staging@piyushprasad.in` | Notification recipient |
+| `CONTACT_FROM_EMAIL` | Server | `notifications@piyushprasad.in` | `notifications@piyushprasad.in` | Verified sender address in email provider |
+| `CONTACT_NOTIFICATION_EMAIL` | Server | `hello@piyushprasad.in` | `hello@piyushprasad.in` | Main contact form inquiry recipient |
 | `GEMINI_API_KEY` | Server | **Secret** (Server Only) | Staging API Key | Google AI Studio access key |
 | `GEMINI_MODEL` | Server | `gemini-2.5-flash` | `gemini-2.5-flash` | LLM model identifier |
 

@@ -2114,5 +2114,85 @@ export const updateContactSubmissionStatus = createServerFn({ method: "POST" })
     };
   });
 
+export const retryContactNotification = createServerFn({ method: "POST" })
+  .validator((data: { submissionId: string }) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; message: string; status: string }> => {
+    const { submissionId } = data;
+    const { user: currentAdmin, db } = await verifyAdminCaller();
+
+    const { data: record, error } = await db
+      .from("contact_submissions")
+      .select("id, name, email, subject, message, created_at, admin_email_status")
+      .eq("id", submissionId)
+      .single();
+
+    if (error || !record) {
+      throw new Error("Contact submission record not found.");
+    }
+
+    const {
+      renderAdminNotificationEmail,
+      sendEmail,
+      getContactNotificationEmail,
+      sanitizeEmailError,
+    } = await import("./email.server");
+
+    const adminRecipient = getContactNotificationEmail();
+    const adminTemplate = renderAdminNotificationEmail(record as any);
+
+    const result = await sendEmail({
+      to: adminRecipient,
+      replyTo: record.email,
+      subject: adminTemplate.subject,
+      html: adminTemplate.html,
+      text: adminTemplate.text,
+    });
+
+    if (result.success) {
+      await db
+        .from("contact_submissions")
+        .update({
+          admin_email_status: "sent",
+          admin_email_sent_at: new Date().toISOString(),
+          email_error: null,
+        })
+        .eq("id", submissionId);
+
+      await logAuditEntry({
+        adminUserId: currentAdmin.id,
+        adminEmail: currentAdmin.email,
+        action: "contact_notification_retried",
+        targetTable: "contact_submissions",
+        targetRecordId: submissionId,
+        details: { recipient: adminRecipient, result: "sent" },
+        db,
+      });
+
+      return {
+        success: true,
+        status: "sent",
+        message: `Notification successfully dispatched to ${adminRecipient}`,
+      };
+    } else {
+      const sanitized = sanitizeEmailError(result.error || "Unknown delivery error");
+      await db
+        .from("contact_submissions")
+        .update({
+          admin_email_status: "failed",
+          email_error: sanitized,
+        })
+        .eq("id", submissionId);
+
+      throw new Error(`Email dispatch failed: ${sanitized}`);
+    }
+  });
+
+export const getEmailConfigurationSummary = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const { getEmailProviderStatus } = await import("./email.server");
+    return getEmailProviderStatus();
+  },
+);
+
 
 

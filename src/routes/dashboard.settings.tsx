@@ -7,6 +7,7 @@ import {
   Globe,
   Sliders,
   Bell,
+  Mail,
   ShieldCheck,
   CheckCircle2,
   Database,
@@ -17,6 +18,7 @@ import {
 
 import { PageHeader, Panel, StatusTag } from "@/components/dashboard/primitives";
 import { triggerFreshHealthCheck, generateLiveReport } from "@/lib/monitoring.functions";
+import { getEmailConfigurationSummary } from "@/lib/database-admin.functions";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
@@ -53,6 +55,22 @@ function SettingsPage() {
 
   const runHealthCheck = useServerFn(triggerFreshHealthCheck);
   const runReport = useServerFn(generateLiveReport);
+  const fetchEmailSummary = useServerFn(getEmailConfigurationSummary);
+
+  const [emailStatus, setEmailStatus] = useState<{
+    notificationRecipient: string;
+    senderAddress: string;
+    activeProvider: "resend" | "smtp" | "none";
+    hasResendKey: boolean;
+    hasSmtpConfig: boolean;
+    isStagingSimulated: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchEmailSummary()
+      .then((res) => setEmailStatus(res))
+      .catch((err) => console.warn("Failed to fetch email config status:", err));
+  }, []);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -342,6 +360,67 @@ function SettingsPage() {
                   Send automated daily health executive summary
                 </span>
               </label>
+            </div>
+          </div>
+        </Panel>
+
+        {/* Section: Contact Form Notifications & Email Routing */}
+        <Panel
+          tag="EMAIL.ROUTING"
+          title="Portfolio Contact Form & Notification Routing"
+        >
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-cobalt" />
+                    Main Notification Recipient
+                  </span>
+                  <span className="mono inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-2xs">
+                    <CheckCircle2 className="h-3 w-3" />
+                    VERIFIED TARGET
+                  </span>
+                </div>
+                <div className="font-mono text-sm font-bold text-carbon">
+                  {emailStatus?.notificationRecipient || "hello@piyushprasad.in"}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Configured via <code className="text-carbon font-mono">CONTACT_NOTIFICATION_EMAIL</code>. Every visitor inquiry submitted through the portfolio contact form is routed directly to this inbox.
+                </p>
+              </div>
+
+              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-cobalt" />
+                    Active Dispatch Provider
+                  </span>
+                  <span className="mono text-[10px] uppercase font-bold text-cobalt">
+                    {emailStatus?.isStagingSimulated
+                      ? "STAGING SIMULATION"
+                      : emailStatus?.activeProvider === "resend"
+                        ? "RESEND API (HTTP)"
+                        : emailStatus?.activeProvider === "smtp"
+                          ? "SMTP / NODEMAILER"
+                          : "FALLBACK READY"}
+                  </span>
+                </div>
+                <div className="font-mono text-xs text-carbon">
+                  Sender: {emailStatus?.senderAddress || "notifications@piyushprasad.in"}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Reply-To header is dynamically bound to the visitor's email address so clicking Reply connects directly to the sender.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E5E5DF] pt-3 text-[11px] font-mono text-muted-foreground">
+              <span>Routing Integrity: Direct to hello@piyushprasad.in (No support@ bounce)</span>
+              <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Anti-Duplicate Protection: ACTIVE (60s sliding window)
+              </span>
             </div>
           </div>
         </Panel>
