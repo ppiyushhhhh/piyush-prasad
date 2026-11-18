@@ -30,6 +30,7 @@ import {
   deleteContactSubmission,
   batchDeleteContactSubmissions,
   updateContactSubmissionStatus,
+  retryContactNotification,
   type ContactSubmissionRecord,
   type ContactSubmissionsResponse,
 } from "@/lib/database-admin.functions";
@@ -123,6 +124,8 @@ function MessagesPage() {
   const runDelete = useServerFn(deleteContactSubmission);
   const runBatchDelete = useServerFn(batchDeleteContactSubmissions);
   const runUpdateStatus = useServerFn(updateContactSubmissionStatus);
+  const runRetryNotification = useServerFn(retryContactNotification);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   // 1. Verify admin role on mount
   useEffect(() => {
@@ -764,7 +767,7 @@ function MessagesPage() {
                   Email Dispatch Diagnostics
                 </div>
                 <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Admin Notification (support@piyushprasad.in):</span>
+                  <span>Admin Notification (hello@piyushprasad.in):</span>
                   <span
                     className={
                       viewingItem.admin_email_status === "sent"
@@ -775,6 +778,32 @@ function MessagesPage() {
                     {viewingItem.admin_email_status.toUpperCase()}
                   </span>
                 </div>
+                {viewingItem.admin_email_status !== "sent" && (
+                  <div className="pt-1 flex justify-end">
+                    <button
+                      type="button"
+                      disabled={isRetrying}
+                      onClick={async () => {
+                        if (!viewingItem) return;
+                        setIsRetrying(true);
+                        try {
+                          const res = await runRetryNotification({ data: { submissionId: viewingItem.id } });
+                          toast.success(res.message);
+                          setViewingItem({ ...viewingItem, admin_email_status: "sent", email_error: null });
+                          loadData(true);
+                        } catch (err) {
+                          toast.error("Retry failed: " + (err as Error).message);
+                        } finally {
+                          setIsRetrying(false);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-xs border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-mono text-amber-800 hover:bg-amber-100 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${isRetrying ? "animate-spin text-cobalt" : ""}`} />
+                      <span>{isRetrying ? "Retrying..." : "Retry Dispatch to hello@piyushprasad.in"}</span>
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-muted-foreground">
                   <span>Visitor Confirmation ({viewingItem.email}):</span>
                   <span

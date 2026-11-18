@@ -25,8 +25,42 @@ export type SendEmailResult = {
   error?: string;
 };
 
-const DEFAULT_SUPPORT_EMAIL = "support@piyushprasad.in";
+/**
+ * Centralized Primary Notification Email.
+ * All incoming contact form submissions are routed directly to this address.
+ */
+export const DEFAULT_NOTIFICATION_EMAIL = "hello@piyushprasad.in";
+export const DEFAULT_SENDER_EMAIL = "notifications@piyushprasad.in";
+export const DEFAULT_SUPPORT_EMAIL = "hello@piyushprasad.in";
 const DEFAULT_SITE_URL = "https://piyushprasad.in";
+
+/**
+ * Resolves the authoritative recipient for contact form inquiry notifications.
+ * Prioritizes CONTACT_NOTIFICATION_EMAIL environment variable, defaulting strictly to hello@piyushprasad.in.
+ */
+export function getContactNotificationEmail(): string {
+  return getEnv("CONTACT_NOTIFICATION_EMAIL")?.trim() || DEFAULT_NOTIFICATION_EMAIL;
+}
+
+/**
+ * Resolves the outbound sender address configured in the email provider.
+ * Independent of the notification recipient.
+ */
+export function getContactSenderEmail(): string {
+  return getEnv("CONTACT_FROM_EMAIL")?.trim() || `"Piyush Prasad" <${DEFAULT_SENDER_EMAIL}>`;
+}
+
+/**
+ * Sanitizes error messages to prevent leaking API keys, secrets, or bearer tokens.
+ */
+export function sanitizeEmailError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  return raw
+    .replace(/re_[a-zA-Z0-9_\-]+/g, "[REDACTED_RESEND_KEY]")
+    .replace(/Bearer\s+[a-zA-Z0-9._\-]+/gi, "Bearer [REDACTED_TOKEN]")
+    .replace(/key-[a-zA-Z0-9]+/g, "[REDACTED_API_KEY]")
+    .replace(/password[:=]\s*\S+/gi, "password=[REDACTED]");
+}
 
 /**
  * Escapes user-controlled text to prevent HTML injection in emails.
@@ -61,7 +95,7 @@ function getInitials(name: string): string {
 }
 
 /**
- * Generates Admin Notification Email (sent to support@piyushprasad.in)
+ * Generates Admin Notification Email (sent to hello@piyushprasad.in)
  * Formatted exactly in the iconic Google Workspace transactional notification layout.
  */
 export function renderAdminNotificationEmail(submission: ContactSubmission): {
@@ -296,11 +330,11 @@ Customer ID: ${submission.id}
 Subject: ${submission.subject ? submission.subject.trim() : "General Inquiry"}
 Date: ${formattedDate}
 
-If you have any questions, please contact our support team.
+If you have any questions or need to provide additional details, please reply directly to this email or contact me at hello@piyushprasad.in.
 
 Sincerely,
 Piyush Prasad
-Support Team
+Cloud & DevOps Engineer
 `;
 
   const html = `<!DOCTYPE html>
@@ -395,14 +429,14 @@ Support Team
 
               <!-- Help / Support Text -->
               <p style="margin: 24px 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
-                If you have any questions or need to provide additional details, please contact our support team by replying directly to this email.
+                If you have any questions or need to provide additional details, please reply directly to this email or reach out to <a href="mailto:${DEFAULT_NOTIFICATION_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_NOTIFICATION_EMAIL}</a>.
               </p>
 
               <!-- Sincerely Sign-off -->
               <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
                 Sincerely,<br>
                 <strong style="color: #202124; font-weight: 500;">Piyush Prasad</strong><br>
-                <span style="color: #5F6368; font-size: 13px;">Cloud &amp; DevOps Engineering &bull; <a href="mailto:${DEFAULT_SUPPORT_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_SUPPORT_EMAIL}</a></span>
+                <span style="color: #5F6368; font-size: 13px;">Cloud &amp; DevOps Engineering &bull; <a href="mailto:${DEFAULT_NOTIFICATION_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_NOTIFICATION_EMAIL}</a></span>
               </div>
 
             </td>
@@ -483,7 +517,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   }
 
   const fromAddress =
-    options.from || getEnv("CONTACT_FROM_EMAIL") || `"Piyush Prasad" <${DEFAULT_SUPPORT_EMAIL}>`;
+    options.from || getContactSenderEmail();
 
   // 1. Primary Provider: Resend (via REST API)
   const resendApiKey = getEnv("RESEND_API_KEY")?.trim();
@@ -512,14 +546,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       };
 
       if (!response.ok) {
-        const errMsg = data.message || `Resend HTTP error ${response.status}`;
+        const errMsg = sanitizeEmailError(data.message || `Resend HTTP error ${response.status}`);
         console.error("[Email/Resend] Delivery failed:", errMsg);
         return { success: false, error: errMsg };
       }
 
       return { success: true, messageId: data.id };
     } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err);
+      const errMsg = sanitizeEmailError(err);
       console.error("[Email/Resend] Network exception:", errMsg);
       return { success: false, error: errMsg };
     }
@@ -554,7 +588,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
       return { success: true, messageId: info.messageId };
     } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err);
+      const errMsg = sanitizeEmailError(err);
       console.error("[Email/SMTP] Delivery failed:", errMsg);
       return { success: false, error: errMsg };
     }
@@ -567,5 +601,26 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   return {
     success: false,
     error: warning,
+  };
+}
+
+/**
+ * Returns configuration diagnostic info for the email dispatch system.
+ * Safe for admin dashboard rendering.
+ */
+export function getEmailProviderStatus() {
+  const hasResend = !!getEnv("RESEND_API_KEY")?.trim();
+  const hasSmtp = !!(getEnv("SMTP_HOST")?.trim() && getEnv("SMTP_USER")?.trim());
+  let activeProvider: "resend" | "smtp" | "none" = "none";
+  if (hasResend) activeProvider = "resend";
+  else if (hasSmtp) activeProvider = "smtp";
+
+  return {
+    notificationRecipient: getContactNotificationEmail(),
+    senderAddress: getContactSenderEmail(),
+    activeProvider,
+    hasResendKey: hasResend,
+    hasSmtpConfig: hasSmtp,
+    isStagingSimulated: isStaging || getEnv("SKIP_EMAIL") === "1",
   };
 }
