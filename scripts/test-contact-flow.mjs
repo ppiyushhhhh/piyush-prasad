@@ -120,9 +120,9 @@ const mockSubmission = {
 };
 
 // Admin template verification
-const adminSubject = `New Portfolio Contact: ${mockSubmission.name.trim()}`;
-assert.equal(adminSubject, "New Portfolio Contact: Sarah Jenkins");
-console.log("  ✓ Admin email subject follows standard 'New Portfolio Contact: [Visitor Name]'");
+const adminSubject = `New Message Received: ${mockSubmission.name.trim()}`;
+assert.equal(adminSubject, "New Message Received: Sarah Jenkins");
+console.log("  ✓ Admin email subject follows standard 'New Message Received: [Visitor Name]'");
 
 // Visitor template verification
 const visitorSubject = "We received your message | Piyush Prasad";
