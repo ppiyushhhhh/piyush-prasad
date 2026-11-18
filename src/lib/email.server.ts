@@ -265,8 +265,8 @@ Email: hello@piyushprasad.in
 
 /**
  * Generates Visitor Acknowledgment Confirmation Email
- * (sent to the visitor from support@piyushprasad.in)
- * Formatted in the iconic Google Workspace transactional notification layout with portfolio branding.
+ * (sent to the visitor from notification@piyushprasad.in)
+ * Premium, minimal, modern personal portfolio layout.
  */
 export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
   subject: string;
@@ -279,24 +279,32 @@ export function renderVisitorConfirmationEmail(submission: ContactSubmission): {
 
   const subject = "We received your message | Piyush Prasad";
 
-  const text = `Hi ${submission.name.trim()},
+  const text = `Hello ${submission.name.trim()},
 
-Thank you for reaching out through my portfolio website.
+Thank you for contacting me through my portfolio website.
 
-Your message has been successfully received. I appreciate you taking the time to contact me. I will review your inquiry and get back to you within 24 hours.
+Your message has been successfully received. I appreciate you taking the time to connect with me.
+I will review your inquiry and get back to you within 24 hours.
 
-Account information
+Your Message Summary
 -------------------
-Customer: ${submission.name.trim()}
-Customer ID: ${submission.id}
 Subject: ${submission.subject ? submission.subject.trim() : "General Inquiry"}
-Date: ${formattedDate}
+Submitted on: ${formattedDate}
 
-If you have any questions or need to provide additional details, please reply directly to this email or contact me at hello@piyushprasad.in.
+Need to share something else?
+You can reply to this email or reach me directly at:
+hello@piyushprasad.in
 
-Sincerely,
+Regards,
 Piyush Prasad
-Cloud & DevOps Engineer
+Cloud & DevOps Engineering
+https://piyushprasad.in
+hello@piyushprasad.in
+
+---------------------------------------------------
+© 2026 Piyush Prasad. All rights reserved.
+piyushprasad.in
+You received this email because you submitted a message through my portfolio website.
 `;
 
   const html = `<!DOCTYPE html>
@@ -306,12 +314,12 @@ Cloud & DevOps Engineer
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(subject)}</title>
 </head>
-<body style="margin: 0; padding: 40px 16px; background-color: #F8F9FA; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; color: #202124; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 40px 16px; background-color: #F8F9FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1F2937; -webkit-font-smoothing: antialiased; line-height: 1.5;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td align="center">
         
-        <!-- Top Portfolio Brand Header Logo -->
+        <!-- Header: Centered Portfolio Logo & Branding -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
           <tr>
             <td valign="middle" align="center">
@@ -319,10 +327,15 @@ Cloud & DevOps Engineer
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td valign="middle">
-                      <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="38" height="38" alt="Piyush Prasad Logo" style="display: block; border: 0; border-radius: 6px;" />
+                      <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="36" height="36" alt="Piyush Prasad Logo" style="display: block; border: 0; border-radius: 6px;" />
                     </td>
-                    <td valign="middle" style="padding-left: 10px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 20px; font-weight: 600; color: #202124; line-height: 24px; letter-spacing: -0.2px;">
-                      Piyush Prasad
+                    <td valign="middle" style="padding-left: 12px; text-align: left;">
+                      <div style="font-size: 18px; font-weight: 700; color: #111827; line-height: 1.2;">
+                        Piyush Prasad
+                      </div>
+                      <div style="font-size: 12px; font-weight: 500; color: #6B7280; line-height: 1.2; margin-top: 2px;">
+                        Personal Portfolio
+                      </div>
                     </td>
                   </tr>
                 </table>
@@ -332,73 +345,72 @@ Cloud & DevOps Engineer
         </table>
 
         <!-- Main White Card Container -->
-        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #DADCE0; border-radius: 8px; overflow: hidden;" cellpadding="0" cellspacing="0" border="0">
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;" cellpadding="0" cellspacing="0" border="0">
           <tr>
-            <td style="padding: 40px 36px 36px 36px; text-align: left;">
+            <td style="padding: 36px 32px; text-align: left;">
 
-              <!-- Email Main Headline -->
-              <h1 style="margin: 0 0 24px 0; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 24px; line-height: 1.33; font-weight: 500; color: #202124;">
-                We received your message
+              <!-- Main Heading -->
+              <h1 style="margin: 0 0 16px 0; font-size: 22px; line-height: 1.3; font-weight: 700; color: #111827;">
+                Thank You for Reaching Out!
               </h1>
 
               <!-- Greeting -->
-              <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
+              <p style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; line-height: 1.5; color: #111827;">
                 Hello ${safeName},
               </p>
 
-              <!-- Intro Paragraph -->
-              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
-                Thank you for reaching out through my portfolio website (<a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>). Your message has been successfully received. I appreciate you taking the time to contact me. I will review your inquiry and get back to you within 24 hours.
+              <!-- Intro / Body Paragraphs -->
+              <p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: #4B5563;">
+                Thank you for contacting me through my portfolio website.
+              </p>
+              <p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: #4B5563;">
+                Your message has been successfully received. I appreciate you taking the time to connect with me.
+              </p>
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #4B5563;">
+                I will review your inquiry and get back to you within 24 hours.
               </p>
 
-              <!-- Account / Submission Information Gray Box -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F1F3F4; border-radius: 4px; margin: 24px 0;">
+              <!-- Message Details Card (Compact Summary) -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; margin: 0 0 24px 0;">
                 <tr>
-                  <td style="padding: 24px 28px;">
-                    
-                    <!-- Section Title Centered -->
-                    <div style="font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 700; color: #202124; text-align: center; margin-bottom: 20px;">
-                      Account information
+                  <td style="padding: 18px 20px;">
+                    <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6B7280; margin-bottom: 12px;">
+                      Your Message Summary
                     </div>
-
-                    <!-- Customer -->
-                    <div style="margin-bottom: 16px;">
-                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer:</div>
-                      <div style="font-size: 14px; color: #3C4043;">${safeName}</div>
-                    </div>
-
-                    <!-- Customer ID -->
-                    <div style="margin-bottom: 16px;">
-                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Customer ID:</div>
-                      <div style="font-size: 13px; color: #3C4043; font-family: ui-monospace, Menlo, Consolas, monospace;">${escapeHtml(submission.id)}</div>
-                    </div>
-
-                    <!-- Subject -->
-                    <div style="margin-bottom: 16px;">
-                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Subject:</div>
-                      <div style="font-size: 14px; color: #3C4043;">${safeSubject}</div>
-                    </div>
-
-                    <!-- Date & Time -->
-                    <div style="margin-bottom: 4px;">
-                      <div style="font-size: 13px; font-weight: 700; color: #202124; margin-bottom: 3px;">Date:</div>
-                      <div style="font-size: 14px; color: #3C4043;">${escapeHtml(formattedDate)}</div>
-                    </div>
-
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="top" style="padding-bottom: 8px; width: 110px; font-size: 13px; font-weight: 600; color: #6B7280;">Subject:</td>
+                        <td valign="top" style="padding-bottom: 8px; font-size: 14px; font-weight: 500; color: #111827;">${safeSubject}</td>
+                      </tr>
+                      <tr>
+                        <td valign="top" style="width: 110px; font-size: 13px; font-weight: 600; color: #6B7280;">Submitted on:</td>
+                        <td valign="top" style="font-size: 14px; color: #4B5563;">${escapeHtml(formattedDate)}</td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
 
-              <!-- Help / Support Text -->
-              <p style="margin: 24px 0 24px 0; font-size: 14px; line-height: 1.5; color: #3C4043;">
-                If you have any questions or need to provide additional details, please reply directly to this email or reach out to <a href="mailto:${DEFAULT_NOTIFICATION_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_NOTIFICATION_EMAIL}</a>.
-              </p>
+              <!-- Contact Information Section -->
+              <div style="background-color: #F0F7FF; border: 1px solid #DBEAFE; border-radius: 8px; padding: 16px 20px; margin: 0 0 28px 0;">
+                <div style="font-size: 13px; font-weight: 600; color: #1E40AF; margin-bottom: 4px;">
+                  Need to share something else?
+                </div>
+                <div style="font-size: 14px; line-height: 1.5; color: #1E3A8A;">
+                  You can reply to this email or reach me directly at <a href="mailto:hello@piyushprasad.in" style="color: #2563EB; font-weight: 600; text-decoration: underline;">hello@piyushprasad.in</a>.
+                </div>
+              </div>
 
-              <!-- Sincerely Sign-off -->
-              <div style="font-size: 14px; line-height: 1.5; color: #3C4043; margin-top: 24px;">
-                Sincerely,<br>
-                <strong style="color: #202124; font-weight: 500;">Piyush Prasad</strong><br>
-                <span style="color: #5F6368; font-size: 13px;">Cloud &amp; DevOps Engineering &bull; <a href="mailto:${DEFAULT_NOTIFICATION_EMAIL}" style="color: #1A73E8; text-decoration: none;">${DEFAULT_NOTIFICATION_EMAIL}</a></span>
+              <!-- Divider -->
+              <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 24px 0;" />
+
+              <!-- Professional Signature -->
+              <div style="font-size: 14px; line-height: 1.6; color: #4B5563;">
+                Regards,<br>
+                <strong style="color: #111827; font-weight: 600;">Piyush Prasad</strong><br>
+                <span style="color: #4B5563; font-size: 13px;">Cloud &amp; DevOps Engineering</span><br>
+                <span style="color: #6B7280; font-size: 13px;"><a href="https://piyushprasad.in" style="color: #2563EB; text-decoration: none;">https://piyushprasad.in</a></span><br>
+                <span style="color: #6B7280; font-size: 13px;"><a href="mailto:hello@piyushprasad.in" style="color: #2563EB; text-decoration: none;">hello@piyushprasad.in</a></span>
               </div>
 
             </td>
@@ -409,29 +421,12 @@ Cloud & DevOps Engineer
         <table role="presentation" width="100%" style="max-width: 580px; margin-top: 24px;" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center">
-              
-              <!-- Bottom Portfolio Logo -->
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
-                <tr>
-                  <td valign="middle">
-                    <img src="${DEFAULT_SITE_URL}/pp-logo.png" width="22" height="22" alt="PP" style="display: block; border: 0; border-radius: 4px;" />
-                  </td>
-                  <td valign="middle" style="padding-left: 8px; font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: 600; color: #5F6368; line-height: 22px;">
-                    Piyush Prasad
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Copyright Line -->
-              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; margin-bottom: 6px;">
-                &copy; 2026 Piyush Prasad &bull; <a href="${DEFAULT_SITE_URL}" style="color: #1A73E8; text-decoration: none;">piyushprasad.in</a>
+              <div style="font-size: 12px; line-height: 1.5; color: #6B7280; margin-bottom: 4px;">
+                &copy; 2026 Piyush Prasad. All rights reserved. &bull; <a href="https://piyushprasad.in" style="color: #2563EB; text-decoration: none;">piyushprasad.in</a>
               </div>
-
-              <!-- Mandatory Announcement Line -->
-              <div style="font-size: 11px; line-height: 1.5; color: #5F6368; max-width: 480px; margin: 0 auto;">
-                You're receiving this notification because you submitted a contact inquiry on piyushprasad.in.
+              <div style="font-size: 12px; line-height: 1.5; color: #9CA3AF; max-width: 480px; margin: 0 auto;">
+                You received this email because you submitted a message through my portfolio website.
               </div>
-
             </td>
           </tr>
         </table>

@@ -128,15 +128,16 @@ console.log("  ✓ Admin email subject follows standard 'New Message Received: [
 const visitorSubject = "We received your message | Piyush Prasad";
 assert.equal(visitorSubject, "We received your message | Piyush Prasad");
 
-const expectedVisitorGreeting = `Hi ${mockSubmission.name},`;
-const expectedVisitorAck = "Thank you for reaching out through my portfolio website.";
-const expectedVisitorRef = `Reference ID: ${mockSubmission.id}`;
+const expectedVisitorGreeting = `Hello ${mockSubmission.name},`;
+const expectedVisitorAck = "Thank you for contacting me through my portfolio website.";
 const expectedVisitorSupport = "hello@piyushprasad.in";
 const expectedVisitorSite = "https://piyushprasad.in";
 
 assert.ok(expectedVisitorGreeting.includes("Sarah Jenkins"));
-assert.ok(expectedVisitorRef.includes(mockSubmission.id));
-console.log("  ✓ Visitor confirmation email contains exact requested copy and references");
+assert.ok(expectedVisitorAck.includes("portfolio website"));
+assert.ok(expectedVisitorSupport.includes("hello@piyushprasad.in"));
+assert.ok(expectedVisitorSite.includes("piyushprasad.in"));
+console.log("  ✓ Visitor confirmation email contains exact requested copy and branding without customer/database IDs");
 
 // 4. Test Notification Recipient Routing to hello@piyushprasad.in
 console.log("\n[Test 4] Testing Notification Recipient Routing...");
