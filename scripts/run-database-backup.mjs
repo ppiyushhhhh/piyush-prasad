@@ -89,7 +89,9 @@ function escapeSqlValue(val) {
   if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
   if (val instanceof Date) return `'${val.toISOString()}'::timestamptz`;
   if (Array.isArray(val)) {
-    const elements = val.map((v) => (typeof v === "string" ? `"${v.replace(/"/g, '\\"')}"` : String(v)));
+    const elements = val.map((v) =>
+      typeof v === "string" ? `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"` : String(v)
+    );
     return `'${"{" + elements.join(",") + "}"}'`;
   }
   if (typeof val === "object") {
