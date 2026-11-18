@@ -12,6 +12,6 @@
     "nodemailer": "^10.1.4"
   },
   "devDependencies": {
-    "lighthouse": "^12.2.1"
+    "lighthouse": "^13.6.0"
   }
 }
