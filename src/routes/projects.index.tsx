@@ -198,9 +198,9 @@ function ProjectsIndexPage() {
 
           {/* Search, Filter & Controls Bar */}
           <div className="mt-10 rounded-xl border border-border bg-white dark:bg-neutral-900 p-5 shadow-xs">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3.5">
               {/* Search Bar */}
-              <div className="relative md:col-span-5">
+              <div className="relative sm:col-span-2 md:col-span-5">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
@@ -238,20 +238,20 @@ function ProjectsIndexPage() {
                 </select>
               </div>
 
-              {/* Tech Dropdown */}
+              {/* Status Dropdown */}
               <div className="md:col-span-2">
                 <select
-                  value={selectedTech}
-                  onChange={(e) => setSelectedTech(e.target.value)}
-                  aria-label="Filter by technology"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  aria-label="Filter by project status"
                   className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-3 py-2 text-xs focus:border-cobalt focus:outline-hidden"
                 >
-                  <option value="all">All Tech Stack</option>
-                  {allTechnologies.map((tech) => (
-                    <option key={tech} value={tech}>
-                      {tech}
-                    </option>
-                  ))}
+                  <option value="all">All Statuses</option>
+                  <option value="Production">Production</option>
+                  <option value="UAT">UAT</option>
+                  <option value="Personal Project">Personal Project</option>
+                  <option value="Development">Development</option>
+                  <option value="Archived">Archived</option>
                 </select>
               </div>
 
