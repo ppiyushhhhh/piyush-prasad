@@ -26,6 +26,7 @@ import type {
   ArchitectureCategory,
 } from "@/lib/architecture-diagrams";
 import { CATEGORY_COLORS } from "@/lib/architecture-diagrams";
+import { NodeLogo } from "./NodeLogo";
 
 interface ComponentInspectorProps {
   node: ArchitectureNode | null;
@@ -89,32 +90,41 @@ export function ComponentInspector({
       aria-label={`Component details for ${node.name}`}
     >
       {/* Top Header */}
-      <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${colorConfig.badge}`}
-            >
-              <IconComponent className="h-3 w-3" />
-              {node.category.toUpperCase()}
-            </span>
-            {node.status && (
-              <span className="mono inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 dark:text-emerald-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                {node.status.toUpperCase()}
+      <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <NodeLogo
+            tech={node.tech}
+            provider={node.provider}
+            fallbackIcon={IconComponent}
+            size="lg"
+            alt={node.name}
+          />
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${colorConfig.badge}`}
+              >
+                <IconComponent className="h-3 w-3" />
+                {node.category.toUpperCase()}
               </span>
-            )}
+              {node.status && (
+                <span className="mono inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 dark:text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                  {node.status.toUpperCase()}
+                </span>
+              )}
+            </div>
+            <h3 className="text-base font-bold text-carbon dark:text-white leading-tight truncate">
+              {node.name}
+            </h3>
+            <p className="mono text-xs text-cobalt font-semibold truncate">{node.tech}</p>
           </div>
-          <h3 className="text-base font-bold text-carbon dark:text-white leading-tight">
-            {node.name}
-          </h3>
-          <p className="mono text-xs text-cobalt font-semibold">{node.tech}</p>
         </div>
 
         <button
           type="button"
           onClick={onClose}
-          className="p-1 rounded text-muted-foreground hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
+          className="p-1 rounded text-muted-foreground hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer shrink-0"
           aria-label="Close component inspector"
           title="Close Inspector"
         >

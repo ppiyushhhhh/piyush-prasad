@@ -58,6 +58,7 @@ This portfolio integrates official technology and cloud architecture logos for v
   - `typescript.svg` — Microsoft Corporation
   - `telegram.svg` — Telegram FZ-LLC
   - `python.svg` — Python Software Foundation
+  - `sqlite.svg` — SQLite Consortium
 
 ## 3. Simple Icons (`simple-icons`)
 - **Package**: `simple-icons` ([simpleicons.org](https://simpleicons.org))

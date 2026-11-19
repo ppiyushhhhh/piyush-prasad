@@ -47,6 +47,7 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
   // Databases & Storage
   postgresql: { src: "/tech-logos/postgresql.svg", label: "PostgreSQL", brandColor: "#4169E1" },
   mysql: { src: "/tech-logos/mysql.svg", label: "MySQL", brandColor: "#4479A1" },
+  sqlite: { src: "/tech-logos/sqlite.svg", label: "SQLite", brandColor: "#003B57" },
   redis: { src: "/tech-logos/redis.svg", label: "Redis", brandColor: "#DC382D" },
   upstash: { src: "/tech-logos/upstash.svg", label: "Upstash Redis", brandColor: "#00E9A3" },
 
@@ -234,6 +235,9 @@ export function resolveLogo(
   }
 
   // 6. Databases
+  if (tech.includes("sqlite")) {
+    return TECH_LOGO_REGISTRY.sqlite;
+  }
   if (tech.includes("postgres") || tech.includes("psql")) {
     return TECH_LOGO_REGISTRY.postgresql;
   }

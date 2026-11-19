@@ -98,6 +98,7 @@ const techLogosIconify = {
   'typescript.svg': 'typescript-icon',
   'telegram.svg': 'telegram',
   'python.svg': 'python',
+  'sqlite.svg': 'sqlite',
 };
 
 for (const [filename, iconKey] of Object.entries(techLogosIconify)) {
