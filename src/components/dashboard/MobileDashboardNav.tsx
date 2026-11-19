@@ -9,6 +9,7 @@ import {
   Gauge,
   Github,
   FolderGit2,
+  Network,
   Rocket,
   Settings,
   Database,
@@ -90,6 +91,15 @@ export const DASHBOARD_NAV_MODULES: NavModule[] = [
     description: "Engineering projects, case studies, deployments & architecture data",
     badge: "Case Studies",
     keywords: ["projects", "case study", "portfolio", "architecture", "diagram"],
+  },
+  {
+    to: "/dashboard/architectures",
+    label: "Architectures",
+    icon: Network,
+    category: "Pipelines",
+    description: "Cloud infrastructure topologies, node schemas, connections & data flow",
+    badge: "Explorer",
+    keywords: ["architecture", "cloud", "topology", "canvas", "diagram", "nodes", "edges"],
   },
   {
     to: "/dashboard/cicd",

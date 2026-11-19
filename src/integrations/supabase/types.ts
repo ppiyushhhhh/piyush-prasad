@@ -695,6 +695,56 @@ export type Database = {
         };
         Relationships: [];
       };
+      architecture_diagrams: {
+        Row: {
+          architecture_type: string;
+          created_at: string;
+          description: string | null;
+          diagram_data: Json;
+          display_order: number;
+          id: string;
+          is_published: boolean;
+          project_id: string | null;
+          slug: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          architecture_type?: string;
+          created_at?: string;
+          description?: string | null;
+          diagram_data?: Json;
+          display_order?: number;
+          id?: string;
+          is_published?: boolean;
+          project_id?: string | null;
+          slug: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          architecture_type?: string;
+          created_at?: string;
+          description?: string | null;
+          diagram_data?: Json;
+          display_order?: number;
+          id?: string;
+          is_published?: boolean;
+          project_id?: string | null;
+          slug?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "architecture_diagrams_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "portfolio_projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

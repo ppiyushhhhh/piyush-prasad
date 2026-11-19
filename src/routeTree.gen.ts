@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as ArchitectureRouteImport } from './routes/architecture'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as ResumeRouteImport } from './routes/resume'
@@ -19,6 +20,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
+import { Route as DashboardArchitecturesRouteImport } from './routes/dashboard.architectures'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
 import { Route as DashboardCredlyBadgesRouteImport } from './routes/dashboard.credly-badges'
 import { Route as DashboardDatabaseRouteImport } from './routes/dashboard.database'
@@ -47,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchitectureRoute = ArchitectureRouteImport.update({
+  id: '/architecture',
+  path: '/architecture',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -87,6 +94,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const DashboardAiChatRoute = DashboardAiChatRouteImport.update({
   id: '/ai-chat',
   path: '/ai-chat',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardArchitecturesRoute = DashboardArchitecturesRouteImport.update({
+  id: '/architectures',
+  path: '/architectures',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardCicdRoute = DashboardCicdRouteImport.update({
@@ -188,6 +200,7 @@ const ApiPublicMonitoringRoute = ApiPublicMonitoringRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/architecture': typeof ArchitectureRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
@@ -195,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/architectures': typeof DashboardArchitecturesRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -219,12 +233,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/architecture': typeof ArchitectureRoute
   '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/architectures': typeof DashboardArchitecturesRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -250,6 +266,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/architecture': typeof ArchitectureRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/github': typeof GithubRoute
   '/resume': typeof ResumeRoute
@@ -257,6 +274,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
+  '/dashboard/architectures': typeof DashboardArchitecturesRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -283,6 +301,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/architecture'
     | '/dashboard'
     | '/github'
     | '/resume'
@@ -290,6 +309,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/contact'
     | '/dashboard/ai-chat'
+    | '/dashboard/architectures'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -314,12 +334,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/architecture'
     | '/github'
     | '/resume'
     | '/thank-you'
     | '/api/chat'
     | '/api/contact'
     | '/dashboard/ai-chat'
+    | '/dashboard/architectures'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -344,6 +366,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$'
+    | '/architecture'
     | '/dashboard'
     | '/github'
     | '/resume'
@@ -351,6 +374,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/contact'
     | '/dashboard/ai-chat'
+    | '/dashboard/architectures'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -376,6 +400,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  ArchitectureRoute: typeof ArchitectureRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   GithubRoute: typeof GithubRoute
   ResumeRoute: typeof ResumeRoute
@@ -404,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/architecture': {
+      id: '/architecture'
+      path: '/architecture'
+      fullPath: '/architecture'
+      preLoaderRoute: typeof ArchitectureRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -460,6 +492,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-chat'
       fullPath: '/dashboard/ai-chat'
       preLoaderRoute: typeof DashboardAiChatRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/architectures': {
+      id: '/dashboard/architectures'
+      path: '/architectures'
+      fullPath: '/dashboard/architectures'
+      preLoaderRoute: typeof DashboardArchitecturesRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/cicd': {
@@ -600,6 +639,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardAiChatRoute: typeof DashboardAiChatRoute
+  DashboardArchitecturesRoute: typeof DashboardArchitecturesRoute
   DashboardCicdRoute: typeof DashboardCicdRoute
   DashboardCredlyBadgesRoute: typeof DashboardCredlyBadgesRoute
   DashboardDatabaseRoute: typeof DashboardDatabaseRoute
@@ -618,6 +658,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAiChatRoute: DashboardAiChatRoute,
+  DashboardArchitecturesRoute: DashboardArchitecturesRoute,
   DashboardCicdRoute: DashboardCicdRoute,
   DashboardCredlyBadgesRoute: DashboardCredlyBadgesRoute,
   DashboardDatabaseRoute: DashboardDatabaseRoute,
@@ -641,6 +682,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  ArchitectureRoute: ArchitectureRoute,
   DashboardRoute: DashboardRouteWithChildren,
   GithubRoute: GithubRoute,
   ResumeRoute: ResumeRoute,
