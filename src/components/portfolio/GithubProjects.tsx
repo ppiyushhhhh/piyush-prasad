@@ -19,6 +19,7 @@ import {
   RefreshCw,
   FolderGit2,
   Code2,
+  Network,
 } from "lucide-react";
 
 import { SectionHeader } from "./SectionHeader";
@@ -213,6 +214,15 @@ export function GithubProjects() {
 
           {/* Action CTA */}
           <div className="shrink-0 flex flex-wrap items-center gap-3">
+            <a
+              href="/architecture"
+              className="mono inline-flex items-center gap-2 border border-cobalt bg-cobalt px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-blue-700 shadow-2xs"
+            >
+              <Network className="h-4 w-4" />
+              <span>Architecture Explorer</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+
             <a
               href="https://github.com/ppiyushhhhh?tab=repositories"
               target="_blank"

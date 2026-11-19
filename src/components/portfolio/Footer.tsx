@@ -28,10 +28,11 @@ interface SectionLink {
 const SECTION_LINKS: SectionLink[] = [
   { num: "00", label: "Home", href: "/#hero" },
   { num: "01", label: "GitHub Projects", href: "/#projects" },
-  { num: "02", label: "Technical Skills", href: "/#skills" },
-  { num: "03", label: "Experience Journey", href: "/#experience" },
-  { num: "04", label: "Credentials & Education", href: "/#certifications" },
-  { num: "05", label: "Get In Touch", href: "/#contact" },
+  { num: "02", label: "Architecture Explorer", href: "/architecture" },
+  { num: "03", label: "Technical Skills", href: "/#skills" },
+  { num: "04", label: "Experience Journey", href: "/#experience" },
+  { num: "05", label: "Credentials & Education", href: "/#certifications" },
+  { num: "06", label: "Get In Touch", href: "/#contact" },
 ];
 
 export function Footer() {
@@ -283,6 +284,27 @@ export function Footer() {
               </div>
 
               <div className="space-y-2.5">
+                {/* Architecture Explorer Card */}
+                <a
+                  href="/architecture"
+                  className="group flex items-center justify-between border border-border bg-white p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-cobalt"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-[#FAF9F6] border border-border text-cobalt">
+                      <Cpu className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-carbon group-hover:text-cobalt transition-colors">
+                        Interactive Architecture Explorer
+                      </div>
+                      <div className="mono text-[10px] text-muted-foreground">
+                        Cloud topologies, data flow &amp; security
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cobalt" />
+                </a>
+
                 {/* Resume Card */}
                 <a
                   href="/resume"

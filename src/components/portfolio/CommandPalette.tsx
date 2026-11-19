@@ -17,6 +17,7 @@ import {
   FileText,
   Home,
   Sparkles,
+  Network,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -122,6 +123,15 @@ export function CommandPalette() {
             <FolderGit2 className="mr-2 h-4 w-4 text-cobalt" />
             <span>GitHub Projects (Infrastructure & Automation)</span>
             <CommandShortcut className="font-mono text-[10px]">#projects</CommandShortcut>
+          </CommandItem>
+
+          <CommandItem
+            onSelect={() => runCommand(() => navigateTo("/architecture"))}
+            className="cursor-pointer"
+          >
+            <Network className="mr-2 h-4 w-4 text-cobalt" />
+            <span>Infrastructure Architecture Explorer</span>
+            <CommandShortcut className="font-mono text-[10px]">/architecture</CommandShortcut>
           </CommandItem>
 
           <CommandItem
