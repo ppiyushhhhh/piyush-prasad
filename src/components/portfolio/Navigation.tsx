@@ -13,7 +13,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
-  { id: "projects", label: "GitHub Projects", href: "/#projects" },
+  { id: "projects", label: "Projects", href: "/#projects" },
   { id: "skills", label: "Skills", href: "/#skills" },
   { id: "experience", label: "Experience", href: "/#experience" },
   { id: "certifications", label: "Certifications", href: "/#certifications" },
@@ -28,6 +28,7 @@ export function Navigation() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/" || pathname === "";
   const isGithub = pathname === "/github";
+  const isProjects = pathname.startsWith("/projects");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,33 +41,53 @@ export function Navigation() {
 
   useEffect(() => {
     if (!isHome) {
-      if (isGithub) {
+      if (isProjects) {
+        setActiveSection("projects");
+      } else if (isGithub) {
         setActiveSection("github");
       }
       return;
     }
 
-    const sectionElements = NAV_ITEMS.filter((item) => !item.isExternalPage)
-      .map((item) => document.getElementById(item.id))
-      .filter((el): el is HTMLElement => !!el);
+    const handleScrollSpy = () => {
+      // Near top: Hero
+      if (window.scrollY < 120) {
+        setActiveSection("hero");
+        return;
+      }
 
-    if (sectionElements.length === 0) return;
+      // Bottom of page: Contact
+      const scrollBottom = window.innerHeight + window.scrollY;
+      const totalHeight = document.documentElement.scrollHeight;
+      if (scrollBottom >= totalHeight - 80) {
+        setActiveSection("contact");
+        return;
+      }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          setActiveSection(visible.target.id);
+      // Track sections by offset position
+      const scrollPosition = window.scrollY + 160;
+      const sectionIds = ["hero", "projects", "skills", "experience", "certifications", "contact"];
+
+      let current = "hero";
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && scrollPosition >= el.offsetTop) {
+          current = id;
         }
-      },
-      { rootMargin: "-30% 0px -50% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
+      }
 
-    sectionElements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [isHome, isGithub]);
+      setActiveSection(current);
+    };
+
+    handleScrollSpy();
+    window.addEventListener("scroll", handleScrollSpy, { passive: true });
+    window.addEventListener("resize", handleScrollSpy, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollSpy);
+      window.removeEventListener("resize", handleScrollSpy);
+    };
+  }, [isHome, isGithub, isProjects]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -97,6 +118,9 @@ export function Navigation() {
     }
     if (isHome) {
       return `#${item.id}`;
+    }
+    if (item.id === "projects" && isProjects && pathname !== "/projects") {
+      return "/projects";
     }
     return item.href;
   };
@@ -159,9 +183,11 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Main Navigation">
             {NAV_ITEMS.map((item) => {
-              const isActive = isGithub
-                ? item.id === "github"
-                : isHome && activeSection === item.id;
+              const isActive = isProjects
+                ? item.id === "projects"
+                : isGithub
+                  ? item.id === "github"
+                  : isHome && activeSection === item.id;
 
               return (
                 <a
@@ -269,9 +295,11 @@ export function Navigation() {
             </span>
 
             {NAV_ITEMS.map((item) => {
-              const isActive = isGithub
-                ? item.id === "github"
-                : isHome && activeSection === item.id;
+              const isActive = isProjects
+                ? item.id === "projects"
+                : isGithub
+                  ? item.id === "github"
+                  : isHome && activeSection === item.id;
 
               return (
                 <a

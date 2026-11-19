@@ -8,6 +8,7 @@ import {
   FileText,
   Gauge,
   Github,
+  FolderGit2,
   Rocket,
   Settings,
   Database,
@@ -80,6 +81,15 @@ export const DASHBOARD_NAV_MODULES: NavModule[] = [
     category: "Pipelines",
     description: "Repository commits, pull requests, releases & remote branch sync",
     keywords: ["repo", "git", "commits", "branches", "code", "sync"],
+  },
+  {
+    to: "/dashboard/projects",
+    label: "Projects",
+    icon: FolderGit2,
+    category: "Pipelines",
+    description: "Engineering projects, case studies, deployments & architecture data",
+    badge: "Case Studies",
+    keywords: ["projects", "case study", "portfolio", "architecture", "diagram"],
   },
   {
     to: "/dashboard/cicd",
