@@ -23,6 +23,7 @@ export interface ArchitectureConnection {
   to: string;
   label?: string;
   protocol?: string;
+  category?: "network" | "data" | "security" | "deployment" | "telemetry";
 }
 
 export interface ArchitectureData {
@@ -30,6 +31,7 @@ export interface ArchitectureData {
   summary?: string;
   components: ArchitectureComponent[];
   connections: ArchitectureConnection[];
+  journey?: string[];
 }
 
 export interface PortfolioProject {

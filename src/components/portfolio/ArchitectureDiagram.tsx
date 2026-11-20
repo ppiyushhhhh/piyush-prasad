@@ -1,23 +1,17 @@
-import { useState } from "react";
-import {
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  Maximize2,
-  Minimize2,
-  Server,
-  Shield,
-  Layers,
-  Database,
-  Globe,
-  Activity,
-  Cpu,
-  ArrowRight,
-  Info,
-  X,
-  Lock,
-} from "lucide-react";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { Lock, X, Info } from "lucide-react";
 import type { ArchitectureData, ArchitectureComponent } from "@/lib/portfolio-projects";
+import {
+  layoutProjectArchitecture,
+  deriveRequestJourney,
+  type UnifiedNode,
+  type UnifiedEdge,
+} from "@/components/architecture/shared/layout";
+import { useDiagramAnimation } from "@/components/architecture/shared/useDiagramAnimation";
+import { AnimatedEdge } from "@/components/architecture/shared/AnimatedEdge";
+import { NodeCard } from "@/components/architecture/shared/NodeCard";
+import { ArrowheadMarkers } from "@/components/architecture/shared/ArrowheadMarkers";
+import { DiagramToolbar } from "@/components/architecture/shared/DiagramToolbar";
 import { NodeLogo } from "@/components/architecture/NodeLogo";
 
 interface ArchitectureDiagramProps {
@@ -26,262 +20,263 @@ interface ArchitectureDiagramProps {
 }
 
 export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagramProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
-  const [selectedNode, setSelectedNode] = useState<ArchitectureComponent | null>(null);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [inspectedNode, setInspectedNode] = useState<UnifiedNode | null>(null);
+  const [inspectedEdge, setInspectedEdge] = useState<UnifiedEdge | null>(null);
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.15, 1.8));
-  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.15, 0.7));
-  const handleResetZoom = () => setZoom(1);
+  // Compute unified DAG layout for components & connections
+  const layout = useMemo(() => layoutProjectArchitecture(data), [data]);
 
-  const getComponentIcon = (type: ArchitectureComponent["type"]) => {
-    switch (type) {
-      case "edge":
-      case "network":
-        return Globe;
-      case "security":
-        return Shield;
-      case "compute":
-        return Server;
-      case "database":
-      case "storage":
-        return Database;
-      case "observability":
-        return Activity;
-      case "cicd":
-        return Cpu;
-      default:
-        return Layers;
-    }
+  // Derive sequential request journey
+  const journeyPath = useMemo(
+    () => deriveRequestJourney(layout.nodes, layout.edges, data.journey),
+    [layout.nodes, layout.edges, data.journey]
+  );
+
+  const {
+    isLive,
+    toggleLive,
+    shouldAnimate,
+    hoveredNodeId,
+    setHoveredNodeId,
+    selectedNodeId,
+    selectedEdgeId,
+    connectedNodeIds,
+    connectedEdgeIds,
+    isJourneyActive,
+    isJourneyPlaying,
+    journeySpeed,
+    setJourneySpeed,
+    journeyLoop,
+    toggleJourneyLoop,
+    currentJourneyNodeId,
+    currentJourneyEdgeId,
+    currentStepInfo,
+    startJourney,
+    stopJourney,
+    toggleJourneyPlay,
+    nextJourneyStep,
+    prevJourneyStep,
+    handleNodeClick,
+    handleEdgeClick,
+  } = useDiagramAnimation({
+    containerRef,
+    nodes: layout.nodes,
+    edges: layout.edges,
+    journeyPath,
+    onSelectNode: (node) => {
+      setInspectedNode(node);
+      setInspectedEdge(null);
+    },
+    onSelectEdge: (edge) => {
+      setInspectedEdge(edge);
+      setInspectedNode(null);
+    },
+  });
+
+  // Zoom handlers
+  const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.15).toFixed(2)), 1.8));
+  const handleZoomOut = () => setZoom((prev) => Math.max(Number((prev - 0.15).toFixed(2)), 0.6));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
   };
+
+  // Pan handlers
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest("button") || (e.target as HTMLElement).closest("[role='button']")) {
+        return;
+      }
+      setIsPanning(true);
+      setStartPan({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    },
+    [pan]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isPanning) return;
+      setPan({
+        x: e.clientX - startPan.x,
+        y: e.clientY - startPan.y,
+      });
+    },
+    [isPanning, startPan]
+  );
+
+  const handleMouseUp = useCallback(() => setIsPanning(false), []);
+
+  const viewBoxStr = `${layout.viewBox.minX} ${layout.viewBox.minY} ${layout.viewBox.width} ${layout.viewBox.height}`;
 
   return (
     <div
-      className={`relative overflow-hidden border border-border bg-[#FAF9F6] dark:bg-neutral-950/50 shadow-2xs transition-all ${
+      role="img"
+      aria-label={`System Architecture Diagram: ${data.title || "Cloud Infrastructure"}`}
+      className={`relative overflow-hidden border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] shadow-2xs transition-all ${
         isFullscreen
-          ? "fixed inset-4 z-50 rounded-lg p-6 bg-white dark:bg-neutral-950 shadow-2xl"
-          : "rounded-md p-5 md:p-6"
+          ? "fixed inset-4 z-50 rounded-lg p-6 bg-white dark:bg-[#121316] shadow-2xl overflow-y-auto"
+          : "rounded-md p-4 md:p-6"
       } ${className}`}
     >
-      {/* Header & Controls Bar */}
+      {/* Header Info */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="mono text-[10px] font-bold uppercase tracking-widest text-cobalt">
-              System Architecture
+              Live System Architecture
             </span>
-            <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-pulse" />
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                isLive ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"
+              }`}
+            />
           </div>
-          <h4 className="text-base font-bold text-carbon dark:text-white">
+          <h4 className="text-base font-bold text-carbon dark:text-white mt-0.5">
             {data.title || "Infrastructure & Traffic Flow"}
           </h4>
           {data.summary && <p className="mt-0.5 text-xs text-muted-foreground">{data.summary}</p>}
         </div>
-
-        {/* Zoom & View Controls */}
-        <div className="flex items-center gap-1.5 rounded-md border border-border bg-white dark:bg-neutral-900 p-1 shadow-2xs">
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
-            title="Zoom Out"
-            aria-label="Zoom out architecture diagram"
-          >
-            <ZoomOut className="h-3.5 w-3.5" />
-          </button>
-          <span className="mono min-w-10 text-center text-[10px] font-semibold text-muted-foreground">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
-            title="Zoom In"
-            aria-label="Zoom in architecture diagram"
-          >
-            <ZoomIn className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleResetZoom}
-            className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
-            title="Reset Zoom"
-            aria-label="Reset zoom"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-          </button>
-          <div className="h-3 w-px bg-border mx-0.5" />
-          <button
-            type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            aria-label={isFullscreen ? "Exit Fullscreen" : "View diagram full screen"}
-          >
-            {isFullscreen ? (
-              <Minimize2 className="h-3.5 w-3.5" />
-            ) : (
-              <Maximize2 className="h-3.5 w-3.5" />
-            )}
-          </button>
-        </div>
       </div>
 
-      {/* Main Canvas Area */}
-      <div className="relative mt-6 min-h-[340px] overflow-x-auto overflow-y-hidden pb-4">
-        {/* Desktop Interactive Flow */}
+      {/* Shared Interactive Diagram Toolbar & Journey Controller */}
+      <div className="mt-3.5">
+        <DiagramToolbar
+          zoom={zoom}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onResetZoom={handleResetZoom}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+          isLive={isLive}
+          onToggleLive={toggleLive}
+          isJourneyActive={isJourneyActive}
+          isJourneyPlaying={isJourneyPlaying}
+          journeySpeed={journeySpeed}
+          journeyLoop={journeyLoop}
+          currentStepInfo={currentStepInfo}
+          onStartJourney={startJourney}
+          onStopJourney={stopJourney}
+          onToggleJourneyPlay={toggleJourneyPlay}
+          onNextJourneyStep={nextJourneyStep}
+          onPrevJourneyStep={prevJourneyStep}
+          onSetJourneySpeed={setJourneySpeed}
+          onToggleJourneyLoop={toggleJourneyLoop}
+        />
+      </div>
+
+      {/* Main Scalable Diagram Canvas (ViewBox scaled, no horizontal scrollbar) */}
+      <div
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        className={`relative mt-4 min-h-[380px] w-full overflow-hidden rounded-lg border border-border/60 bg-white/50 dark:bg-neutral-900/40 select-none ${
+          isPanning ? "cursor-grabbing" : "cursor-grab"
+        }`}
+        style={{
+          backgroundImage: `radial-gradient(circle, rgba(26, 75, 255, 0.08) 1px, transparent 1px)`,
+          backgroundSize: "20px 20px",
+          backgroundPosition: `${pan.x}px ${pan.y}px`,
+        }}
+      >
         <div
-          className="hidden md:flex flex-col items-center justify-center transition-transform duration-150 origin-top min-w-[720px] py-4"
-          style={{ transform: `scale(${zoom})` }}
+          className="relative w-full h-full transition-transform duration-75 origin-top-left"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          }}
         >
-          {/* Sequential Nodes Layout with Protocol Connections */}
-          <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-6 w-full max-w-5xl">
-            {data.components.map((comp, idx) => {
-              const Icon = getComponentIcon(comp.type);
-              const isSelected = selectedNode?.id === comp.id;
-              const conn = data.connections.find((c) => c.from === comp.id);
+          {/* SVG Vector Connections Layer */}
+          <svg
+            viewBox={viewBoxStr}
+            className="w-full h-auto min-h-[380px] overflow-visible pointer-events-none"
+            style={{ width: `${layout.viewBox.width}px`, height: `${layout.viewBox.height}px` }}
+          >
+            <ArrowheadMarkers />
+
+            {/* Render all animated edges */}
+            <g className="pointer-events-auto">
+              {layout.edges.map((edge) => {
+                const isEdgeFocused = connectedEdgeIds.has(edge.id);
+                const isJourneyEdge = currentJourneyEdgeId === edge.id;
+                const isEdgeSelected = selectedEdgeId === edge.id;
+                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
+                const isDimmed = hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected;
+
+                return (
+                  <AnimatedEdge
+                    key={edge.id}
+                    edge={edge}
+                    shouldAnimate={shouldAnimate}
+                    isFocused={isEdgeFocused}
+                    isJourneyActive={isJourneyEdge}
+                    isSelected={isEdgeSelected}
+                    isDimmed={isDimmed}
+                    onClick={() => handleEdgeClick(edge)}
+                  />
+                );
+              })}
+            </g>
+          </svg>
+
+          {/* HTML Interactive Node Cards Layer (positioned over SVG) */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ width: `${layout.viewBox.width}px`, height: `${layout.viewBox.height}px` }}
+          >
+            {layout.nodes.map((node, idx) => {
+              const isNodeFocused = connectedNodeIds.has(node.id);
+              const isNodeJourney = currentJourneyNodeId === node.id;
+              const isNodeSelected = selectedNodeId === node.id;
+              const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
+              const isDimmed = hasActiveFocus && !isNodeFocused && !isNodeJourney && !isNodeSelected;
 
               return (
-                <div key={comp.id} className="flex items-center gap-4 lg:gap-6 my-2">
-                  {/* Node Card */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedNode(comp)}
-                    className={`group relative flex flex-col justify-between w-[205px] min-h-[120px] p-3 text-left rounded-xl border transition-all cursor-pointer ${
-                      isSelected
-                        ? "border-cobalt ring-2 ring-cobalt/20 bg-white dark:bg-neutral-900 shadow-md -translate-y-1"
-                        : "border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 hover:border-cobalt/60 hover:shadow-xs hover:-translate-y-0.5"
-                    }`}
-                  >
-                    <div>
-                      {/* Top Row: Logo Tile, Name, Status Dot */}
-                      <div className="flex items-start gap-2.5">
-                        <NodeLogo
-                          tech={comp.tech}
-                          fallbackIcon={Icon}
-                          size="md"
-                          alt={comp.name}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-xs font-bold text-carbon dark:text-white truncate group-hover:text-cobalt transition-colors">
-                              {comp.name}
-                            </span>
-                            <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500" />
-                          </div>
-                          <span className="mono text-[10px] text-cobalt font-semibold block truncate mt-0.5">
-                            {comp.tech}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="mt-2 text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
-                        {comp.description}
-                      </p>
-                    </div>
-
-                    <div className="mt-2 pt-1.5 border-t border-[#E5E5DF]/70 dark:border-white/5 flex items-center justify-between text-[9px]">
-                      {comp.port ? (
-                        <span className="mono font-semibold text-cobalt px-1.5 py-0.2 rounded bg-blue-50 dark:bg-blue-950/40 border border-blue-200/50">
-                          Port {comp.port}
-                        </span>
-                      ) : (
-                        <span className="mono text-muted-foreground uppercase text-[8px] tracking-wider">
-                          {comp.type}
-                        </span>
-                      )}
-                      <span className="text-cobalt font-semibold group-hover:underline inline-flex items-center gap-0.5">
-                        Details &rarr;
-                      </span>
-                    </div>
-                  </button>
-
-                  {/* Flow Arrow & Protocol Label */}
-                  {idx < data.components.length - 1 && (
-                    <div className="flex flex-col items-center justify-center -mx-1 text-center">
-                      {conn?.label && (
-                        <span className="mono text-[9px] font-medium text-muted-foreground max-w-[90px] truncate mb-0.5">
-                          {conn.label}
-                        </span>
-                      )}
-                      <div className="flex items-center text-muted-foreground">
-                        <div className="w-4 lg:w-6 h-px bg-border" />
-                        <ArrowRight className="h-3.5 w-3.5 text-cobalt -ml-1 shrink-0" />
-                      </div>
-                      {conn?.protocol && (
-                        <span className="mono text-[8px] text-cobalt font-bold tracking-tight mt-0.5">
-                          {conn.protocol}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                <div
+                  key={node.id}
+                  style={{
+                    position: "absolute",
+                    left: `${node.x}px`,
+                    top: `${node.y}px`,
+                  }}
+                  className="pointer-events-auto"
+                >
+                  <NodeCard
+                    node={node}
+                    index={idx}
+                    isSelected={isNodeSelected}
+                    isFocused={isNodeFocused}
+                    isJourneyActive={isNodeJourney}
+                    isDimmed={isDimmed}
+                    shouldAnimate={shouldAnimate}
+                    onClick={() => handleNodeClick(node)}
+                    onMouseEnter={() => setHoveredNodeId(node.id)}
+                    onMouseLeave={() => setHoveredNodeId(null)}
+                    actionLabel="Details &rarr;"
+                  />
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* Mobile Static Fallback List Flow */}
-        <div className="md:hidden flex flex-col space-y-3 py-2">
-          {data.components.map((comp, idx) => {
-            const Icon = getComponentIcon(comp.type);
-            const conn = data.connections.find((c) => c.from === comp.id);
-            const isSelected = selectedNode?.id === comp.id;
-
-            return (
-              <div key={comp.id} className="flex flex-col">
-                <div
-                  onClick={() => setSelectedNode(comp)}
-                  className={`p-3.5 rounded-xl border bg-white dark:bg-neutral-900 transition-all cursor-pointer ${
-                    isSelected ? "border-cobalt ring-1 ring-cobalt shadow-xs" : "border-[#E5E5DF] dark:border-white/10"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <NodeLogo
-                      tech={comp.tech}
-                      fallbackIcon={Icon}
-                      size="md"
-                      alt={comp.name}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h5 className="text-xs font-bold text-carbon dark:text-white truncate">{comp.name}</h5>
-                        {comp.port && (
-                          <span className="mono text-[9px] text-cobalt font-semibold px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40">
-                            {comp.port}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mono text-[10px] text-cobalt font-medium truncate mt-0.5">{comp.tech}</p>
-                      <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{comp.description}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {idx < data.components.length - 1 && (
-                  <div className="flex items-center justify-center gap-1.5 py-1.5 text-muted-foreground">
-                    <span className="mono text-[9px] text-cobalt font-semibold">
-                      {conn?.protocol || "TCP/IP"}
-                    </span>
-                    <ArrowRight className="h-3 w-3 text-cobalt rotate-90" />
-                    {conn?.label && (
-                      <span className="text-[9px] text-muted-foreground">{conn.label}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Selected Node Inspector Drawer / Card */}
-      {selectedNode && (
-        <div className="mt-4 border-t border-border/80 pt-4 animate-in fade-in slide-in-from-bottom-2 duration-150">
+      {/* Selected Node or Edge Inspector Drawer */}
+      {inspectedNode && (
+        <div className="mt-4 border-t border-border/80 pt-4 animate-fadeIn">
           <div className="rounded-xl border border-cobalt/30 bg-blue-50/40 dark:bg-blue-950/20 p-4 relative">
             <button
               type="button"
-              onClick={() => setSelectedNode(null)}
+              onClick={() => {
+                setInspectedNode(null);
+                handleNodeClick(inspectedNode);
+              }}
               className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:text-carbon hover:bg-neutral-200/50 transition-colors cursor-pointer"
               aria-label="Close component details"
             >
@@ -290,45 +285,88 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
 
             <div className="flex items-start gap-3 mb-2">
               <NodeLogo
-                tech={selectedNode.tech}
-                fallbackIcon={getComponentIcon(selectedNode.type)}
+                tech={inspectedNode.tech}
                 size="md"
-                alt={selectedNode.name}
+                alt={inspectedNode.name}
               />
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-200 bg-white text-cobalt">
-                    {selectedNode.type}
+                    {inspectedNode.category}
                   </span>
                   <span className="text-sm font-bold text-carbon dark:text-white">
-                    {selectedNode.name}
+                    {inspectedNode.name}
                   </span>
-                  <span className="mono text-xs font-semibold text-cobalt">({selectedNode.tech})</span>
+                  <span className="mono text-xs font-semibold text-cobalt">({inspectedNode.tech})</span>
                 </div>
                 <p className="mt-1 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                  {selectedNode.description}
+                  {inspectedNode.description}
                 </p>
               </div>
             </div>
 
-            {selectedNode.details && (
+            {inspectedNode.raw?.details && (
               <div className="mt-2 text-xs bg-white dark:bg-neutral-900 border border-border rounded p-2.5 text-muted-foreground">
                 <span className="font-semibold text-carbon dark:text-white block mb-0.5">
                   Technical Specifications:
                 </span>
-                {selectedNode.details}
+                {inspectedNode.raw.details}
               </div>
             )}
 
-            {selectedNode.port && (
+            {inspectedNode.port && (
               <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3 text-cobalt" />
                 <span>Port mapping / firewall boundary: </span>
                 <span className="mono font-semibold text-carbon dark:text-white">
-                  {selectedNode.port}
+                  {inspectedNode.port}
                 </span>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {inspectedEdge && (
+        <div className="mt-4 border-t border-border/80 pt-4 animate-fadeIn">
+          <div className="rounded-xl border border-cobalt/30 bg-blue-50/40 dark:bg-blue-950/20 p-4 relative">
+            <button
+              type="button"
+              onClick={() => {
+                setInspectedEdge(null);
+                handleEdgeClick(inspectedEdge);
+              }}
+              className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:text-carbon hover:bg-neutral-200/50 transition-colors cursor-pointer"
+              aria-label="Close connection details"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-200 bg-white text-cobalt">
+                Connection Layer &bull; {inspectedEdge.category}
+              </span>
+              <span className="text-xs font-bold text-carbon dark:text-white">
+                {inspectedEdge.source} &rarr; {inspectedEdge.target}
+              </span>
+            </div>
+
+            <p className="text-xs text-neutral-700 dark:text-neutral-300">
+              {inspectedEdge.description || `${inspectedEdge.label || inspectedEdge.protocol} protocol channel.`}
+            </p>
+
+            <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+              {inspectedEdge.protocol && (
+                <span>
+                  Protocol: <strong className="mono text-cobalt">{inspectedEdge.protocol}</strong>
+                </span>
+              )}
+              {inspectedEdge.label && (
+                <span>
+                  Label: <strong className="text-carbon dark:text-white">{inspectedEdge.label}</strong>
+                </span>
+              )}
+            </div>
           </div>
         </div>
       )}

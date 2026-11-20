@@ -67,6 +67,7 @@ export interface ArchitectureDiagramData {
     y: number;
     zoom: number;
   };
+  journey?: string[];
 }
 
 export interface ArchitectureDiagram {
