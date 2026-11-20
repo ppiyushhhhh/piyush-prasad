@@ -17,6 +17,9 @@ import {
   Sparkles,
   Bot,
   Globe,
+  Maximize2,
+  Minimize2,
+  X,
 } from "lucide-react";
 
 import { Navigation } from "@/components/portfolio/Navigation";
@@ -38,8 +41,9 @@ import {
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/architecture")({
-  validateSearch: (search: Record<string, unknown>): { diagram?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { diagram?: string; workspace?: string } => ({
     diagram: typeof search.diagram === "string" ? search.diagram : undefined,
+    workspace: typeof search.workspace === "string" ? search.workspace : undefined,
   }),
   head: () => ({
     meta: [
@@ -81,14 +85,15 @@ export const Route = createFileRoute("/architecture")({
 
 const VIEW_MODES: { id: ArchitectureViewMode; label: string; icon: typeof Layers }[] = [
   { id: "topology", label: "Topology View", icon: Layers },
-  { id: "network", label: "Network Flow", icon: Network },
+  { id: "request_flow", label: "Request Flow", icon: ArrowRight },
+  { id: "dns_network", label: "DNS & Network", icon: Globe },
   { id: "security", label: "Security & RLS", icon: Shield },
-  { id: "infrastructure", label: "Infrastructure", icon: Server },
   { id: "deployment", label: "CI/CD & Deploy", icon: Terminal },
+  { id: "data_flow", label: "Data Flow", icon: Activity },
 ];
 
 function ArchitectureExplorerPage() {
-  const { diagram } = Route.useSearch();
+  const { diagram, workspace } = Route.useSearch();
   const navigate = Route.useNavigate();
 
   const { data: architectures = INITIAL_ARCHITECTURES, isLoading } = useQuery({
@@ -103,6 +108,10 @@ function ArchitectureExplorerPage() {
   const [viewMode, setViewMode] = useState<ArchitectureViewMode>("topology");
   const [selectedNode, setSelectedNode] = useState<ArchitectureNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<ArchitectureEdge | null>(null);
+  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState<boolean>(
+    () => workspace === "fullscreen"
+  );
+  const [isBrowserFullscreen, setIsBrowserFullscreen] = useState<boolean>(false);
 
   // Sync if URL query param changes
   useEffect(() => {
@@ -113,6 +122,12 @@ function ArchitectureExplorerPage() {
     }
   }, [diagram, selectedSlug]);
 
+  useEffect(() => {
+    if (workspace === "fullscreen") {
+      setIsWorkspaceOpen(true);
+    }
+  }, [workspace]);
+
   // Active architecture
   const currentArchitecture = useMemo(() => {
     return (
@@ -122,12 +137,65 @@ function ArchitectureExplorerPage() {
     );
   }, [architectures, selectedSlug]);
 
+  const openWorkspace = (slug?: string) => {
+    const targetSlug = slug || selectedSlug;
+    setIsWorkspaceOpen(true);
+    navigate({
+      search: { diagram: targetSlug, workspace: "fullscreen" },
+      replace: true,
+    });
+  };
+
+  const closeWorkspace = () => {
+    setIsWorkspaceOpen(false);
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+    navigate({ search: { diagram: selectedSlug }, replace: true });
+  };
+
+  const toggleBrowserFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsBrowserFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsBrowserFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsBrowserFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  // Keyboard shortcut: Escape closes full-screen workspace
+  useEffect(() => {
+    if (!isWorkspaceOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeWorkspace();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isWorkspaceOpen, selectedSlug]);
+
   // Handle switching architecture tab
   const handleSelectArchitecture = (slug: string) => {
     setSelectedSlug(slug);
     setSelectedNode(null);
     setSelectedEdge(null);
-    navigate({ search: { diagram: slug }, replace: true });
+    navigate({
+      search: {
+        diagram: slug,
+        ...(isWorkspaceOpen ? { workspace: "fullscreen" } : {}),
+      },
+      replace: true,
+    });
   };
 
   return (
@@ -161,11 +229,19 @@ function ArchitectureExplorerPage() {
                 </p>
               </div>
 
-              {/* Related Projects Link */}
-              <div className="flex items-center gap-3">
+              {/* Related Projects Link & Open Full Screen Action */}
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => openWorkspace()}
+                  className="mono inline-flex items-center gap-1.5 border border-cobalt bg-cobalt px-4 py-2 text-xs font-bold text-white transition-all hover:bg-cobalt/90 shadow-xs cursor-pointer rounded-md"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                  <span>OPEN FULL SCREEN</span>
+                </button>
                 <Link
                   to="/projects"
-                  className="mono inline-flex items-center gap-1.5 border border-border bg-white dark:bg-neutral-900 px-3.5 py-2 text-xs font-semibold text-carbon dark:text-neutral-200 transition-colors hover:border-cobalt hover:text-cobalt shadow-2xs"
+                  className="mono inline-flex items-center gap-1.5 border border-border bg-white dark:bg-neutral-900 px-3.5 py-2 text-xs font-semibold text-carbon dark:text-neutral-200 transition-colors hover:border-cobalt hover:text-cobalt shadow-2xs rounded-md"
                 >
                   <FolderGit2 className="h-3.5 w-3.5 text-cobalt" />
                   <span>ALL CASE STUDIES</span>
@@ -273,6 +349,7 @@ function ArchitectureExplorerPage() {
                   setSelectedEdge(edge);
                   if (edge) setSelectedNode(null);
                 }}
+                onOpenWorkspace={openWorkspace}
                 isEditable={false}
               />
             </div>
@@ -465,6 +542,173 @@ function ArchitectureExplorerPage() {
           </div>
         </div>
       </main>
+
+      {/* Dedicated Full-Screen Architecture Workspace Overlay */}
+      {isWorkspaceOpen && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col h-screen w-screen bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Dedicated Full-Screen Architecture Workspace"
+        >
+          {/* Top Workspace Navigation Bar */}
+          <header className="shrink-0 border-b border-border bg-white dark:bg-[#121316] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 z-30 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={closeWorkspace}
+                className="mono inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-900 text-xs font-bold text-carbon dark:text-white hover:border-cobalt hover:text-cobalt cursor-pointer transition-colors shadow-2xs shrink-0"
+                title="Close Workspace (Escape)"
+              >
+                <X className="h-4 w-4 text-cobalt" />
+                <span className="hidden sm:inline">CLOSE WORKSPACE (ESC)</span>
+                <span className="sm:hidden">EXIT</span>
+              </button>
+
+              <div className="h-5 w-[1px] bg-border hidden sm:block shrink-0" />
+
+              {/* Project Header Info */}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="mono text-[9px] font-bold text-cobalt uppercase tracking-wider">
+                    {currentArchitecture.architecture_type}
+                  </span>
+                  <span className="mono text-[9px] text-muted-foreground hidden lg:inline">
+                    &bull; {currentArchitecture.diagram_data.nodes.length} Components &bull; {currentArchitecture.diagram_data.edges.length} Connections
+                  </span>
+                </div>
+                <h2 className="text-xs md:text-sm font-bold text-carbon dark:text-white truncate">
+                  {currentArchitecture.title}
+                </h2>
+              </div>
+            </div>
+
+            {/* Project Switcher + View Modes + Fullscreen Toggle */}
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full">
+              {/* Project Switcher Pills */}
+              <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+                {architectures.map((arch) => {
+                  const isSelected = arch.slug === selectedSlug;
+                  return (
+                    <button
+                      key={arch.id}
+                      type="button"
+                      onClick={() => handleSelectArchitecture(arch.slug)}
+                      className={`mono text-[11px] px-2.5 py-1 rounded whitespace-nowrap border transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-cobalt bg-cobalt text-white font-bold"
+                          : "border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-300 hover:border-cobalt/60 hover:text-cobalt"
+                      }`}
+                    >
+                      {arch.title.split("—")[0].trim()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* View Mode Switcher in Workspace */}
+              <div className="hidden xl:flex items-center gap-1 border-l border-border pl-2">
+                {VIEW_MODES.map((mode) => {
+                  const isActive = viewMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setViewMode(mode.id)}
+                      className={`mono text-[10px] px-2 py-1 rounded border transition-colors cursor-pointer ${
+                        isActive
+                          ? "border-cobalt bg-cobalt/10 text-cobalt font-bold"
+                          : "border-transparent text-muted-foreground hover:text-carbon"
+                      }`}
+                    >
+                      {mode.label.replace(" View", "")}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Fullscreen Button */}
+              <button
+                type="button"
+                onClick={toggleBrowserFullscreen}
+                className="p-1.5 rounded border border-border bg-white dark:bg-neutral-900 text-muted-foreground hover:text-carbon cursor-pointer transition-colors shrink-0"
+                title={isBrowserFullscreen ? "Exit Browser Fullscreen" : "Enter Browser Fullscreen"}
+                aria-label="Toggle Browser Fullscreen"
+              >
+                {isBrowserFullscreen ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </header>
+
+          {/* Workspace Canvas and Inspector */}
+          <div className="flex-1 relative overflow-hidden flex min-h-0 w-full h-full">
+            <div className="flex-1 h-full w-full min-w-0 relative flex flex-col">
+              <ArchitectureCanvas
+                data={currentArchitecture.diagram_data}
+                viewMode={viewMode}
+                selectedNode={selectedNode}
+                selectedEdge={selectedEdge}
+                onSelectNode={(node) => {
+                  setSelectedNode(node);
+                  if (node) setSelectedEdge(null);
+                }}
+                onSelectEdge={(edge) => {
+                  setSelectedEdge(edge);
+                  if (edge) setSelectedNode(null);
+                }}
+                isEditable={false}
+                className="h-full w-full border-none rounded-none"
+              />
+            </div>
+
+            {/* Desktop Side Drawer Inspector */}
+            {(selectedNode || selectedEdge) && (
+              <div className="hidden lg:block w-[380px] xl:w-[420px] shrink-0 h-full border-l border-border bg-white dark:bg-[#121316] z-20 overflow-hidden shadow-xl animate-in slide-in-from-right-4 duration-150">
+                <ComponentInspector
+                  node={selectedNode}
+                  edge={selectedEdge}
+                  edges={currentArchitecture.diagram_data.edges}
+                  allNodes={currentArchitecture.diagram_data.nodes}
+                  onClose={() => {
+                    setSelectedNode(null);
+                    setSelectedEdge(null);
+                  }}
+                  onSelectNode={(node) => {
+                    setSelectedNode(node);
+                    setSelectedEdge(null);
+                  }}
+                  className="h-full border-none shadow-none"
+                />
+              </div>
+            )}
+
+            {/* Mobile Bottom Sheet Inspector */}
+            {(selectedNode || selectedEdge) && (
+              <div className="lg:hidden fixed inset-x-0 bottom-0 max-h-[80vh] z-50 border-t border-border rounded-t-2xl shadow-2xl bg-white dark:bg-[#121316] overflow-hidden flex flex-col animate-in slide-in-from-bottom duration-200">
+                <ComponentInspector
+                  node={selectedNode}
+                  edge={selectedEdge}
+                  edges={currentArchitecture.diagram_data.edges}
+                  allNodes={currentArchitecture.diagram_data.nodes}
+                  onClose={() => {
+                    setSelectedNode(null);
+                    setSelectedEdge(null);
+                  }}
+                  onSelectNode={(node) => {
+                    setSelectedNode(node);
+                    setSelectedEdge(null);
+                  }}
+                  className="h-full border-none shadow-none"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Footer />
       <CommandPalette />

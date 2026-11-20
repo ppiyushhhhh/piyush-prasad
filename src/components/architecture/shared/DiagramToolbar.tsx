@@ -26,6 +26,7 @@ interface DiagramToolbarProps {
   onToggleLayoutMode?: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  onOpenWorkspace?: () => void;
   // Live State
   isLive: boolean;
   onToggleLive: () => void;
@@ -57,6 +58,7 @@ export function DiagramToolbar({
   onToggleLayoutMode,
   isFullscreen,
   onToggleFullscreen,
+  onOpenWorkspace,
   isLive,
   onToggleLive,
   isJourneyActive,
@@ -78,8 +80,21 @@ export function DiagramToolbar({
     <div className={`flex flex-col gap-2.5 w-full ${className}`}>
       {/* Top Toolbar Row */}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        {/* Left: Journey Trigger or Active Playback Bar */}
+        {/* Left: Journey Trigger or Active Playback Bar + Fullscreen Workspace */}
         <div className="flex items-center gap-2">
+          {onOpenWorkspace && (
+            <button
+              type="button"
+              onClick={onOpenWorkspace}
+              className="mono inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-cobalt bg-cobalt hover:bg-cobalt/90 text-white font-bold text-[10px] tracking-wider transition-all shadow-2xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt"
+              title="Open Dedicated Full-Screen Architecture Workspace"
+              aria-label="Open Full Screen Architecture Workspace"
+            >
+              <Maximize2 className="h-3 w-3" />
+              <span>OPEN FULL SCREEN</span>
+            </button>
+          )}
+
           {!isJourneyActive ? (
             <button
               type="button"

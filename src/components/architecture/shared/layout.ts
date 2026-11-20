@@ -2,8 +2,8 @@ import type { ArchitectureCategory } from "@/lib/architecture-diagrams";
 import type { ArchitectureData, ArchitectureComponent, ArchitectureConnection } from "@/lib/portfolio-projects";
 import type { ArchitectureDiagramData, ArchitectureNode, ArchitectureEdge } from "@/lib/architecture-diagrams";
 
-export const DEFAULT_NODE_WIDTH = 220;
-export const DEFAULT_NODE_HEIGHT = 125;
+export const DEFAULT_NODE_WIDTH = 260;
+export const DEFAULT_NODE_HEIGHT = 155;
 
 export interface UnifiedNode {
   id: string;
@@ -114,28 +114,28 @@ export function computeEdgePath(
   let endX: number;
   let endY: number;
 
-  // Target is primarily to the right
-  if (dx >= 120) {
+  // Target is to the right
+  if (target.x >= source.x + sw - 40) {
     startX = source.x + sw;
     startY = source.y + sh / 2;
     endX = target.x;
     endY = target.y + th / 2;
   }
   // Target is to the left
-  else if (dx <= -120) {
+  else if (target.x + tw <= source.x + 40) {
     startX = source.x;
     startY = source.y + sh / 2;
     endX = target.x + tw;
     endY = target.y + th / 2;
   }
-  // Target is predominantly below
-  else if (dy > 40) {
+  // Target is predominantly below in same column
+  else if (dy > 0) {
     startX = source.x + sw / 2;
     startY = source.y + sh;
     endX = target.x + tw / 2;
     endY = target.y;
   }
-  // Target is above or overlapping
+  // Target is above in same column
   else {
     startX = source.x + sw / 2;
     startY = source.y;
@@ -143,16 +143,17 @@ export function computeEdgePath(
     endY = target.y + th;
   }
 
-  // Smooth Bezier with controlled curvature
-  const controlDist = Math.max(Math.abs(endX - startX) * 0.5, 45);
+  const isHorizontal = Math.abs(endX - startX) >= Math.abs(endY - startY) * 0.7;
+  const controlDist = Math.max(Math.abs(endX - startX) * 0.45, 36);
+
   let pathData: string;
   let midX: number;
   let midY: number;
 
-  if (Math.abs(dx) >= 120) {
-    const cp1x = startX + (dx >= 0 ? controlDist : -controlDist);
+  if (isHorizontal) {
+    const cp1x = startX + (endX >= startX ? controlDist : -controlDist);
     const cp1y = startY;
-    const cp2x = endX - (dx >= 0 ? controlDist : -controlDist);
+    const cp2x = endX - (endX >= startX ? controlDist : -controlDist);
     const cp2y = endY;
     pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
 
@@ -161,9 +162,9 @@ export function computeEdgePath(
     midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
   } else {
     const cp1x = startX;
-    const cp1y = startY + (dy >= 0 ? 35 : -35);
+    const cp1y = startY + (endY >= startY ? 40 : -40);
     const cp2x = endX;
-    const cp2y = endY - (dy >= 0 ? 35 : -35);
+    const cp2y = endY - (endY >= startY ? 40 : -40);
     pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
 
     midX = (startX + endX) / 2;
@@ -364,49 +365,55 @@ interface TierDefinition {
 const ARCHITECTURE_TIERS: TierDefinition[] = [
   {
     id: "tier-client",
-    title: "TIER 01 · CLIENT & INGRESS EDGE",
+    title: "TIER 01 · CLIENT & INGRESS ORIGIN",
     categories: ["client"],
     isMatch: (n) => n.category === "client",
   },
   {
+    id: "tier-dns",
+    title: "TIER 02 · DNS & DOMAIN RESOLUTION",
+    categories: ["dns"],
+    isMatch: (n) => n.category === "dns",
+  },
+  {
     id: "tier-routing",
-    title: "TIER 02 · EDGE ROUTING, CDN & DNS",
-    categories: ["dns", "cdn", "networking"],
-    isMatch: (n) => ["dns", "cdn", "networking"].includes(n.category),
+    title: "TIER 03 · EDGE ROUTING & CDN PROXY",
+    categories: ["cdn", "networking"],
+    isMatch: (n) => ["cdn", "networking"].includes(n.category),
   },
   {
     id: "tier-security",
-    title: "TIER 03 · PERIMETER SECURITY & FIREWALL",
+    title: "TIER 04 · PERIMETER SECURITY & FIREWALL",
     categories: ["security"],
     isMatch: (n) => n.category === "security",
   },
   {
     id: "tier-compute",
-    title: "TIER 04 · COMPUTE RUNTIME & APPLICATION",
+    title: "TIER 05 · COMPUTE RUNTIME & SSR",
     categories: ["compute", "application"],
     isMatch: (n) => ["compute", "application"].includes(n.category),
   },
   {
     id: "tier-persistence",
-    title: "TIER 05 · PERSISTENCE & DATA STORAGE",
+    title: "TIER 06 · PERSISTENCE & DATA STORAGE",
     categories: ["database", "storage"],
     isMatch: (n) => ["database", "storage"].includes(n.category),
   },
   {
     id: "tier-ai-external",
-    title: "TIER 06 · AI INFERENCE & EXTERNAL APIS",
+    title: "TIER 07 · AI INFERENCE & EXTERNAL APIS",
     categories: ["ai"],
     isMatch: (n) => n.category === "ai",
   },
   {
     id: "tier-telemetry",
-    title: "TIER 07 · TELEMETRY & OBSERVABILITY",
+    title: "TIER 08 · TELEMETRY & OBSERVABILITY",
     categories: ["monitoring"],
     isMatch: (n) => n.category === "monitoring",
   },
   {
     id: "tier-automation",
-    title: "TIER 08 · CI/CD & DEVOPS AUTOMATION",
+    title: "TIER 09 · CI/CD & DEVOPS AUTOMATION",
     categories: ["cicd"],
     isMatch: (n) => n.category === "cicd",
   },
@@ -433,11 +440,11 @@ export function layoutArchitectureCanvas(
   const computedZones: LayoutZone[] = [];
 
   const colWidth = DEFAULT_NODE_WIDTH;
-  const colGap = 76;
+  const colGap = 84;
   const rowHeight = DEFAULT_NODE_HEIGHT;
-  const rowGap = 32;
-  const paddingX = 48;
-  const paddingY = 56;
+  const rowGap = 36;
+  const paddingX = 64;
+  const paddingY = 64;
 
   if (useAutoLayout) {
     // 1. Assign nodes to appropriate tier lanes
@@ -456,7 +463,7 @@ export function layoutArchitectureCanvas(
       }
       if (assignedIndex === -1) {
         // Fallback: put compute-like in compute tier
-        assignedIndex = 3;
+        assignedIndex = 4;
       }
       tierLanes[assignedIndex].nodes.push(node);
     });
@@ -514,10 +521,10 @@ export function layoutArchitectureCanvas(
       });
 
       // Calculate distinct, non-overlapping swimlane boundary for this tier
-      const minLaneX = colX - 16;
-      const minLaneY = startY - 32;
-      const laneW = colWidth + 32;
-      const laneH = laneHeight + 44;
+      const minLaneX = colX - 18;
+      const minLaneY = startY - 34;
+      const laneW = colWidth + 36;
+      const laneH = laneHeight + 46;
 
       computedZones.push({
         id: lane.tier.id,
@@ -567,7 +574,9 @@ export function layoutArchitectureCanvas(
 
     // Compute bounding zones by category
     const zoneDefinitions = [
-      { id: "client-edge", title: "CLIENT & INGRESS EDGE", categories: ["client", "dns", "cdn"] },
+      { id: "client-edge", title: "CLIENT & INGRESS ORIGIN", categories: ["client"] },
+      { id: "dns-domain", title: "DNS & DOMAIN RESOLUTION", categories: ["dns"] },
+      { id: "routing-edge", title: "EDGE ROUTING & CDN PROXY", categories: ["cdn", "networking"] },
       { id: "compute-app", title: "COMPUTE & RUNTIME ENVIRONMENT", categories: ["compute", "application"] },
       { id: "persistence", title: "PERSISTENCE & MANAGED DATA", categories: ["database", "storage"] },
       { id: "security-firewall", title: "SECURITY, NETFILTER & IDENTITY", categories: ["security"] },
@@ -587,10 +596,10 @@ export function layoutArchitectureCanvas(
         computedZones.push({
           id: def.id,
           title: def.title,
-          x: minX - 16,
-          y: minY - 30,
-          width: maxX - minX + 32,
-          height: maxY - minY + 42,
+          x: minX - 18,
+          y: minY - 32,
+          width: maxX - minX + 36,
+          height: maxY - minY + 44,
         });
       }
     }
@@ -611,10 +620,10 @@ export function layoutArchitectureCanvas(
     computedZones.push({
       id: "aws-vpc-boundary",
       title: "AWS VPC (10.0.0.0/16) • CLOUD BOUNDARY",
-      x: minX - 22,
-      y: minY - 34,
-      width: maxX - minX + 44,
-      height: maxY - minY + 48,
+      x: minX - 24,
+      y: minY - 36,
+      width: maxX - minX + 48,
+      height: maxY - minY + 52,
       isAwsVpc: true,
     });
   }
@@ -641,18 +650,22 @@ export function layoutArchitectureCanvas(
     };
   });
 
-  // Calculate tight, accurate bounding box around all nodes and zones
+  // Calculate complete dynamic bounding box across all nodes, zones, and edge labels
   const allX = [
     ...unifiedNodes.map((n) => n.x),
     ...unifiedNodes.map((n) => n.x + n.width),
     ...computedZones.map((z) => z.x),
     ...computedZones.map((z) => z.x + z.width),
+    ...edges.map((e) => e.midX - 70),
+    ...edges.map((e) => e.midX + 70),
   ];
   const allY = [
     ...unifiedNodes.map((n) => n.y),
     ...unifiedNodes.map((n) => n.y + n.height),
     ...computedZones.map((z) => z.y),
     ...computedZones.map((z) => z.y + z.height),
+    ...edges.map((e) => e.midY - 25),
+    ...edges.map((e) => e.midY + 25),
   ];
 
   const minX = allX.length > 0 ? Math.min(...allX) : 0;
@@ -660,8 +673,8 @@ export function layoutArchitectureCanvas(
   const maxX = allX.length > 0 ? Math.max(...allX) : 800;
   const maxY = allY.length > 0 ? Math.max(...allY) : 400;
 
-  const padX = 40;
-  const padY = 40;
+  const padX = 64;
+  const padY = 64;
 
   return {
     nodes: unifiedNodes,
@@ -670,8 +683,8 @@ export function layoutArchitectureCanvas(
     viewBox: {
       minX: Math.round(minX - padX),
       minY: Math.round(minY - padY),
-      width: Math.round(Math.max(maxX - minX + padX * 2, 600)),
-      height: Math.round(Math.max(maxY - minY + padY * 2, 350)),
+      width: Math.round(Math.max(maxX - minX + padX * 2, 700)),
+      height: Math.round(Math.max(maxY - minY + padY * 2, 400)),
     },
   };
 }

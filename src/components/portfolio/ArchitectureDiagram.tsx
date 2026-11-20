@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useCallback } from "react";
-import { Lock, X, Info } from "lucide-react";
+import { Lock, X, Info, Maximize2 } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { ArchitectureData, ArchitectureComponent } from "@/lib/portfolio-projects";
 import {
   layoutProjectArchitecture,
@@ -16,10 +17,18 @@ import { NodeLogo } from "@/components/architecture/NodeLogo";
 
 interface ArchitectureDiagramProps {
   data: ArchitectureData;
+  diagramSlug?: string;
+  onOpenWorkspace?: () => void;
   className?: string;
 }
 
-export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagramProps) {
+export function ArchitectureDiagram({
+  data,
+  diagramSlug,
+  onOpenWorkspace,
+  className = "",
+}: ArchitectureDiagramProps) {
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -78,6 +87,17 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
       setInspectedNode(null);
     },
   });
+
+  const handleOpenWorkspace = useCallback(() => {
+    if (onOpenWorkspace) {
+      onOpenWorkspace();
+    } else if (diagramSlug) {
+      navigate({
+        to: "/architecture",
+        search: { diagram: diagramSlug, workspace: "fullscreen" },
+      });
+    }
+  }, [onOpenWorkspace, diagramSlug, navigate]);
 
   // Fit to screen handler
   const fitToScreen = useCallback(() => {
@@ -154,6 +174,17 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
           </h4>
           {data.summary && <p className="mt-0.5 text-xs text-muted-foreground">{data.summary}</p>}
         </div>
+
+        {(diagramSlug || onOpenWorkspace) && (
+          <button
+            type="button"
+            onClick={handleOpenWorkspace}
+            className="mono inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-cobalt bg-cobalt text-white text-[11px] font-bold hover:bg-cobalt/90 transition-colors shadow-2xs cursor-pointer"
+          >
+            <Maximize2 className="h-3 w-3" />
+            <span>OPEN FULL SCREEN</span>
+          </button>
+        )}
       </div>
 
       {/* Shared Interactive Diagram Toolbar & Journey Controller */}
@@ -166,6 +197,7 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
           onFitToScreen={fitToScreen}
           isFullscreen={isFullscreen}
           onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+          onOpenWorkspace={diagramSlug || onOpenWorkspace ? handleOpenWorkspace : undefined}
           isLive={isLive}
           onToggleLive={toggleLive}
           isJourneyActive={isJourneyActive}

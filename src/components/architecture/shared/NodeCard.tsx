@@ -96,12 +96,12 @@ export function NodeCard({
       style={{
         animationDelay: entranceDelay,
       }}
-      className={`group relative flex flex-col justify-between w-[220px] min-h-[125px] p-3 text-left rounded-xl border select-none transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt ${
+      className={`group relative flex flex-col justify-between w-[260px] min-h-[155px] p-3.5 text-left rounded-xl border select-none transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt ${
         isJourneyActive
-          ? "border-cobalt ring-2 ring-cobalt/35 bg-white dark:bg-[#121316] shadow-lg -translate-y-1.5 z-30"
+          ? "border-cobalt ring-2 ring-cobalt/40 bg-white dark:bg-[#121316] shadow-xl -translate-y-1.5 z-30"
           : isHighlighted
-            ? "border-cobalt ring-2 ring-cobalt/20 bg-white dark:bg-[#121316] shadow-md -translate-y-1 z-20"
-            : "border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-[#121316] hover:border-cobalt/60 hover:shadow-xs hover:-translate-y-0.5 z-10"
+            ? "border-cobalt ring-2 ring-cobalt/25 bg-white dark:bg-[#121316] shadow-md -translate-y-1 z-20"
+            : "border-[#E2E0D8] dark:border-white/10 bg-white dark:bg-[#121316] hover:border-cobalt/60 hover:shadow-xs hover:-translate-y-0.5 z-10"
       } ${isDimmed ? "opacity-25 grayscale-[30%]" : "opacity-100"} ${className}`}
     >
       <div>
@@ -119,7 +119,7 @@ export function NodeCard({
               size="md"
               alt={node.name}
             />
-            {/* Subtle breathing glow around logo tile when animated */}
+            {/* Breathing glow around logo tile when animated */}
             {shouldAnimate && (
               <span
                 className={`absolute inset-0 rounded-lg pointer-events-none transition-opacity ${
@@ -133,7 +133,7 @@ export function NodeCard({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-1">
-              <h4 className="text-[12px] font-bold text-carbon dark:text-white leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
+              <h4 className="text-[12.5px] font-bold text-carbon dark:text-white leading-snug line-clamp-2 group-hover:text-cobalt transition-colors">
                 {node.name}
               </h4>
               {/* Status Dot with Soft Pulse Ring & Verification Dot */}
@@ -164,21 +164,24 @@ export function NodeCard({
               </div>
             </div>
 
-            <span className="mono text-[10px] text-cobalt font-semibold block truncate mt-0.5" title={node.tech}>
+            <span className="mono text-[10.5px] text-cobalt font-semibold block truncate mt-0.5" title={node.tech}>
               {node.tech}
             </span>
           </div>
         </div>
 
-        {/* Node Description (2 lines without cutting off words) */}
-        <p className="mt-2 text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
+        {/* Node Description (3 lines without cutting off words) */}
+        <p className="mt-2.5 text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
           {node.description}
         </p>
       </div>
 
-      {/* Card Footer with Anti-Overflow Port Pill & Action Link */}
-      <div className="mt-2.5 pt-2 border-t border-[#E5E5DF]/70 dark:border-white/5 flex flex-wrap items-center justify-between gap-1.5 text-[9px] min-w-0">
-        <div className="flex items-center gap-1 min-w-0 shrink-0">
+      {/* Card Footer with Category Badge, Port Pill & Action Link */}
+      <div className="mt-2.5 pt-2 border-t border-[#E5E5DF]/80 dark:border-white/5 flex flex-wrap items-center justify-between gap-1.5 text-[9.5px] min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0 shrink-0">
+          <span className="mono text-[8.5px] uppercase font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-neutral-800 text-muted-foreground tracking-wider">
+            {node.category}
+          </span>
           {node.port ? (
             <span
               className="mono font-semibold text-cobalt px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 border border-blue-200/50 dark:border-blue-800/40 max-w-[110px] truncate"
@@ -189,18 +192,14 @@ export function NodeCard({
           ) : node.metricLabel ? (
             <span
               className="mono text-muted-foreground text-[8.5px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-neutral-800/60 border border-stone-200/60 dark:border-white/5 max-w-[110px] truncate"
-              title={`${node.metricLabel} (illustrative)`}
+              title={node.metricLabel}
             >
               {node.metricLabel}
             </span>
-          ) : (
-            <span className="mono text-muted-foreground uppercase text-[8px] tracking-wider">
-              {node.category}
-            </span>
-          )}
+          ) : null}
         </div>
 
-        <span className="text-cobalt font-semibold group-hover:underline inline-flex items-center gap-0.5 shrink-0 ml-auto">
+        <span className="mono text-[9.5px] text-cobalt font-bold group-hover:underline inline-flex items-center gap-0.5 shrink-0 ml-auto">
           {actionLabel}
         </span>
       </div>
