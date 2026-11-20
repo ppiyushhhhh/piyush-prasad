@@ -71,21 +71,29 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/70 flex flex-wrap items-center justify-between gap-4 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="mono font-semibold text-carbon dark:text-neutral-300">
-            Connection Types:
+            Connection Layers:
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="h-0.5 w-4 bg-cobalt inline-block" />
-            <span className="mono text-[10px]">Synchronous Request</span>
+            <span className="h-2 w-2 rounded-full bg-[#1A4BFF]" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Network Traffic</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-0.5 w-4 border-t-2 border-dashed border-cobalt inline-block" />
-            <span className="mono text-[10px]">Data Flow / Telemetry</span>
+            <span className="h-2 w-2 rounded-full bg-[#059669]" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Data &amp; Persistence</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="mono text-[10px]">Live Verified Path</span>
+            <span className="h-2 w-2 rounded-full bg-[#D97706]" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Security &amp; Auth</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#7C3AED]" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">CI/CD &amp; Deployment</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#EA580C]" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Telemetry &amp; Metrics</span>
           </div>
         </div>
 
