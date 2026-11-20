@@ -26,6 +26,13 @@ export type ArchitectureViewMode =
   | "network"
   | "infrastructure";
 
+export interface ArchitectureSection {
+  id: string;
+  title: string;
+  description: string;
+  nodeIds?: string[];
+}
+
 export interface ArchitectureNode {
   id: string;
   name: string;
@@ -43,6 +50,7 @@ export interface ArchitectureNode {
   y: number;
   status?: "operational" | "active" | "verified" | "secured";
   port?: string;
+  sectionId?: string;
   layer?:
     | "client"
     | "edge"
@@ -78,6 +86,7 @@ export interface ArchitectureDiagramData {
     zoom: number;
   };
   journey?: string[];
+  sections?: ArchitectureSection[];
 }
 
 export interface ArchitectureDiagram {
@@ -227,6 +236,38 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
         "node-cloudflare",
         "node-nginx",
         "node-nodeapp",
+      ],
+      sections: [
+        {
+          id: "sec-kamlesh-ingress",
+          title: "01. Ingress & Domain Resolution",
+          description: "Handles visitor DNS resolution and web traffic ingress.",
+          nodeIds: ["node-visitor", "node-kamlesh-dns"],
+        },
+        {
+          id: "sec-kamlesh-perimeter",
+          title: "02. Perimeter & Security",
+          description: "Terminates HTTPS, enforces firewalls, and mitigates unauthorized access.",
+          nodeIds: ["node-cloudflare", "node-nginx", "node-firewall"],
+        },
+        {
+          id: "sec-kamlesh-compute",
+          title: "03. Application Compute",
+          description: "Executes backend business logic and maintains process clustering.",
+          nodeIds: ["node-nodeapp", "node-pm2"],
+        },
+        {
+          id: "sec-kamlesh-storage",
+          title: "04. Data Storage & Persistence",
+          description: "Persists transactional records and application uploads.",
+          nodeIds: ["node-postgres", "node-storage"],
+        },
+        {
+          id: "sec-kamlesh-cicd",
+          title: "05. CI/CD & Deployment",
+          description: "Automates linting, testing, and continuous zero-downtime deployment.",
+          nodeIds: ["node-dev", "node-repo", "node-actions", "node-deploy-script"],
+        },
       ],
       nodes: [
         {
@@ -604,6 +645,38 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     diagram_data: {
       version: 1,
       viewport: { x: 0, y: 0, zoom: 0.95 },
+      sections: [
+        {
+          id: "sec-ingress",
+          title: "01. Ingress & Domain Resolution",
+          description: "Handles customer traffic ingress and authoritative DNS resolution.",
+          nodeIds: ["node-ingress", "node-onixmall-dns"],
+        },
+        {
+          id: "sec-perimeter",
+          title: "02. Perimeter & Host Defense",
+          description: "Protects host perimeter with stateful packet filtering and automated IP brute-force bans.",
+          nodeIds: ["node-ufw", "node-fail2ban"],
+        },
+        {
+          id: "sec-runtime",
+          title: "03. Application Runtime",
+          description: "Hardened reverse proxy and unprivileged application runtime executing business logic.",
+          nodeIds: ["node-nginx-hardened", "node-app-hardened"],
+        },
+        {
+          id: "sec-telemetry",
+          title: "04. Telemetry & Observability",
+          description: "Host metric scraping, time-series storage, and visual operational health dashboards.",
+          nodeIds: ["node-node-exporter", "node-prometheus", "node-grafana"],
+        },
+        {
+          id: "sec-audit",
+          title: "05. Security Audit & Gates",
+          description: "Automated vulnerability scanner auditing dependencies and OS packages for known CVEs.",
+          nodeIds: ["node-trivy"],
+        },
+      ],
       nodes: [
         {
           id: "node-ingress",
@@ -969,6 +1042,32 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     diagram_data: {
       version: 1,
       viewport: { x: 0, y: 0, zoom: 0.95 },
+      sections: [
+        {
+          id: "sec-gateway",
+          title: "01. Ingress & Telegram Gateway",
+          description: "Receives user chat messages and dispatches authenticated webhook events.",
+          nodeIds: ["node-tg-user", "node-tg-api"],
+        },
+        {
+          id: "sec-edge",
+          title: "02. Edge Compute & Auth",
+          description: "Sub-5ms serverless V8 isolate validating webhook authenticity and preventing duplicate execution.",
+          nodeIds: ["node-cf-worker", "node-auth-idempotency"],
+        },
+        {
+          id: "sec-ai",
+          title: "03. AI Models & Failover",
+          description: "Primary Google Gemini LLM with automated failover to Cloudflare Workers AI edge GPUs.",
+          nodeIds: ["node-gemini-primary", "node-cf-ai-fallback"],
+        },
+        {
+          id: "sec-data",
+          title: "04. Persistence & State",
+          description: "Distributed SQLite database maintaining session history and idempotency audit logs.",
+          nodeIds: ["node-d1-db"],
+        },
+      ],
       nodes: [
         {
           id: "node-tg-user",
@@ -1269,6 +1368,7 @@ function formatDbDiagram(raw: unknown): ArchitectureDiagram {
       nodes: Array.isArray(data?.nodes)
         ? (data.nodes as ArchitectureNode[]).map((n) => ({
             ...n,
+            sectionId: n.sectionId,
             verification: n.verification,
             evidence: Array.isArray(n.evidence) ? n.evidence : undefined,
           }))
@@ -1276,6 +1376,7 @@ function formatDbDiagram(raw: unknown): ArchitectureDiagram {
       edges: Array.isArray(data?.edges) ? (data.edges as ArchitectureEdge[]) : [],
       viewport: data?.viewport || { x: 0, y: 0, zoom: 1 },
       journey: Array.isArray(data?.journey) ? (data.journey as string[]) : [],
+      sections: Array.isArray(data?.sections) ? (data.sections as ArchitectureSection[]) : undefined,
     },
     is_published: Boolean(row.is_published),
     display_order: Number(row.display_order ?? 0),

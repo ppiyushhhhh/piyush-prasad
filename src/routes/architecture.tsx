@@ -108,6 +108,7 @@ function ArchitectureExplorerPage() {
   const [viewMode, setViewMode] = useState<ArchitectureViewMode>("topology");
   const [selectedNode, setSelectedNode] = useState<ArchitectureNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<ArchitectureEdge | null>(null);
+  const [isIsolated, setIsIsolated] = useState<boolean>(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState<boolean>(
     () => workspace === "fullscreen"
   );
@@ -119,6 +120,7 @@ function ArchitectureExplorerPage() {
       setSelectedSlug(diagram);
       setSelectedNode(null);
       setSelectedEdge(null);
+      setIsIsolated(false);
     }
   }, [diagram, selectedSlug]);
 
@@ -341,9 +343,12 @@ function ArchitectureExplorerPage() {
                 viewMode={viewMode}
                 selectedNode={selectedNode}
                 selectedEdge={selectedEdge}
+                isIsolated={isIsolated}
+                onToggleIsolate={() => setIsIsolated((prev) => !prev)}
                 onSelectNode={(node) => {
                   setSelectedNode(node);
                   if (node) setSelectedEdge(null);
+                  if (!node) setIsIsolated(false);
                 }}
                 onSelectEdge={(edge) => {
                   setSelectedEdge(edge);
@@ -362,9 +367,12 @@ function ArchitectureExplorerPage() {
                   edge={selectedEdge}
                   edges={currentArchitecture.diagram_data.edges}
                   allNodes={currentArchitecture.diagram_data.nodes}
+                  isIsolated={isIsolated}
+                  onToggleIsolateRelated={() => setIsIsolated((prev) => !prev)}
                   onClose={() => {
                     setSelectedNode(null);
                     setSelectedEdge(null);
+                    setIsIsolated(false);
                   }}
                   onSelectNode={(node) => {
                     setSelectedNode(node);
@@ -652,9 +660,12 @@ function ArchitectureExplorerPage() {
                 viewMode={viewMode}
                 selectedNode={selectedNode}
                 selectedEdge={selectedEdge}
+                isIsolated={isIsolated}
+                onToggleIsolate={() => setIsIsolated((prev) => !prev)}
                 onSelectNode={(node) => {
                   setSelectedNode(node);
                   if (node) setSelectedEdge(null);
+                  if (!node) setIsIsolated(false);
                 }}
                 onSelectEdge={(edge) => {
                   setSelectedEdge(edge);
@@ -673,9 +684,12 @@ function ArchitectureExplorerPage() {
                   edge={selectedEdge}
                   edges={currentArchitecture.diagram_data.edges}
                   allNodes={currentArchitecture.diagram_data.nodes}
+                  isIsolated={isIsolated}
+                  onToggleIsolateRelated={() => setIsIsolated((prev) => !prev)}
                   onClose={() => {
                     setSelectedNode(null);
                     setSelectedEdge(null);
+                    setIsIsolated(false);
                   }}
                   onSelectNode={(node) => {
                     setSelectedNode(node);
@@ -694,9 +708,12 @@ function ArchitectureExplorerPage() {
                   edge={selectedEdge}
                   edges={currentArchitecture.diagram_data.edges}
                   allNodes={currentArchitecture.diagram_data.nodes}
+                  isIsolated={isIsolated}
+                  onToggleIsolateRelated={() => setIsIsolated((prev) => !prev)}
                   onClose={() => {
                     setSelectedNode(null);
                     setSelectedEdge(null);
+                    setIsIsolated(false);
                   }}
                   onSelectNode={(node) => {
                     setSelectedNode(node);

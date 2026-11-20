@@ -50,17 +50,18 @@ export function AnimatedEdge({
   const packetDelays = [0, duration * 0.5, duration * 0.25];
 
   // Primary label & secondary port/protocol
-  const primaryText = edge.label || edge.protocol || "Traffic Flow";
+  const primaryText = edge.label || edge.protocol;
   const secondaryText = edge.label && edge.protocol && edge.label !== edge.protocol ? edge.protocol : null;
+  const hasLabel = Boolean(primaryText);
 
   // Determine pill dimensions
-  const pillWidth = Math.max(primaryText.length * 7 + 24, 76);
+  const pillWidth = primaryText ? Math.max(primaryText.length * 7 + 20, 68) : 0;
   const pillHeight = secondaryText ? 26 : 18;
 
   return (
     <g
       className={`transition-opacity duration-300 cursor-pointer ${
-        isDimmed ? "opacity-20" : "opacity-100"
+        isDimmed ? "opacity-15" : "opacity-100"
       }`}
       onClick={onClick}
     >
@@ -69,13 +70,13 @@ export function AnimatedEdge({
         <path id={pathId} d={edge.pathData} fill="none" />
       </defs>
 
-      {/* 1. Underlying static path (low opacity) */}
+      {/* 1. Underlying static path */}
       <path
         d={edge.pathData}
         fill="none"
         stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-        strokeWidth={isHighlighted ? "2.6" : "1.8"}
-        strokeOpacity={isHighlighted ? 0.45 : 0.25}
+        strokeWidth={isHighlighted ? "2.4" : "1.6"}
+        strokeOpacity={isHighlighted ? 0.5 : 0.3}
         strokeLinecap="round"
       />
 
@@ -85,8 +86,8 @@ export function AnimatedEdge({
           d={edge.pathData}
           fill="none"
           stroke={colors.activeStroke}
-          strokeWidth="7"
-          strokeOpacity="0.22"
+          strokeWidth="6"
+          strokeOpacity="0.2"
           strokeLinecap="round"
         />
       )}
@@ -96,8 +97,8 @@ export function AnimatedEdge({
         d={edge.pathData}
         fill="none"
         stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-        strokeWidth={isHighlighted ? "2.4" : "1.8"}
-        strokeDasharray={shouldAnimate ? "7 5" : undefined}
+        strokeWidth={isHighlighted ? "2.2" : "1.6"}
+        strokeDasharray={shouldAnimate ? "6 4" : undefined}
         strokeLinecap="round"
         markerEnd={`url(#${markerId})`}
         style={
@@ -115,9 +116,9 @@ export function AnimatedEdge({
           d={edge.pathData}
           fill="none"
           stroke={colors.stroke}
-          strokeWidth="1.4"
+          strokeWidth="1.2"
           strokeDasharray="4 6"
-          strokeOpacity="0.8"
+          strokeOpacity="0.75"
           strokeLinecap="round"
           markerStart={`url(#${markerId})`}
           style={{
@@ -126,111 +127,73 @@ export function AnimatedEdge({
         />
       )}
 
-      {/* 5. Moving Packets along the SVG Path */}
-      {shouldAnimate &&
-        Array.from({ length: packetCount }).map((_, i) => (
-          <g key={`packet-${i}`}>
-            {edge.category === "data" ? (
-              // Data packet: Square
-              <rect
-                x={isJourneyActive ? "-3.5" : "-2.5"}
-                y={isJourneyActive ? "-3.5" : "-2.5"}
-                width={isJourneyActive ? "7" : "5"}
-                height={isJourneyActive ? "7" : "5"}
-                rx="1"
-                fill={colors.packet}
-                className="drop-shadow-xs"
-              >
-                <animateMotion
-                  href={`#${pathId}`}
-                  dur={`${duration}s`}
-                  begin={`${packetDelays[i]}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                />
-              </rect>
-            ) : edge.category === "security" ? (
-              // Security packet: Diamond
-              <polygon
-                points={
-                  isJourneyActive
-                    ? "0,-4.5 4.5,0 0,4.5 -4.5,0"
-                    : "0,-3.5 3.5,0 0,3.5 -3.5,0"
-                }
-                fill={colors.packet}
-                className="drop-shadow-xs"
-              >
-                <animateMotion
-                  href={`#${pathId}`}
-                  dur={`${duration}s`}
-                  begin={`${packetDelays[i]}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                />
-              </polygon>
-            ) : edge.category === "deployment" ? (
-              // Deployment packet: Arrow triangle
-              <polygon
-                points={
-                  isJourneyActive
-                    ? "-4,-3.5 4.5,0 -4,3.5"
-                    : "-3,-2.5 3.5,0 -3,2.5"
-                }
-                fill={colors.packet}
-                className="drop-shadow-xs"
-              >
-                <animateMotion
-                  href={`#${pathId}`}
-                  dur={`${duration}s`}
-                  begin={`${packetDelays[i]}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                />
-              </polygon>
-            ) : (
-              // Network & Telemetry packet: Glowing dot
-              <circle
-                r={isJourneyActive ? 3.5 : 2.5}
-                fill={colors.packet}
-                className="drop-shadow-xs"
-              >
-                <animateMotion
-                  href={`#${pathId}`}
-                  dur={`${duration}s`}
-                  begin={`${packetDelays[i]}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                />
-              </circle>
-            )}
-          </g>
-        ))}
+      {/* 5. Journey Active Signal Beacon (Shown strictly when tracing request journey, no decorative floating clutter) */}
+      {isJourneyActive && shouldAnimate && (
+        <circle
+          r="4"
+          fill={colors.activeStroke}
+          className="drop-shadow-xs"
+        >
+          <animateMotion
+            href={`#${pathId}`}
+            dur={`${duration * 0.75}s`}
+            repeatCount="indefinite"
+            rotate="auto"
+          />
+        </circle>
+      )}
 
-      {/* 6. Centered Protocol / Port Pill */}
-      <g
-        transform={`translate(${edge.midX}, ${edge.midY})`}
-        className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105"
-      >
-        <title>{edge.description || `${primaryText}${secondaryText ? ` (${secondaryText})` : ""}`}</title>
-        {/* Solid background pill */}
-        <rect
-          x={-pillWidth / 2}
-          y={-pillHeight / 2}
-          width={pillWidth}
-          height={pillHeight}
-          rx={pillHeight / 2}
-          fill="#FFFFFF"
-          className="dark:fill-[#121316]"
-          stroke={isHighlighted ? colors.activeStroke : "#E5E5DF"}
-          strokeWidth={isHighlighted ? "1.6" : "1"}
-          filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06))"
-        />
+      {/* 6. Centered Protocol / Port Pill (Rendered only when meaningful label/protocol exists) */}
+      {hasLabel && (
+        <g
+          transform={`translate(${edge.midX}, ${edge.midY})`}
+          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105"
+        >
+          <title>{edge.description || `${primaryText}${secondaryText ? ` (${secondaryText})` : ""}`}</title>
+          {/* Solid background pill */}
+          <rect
+            x={-pillWidth / 2}
+            y={-pillHeight / 2}
+            width={pillWidth}
+            height={pillHeight}
+            rx={pillHeight / 2}
+            fill="#FFFFFF"
+            className="dark:fill-[#121316]"
+            stroke={isHighlighted ? colors.activeStroke : "#E5E5DF"}
+            strokeWidth={isHighlighted ? "1.6" : "1"}
+            filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))"
+          />
 
-        {secondaryText ? (
-          <>
+          {secondaryText ? (
+            <>
+              <text
+                x="0"
+                y="-1"
+                textAnchor="middle"
+                fontSize="8"
+                fontWeight="700"
+                fontFamily="var(--font-mono, monospace)"
+                fill={isHighlighted ? colors.activeStroke : colors.text}
+              >
+                {primaryText}
+              </text>
+              <text
+                x="0"
+                y="8"
+                textAnchor="middle"
+                fontSize="7"
+                fontWeight="600"
+                fontFamily="var(--font-mono, monospace)"
+                fill="#64748B"
+                className="dark:fill-neutral-400"
+              >
+                {secondaryText}
+              </text>
+            </>
+          ) : (
             <text
               x="0"
-              y="-1"
+              y="3"
               textAnchor="middle"
               fontSize="8"
               fontWeight="700"
@@ -239,33 +202,9 @@ export function AnimatedEdge({
             >
               {primaryText}
             </text>
-            <text
-              x="0"
-              y="8"
-              textAnchor="middle"
-              fontSize="7"
-              fontWeight="600"
-              fontFamily="var(--font-mono, monospace)"
-              fill="#64748B"
-              className="dark:fill-neutral-400"
-            >
-              {secondaryText}
-            </text>
-          </>
-        ) : (
-          <text
-            x="0"
-            y="3"
-            textAnchor="middle"
-            fontSize="8"
-            fontWeight="700"
-            fontFamily="var(--font-mono, monospace)"
-            fill={isHighlighted ? colors.activeStroke : colors.text}
-          >
-            {primaryText}
-          </text>
-        )}
-      </g>
+          )}
+        </g>
+      )}
     </g>
   );
 }

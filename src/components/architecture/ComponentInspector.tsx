@@ -32,6 +32,8 @@ interface ComponentInspectorProps {
   allNodes: ArchitectureNode[];
   onClose: () => void;
   onSelectNode: (node: ArchitectureNode) => void;
+  isIsolated?: boolean;
+  onToggleIsolateRelated?: () => void;
   className?: string;
 }
 
@@ -42,6 +44,8 @@ export function ComponentInspector({
   allNodes,
   onClose,
   onSelectNode,
+  isIsolated = false,
+  onToggleIsolateRelated,
   className = "",
 }: ComponentInspectorProps) {
   if (!node && !edge) return null;
@@ -260,6 +264,28 @@ export function ComponentInspector({
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Quick Action: Isolate Connected Services */}
+      {onToggleIsolateRelated && (
+        <div className="px-5 py-2.5 bg-neutral-100/70 dark:bg-neutral-800/50 border-b border-border flex items-center justify-between gap-2">
+          <span className="mono text-[10px] text-muted-foreground font-semibold">
+            TOPOLOGY FOCUS
+          </span>
+          <button
+            type="button"
+            onClick={onToggleIsolateRelated}
+            className={`mono text-[10.5px] font-bold px-2.5 py-1 rounded transition-colors inline-flex items-center gap-1.5 cursor-pointer ${
+              isIsolated
+                ? "bg-cobalt text-white shadow-xs"
+                : "border border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-200 hover:border-cobalt hover:text-cobalt"
+            }`}
+            title="Focus solely on this component and its immediate dependencies"
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${isIsolated ? "bg-white animate-pulse" : "bg-cobalt"}`} />
+            {isIsolated ? "Show All Components" : "Show Related Components"}
+          </button>
+        </div>
+      )}
 
       {/* Main Content Details */}
       <div className="p-5 space-y-6 text-xs text-carbon dark:text-neutral-200">

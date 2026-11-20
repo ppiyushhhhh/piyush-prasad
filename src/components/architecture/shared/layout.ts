@@ -49,6 +49,7 @@ export interface LayoutOptions {
 export interface LayoutZone {
   id: string;
   title: string;
+  description?: string;
   x: number;
   y: number;
   width: number;
@@ -94,84 +95,84 @@ export function mapComponentTypeToCategory(type: ArchitectureComponent["type"]):
   }
 }
 
+export interface EdgeRoutingContext {
+  sourceCol?: number;
+  targetCol?: number;
+  topCorridorY?: number;
+  bottomCorridorY?: number;
+}
+
 /**
- * Computes a smooth cubic Bezier curve between source and target node rectangles
+ * Computes an obstacle-free connection path between source and target node rectangles.
+ * Guarantees that connection lines NEVER cut through intervening component cards:
+ * - Adjacent sections: clean smooth horizontal Bézier in the inter-column corridor.
+ * - Non-adjacent sections: routed via upper routing corridor above cards.
+ * - Same column: routed around the right gutter.
+ * - Feedback / reverse: routed via lower routing corridor below all cards.
  */
 export function computeEdgePath(
   source: { x: number; y: number; width?: number; height?: number },
-  target: { x: number; y: number; width?: number; height?: number }
+  target: { x: number; y: number; width?: number; height?: number },
+  routingContext?: EdgeRoutingContext
 ): { pathData: string; midX: number; midY: number } {
   const sw = source.width ?? DEFAULT_NODE_WIDTH;
   const sh = source.height ?? DEFAULT_NODE_HEIGHT;
   const tw = target.width ?? DEFAULT_NODE_WIDTH;
   const th = target.height ?? DEFAULT_NODE_HEIGHT;
 
-  const dx = target.x - source.x;
-  const dy = target.y - source.y;
+  const startX = source.x + sw;
+  const startY = source.y + sh / 2;
+  const endX = target.x;
+  const endY = target.y + th / 2;
 
-  let startX: number;
-  let startY: number;
-  let endX: number;
-  let endY: number;
+  const dx = endX - startX;
 
-  // Target is to the right
-  if (target.x >= source.x + sw - 40) {
-    startX = source.x + sw;
-    startY = source.y + sh / 2;
-    endX = target.x;
-    endY = target.y + th / 2;
-  }
-  // Target is to the left
-  else if (target.x + tw <= source.x + 40) {
-    startX = source.x;
-    startY = source.y + sh / 2;
-    endX = target.x + tw;
-    endY = target.y + th / 2;
-  }
-  // Target is predominantly below in same column
-  else if (dy > 0) {
-    startX = source.x + sw / 2;
-    startY = source.y + sh;
-    endX = target.x + tw / 2;
-    endY = target.y;
-  }
-  // Target is above in same column
-  else {
-    startX = source.x + sw / 2;
-    startY = source.y;
-    endX = target.x + tw / 2;
-    endY = target.y + th;
-  }
-
-  const isHorizontal = Math.abs(endX - startX) >= Math.abs(endY - startY) * 0.7;
-  const controlDist = Math.max(Math.abs(endX - startX) * 0.45, 36);
+  const sourceCol = routingContext?.sourceCol;
+  const targetCol = routingContext?.targetCol;
+  const hasColInfo = sourceCol !== undefined && targetCol !== undefined;
+  const colDiff = hasColInfo ? targetCol - sourceCol : (dx > 40 ? 1 : 0);
 
   let pathData: string;
   let midX: number;
   let midY: number;
 
-  if (isHorizontal) {
-    const cp1x = startX + (endX >= startX ? controlDist : -controlDist);
-    const cp1y = startY;
-    const cp2x = endX - (endX >= startX ? controlDist : -controlDist);
-    const cp2y = endY;
-    pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
-
-    // Cubic Bezier midpoint B(0.5)
-    midX = 0.125 * startX + 0.375 * cp1x + 0.375 * cp2x + 0.125 * endX;
-    midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
-  } else {
-    const cp1x = startX;
-    const cp1y = startY + (endY >= startY ? 40 : -40);
-    const cp2x = endX;
-    const cp2y = endY - (endY >= startY ? 40 : -40);
-    pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
-
+  // 1. Same column (same section) -> route around right edge through dedicated gutter
+  if (Math.abs(source.x - target.x) < 40 || colDiff === 0) {
+    const gutterX = Math.max(source.x + sw, target.x + tw) + 26;
+    const targetRight = target.x + tw;
+    pathData = `M ${startX} ${startY} C ${gutterX} ${startY}, ${gutterX} ${endY}, ${targetRight} ${endY}`;
+    midX = gutterX;
+    midY = (startY + endY) / 2;
+  }
+  // 2. Adjacent column moving left-to-right (colDiff === 1 or direct forward)
+  else if (dx > 0 && colDiff === 1) {
+    const cpDist = Math.max(dx * 0.45, 32);
+    pathData = `M ${startX} ${startY} C ${startX + cpDist} ${startY}, ${endX - cpDist} ${endY}, ${endX} ${endY}`;
     midX = (startX + endX) / 2;
     midY = (startY + endY) / 2;
   }
+  // 3. Forward connection skipping intermediate columns (colDiff > 1)
+  // Route via upper corridor above intermediate cards so it NEVER crosses through any card!
+  else if (dx > 0 && colDiff > 1) {
+    const corridorY = routingContext?.topCorridorY ?? Math.min(startY, endY) - 52;
+    const cpOut = Math.min(32, dx * 0.2);
+    const cpIn = Math.min(32, dx * 0.2);
+    pathData = `M ${startX} ${startY} C ${startX + cpOut} ${startY}, ${startX + cpOut} ${corridorY}, ${startX + cpOut * 2} ${corridorY} L ${endX - cpIn * 2} ${corridorY} C ${endX - cpIn} ${corridorY}, ${endX - cpIn} ${endY}, ${endX} ${endY}`;
+    midX = (startX + endX) / 2;
+    midY = corridorY;
+  }
+  // 4. Reverse / Feedback connection (target is to the left of source)
+  // Route via lower corridor below all cards
+  else {
+    const corridorY = routingContext?.bottomCorridorY ?? Math.max(startY, endY) + 64;
+    const cpOut = 32;
+    const cpIn = 32;
+    pathData = `M ${startX} ${startY} C ${startX + cpOut} ${startY}, ${startX + cpOut} ${corridorY}, ${startX} ${corridorY} L ${endX} ${corridorY} C ${endX - cpIn} ${corridorY}, ${endX - cpIn} ${endY}, ${endX} ${endY}`;
+    midX = (startX + endX) / 2;
+    midY = corridorY;
+  }
 
-  return { pathData, midX, midY };
+  return { pathData, midX: Math.round(midX), midY: Math.round(midY) };
 }
 
 /**
@@ -308,7 +309,14 @@ export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult 
   const edges: UnifiedEdge[] = validConnections.map((conn, idx) => {
     const sourceNode = nodeMap.get(conn.from)!;
     const targetNode = nodeMap.get(conn.to)!;
-    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode);
+    const sourceCol = activeLanes.findIndex((l) => l.components.some((c) => c.id === conn.from));
+    const targetCol = activeLanes.findIndex((l) => l.components.some((c) => c.id === conn.to));
+    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode, {
+      sourceCol: sourceCol >= 0 ? sourceCol : undefined,
+      targetCol: targetCol >= 0 ? targetCol : undefined,
+      topCorridorY: 10,
+      bottomCorridorY: totalHeight + 20,
+    });
 
     // Determine category
     let category: UnifiedEdge["category"] = conn.category || "network";
@@ -355,67 +363,43 @@ export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult 
 /**
  * Intelligent topological infrastructure tier definitions
  */
-interface TierDefinition {
+export interface CanonicalSectionDefinition {
   id: string;
   title: string;
-  categories: ArchitectureCategory[];
-  isMatch: (node: ArchitectureNode) => boolean;
+  description: string;
+  matchCategories: ArchitectureCategory[];
 }
 
-const ARCHITECTURE_TIERS: TierDefinition[] = [
+export const CANONICAL_SECTIONS: CanonicalSectionDefinition[] = [
   {
-    id: "tier-client",
-    title: "TIER 01 · CLIENT & INGRESS ORIGIN",
-    categories: ["client"],
-    isMatch: (n) => n.category === "client",
+    id: "sec-network",
+    title: "01. Client & Domain Resolution",
+    description: "Handles domain resolution and visitor traffic ingress.",
+    matchCategories: ["client", "dns"],
   },
   {
-    id: "tier-dns",
-    title: "TIER 02 · DNS & DOMAIN RESOLUTION",
-    categories: ["dns"],
-    isMatch: (n) => n.category === "dns",
+    id: "sec-security",
+    title: "02. Perimeter & Security",
+    description: "Protects application perimeter and controls network access.",
+    matchCategories: ["cdn", "networking", "security"],
   },
   {
-    id: "tier-routing",
-    title: "TIER 03 · EDGE ROUTING & CDN PROXY",
-    categories: ["cdn", "networking"],
-    isMatch: (n) => ["cdn", "networking"].includes(n.category),
+    id: "sec-compute",
+    title: "03. Compute & Application",
+    description: "Executes business logic and server-side processing.",
+    matchCategories: ["compute", "application"],
   },
   {
-    id: "tier-security",
-    title: "TIER 04 · PERIMETER SECURITY & FIREWALL",
-    categories: ["security"],
-    isMatch: (n) => n.category === "security",
+    id: "sec-data",
+    title: "04. Data & Persistence",
+    description: "Maintains transactional records, state, and asset storage.",
+    matchCategories: ["database", "storage"],
   },
   {
-    id: "tier-compute",
-    title: "TIER 05 · COMPUTE RUNTIME & SSR",
-    categories: ["compute", "application"],
-    isMatch: (n) => ["compute", "application"].includes(n.category),
-  },
-  {
-    id: "tier-persistence",
-    title: "TIER 06 · PERSISTENCE & DATA STORAGE",
-    categories: ["database", "storage"],
-    isMatch: (n) => ["database", "storage"].includes(n.category),
-  },
-  {
-    id: "tier-ai-external",
-    title: "TIER 07 · AI INFERENCE & EXTERNAL APIS",
-    categories: ["ai"],
-    isMatch: (n) => n.category === "ai",
-  },
-  {
-    id: "tier-telemetry",
-    title: "TIER 08 · TELEMETRY & OBSERVABILITY",
-    categories: ["monitoring"],
-    isMatch: (n) => n.category === "monitoring",
-  },
-  {
-    id: "tier-automation",
-    title: "TIER 09 · CI/CD & DEVOPS AUTOMATION",
-    categories: ["cicd"],
-    isMatch: (n) => n.category === "cicd",
+    id: "sec-automation",
+    title: "05. DevOps & Automation",
+    description: "Automates testing, continuous delivery, and observability.",
+    matchCategories: ["cicd", "monitoring", "ai"],
   },
 ];
 
@@ -437,54 +421,87 @@ export function layoutArchitectureCanvas(
   const useAutoLayout = options.autoLayout !== false;
 
   const nodeMap = new Map<string, UnifiedNode>();
+  const nodeColMap = new Map<string, number>();
   const computedZones: LayoutZone[] = [];
 
   const colWidth = DEFAULT_NODE_WIDTH;
-  const colGap = 84;
+  const colGap = 92;
   const rowHeight = DEFAULT_NODE_HEIGHT;
   const rowGap = 36;
   const paddingX = 64;
-  const paddingY = 64;
+  const paddingY = 72;
+  const sectionHeaderH = 50;
 
   if (useAutoLayout) {
-    // 1. Assign nodes to appropriate tier lanes
-    const tierLanes: { tier: TierDefinition; nodes: ArchitectureNode[] }[] = ARCHITECTURE_TIERS.map((tier) => ({
-      tier,
-      nodes: [],
-    }));
+    interface EffectiveSection {
+      id: string;
+      title: string;
+      description: string;
+      nodes: ArchitectureNode[];
+    }
 
-    nodes.forEach((node) => {
-      let assignedIndex = -1;
-      for (let i = 0; i < ARCHITECTURE_TIERS.length; i++) {
-        if (ARCHITECTURE_TIERS[i].isMatch(node)) {
-          assignedIndex = i;
-          break;
+    let effectiveSections: EffectiveSection[] = [];
+
+    // 1. If explicit sections are provided on diagram_data, use them!
+    if (data.sections && data.sections.length > 0) {
+      const assignedNodeIds = new Set<string>();
+
+      effectiveSections = data.sections.map((sec) => {
+        const secNodes = nodes.filter((n) => {
+          const match = n.sectionId === sec.id || sec.nodeIds?.includes(n.id);
+          if (match) assignedNodeIds.add(n.id);
+          return match;
+        });
+        return {
+          id: sec.id,
+          title: sec.title,
+          description: sec.description,
+          nodes: secNodes,
+        };
+      });
+
+      // If any nodes were not explicitly mapped, attach them to the most logical section
+      const unassigned = nodes.filter((n) => !assignedNodeIds.has(n.id));
+      if (unassigned.length > 0) {
+        if (effectiveSections.length > 0) {
+          effectiveSections[Math.min(2, effectiveSections.length - 1)].nodes.push(...unassigned);
+        } else {
+          effectiveSections.push({
+            id: "sec-misc",
+            title: "Application Components",
+            description: "Workload and infrastructure components.",
+            nodes: unassigned,
+          });
         }
       }
-      if (assignedIndex === -1) {
-        // Fallback: put compute-like in compute tier
-        assignedIndex = 4;
-      }
-      tierLanes[assignedIndex].nodes.push(node);
-    });
+    } else {
+      // 2. Otherwise map automatically into human-friendly canonical sections
+      effectiveSections = CANONICAL_SECTIONS.map((sec) => {
+        const secNodes = nodes.filter((n) => sec.matchCategories.includes(n.category));
+        return {
+          id: sec.id,
+          title: sec.title,
+          description: sec.description,
+          nodes: secNodes,
+        };
+      });
+    }
 
-    // 2. Filter active lanes that contain at least one node
-    const activeLanes = tierLanes.filter((lane) => lane.nodes.length > 0);
+    // Filter out any empty sections (NO empty groups)
+    const activeSections = effectiveSections.filter((sec) => sec.nodes.length > 0);
 
-    // Compute max column height to center columns vertically
-    const maxNodesInCol = Math.max(...activeLanes.map((l) => l.nodes.length), 1);
-    const canvasInnerHeight = maxNodesInCol * rowHeight + (maxNodesInCol - 1) * rowGap;
+    // 3. Layout each active section as a clean column with header zone
+    activeSections.forEach((sec, colIdx) => {
+      const colX = paddingX + colIdx * (colWidth + colGap);
+      const sectionHeaderY = paddingY;
+      const cardsStartY = sectionHeaderY + sectionHeaderH + 16;
+      const laneNodeCount = sec.nodes.length;
+      const laneHeight = sectionHeaderH + 16 + laneNodeCount * rowHeight + (laneNodeCount - 1) * rowGap;
 
-    // 3. Layout each active lane
-    activeLanes.forEach((lane, laneIdx) => {
-      const colX = paddingX + laneIdx * (colWidth + colGap);
-      const laneNodeCount = lane.nodes.length;
-      const laneHeight = laneNodeCount * rowHeight + (laneNodeCount - 1) * rowGap;
-      const startY = paddingY + (canvasInnerHeight - laneHeight) / 2;
-
-      lane.nodes.forEach((n, rowIdx) => {
+      sec.nodes.forEach((n, rowIdx) => {
         const x = colX;
-        const y = Math.round(startY + rowIdx * (rowHeight + rowGap));
+        const y = Math.round(cardsStartY + rowIdx * (rowHeight + rowGap));
+        nodeColMap.set(n.id, colIdx);
 
         let metricLabel: string | undefined;
         if (n.port) {
@@ -520,19 +537,14 @@ export function layoutArchitectureCanvas(
         });
       });
 
-      // Calculate distinct, non-overlapping swimlane boundary for this tier
-      const minLaneX = colX - 18;
-      const minLaneY = startY - 34;
-      const laneW = colWidth + 36;
-      const laneH = laneHeight + 46;
-
       computedZones.push({
-        id: lane.tier.id,
-        title: lane.tier.title,
-        x: minLaneX,
-        y: minLaneY,
-        width: laneW,
-        height: laneH,
+        id: sec.id,
+        title: sec.title,
+        description: sec.description,
+        x: colX - 16,
+        y: sectionHeaderY,
+        width: colWidth + 32,
+        height: laneHeight + 20,
       });
     });
   } else {
@@ -574,15 +586,11 @@ export function layoutArchitectureCanvas(
 
     // Compute bounding zones by category
     const zoneDefinitions = [
-      { id: "client-edge", title: "CLIENT & INGRESS ORIGIN", categories: ["client"] },
-      { id: "dns-domain", title: "DNS & DOMAIN RESOLUTION", categories: ["dns"] },
-      { id: "routing-edge", title: "EDGE ROUTING & CDN PROXY", categories: ["cdn", "networking"] },
-      { id: "compute-app", title: "COMPUTE & RUNTIME ENVIRONMENT", categories: ["compute", "application"] },
-      { id: "persistence", title: "PERSISTENCE & MANAGED DATA", categories: ["database", "storage"] },
-      { id: "security-firewall", title: "SECURITY, NETFILTER & IDENTITY", categories: ["security"] },
-      { id: "observability", title: "OBSERVABILITY & TELEMETRY", categories: ["monitoring"] },
-      { id: "cicd-devops", title: "CI/CD & PIPELINE AUTOMATION", categories: ["cicd"] },
-      { id: "ai-inference", title: "AI INFERENCE & LIVE MODELS", categories: ["ai"] },
+      { id: "client-edge", title: "01. Client & Ingress", description: "Visitor and domain entry points.", categories: ["client", "dns"] },
+      { id: "routing-security", title: "02. Perimeter & Security", description: "Edge distribution and security boundaries.", categories: ["cdn", "networking", "security"] },
+      { id: "compute-app", title: "03. Compute & Application", description: "Application runtime and backend services.", categories: ["compute", "application"] },
+      { id: "persistence", title: "04. Persistence & Storage", description: "Databases and persistent data stores.", categories: ["database", "storage"] },
+      { id: "automation-cicd", title: "05. Automation & DevOps", description: "Pipelines, monitoring, and telemetry.", categories: ["cicd", "monitoring", "ai"] },
     ];
 
     for (const def of zoneDefinitions) {
@@ -596,6 +604,7 @@ export function layoutArchitectureCanvas(
         computedZones.push({
           id: def.id,
           title: def.title,
+          description: def.description,
           x: minX - 18,
           y: minY - 32,
           width: maxX - minX + 36,
@@ -607,32 +616,24 @@ export function layoutArchitectureCanvas(
 
   const unifiedNodes = Array.from(nodeMap.values());
 
-  // AWS VPC boundary detection
-  const awsNodes = unifiedNodes.filter(
-    (n) => n.provider.toLowerCase().includes("aws") || n.tech.toLowerCase().includes("aws")
-  );
-  if (awsNodes.length >= 2) {
-    const minX = Math.min(...awsNodes.map((n) => n.x));
-    const minY = Math.min(...awsNodes.map((n) => n.y));
-    const maxX = Math.max(...awsNodes.map((n) => n.x + n.width));
-    const maxY = Math.max(...awsNodes.map((n) => n.y + n.height));
-
-    computedZones.push({
-      id: "aws-vpc-boundary",
-      title: "AWS VPC (10.0.0.0/16) • CLOUD BOUNDARY",
-      x: minX - 24,
-      y: minY - 36,
-      width: maxX - minX + 48,
-      height: maxY - minY + 52,
-      isAwsVpc: true,
-    });
-  }
+  // Routing corridors
+  const maxCardBottom = Math.max(...unifiedNodes.map((n) => n.y + n.height), 400);
+  const topCorridorY = paddingY - 32;
+  const bottomCorridorY = maxCardBottom + 44;
 
   // Build unified routed edges
   const edges: UnifiedEdge[] = validEdges.map((e) => {
     const sourceNode = nodeMap.get(e.source)!;
     const targetNode = nodeMap.get(e.target)!;
-    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode);
+    const sourceCol = nodeColMap.get(e.source);
+    const targetCol = nodeColMap.get(e.target);
+
+    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode, {
+      sourceCol,
+      targetCol,
+      topCorridorY,
+      bottomCorridorY,
+    });
 
     return {
       id: e.id,
