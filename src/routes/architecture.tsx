@@ -32,6 +32,7 @@ import {
   INITIAL_ARCHITECTURES,
   type ArchitectureDiagram,
   type ArchitectureNode,
+  type ArchitectureEdge,
   type ArchitectureViewMode,
 } from "@/lib/architecture-diagrams";
 import { SITE_URL } from "@/lib/site";
@@ -93,6 +94,7 @@ function ArchitectureExplorerPage() {
   const [selectedSlug, setSelectedSlug] = useState<string>("personal-portfolio");
   const [viewMode, setViewMode] = useState<ArchitectureViewMode>("topology");
   const [selectedNode, setSelectedNode] = useState<ArchitectureNode | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<ArchitectureEdge | null>(null);
 
   // Active architecture
   const currentArchitecture = useMemo(() => {
@@ -238,25 +240,40 @@ function ArchitectureExplorerPage() {
           {/* Interactive Canvas + Inspector Workspace */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Main Interactive Diagram Canvas */}
-            <div className={`${selectedNode ? "lg:col-span-8" : "lg:col-span-12"} transition-all`}>
+            <div className={`${selectedNode || selectedEdge ? "lg:col-span-8" : "lg:col-span-12"} transition-all`}>
               <ArchitectureCanvas
                 data={currentArchitecture.diagram_data}
                 viewMode={viewMode}
                 selectedNode={selectedNode}
-                onSelectNode={(node) => setSelectedNode(node)}
+                selectedEdge={selectedEdge}
+                onSelectNode={(node) => {
+                  setSelectedNode(node);
+                  if (node) setSelectedEdge(null);
+                }}
+                onSelectEdge={(edge) => {
+                  setSelectedEdge(edge);
+                  if (edge) setSelectedNode(null);
+                }}
                 isEditable={false}
               />
             </div>
 
             {/* Component Inspector Panel */}
-            {selectedNode && (
+            {(selectedNode || selectedEdge) && (
               <div className="lg:col-span-4 rounded-lg overflow-hidden border border-border bg-white dark:bg-[#121316] shadow-md sticky top-28">
                 <ComponentInspector
                   node={selectedNode}
+                  edge={selectedEdge}
                   edges={currentArchitecture.diagram_data.edges}
                   allNodes={currentArchitecture.diagram_data.nodes}
-                  onClose={() => setSelectedNode(null)}
-                  onSelectNode={(node) => setSelectedNode(node)}
+                  onClose={() => {
+                    setSelectedNode(null);
+                    setSelectedEdge(null);
+                  }}
+                  onSelectNode={(node) => {
+                    setSelectedNode(node);
+                    setSelectedEdge(null);
+                  }}
                 />
               </div>
             )}

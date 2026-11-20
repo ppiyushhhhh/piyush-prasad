@@ -9,7 +9,7 @@ export function ExperienceTimeline() {
   return (
     <section
       id="experience"
-      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28"
+      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28 scroll-mt-20"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader

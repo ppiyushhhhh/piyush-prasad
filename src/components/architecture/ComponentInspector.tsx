@@ -1,6 +1,5 @@
 import {
   X,
-  ExternalLink,
   Shield,
   Layers,
   Server,
@@ -10,9 +9,7 @@ import {
   Lock,
   ArrowRight,
   ArrowLeft,
-  Info,
   CheckCircle2,
-  AlertTriangle,
   HardDrive,
   Activity,
   Bot,
@@ -30,6 +27,7 @@ import { NodeLogo } from "./NodeLogo";
 
 interface ComponentInspectorProps {
   node: ArchitectureNode | null;
+  edge?: ArchitectureEdge | null;
   edges: ArchitectureEdge[];
   allNodes: ArchitectureNode[];
   onClose: () => void;
@@ -38,24 +36,17 @@ interface ComponentInspectorProps {
 
 export function ComponentInspector({
   node,
+  edge,
   edges,
   allNodes,
   onClose,
   onSelectNode,
 }: ComponentInspectorProps) {
-  if (!node) return null;
-
-  const colorConfig = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.compute;
-
-  // Inbound connections to this node
-  const inboundEdges = edges.filter((e) => e.target === node.id);
-  // Outbound connections from this node
-  const outboundEdges = edges.filter((e) => e.source === node.id);
+  if (!node && !edge) return null;
 
   const getNodeIcon = (category: ArchitectureCategory) => {
     switch (category) {
       case "client":
-        return Globe;
       case "dns":
       case "cdn":
       case "networking":
@@ -81,6 +72,121 @@ export function ComponentInspector({
     }
   };
 
+  // If inspecting an edge
+  if (!node && edge) {
+    const sourceNode = allNodes.find((n) => n.id === edge.source);
+    const targetNode = allNodes.find((n) => n.id === edge.target);
+
+    return (
+      <div
+        className="flex flex-col h-full bg-white dark:bg-[#121316] border-l border-border/80 shadow-lg overflow-y-auto animate-in slide-in-from-right-4 duration-200"
+        role="region"
+        aria-label={`Connection details for ${edge.label || edge.protocol}`}
+      >
+        <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
+          <div>
+            <span className="mono inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-blue-200 bg-blue-50 text-cobalt">
+              LAYER: {edge.category.toUpperCase()}
+            </span>
+            <h3 className="text-base font-bold text-carbon dark:text-white leading-tight mt-1.5">
+              {edge.label || edge.protocol}
+            </h3>
+            {edge.protocol && (
+              <p className="mono text-xs text-cobalt font-semibold mt-0.5">
+                Protocol: {edge.protocol}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded text-muted-foreground hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer shrink-0"
+            aria-label="Close connection inspector"
+            title="Close Inspector"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-5 text-xs text-carbon dark:text-neutral-200">
+          <div className="space-y-1.5">
+            <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              CONNECTION SUMMARY
+            </span>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {edge.description || `Active traffic route connecting ${sourceNode?.name || edge.source} to ${targetNode?.name || edge.target}.`}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              ENDPOINTS
+            </span>
+            {sourceNode && (
+              <button
+                type="button"
+                onClick={() => onSelectNode(sourceNode)}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
+              >
+                <div>
+                  <span className="mono text-[9px] text-muted-foreground block">SOURCE ORIGIN</span>
+                  <span className="font-bold text-xs text-carbon dark:text-white group-hover:text-cobalt">
+                    {sourceNode.name}
+                  </span>
+                  <span className="mono text-[10px] text-cobalt block">{sourceNode.tech}</span>
+                </div>
+                <span className="mono text-[9px] text-cobalt font-bold">INSPECT &rarr;</span>
+              </button>
+            )}
+
+            <div className="flex justify-center text-muted-foreground py-0.5">
+              <ArrowRight className="h-4 w-4 text-cobalt" />
+            </div>
+
+            {targetNode && (
+              <button
+                type="button"
+                onClick={() => onSelectNode(targetNode)}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
+              >
+                <div>
+                  <span className="mono text-[9px] text-muted-foreground block">TARGET DESTINATION</span>
+                  <span className="font-bold text-xs text-carbon dark:text-white group-hover:text-cobalt">
+                    {targetNode.name}
+                  </span>
+                  <span className="mono text-[10px] text-cobalt block">{targetNode.tech}</span>
+                </div>
+                <span className="mono text-[9px] text-cobalt font-bold">INSPECT &rarr;</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+              <span className="mono text-[9px] text-muted-foreground block">DIRECTION</span>
+              <span className="mono font-semibold text-[11px] text-carbon dark:text-white uppercase">
+                {edge.direction || "directional"}
+              </span>
+            </div>
+            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+              <span className="mono text-[9px] text-muted-foreground block">FLOW MODE</span>
+              <span className="mono font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
+                Live Active Flow
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Node Inspection View
+  if (!node) return null;
+
+  const colorConfig = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.compute;
+  const inboundEdges = edges.filter((e) => e.target === node.id);
+  const outboundEdges = edges.filter((e) => e.source === node.id);
   const IconComponent = getNodeIcon(node.category);
 
   return (

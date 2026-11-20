@@ -175,19 +175,20 @@ export async function buildFullDiagramSvg(
 
         <!-- Name & Status -->
         <g transform="translate(44, 0)">
-          <text x="0" y="13" class="sans" font-size="11.5" font-weight="700" fill="#121316">${node.name.length > 20 ? node.name.slice(0, 18) + "…" : node.name}</text>
-          <text x="0" y="27" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${node.tech.length > 22 ? node.tech.slice(0, 20) + "…" : node.tech}</text>
+          <text x="0" y="13" class="sans" font-size="11" font-weight="700" fill="#121316">${node.name.length > 22 ? node.name.slice(0, 22) : node.name}</text>
+          <text x="0" y="27" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${node.tech.length > 24 ? node.tech.slice(0, 24) : node.tech}</text>
         </g>
         <circle cx="150" cy="8" r="3.5" fill="#10B981" />
       </g>
 
       <!-- Description -->
-      <text x="14" y="70" class="sans" font-size="9.5" fill="#5A5C66">${node.description.length > 40 ? node.description.slice(0, 38) + "…" : node.description}</text>
+      <text x="14" y="68" class="sans" font-size="9" fill="#5A5C66">${node.description.length > 36 ? node.description.slice(0, 36) : node.description}</text>
+      <text x="14" y="80" class="sans" font-size="9" fill="#5A5C66">${node.description.length > 36 ? node.description.slice(36, 72) : ""}</text>
 
       <!-- Footer Divider & Metadata -->
-      <line x1="12" y1="90" x2="208" y2="90" stroke="#E5E5DF" stroke-width="0.8" />
-      <text x="14" y="105" class="mono" font-size="8.5" fill="#6B7280">${node.provider.split("(")[0].trim()}</text>
-      ${node.port ? `<text x="206" y="105" class="mono" font-size="8.5" font-weight="700" fill="#1A4BFF" text-anchor="end">:${node.port}</text>` : ""}
+      <line x1="12" y1="92" x2="208" y2="92" stroke="#E5E5DF" stroke-width="0.8" />
+      <text x="14" y="106" class="mono" font-size="8.5" fill="#6B7280">${node.provider.split("(")[0].trim()}</text>
+      ${node.port ? `<text x="206" y="106" class="mono" font-size="8.5" font-weight="700" fill="#1A4BFF" text-anchor="end">:${node.port}</text>` : ""}
     </g>`;
       })
       .join("")}
@@ -229,6 +230,43 @@ export async function exportDiagramAsSvg(
   diagramTitle?: string
 ): Promise<void> {
   const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle);
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+  const downloadUrl = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = `${fileName}.svg`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(downloadUrl);
+}
+
+export async function exportDiagramAsAnimatedSvg(
+  containerElement: HTMLElement,
+  fileName: string = "architecture-diagram-animated",
+  diagramData?: ArchitectureDiagramData,
+  diagramTitle?: string
+): Promise<void> {
+  let svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle);
+
+  // Inject animated CSS styles into the SVG
+  const animatedStyles = `
+    <style>
+      @keyframes edgeFlow {
+        from { stroke-dashoffset: 24; }
+        to { stroke-dashoffset: 0; }
+      }
+      .animated-flow {
+        stroke-dasharray: 6 4;
+        animation: edgeFlow 2.5s linear infinite;
+      }
+    </style>
+  `;
+
+  svgString = svgString.replace("</defs>", `${animatedStyles}</defs>`);
+  svgString = svgString.replace(/stroke-dasharray="undefined"/g, 'class="animated-flow"');
+
   const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const downloadUrl = URL.createObjectURL(blob);
 

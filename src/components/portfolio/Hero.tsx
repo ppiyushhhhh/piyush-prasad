@@ -30,7 +30,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden border-b border-border bg-[#FAF9F6] pt-28 pb-16 md:pt-36 md:pb-24"
+      className="relative overflow-hidden border-b border-border bg-[#FAF9F6] pt-28 pb-16 md:pt-36 md:pb-24 scroll-mt-20"
     >
       {/* Subtle Technical Engineering Blueprint Grid */}
       <div
