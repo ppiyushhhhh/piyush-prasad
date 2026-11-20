@@ -1,6 +1,8 @@
-import { Network, Info } from "lucide-react";
+import { Network, Info, ArrowRight, Layers } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import type { PortfolioProject } from "@/lib/portfolio-projects";
 import { ArchitectureDiagram } from "@/components/portfolio/ArchitectureDiagram";
+import { PROJECT_ARCHITECTURE_SLUGS } from "@/lib/project-architectures";
 
 interface ProjectArchitectureSectionProps {
   project: PortfolioProject;
@@ -8,6 +10,8 @@ interface ProjectArchitectureSectionProps {
 
 export function ProjectArchitectureSection({ project }: ProjectArchitectureSectionProps) {
   if (!project.architecture_data && !project.architecture_description) return null;
+
+  const diagramSlug = PROJECT_ARCHITECTURE_SLUGS[project.slug];
 
   return (
     <section id="architecture" className="space-y-6 scroll-mt-24">
@@ -33,6 +37,33 @@ export function ProjectArchitectureSection({ project }: ProjectArchitectureSecti
       {project.architecture_data && (
         <div className="w-full">
           <ArchitectureDiagram data={project.architecture_data} />
+        </div>
+      )}
+
+      {/* Deep-Dive Card Linking to Full Architecture Explorer */}
+      {diagramSlug && (
+        <div className="p-4 rounded-xl border border-blue-200/60 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cobalt text-white shrink-0 shadow-xs">
+              <Layers className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-carbon dark:text-white">
+                Inspect Detailed Cloud &amp; Security Architecture
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Explore full multi-layer topology, live active ports, security controls, and verified repository evidence in the Architecture Explorer.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/architecture"
+            search={{ diagram: diagramSlug }}
+            className="mono inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-cobalt text-white text-xs font-bold hover:bg-cobalt/90 transition-colors shadow-xs shrink-0"
+          >
+            <span>EXPLORE TOPOLOGY</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
       )}
     </section>

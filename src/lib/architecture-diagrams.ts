@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Json } from "@/integrations/supabase/types";
+import { PROJECT_ARCHITECTURES } from "./project-architectures";
 
 export type ArchitectureCategory =
   | "client"
@@ -44,6 +45,8 @@ export interface ArchitectureNode {
     | "observability"
     | "cicd"
     | "networking";
+  verification?: "code" | "documented";
+  evidence?: string[];
 }
 
 export interface ArchitectureEdge {
@@ -191,336 +194,7 @@ export const CATEGORY_COLORS: Record<
  * verified CloudArchitectureMatrix data, and production deployments.
  */
 export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
-  // ---------------------------------------------------------------------------
-  // ARCHITECTURE A: PERSONAL PORTFOLIO (PP·OPS CLOUD)
-  // ---------------------------------------------------------------------------
-  {
-    id: "arch-personal-portfolio",
-    project_id: null,
-    title: "PP·OPS Multi-Cloud Portfolio Architecture",
-    slug: "personal-portfolio",
-    description:
-      "Production cloud topography powering piyushprasad.in across Vercel global edge, TanStack Start SSR runtime, Supabase PostgreSQL cluster (AWS ap-south-1), Gemini AI inference, and GitHub Actions CI/CD automation.",
-    architecture_type: "Full-Stack Cloud & Edge",
-    display_order: 1,
-    is_published: true,
-    created_at: "2024-01-15T00:00:00Z",
-    updated_at: "2026-11-19T00:00:00Z",
-    diagram_data: {
-      version: 1,
-      viewport: { x: 0, y: 0, zoom: 0.95 },
-      nodes: [
-        {
-          id: "node-client",
-          name: "Global Web Visitor",
-          category: "client",
-          tech: "Web Browser / HTTP Client",
-          provider: "User Edge",
-          description:
-            "Visitor accessing portfolio, telemetry console, and interactive diagnostic tools.",
-          responsibilities: [
-            "Initiates encrypted TLS 1.3 HTTP/2 requests",
-            "Renders client-side React 19 interactive controls",
-            "Executes responsive styling and theme hydration",
-          ],
-          configuration: [
-            "HTTP/2 & HTTP/3 multiplexing",
-            "Brotli / Gzip decompression",
-            "No client credential exposure",
-          ],
-          region: "Worldwide Anycast",
-          security_controls: [
-            "Content-Security-Policy (CSP)",
-            "Strict-Transport-Security (HSTS)",
-            "X-Content-Type-Options: nosniff",
-          ],
-          x: 40,
-          y: 180,
-          status: "active",
-          layer: "client",
-        },
-        {
-          id: "node-dns",
-          name: "Anycast DNS & SSL Termination",
-          category: "dns",
-          tech: "Cloudflare & Vercel Anycast DNS",
-          provider: "Cloudflare Anycast",
-          description:
-            "Dual-stack IPv4/IPv6 DNS resolution, A/AAAA records, and edge TLS 1.3 cryptographic termination.",
-          responsibilities: [
-            "Resolves piyushprasad.in via sub-20ms Anycast nameservers",
-            "Terminates public TLS with Google Trust Services certificates",
-            "Enforces strict HTTP-to-HTTPS redirect",
-          ],
-          configuration: [
-            "DNSSEC signed zone",
-            "TLS 1.3 modern cipher suite: TLS_AES_128_GCM_SHA256",
-            "HSTS max-age=63072000; includeSubDomains",
-          ],
-          region: "Global Anycast POPs",
-          security_controls: [
-            "DDoS mitigation rate limits",
-            "TLS 1.3 0-RTT resumption",
-            "Automated SSL certificate renewal",
-          ],
-          x: 270,
-          y: 80,
-          status: "verified",
-          layer: "edge",
-        },
-        {
-          id: "node-edge",
-          name: "Edge CDN & Serverless Ingress",
-          category: "cdn",
-          tech: "Vercel Global Edge Network",
-          provider: "Vercel Serverless",
-          description:
-            "Distributed serverless ingress routing static assets and dispatching dynamic SSR requests.",
-          responsibilities: [
-            "Caches static JavaScript, CSS, and media at edge POPs",
-            "Dispatches SSR page requests to Node.js serverless functions",
-            "Applies Brotli compression for minimal payload transit",
-          ],
-          configuration: [
-            "Sub-50ms worldwide Time-To-First-Byte (TTFB)",
-            "Immutable asset hashing for zero stale cache bugs",
-            "Zero-downtime rolling deploys on Git push",
-          ],
-          region: "Global Edge (Singapore/Mumbai ingress)",
-          security_controls: [
-            "Serverless function isolation",
-            "Zero client environment leak",
-            "Isolated container runtime",
-          ],
-          x: 500,
-          y: 80,
-          status: "operational",
-          layer: "edge",
-        },
-        {
-          id: "node-ssr",
-          name: "TanStack Start Server Handlers",
-          category: "application",
-          tech: "TanStack Start / Nitro Runtime",
-          provider: "Node.js Serverless Function",
-          description:
-            "Full-stack server runtime handling Server-Side Rendering, API routes, email dispatches, and DB queries.",
-          responsibilities: [
-            "Executes /api/contact form submission handler",
-            "Performs atomic rate-limiting checks against Supabase",
-            "Proxies AI chat queries to Google Gemini API",
-          ],
-          configuration: [
-            "Node.js ephemeral execution environment",
-            "Server-side environment secrets: RESEND_API_KEY, GEMINI_API_KEY",
-            "Strict TypeScript validation on all request payloads",
-          ],
-          region: "ap-south-1 Edge",
-          security_controls: [
-            "Zero-trust credential encapsulation",
-            "Honeypot form validation",
-            "Atomic DB-backed rate limiter",
-          ],
-          x: 740,
-          y: 80,
-          status: "operational",
-          port: "443",
-          layer: "compute",
-        },
-        {
-          id: "node-db",
-          name: "Supabase PostgreSQL Cluster",
-          category: "database",
-          tech: "PostgreSQL 15 / Supabase Cloud",
-          provider: "AWS ap-south-1 (Mumbai)",
-          description:
-            "Relational database storing projects, architecture topologies, contact messages, and audit telemetry.",
-          responsibilities: [
-            "Maintains 7 telemetry & persistence tables",
-            "Enforces Row Level Security (RLS) on all client queries",
-            "Executes atomic SELECT ... FOR UPDATE rate limits",
-          ],
-          configuration: [
-            "Dedicated low-latency AWS ap-south-1 Mumbai zone",
-            "Connection pooling with PgBouncer",
-            "Automated snapshot recovery & pre-deletion SQL dumps",
-          ],
-          region: "AWS Asia Pacific (Mumbai) ap-south-1",
-          security_controls: [
-            "Strict Row Level Security (RLS) enabled",
-            "has_role(auth.uid(), 'admin') role gating",
-            "Encrypted connection with SSL mode require",
-          ],
-          x: 980,
-          y: 80,
-          status: "verified",
-          port: "5432",
-          layer: "persistence",
-        },
-        {
-          id: "node-gemini",
-          name: "Google Gemini AI Inference",
-          category: "ai",
-          tech: "Gemini 1.5 Flash / REST API",
-          provider: "Google Cloud Vertex / AI Studio",
-          description:
-            "Semantic inference engine powering the Ask Piyush AI interactive portfolio assistant.",
-          responsibilities: [
-            "Generates context-grounded responses from portfolio knowledge",
-            "Enforces technical tone and engineering focus",
-            "Streams answer tokens back through server handler",
-          ],
-          configuration: [
-            "Server-to-server HTTPS REST communication",
-            "System prompt injected with verified project documentation",
-            "Zero client-side API key leakage",
-          ],
-          region: "Multi-Region Google Cloud",
-          security_controls: [
-            "Rate-limited per visitor IP address",
-            "Prompt injection defense guards",
-            "Telemetry logged to Supabase chat_activity",
-          ],
-          x: 740,
-          y: 280,
-          status: "operational",
-          layer: "compute",
-        },
-        {
-          id: "node-resend",
-          name: "Resend Transactional Email",
-          category: "application",
-          tech: "Resend API / SMTP Fallback",
-          provider: "Resend Email Cloud",
-          description:
-            "Dispatches contact form notifications to hello@piyushprasad.in and confirmations to visitors.",
-          responsibilities: [
-            "Sends admin alert to hello@piyushprasad.in with Reply-To",
-            "Sends branded 24h confirmation email to visitor",
-            "Provides delivery failure logging and retry telemetry",
-          ],
-          configuration: [
-            "DKIM verified domain: notification@piyushprasad.in",
-            "SPF include:amazonses.com / resend",
-            "DMARC quarantine policy enforced",
-          ],
-          region: "Global Relay",
-          security_controls: [
-            "API key kept in server-side process.env only",
-            "Honeypot filter prevents email spam bots",
-            "Idempotency token prevents duplicate dispatches",
-          ],
-          x: 980,
-          y: 280,
-          status: "verified",
-          layer: "compute",
-        },
-        {
-          id: "node-cicd",
-          name: "GitHub Actions CI/CD Pipeline",
-          category: "cicd",
-          tech: "GitHub Actions / CodeQL / Dependabot",
-          provider: "GitHub Cloud Runners",
-          description:
-            "Continuous integration pipeline running TypeScript checks, ESLint, CodeQL SAST, and automated deployment.",
-          responsibilities: [
-            "Runs strict tsc --noEmit typechecks on every commit",
-            "Performs CodeQL Advanced SAST security scans on PRs",
-            "Triggers automated zero-downtime production deployment",
-          ],
-          configuration: [
-            "Ubuntu latest hosted runner environment",
-            "Dependency lockfile verification (npm ci)",
-            "Staging preview builds on test.piyushprasad.in",
-          ],
-          region: "GitHub Cloud",
-          security_controls: [
-            "Branch protection rules on staging and main",
-            "Secret masking in workflow build logs",
-            "Dependabot automated CVE patch PRs",
-          ],
-          x: 270,
-          y: 280,
-          status: "active",
-          layer: "cicd",
-        },
-      ],
-      edges: [
-        {
-          id: "e-client-dns",
-          source: "node-client",
-          target: "node-dns",
-          label: "DNS Query & Ingress",
-          protocol: "DNS UDP / Anycast",
-          direction: "directional",
-          description: "Visitor client resolves domain and establishes TLS handshake.",
-          category: "network",
-          animated: true,
-        },
-        {
-          id: "e-dns-edge",
-          source: "node-dns",
-          target: "node-edge",
-          label: "HTTPS Request Transit",
-          protocol: "TLS 1.3 / HTTP/2",
-          direction: "directional",
-          description: "Encrypted request routed to closest Anycast CDN edge POP.",
-          category: "network",
-          animated: true,
-        },
-        {
-          id: "e-edge-ssr",
-          source: "node-edge",
-          target: "node-ssr",
-          label: "Serverless Dispatch",
-          protocol: "Internal IPC",
-          direction: "directional",
-          description: "Edge serverless router executes TanStack Start SSR function.",
-          category: "network",
-        },
-        {
-          id: "e-ssr-db",
-          source: "node-ssr",
-          target: "node-db",
-          label: "RLS SQL Queries",
-          protocol: "PostgreSQL Wire / TLS",
-          direction: "bidirectional",
-          description: "Server handler reads/writes database records with RLS protection.",
-          category: "data",
-        },
-        {
-          id: "e-ssr-gemini",
-          source: "node-ssr",
-          target: "node-gemini",
-          label: "Inference Query Proxy",
-          protocol: "HTTPS REST / JSON",
-          direction: "bidirectional",
-          description: "Server function proxies user chat prompt with grounding context.",
-          category: "data",
-        },
-        {
-          id: "e-ssr-resend",
-          source: "node-ssr",
-          target: "node-resend",
-          label: "Email Trigger Dispatch",
-          protocol: "HTTPS REST",
-          direction: "directional",
-          description: "Server function triggers contact notification and confirmation emails.",
-          category: "data",
-        },
-        {
-          id: "e-cicd-edge",
-          source: "node-cicd",
-          target: "node-edge",
-          label: "Automated Git Deploy",
-          protocol: "GitHub Webhook / CLI",
-          direction: "directional",
-          description: "Verified code passes CI gates and triggers zero-downtime edge deploy.",
-          category: "deployment",
-        },
-      ],
-    },
-  },
+  ...PROJECT_ARCHITECTURES,
 
   // ---------------------------------------------------------------------------
   // ARCHITECTURE B: AWS CI/CD DEPLOYMENT (KAMLESH-PRASAD)
@@ -533,7 +207,7 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     description:
       "Production cloud infrastructure and zero-downtime deployment pipeline for kamleshprasad.com. Features automated GitHub Actions runners, SSH key deployment scripts, AWS EC2 Ubuntu host, Nginx reverse proxy, and Cloudflare CDN.",
     architecture_type: "AWS & CI/CD Pipeline",
-    display_order: 2,
+    display_order: 6,
     is_published: true,
     created_at: "2024-03-01T00:00:00Z",
     updated_at: "2026-11-19T00:00:00Z",
@@ -868,7 +542,7 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     description:
       "Production-hardened AWS EC2 infrastructure stack equipped with Prometheus time-series metric collection, Grafana visualization dashboards, Trivy vulnerability auditing, and strict UFW firewall policies.",
     architecture_type: "DevSecOps & Observability",
-    display_order: 3,
+    display_order: 7,
     is_published: true,
     created_at: "2024-04-10T00:00:00Z",
     updated_at: "2026-11-19T00:00:00Z",
@@ -1196,7 +870,7 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     description:
       "High-concurrency serverless Telegram chatbot architecture running on Cloudflare Workers edge. Features webhook secret authentication, Google Gemini primary AI model, Cloudflare Workers AI fallback, and Cloudflare D1 serverless SQLite database.",
     architecture_type: "Serverless Edge & AI Fallback",
-    display_order: 4,
+    display_order: 8,
     is_published: true,
     created_at: "2024-05-15T00:00:00Z",
     updated_at: "2026-11-19T00:00:00Z",
@@ -1500,9 +1174,16 @@ function formatDbDiagram(raw: unknown): ArchitectureDiagram {
     architecture_type: row.architecture_type || "cloud",
     diagram_data: {
       version: typeof data?.version === "number" ? data.version : 1,
-      nodes: Array.isArray(data?.nodes) ? (data.nodes as ArchitectureNode[]) : [],
+      nodes: Array.isArray(data?.nodes)
+        ? (data.nodes as ArchitectureNode[]).map((n) => ({
+            ...n,
+            verification: n.verification,
+            evidence: Array.isArray(n.evidence) ? n.evidence : undefined,
+          }))
+        : [],
       edges: Array.isArray(data?.edges) ? (data.edges as ArchitectureEdge[]) : [],
       viewport: data?.viewport || { x: 0, y: 0, zoom: 1 },
+      journey: Array.isArray(data?.journey) ? (data.journey as string[]) : [],
     },
     is_published: Boolean(row.is_published),
     display_order: Number(row.display_order ?? 0),
@@ -1676,4 +1357,41 @@ export async function toggleArchitecturePublish(
   }
 
   return formatDbDiagram(data);
+}
+
+
+/**
+ * Synchronize built-in architectures into Supabase.
+ * Upserts based on slug to preserve existing schema and avoid duplication.
+ */
+export async function syncBuiltInArchitectures(): Promise<{ synced: number; errors: string[] }> {
+  const errors: string[] = [];
+  let synced = 0;
+
+  for (const arch of INITIAL_ARCHITECTURES) {
+    try {
+      const { error } = await supabase.from("architecture_diagrams").upsert(
+        {
+          title: arch.title,
+          slug: arch.slug.toLowerCase().trim(),
+          description: arch.description,
+          architecture_type: arch.architecture_type,
+          project_id: arch.project_id,
+          diagram_data: arch.diagram_data as unknown as Json,
+          is_published: arch.is_published,
+          display_order: arch.display_order,
+        },
+        { onConflict: "slug" }
+      );
+      if (error) {
+        errors.push(`${arch.slug}: ${error.message}`);
+      } else {
+        synced++;
+      }
+    } catch (err: any) {
+      errors.push(`${arch.slug}: ${err?.message || String(err)}`);
+    }
+  }
+
+  return { synced, errors };
 }

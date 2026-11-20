@@ -38,6 +38,7 @@ import {
   updateArchitecture,
   deleteArchitecture,
   toggleArchitecturePublish,
+  syncBuiltInArchitectures,
   type ArchitectureDiagram,
   type ArchitectureDiagramInput,
   type ArchitectureNode,
@@ -248,6 +249,27 @@ function DashboardArchitecturesPage() {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncSeeds = async () => {
+    try {
+      setIsSyncing(true);
+      const res = await syncBuiltInArchitectures();
+      if (res.errors.length > 0) {
+        toast.error(`Synced ${res.synced} diagrams with ${res.errors.length} errors.`);
+      } else {
+        toast.success(`Successfully synchronized ${res.synced} built-in architecture diagrams!`);
+      }
+      queryClient.invalidateQueries({ queryKey: ["admin-architectures"] });
+      queryClient.invalidateQueries({ queryKey: ["published-architectures"] });
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to sync built-in architectures");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Open diagram modal
   const handleOpenDiagramModal = (arch?: ArchitectureDiagram) => {
@@ -538,7 +560,17 @@ function DashboardArchitecturesPage() {
             className="mono inline-flex items-center gap-1.5 border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-carbon hover:border-cobalt hover:text-cobalt transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
-            <span>SYNC</span>
+            <span>REFRESH</span>
+          </button>
+          <button
+            type="button"
+            disabled={isSyncing}
+            onClick={handleSyncSeeds}
+            className="mono inline-flex items-center gap-1.5 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors cursor-pointer"
+            title="Upsert all verified built-in architecture diagrams into database"
+          >
+            <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
+            <span>SYNC SEEDS</span>
           </button>
           <a
             href="/architecture"

@@ -22,6 +22,8 @@ export interface UnifiedNode {
   responsibilities?: string[];
   configuration?: string[];
   security_controls?: string[];
+  verification?: "code" | "documented";
+  evidence?: string[];
   raw?: any;
 }
 
@@ -40,9 +42,24 @@ export interface UnifiedEdge {
   midY: number;
 }
 
+export interface LayoutOptions {
+  autoLayout?: boolean;
+}
+
+export interface LayoutZone {
+  id: string;
+  title: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isAwsVpc?: boolean;
+}
+
 export interface LayoutResult {
   nodes: UnifiedNode[];
   edges: UnifiedEdge[];
+  zones: LayoutZone[];
   viewBox: {
     minX: number;
     minY: number;
@@ -324,6 +341,7 @@ export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult 
   return {
     nodes,
     edges,
+    zones: [],
     viewBox: {
       minX: 0,
       minY: 0,
@@ -334,51 +352,274 @@ export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult 
 }
 
 /**
- * Layout engine for full architecture diagram canvas data (ArchitectureDiagramData)
+ * Intelligent topological infrastructure tier definitions
  */
-export function layoutArchitectureCanvas(data: ArchitectureDiagramData): LayoutResult {
+interface TierDefinition {
+  id: string;
+  title: string;
+  categories: ArchitectureCategory[];
+  isMatch: (node: ArchitectureNode) => boolean;
+}
+
+const ARCHITECTURE_TIERS: TierDefinition[] = [
+  {
+    id: "tier-client",
+    title: "TIER 01 · CLIENT & INGRESS EDGE",
+    categories: ["client"],
+    isMatch: (n) => n.category === "client",
+  },
+  {
+    id: "tier-routing",
+    title: "TIER 02 · EDGE ROUTING, CDN & DNS",
+    categories: ["dns", "cdn", "networking"],
+    isMatch: (n) => ["dns", "cdn", "networking"].includes(n.category),
+  },
+  {
+    id: "tier-security",
+    title: "TIER 03 · PERIMETER SECURITY & FIREWALL",
+    categories: ["security"],
+    isMatch: (n) => n.category === "security",
+  },
+  {
+    id: "tier-compute",
+    title: "TIER 04 · COMPUTE RUNTIME & APPLICATION",
+    categories: ["compute", "application"],
+    isMatch: (n) => ["compute", "application"].includes(n.category),
+  },
+  {
+    id: "tier-persistence",
+    title: "TIER 05 · PERSISTENCE & DATA STORAGE",
+    categories: ["database", "storage"],
+    isMatch: (n) => ["database", "storage"].includes(n.category),
+  },
+  {
+    id: "tier-ai-external",
+    title: "TIER 06 · AI INFERENCE & EXTERNAL APIS",
+    categories: ["ai"],
+    isMatch: (n) => n.category === "ai",
+  },
+  {
+    id: "tier-telemetry",
+    title: "TIER 07 · TELEMETRY & OBSERVABILITY",
+    categories: ["monitoring"],
+    isMatch: (n) => n.category === "monitoring",
+  },
+  {
+    id: "tier-automation",
+    title: "TIER 08 · CI/CD & DEVOPS AUTOMATION",
+    categories: ["cicd"],
+    isMatch: (n) => n.category === "cicd",
+  },
+];
+
+/**
+ * Layout engine for full architecture diagram canvas data (ArchitectureDiagramData).
+ * Supports smart topological auto-layout arranging components logically into left-to-right
+ * infrastructure swimlanes, eliminating large gaps and balancing horizontal/vertical density.
+ */
+export function layoutArchitectureCanvas(
+  data: ArchitectureDiagramData,
+  options: LayoutOptions = { autoLayout: true }
+): LayoutResult {
   const nodes = data.nodes || [];
   const rawEdges = data.edges || [];
 
   const nodeIds = new Set(nodes.map((n) => n.id));
   const validEdges = validateConnections(rawEdges, nodeIds, "ArchitectureCanvas");
 
-  const nodeMap = new Map<string, UnifiedNode>();
-  nodes.forEach((n) => {
-    let metricLabel: string | undefined;
-    if (n.port) {
-      metricLabel = `Port ${n.port}`;
-    } else if (n.category === "client" || n.category === "cdn") {
-      metricLabel = "Edge Cached";
-    } else if (n.category === "security") {
-      metricLabel = "Zero Trust";
-    } else if (n.category === "compute") {
-      metricLabel = "Auto Scaled";
-    }
+  const useAutoLayout = options.autoLayout !== false;
 
-    nodeMap.set(n.id, {
-      id: n.id,
-      name: n.name,
-      category: n.category,
-      tech: n.tech,
-      provider: n.provider,
-      description: n.description,
-      port: n.port,
-      status: n.status || "operational",
-      x: n.x,
-      y: n.y,
-      width: DEFAULT_NODE_WIDTH,
-      height: DEFAULT_NODE_HEIGHT,
-      metricLabel,
-      responsibilities: n.responsibilities,
-      configuration: n.configuration,
-      security_controls: n.security_controls,
-      raw: n,
+  const nodeMap = new Map<string, UnifiedNode>();
+  const computedZones: LayoutZone[] = [];
+
+  const colWidth = DEFAULT_NODE_WIDTH;
+  const colGap = 76;
+  const rowHeight = DEFAULT_NODE_HEIGHT;
+  const rowGap = 32;
+  const paddingX = 48;
+  const paddingY = 56;
+
+  if (useAutoLayout) {
+    // 1. Assign nodes to appropriate tier lanes
+    const tierLanes: { tier: TierDefinition; nodes: ArchitectureNode[] }[] = ARCHITECTURE_TIERS.map((tier) => ({
+      tier,
+      nodes: [],
+    }));
+
+    nodes.forEach((node) => {
+      let assignedIndex = -1;
+      for (let i = 0; i < ARCHITECTURE_TIERS.length; i++) {
+        if (ARCHITECTURE_TIERS[i].isMatch(node)) {
+          assignedIndex = i;
+          break;
+        }
+      }
+      if (assignedIndex === -1) {
+        // Fallback: put compute-like in compute tier
+        assignedIndex = 3;
+      }
+      tierLanes[assignedIndex].nodes.push(node);
     });
-  });
+
+    // 2. Filter active lanes that contain at least one node
+    const activeLanes = tierLanes.filter((lane) => lane.nodes.length > 0);
+
+    // Compute max column height to center columns vertically
+    const maxNodesInCol = Math.max(...activeLanes.map((l) => l.nodes.length), 1);
+    const canvasInnerHeight = maxNodesInCol * rowHeight + (maxNodesInCol - 1) * rowGap;
+
+    // 3. Layout each active lane
+    activeLanes.forEach((lane, laneIdx) => {
+      const colX = paddingX + laneIdx * (colWidth + colGap);
+      const laneNodeCount = lane.nodes.length;
+      const laneHeight = laneNodeCount * rowHeight + (laneNodeCount - 1) * rowGap;
+      const startY = paddingY + (canvasInnerHeight - laneHeight) / 2;
+
+      lane.nodes.forEach((n, rowIdx) => {
+        const x = colX;
+        const y = Math.round(startY + rowIdx * (rowHeight + rowGap));
+
+        let metricLabel: string | undefined;
+        if (n.port) {
+          metricLabel = `Port ${n.port}`;
+        } else if (n.category === "client" || n.category === "cdn") {
+          metricLabel = "Edge Cached";
+        } else if (n.category === "security") {
+          metricLabel = "Zero Trust";
+        } else if (n.category === "compute") {
+          metricLabel = "Auto Scaled";
+        }
+
+        nodeMap.set(n.id, {
+          id: n.id,
+          name: n.name,
+          category: n.category,
+          tech: n.tech,
+          provider: n.provider,
+          description: n.description,
+          port: n.port,
+          status: n.status || "operational",
+          x,
+          y,
+          width: colWidth,
+          height: rowHeight,
+          metricLabel,
+          responsibilities: n.responsibilities,
+          configuration: n.configuration,
+          security_controls: n.security_controls,
+          verification: n.verification,
+          evidence: n.evidence,
+          raw: n,
+        });
+      });
+
+      // Calculate distinct, non-overlapping swimlane boundary for this tier
+      const minLaneX = colX - 16;
+      const minLaneY = startY - 32;
+      const laneW = colWidth + 32;
+      const laneH = laneHeight + 44;
+
+      computedZones.push({
+        id: lane.tier.id,
+        title: lane.tier.title,
+        x: minLaneX,
+        y: minLaneY,
+        width: laneW,
+        height: laneH,
+      });
+    });
+  } else {
+    // Manual / Custom Preserved Coordinates
+    nodes.forEach((n) => {
+      let metricLabel: string | undefined;
+      if (n.port) {
+        metricLabel = `Port ${n.port}`;
+      } else if (n.category === "client" || n.category === "cdn") {
+        metricLabel = "Edge Cached";
+      } else if (n.category === "security") {
+        metricLabel = "Zero Trust";
+      } else if (n.category === "compute") {
+        metricLabel = "Auto Scaled";
+      }
+
+      nodeMap.set(n.id, {
+        id: n.id,
+        name: n.name,
+        category: n.category,
+        tech: n.tech,
+        provider: n.provider,
+        description: n.description,
+        port: n.port,
+        status: n.status || "operational",
+        x: n.x,
+        y: n.y,
+        width: DEFAULT_NODE_WIDTH,
+        height: DEFAULT_NODE_HEIGHT,
+        metricLabel,
+        responsibilities: n.responsibilities,
+        configuration: n.configuration,
+        security_controls: n.security_controls,
+        verification: n.verification,
+        evidence: n.evidence,
+        raw: n,
+      });
+    });
+
+    // Compute bounding zones by category
+    const zoneDefinitions = [
+      { id: "client-edge", title: "CLIENT & INGRESS EDGE", categories: ["client", "dns", "cdn"] },
+      { id: "compute-app", title: "COMPUTE & RUNTIME ENVIRONMENT", categories: ["compute", "application"] },
+      { id: "persistence", title: "PERSISTENCE & MANAGED DATA", categories: ["database", "storage"] },
+      { id: "security-firewall", title: "SECURITY, NETFILTER & IDENTITY", categories: ["security"] },
+      { id: "observability", title: "OBSERVABILITY & TELEMETRY", categories: ["monitoring"] },
+      { id: "cicd-devops", title: "CI/CD & PIPELINE AUTOMATION", categories: ["cicd"] },
+      { id: "ai-inference", title: "AI INFERENCE & LIVE MODELS", categories: ["ai"] },
+    ];
+
+    for (const def of zoneDefinitions) {
+      const matchingNodes = Array.from(nodeMap.values()).filter((n) => def.categories.includes(n.category));
+      if (matchingNodes.length > 0) {
+        const minX = Math.min(...matchingNodes.map((n) => n.x));
+        const minY = Math.min(...matchingNodes.map((n) => n.y));
+        const maxX = Math.max(...matchingNodes.map((n) => n.x + n.width));
+        const maxY = Math.max(...matchingNodes.map((n) => n.y + n.height));
+
+        computedZones.push({
+          id: def.id,
+          title: def.title,
+          x: minX - 16,
+          y: minY - 30,
+          width: maxX - minX + 32,
+          height: maxY - minY + 42,
+        });
+      }
+    }
+  }
 
   const unifiedNodes = Array.from(nodeMap.values());
 
+  // AWS VPC boundary detection
+  const awsNodes = unifiedNodes.filter(
+    (n) => n.provider.toLowerCase().includes("aws") || n.tech.toLowerCase().includes("aws")
+  );
+  if (awsNodes.length >= 2) {
+    const minX = Math.min(...awsNodes.map((n) => n.x));
+    const minY = Math.min(...awsNodes.map((n) => n.y));
+    const maxX = Math.max(...awsNodes.map((n) => n.x + n.width));
+    const maxY = Math.max(...awsNodes.map((n) => n.y + n.height));
+
+    computedZones.push({
+      id: "aws-vpc-boundary",
+      title: "AWS VPC (10.0.0.0/16) • CLOUD BOUNDARY",
+      x: minX - 22,
+      y: minY - 34,
+      width: maxX - minX + 44,
+      height: maxY - minY + 48,
+      isAwsVpc: true,
+    });
+  }
+
+  // Build unified routed edges
   const edges: UnifiedEdge[] = validEdges.map((e) => {
     const sourceNode = nodeMap.get(e.source)!;
     const targetNode = nodeMap.get(e.target)!;
@@ -400,20 +641,37 @@ export function layoutArchitectureCanvas(data: ArchitectureDiagramData): LayoutR
     };
   });
 
-  // Calculate bounding box
-  const minX = Math.min(...unifiedNodes.map((n) => n.x), 0);
-  const minY = Math.min(...unifiedNodes.map((n) => n.y), 0);
-  const maxX = Math.max(...unifiedNodes.map((n) => n.x + n.width), 1200);
-  const maxY = Math.max(...unifiedNodes.map((n) => n.y + n.height), 700);
+  // Calculate tight, accurate bounding box around all nodes and zones
+  const allX = [
+    ...unifiedNodes.map((n) => n.x),
+    ...unifiedNodes.map((n) => n.x + n.width),
+    ...computedZones.map((z) => z.x),
+    ...computedZones.map((z) => z.x + z.width),
+  ];
+  const allY = [
+    ...unifiedNodes.map((n) => n.y),
+    ...unifiedNodes.map((n) => n.y + n.height),
+    ...computedZones.map((z) => z.y),
+    ...computedZones.map((z) => z.y + z.height),
+  ];
+
+  const minX = allX.length > 0 ? Math.min(...allX) : 0;
+  const minY = allY.length > 0 ? Math.min(...allY) : 0;
+  const maxX = allX.length > 0 ? Math.max(...allX) : 800;
+  const maxY = allY.length > 0 ? Math.max(...allY) : 400;
+
+  const padX = 40;
+  const padY = 40;
 
   return {
     nodes: unifiedNodes,
     edges,
+    zones: computedZones,
     viewBox: {
-      minX: minX - 40,
-      minY: minY - 40,
-      width: maxX - minX + 80,
-      height: maxY - minY + 80,
+      minX: Math.round(minX - padX),
+      minY: Math.round(minY - padY),
+      width: Math.round(Math.max(maxX - minX + padX * 2, 600)),
+      height: Math.round(Math.max(maxY - minY + padY * 2, 350)),
     },
   };
 }

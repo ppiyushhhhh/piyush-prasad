@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -38,6 +38,9 @@ import {
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/architecture")({
+  validateSearch: (search: Record<string, unknown>): { diagram?: string } => ({
+    diagram: typeof search.diagram === "string" ? search.diagram : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Interactive Infrastructure Architecture Explorer | Piyush Prasad" },
@@ -85,16 +88,30 @@ const VIEW_MODES: { id: ArchitectureViewMode; label: string; icon: typeof Layers
 ];
 
 function ArchitectureExplorerPage() {
+  const { diagram } = Route.useSearch();
+  const navigate = Route.useNavigate();
+
   const { data: architectures = INITIAL_ARCHITECTURES, isLoading } = useQuery({
     queryKey: ["published-architectures"],
     queryFn: fetchPublishedArchitectures,
     initialData: INITIAL_ARCHITECTURES,
   });
 
-  const [selectedSlug, setSelectedSlug] = useState<string>("personal-portfolio");
+  const [selectedSlug, setSelectedSlug] = useState<string>(
+    () => diagram || "personal-portfolio"
+  );
   const [viewMode, setViewMode] = useState<ArchitectureViewMode>("topology");
   const [selectedNode, setSelectedNode] = useState<ArchitectureNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<ArchitectureEdge | null>(null);
+
+  // Sync if URL query param changes
+  useEffect(() => {
+    if (diagram && diagram !== selectedSlug) {
+      setSelectedSlug(diagram);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+    }
+  }, [diagram, selectedSlug]);
 
   // Active architecture
   const currentArchitecture = useMemo(() => {
@@ -105,10 +122,12 @@ function ArchitectureExplorerPage() {
     );
   }, [architectures, selectedSlug]);
 
-  // Reset selected node when switching architecture
+  // Handle switching architecture tab
   const handleSelectArchitecture = (slug: string) => {
     setSelectedSlug(slug);
     setSelectedNode(null);
+    setSelectedEdge(null);
+    navigate({ search: { diagram: slug }, replace: true });
   };
 
   return (
@@ -317,9 +336,22 @@ function ArchitectureExplorerPage() {
                       <span className="mono text-[9px] uppercase font-bold text-cobalt">
                         {node.category}
                       </span>
-                      {node.port && (
-                        <span className="mono text-[9px] text-muted-foreground">{node.port}</span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {node.verification && (
+                          <span
+                            className={`mono text-[8.5px] font-bold px-1.5 py-0.5 rounded border ${
+                              node.verification === "code"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                            }`}
+                          >
+                            {node.verification === "code" ? "Code" : "Docs"}
+                          </span>
+                        )}
+                        {node.port && (
+                          <span className="mono text-[9px] text-muted-foreground">{node.port}</span>
+                        )}
+                      </div>
                     </div>
                     <h4 className="text-sm font-bold text-carbon dark:text-white">{node.name}</h4>
                     <p className="mono text-[11px] text-cobalt font-semibold mt-0.5">{node.tech}</p>
@@ -333,6 +365,102 @@ function ArchitectureExplorerPage() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Verified Data Flow & Connection Matrix Table */}
+          <div className="mt-12 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="mono text-[10px] font-bold uppercase tracking-widest text-cobalt">
+                VERIFIED INTERACTION MATRIX
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-bold text-carbon dark:text-white">
+              Data Flow Connections &amp; Protocols
+            </h3>
+
+            <div className="overflow-x-auto rounded-lg border border-border bg-white dark:bg-[#121316] shadow-2xs">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/60 mono text-[10px] uppercase text-muted-foreground">
+                    <th className="p-3.5 font-bold">Source Node</th>
+                    <th className="p-3.5 font-bold">Target Node</th>
+                    <th className="p-3.5 font-bold">Connection Label</th>
+                    <th className="p-3.5 font-bold">Protocol / Wire</th>
+                    <th className="p-3.5 font-bold">Category</th>
+                    <th className="p-3.5 font-bold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {currentArchitecture.diagram_data.edges.map((edge) => {
+                    const sourceNode = currentArchitecture.diagram_data.nodes.find(
+                      (n) => n.id === edge.source
+                    );
+                    const targetNode = currentArchitecture.diagram_data.nodes.find(
+                      (n) => n.id === edge.target
+                    );
+                    const isSelected = selectedEdge?.id === edge.id;
+
+                    return (
+                      <tr
+                        key={edge.id}
+                        className={`transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40 ${
+                          isSelected ? "bg-blue-50/60 dark:bg-blue-950/20 font-semibold" : ""
+                        }`}
+                      >
+                        <td className="p-3.5">
+                          <span className="font-bold text-carbon dark:text-white block">
+                            {sourceNode?.name || edge.source}
+                          </span>
+                          <span className="mono text-[10px] text-muted-foreground">
+                            {sourceNode?.tech}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="font-bold text-carbon dark:text-white block">
+                            {targetNode?.name || edge.target}
+                          </span>
+                          <span className="mono text-[10px] text-muted-foreground">
+                            {targetNode?.tech}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="text-carbon dark:text-neutral-200">
+                            {edge.label || edge.protocol}
+                          </span>
+                          {edge.description && (
+                            <span className="text-[11px] text-muted-foreground block line-clamp-1 mt-0.5">
+                              {edge.description}
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5 mono text-[11px] text-cobalt font-semibold">
+                          {edge.protocol || "TCP/IP"}
+                        </td>
+                        <td className="p-3.5">
+                          <span className="mono text-[9px] uppercase px-2 py-0.5 rounded font-bold border border-border/80 bg-[#FAF9F6] dark:bg-neutral-900 text-carbon dark:text-neutral-300">
+                            {edge.category}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedEdge(edge);
+                              setSelectedNode(null);
+                              window.scrollTo({ top: 320, behavior: "smooth" });
+                            }}
+                            className="mono text-xs text-cobalt font-bold hover:underline cursor-pointer"
+                          >
+                            Inspect &rarr;
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
