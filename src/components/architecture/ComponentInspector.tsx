@@ -32,6 +32,7 @@ interface ComponentInspectorProps {
   allNodes: ArchitectureNode[];
   onClose: () => void;
   onSelectNode: (node: ArchitectureNode) => void;
+  className?: string;
 }
 
 export function ComponentInspector({
@@ -41,6 +42,7 @@ export function ComponentInspector({
   allNodes,
   onClose,
   onSelectNode,
+  className = "",
 }: ComponentInspectorProps) {
   if (!node && !edge) return null;
 
@@ -79,10 +81,11 @@ export function ComponentInspector({
 
     return (
       <div
-        className="flex flex-col h-full bg-white dark:bg-[#121316] border-l border-border/80 shadow-lg overflow-y-auto animate-in slide-in-from-right-4 duration-200"
+        className={`flex flex-col h-full bg-white dark:bg-[#121316] border-l border-border/80 shadow-lg overflow-y-auto animate-in slide-in-from-right-4 duration-200 ${className}`}
         role="region"
         aria-label={`Connection details for ${edge.label || edge.protocol}`}
       >
+        <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full mx-auto mt-2 mb-0.5 md:hidden" />
         <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
           <div>
             <span className="mono inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-blue-200 bg-blue-50 text-cobalt">
@@ -188,13 +191,17 @@ export function ComponentInspector({
   const inboundEdges = edges.filter((e) => e.target === node.id);
   const outboundEdges = edges.filter((e) => e.source === node.id);
   const IconComponent = getNodeIcon(node.category);
+  const upstreamNodes = allNodes.filter((n) => inboundEdges.some((e) => e.source === n.id));
+  const downstreamNodes = allNodes.filter((n) => outboundEdges.some((e) => e.target === n.id));
 
   return (
     <div
-      className="flex flex-col h-full bg-white dark:bg-[#121316] border-l border-border/80 shadow-lg overflow-y-auto animate-in slide-in-from-right-4 duration-200"
+      className={`flex flex-col h-full bg-white dark:bg-[#121316] border-l border-border/80 shadow-lg overflow-y-auto animate-in slide-in-from-right-4 duration-200 ${className}`}
       role="region"
       aria-label={`Component details for ${node.name}`}
     >
+      <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full mx-auto mt-2 mb-0.5 md:hidden" />
+
       {/* Top Header */}
       <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
         <div className="flex items-center gap-3.5 min-w-0">
@@ -359,6 +366,81 @@ export function ComponentInspector({
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Data Flow Protocols & Network Details */}
+        <div className="space-y-2">
+          <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center justify-between">
+            <span>DATA FLOW SPECIFICATION</span>
+            <Activity className="h-3 w-3 text-cobalt" />
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+              <span className="mono text-[9px] text-muted-foreground block">INGRESS PROTOCOLS</span>
+              <span className="mono font-semibold text-[11px] text-carbon dark:text-white">
+                {inboundEdges.length > 0
+                  ? Array.from(new Set(inboundEdges.map((e) => e.protocol || "HTTP"))).join(", ")
+                  : "Origin / Edge Entry"}
+              </span>
+            </div>
+            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+              <span className="mono text-[9px] text-muted-foreground block">EGRESS DISPATCH</span>
+              <span className="mono font-semibold text-[11px] text-carbon dark:text-white">
+                {outboundEdges.length > 0
+                  ? Array.from(new Set(outboundEdges.map((e) => e.protocol || "TCP"))).join(", ")
+                  : "Terminal Sink / Store"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Runtime Dependencies & Prerequisites */}
+        {(upstreamNodes.length > 0 || downstreamNodes.length > 0) && (
+          <div className="space-y-2">
+            <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              DEPENDENCIES &amp; RUNTIME PREREQUISITES
+            </span>
+            <div className="border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 rounded-lg p-3 space-y-2.5">
+              {downstreamNodes.length > 0 && (
+                <div>
+                  <span className="mono text-[9px] font-bold text-cobalt block mb-1">
+                    REQUIRED DOWNSTREAM SERVICES ({downstreamNodes.length}):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {downstreamNodes.map((dep) => (
+                      <button
+                        key={dep.id}
+                        type="button"
+                        onClick={() => onSelectNode(dep)}
+                        className="mono text-[9.5px] px-2 py-0.5 rounded bg-white dark:bg-neutral-800 border border-border hover:border-cobalt text-carbon dark:text-neutral-200 cursor-pointer transition-colors"
+                      >
+                        {dep.name} &bull; <span className="text-muted-foreground">{dep.tech}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {upstreamNodes.length > 0 && (
+                <div className="pt-2 border-t border-border/50">
+                  <span className="mono text-[9px] font-bold text-muted-foreground block mb-1">
+                    TRIGGERED / CALLED BY ({upstreamNodes.length}):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {upstreamNodes.map((up) => (
+                      <button
+                        key={up.id}
+                        type="button"
+                        onClick={() => onSelectNode(up)}
+                        className="mono text-[9.5px] px-2 py-0.5 rounded bg-white dark:bg-neutral-800 border border-border hover:border-cobalt text-carbon dark:text-neutral-200 cursor-pointer transition-colors"
+                      >
+                        {up.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

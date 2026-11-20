@@ -17,7 +17,14 @@ export type ArchitectureCategory =
   | "ai";
 
 export type ArchitectureViewMode =
-  "topology" | "network" | "security" | "infrastructure" | "deployment";
+  | "topology"
+  | "request_flow"
+  | "dns_network"
+  | "security"
+  | "deployment"
+  | "data_flow"
+  | "network"
+  | "infrastructure";
 
 export interface ArchitectureNode {
   id: string;
@@ -214,6 +221,13 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
     diagram_data: {
       version: 1,
       viewport: { x: 0, y: 0, zoom: 0.95 },
+      journey: [
+        "node-visitor",
+        "node-kamlesh-dns",
+        "node-cloudflare",
+        "node-nginx",
+        "node-nodeapp",
+      ],
       nodes: [
         {
           id: "node-dev",
@@ -430,18 +444,48 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
           category: "client",
           tech: "Web Browser",
           provider: "Public Internet",
-          description: "End user accessing kamleshprasad.com over encrypted HTTPS connection.",
+          description: "End user accessing kamleshprasad.in over encrypted HTTPS connection.",
           responsibilities: [
-            "Requests website pages and assets",
-            "Receives cached content from Cloudflare edge",
+            "Initiates DNS lookup for kamleshprasad.in",
+            "Receives cached content from Cloudflare Anycast edge",
           ],
           configuration: ["TLS 1.3 / HTTP/2 connection"],
           region: "Worldwide",
           security_controls: ["Encrypted payload transit"],
-          x: 270,
+          x: 120,
           y: 280,
           status: "active",
           layer: "client",
+        },
+        {
+          id: "node-kamlesh-dns",
+          name: "Cloudflare Authoritative DNS",
+          category: "dns",
+          tech: "Cloudflare Anycast DNS",
+          provider: "Cloudflare DNS",
+          description:
+            "Authoritative DNS resolution for kamleshprasad.in mapping incoming traffic to Cloudflare Anycast proxy.",
+          responsibilities: [
+            "Resolves kamleshprasad.in with global Anycast routing",
+            "Protects origin IP address behind Cloudflare proxy",
+            "Validates encrypted DNS-over-HTTPS (DoH) requests",
+          ],
+          configuration: [
+            "Zone: kamleshprasad.in",
+            "Record: A @ -> Cloudflare Anycast Proxy",
+            "Record: CNAME www -> kamleshprasad.in",
+            "Protocols: UDP Port 53 / DoH Port 443",
+          ],
+          region: "Global Anycast Edge",
+          security_controls: [
+            "Origin server IP cloaked behind proxy",
+            "Cloudflare Layer 3/4 DDoS mitigation",
+          ],
+          x: 320,
+          y: 280,
+          status: "verified",
+          port: "53, 443",
+          layer: "edge",
         },
       ],
       edges: [
@@ -517,13 +561,24 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
           animated: true,
         },
         {
-          id: "e-visitor-cloudflare",
+          id: "e-visitor-dns",
           source: "node-visitor",
+          target: "node-kamlesh-dns",
+          label: "DNS Resolution",
+          protocol: "DNS (UDP 53 / DoH)",
+          direction: "directional",
+          description: "Browser resolves kamleshprasad.in via Cloudflare authoritative Anycast nameservers.",
+          category: "network",
+          animated: true,
+        },
+        {
+          id: "e-dns-cloudflare",
+          source: "node-kamlesh-dns",
           target: "node-cloudflare",
-          label: "User Access",
+          label: "Anycast Edge Route",
           protocol: "HTTPS / TLS 1.3",
           direction: "directional",
-          description: "Visitor accesses website through nearest Cloudflare edge location.",
+          description: "Resolved query reaches Cloudflare CDN edge proxy.",
           category: "network",
           animated: true,
         },
@@ -565,6 +620,32 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
           y: 80,
           status: "active",
           layer: "client",
+        },
+        {
+          id: "node-onixmall-dns",
+          name: "DNS Resolution Gateway",
+          category: "dns",
+          tech: "Authoritative Cloud DNS",
+          provider: "Cloud DNS / Route 53",
+          description:
+            "Resolves public domain name to AWS EC2 Elastic IP address with encrypted TLS handshake routing.",
+          responsibilities: [
+            "Maps domain hostname to AWS Elastic IP",
+            "Directs incoming HTTP/HTTPS traffic to network firewall",
+            "Supports DNS-over-HTTPS (DoH)",
+          ],
+          configuration: [
+            "Record: A @ -> AWS EC2 Elastic IP",
+            "Record: CNAME www -> @",
+            "Protocols: UDP Port 53 / DoH Port 443",
+          ],
+          region: "AWS Global Edge",
+          security_controls: ["DNSSEC validation", "DDoS mitigation at Anycast layer"],
+          x: 180,
+          y: 80,
+          status: "verified",
+          port: "53, 443",
+          layer: "edge",
         },
         {
           id: "node-ufw",
@@ -784,13 +865,24 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
       ],
       edges: [
         {
-          id: "e-ingress-ufw",
+          id: "e-ingress-dns",
           source: "node-ingress",
+          target: "node-onixmall-dns",
+          label: "DNS Query",
+          protocol: "DNS (UDP 53 / DoH)",
+          direction: "directional",
+          description: "Incoming user traffic performs DNS lookup to resolve public server IP.",
+          category: "network",
+          animated: true,
+        },
+        {
+          id: "e-dns-ufw",
+          source: "node-onixmall-dns",
           target: "node-ufw",
           label: "Inbound Packets",
           protocol: "TCP/IP",
           direction: "directional",
-          description: "All incoming traffic evaluated by UFW default-deny policy.",
+          description: "Resolved traffic reaches host firewall and is evaluated by UFW default-deny policy.",
           category: "security",
           animated: true,
         },

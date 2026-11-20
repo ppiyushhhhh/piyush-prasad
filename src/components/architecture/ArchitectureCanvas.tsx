@@ -12,6 +12,7 @@ import {
   Repeat,
   X,
   Compass,
+  Maximize2,
 } from "lucide-react";
 import type {
   ArchitectureDiagramData,
@@ -48,6 +49,7 @@ interface ArchitectureCanvasProps {
   selectedEdge?: ArchitectureEdge | null;
   onSelectNode: (node: ArchitectureNode | null) => void;
   onSelectEdge?: (edge: ArchitectureEdge | null) => void;
+  onOpenWorkspace?: () => void;
   isEditable?: boolean;
   onUpdateNodes?: (nodes: ArchitectureNode[]) => void;
   className?: string;
@@ -60,6 +62,7 @@ export function ArchitectureCanvas({
   selectedEdge,
   onSelectNode,
   onSelectEdge,
+  onOpenWorkspace,
   isEditable = false,
   onUpdateNodes,
   className = "",
@@ -135,23 +138,23 @@ export function ArchitectureCanvas({
     },
   });
 
-  // Calculate Scale to Fit Diagram Perfectly Inside Container
+  // Calculate Scale to Fit Diagram Perfectly Inside Container Viewport
   const fitToScreen = useCallback(() => {
     if (!containerRef.current) return;
     const { clientWidth, clientHeight } = containerRef.current;
     if (!clientWidth || !clientHeight) return;
 
-    const padX = clientWidth > 768 ? 72 : 36;
-    const padY = clientHeight > 600 ? 64 : 32;
-    const availW = Math.max(clientWidth - padX * 2, 240);
-    const availH = Math.max(clientHeight - padY * 2, 200);
+    const padX = clientWidth > 1024 ? 80 : 40;
+    const padY = clientHeight > 700 ? 70 : 40;
+    const availW = Math.max(clientWidth - padX * 2, 280);
+    const availH = Math.max(clientHeight - padY * 2, 220);
 
     const scaleX = availW / layout.viewBox.width;
     const scaleY = availH / layout.viewBox.height;
     const fitScale = Math.min(scaleX, scaleY);
 
-    // Clamp zoom scale comfortably between 0.35 and 1.35
-    const newZoom = Math.min(Math.max(Number(fitScale.toFixed(2)), 0.35), 1.35);
+    // Clamp zoom scale comfortably between 0.35 and 1.3
+    const newZoom = Math.min(Math.max(Number(fitScale.toFixed(2)), 0.35), 1.3);
 
     // Center diagram within container viewport
     const renderedW = layout.viewBox.width * newZoom;
@@ -166,7 +169,6 @@ export function ArchitectureCanvas({
 
   // Automatically trigger fitToScreen on initial mount & whenever diagram or layout changes
   useEffect(() => {
-    // Small timeout to ensure container DOM dimensions are measured after layout paints
     const timer = setTimeout(() => {
       fitToScreen();
     }, 40);
@@ -394,22 +396,38 @@ export function ArchitectureCanvas({
       switch (viewMode) {
         case "topology":
           return true;
+        case "request_flow":
+          return ["client", "dns", "cdn", "networking", "compute", "application", "database"].includes(node.category);
+        case "dns_network":
         case "network":
-          return ["client", "dns", "cdn", "networking", "compute", "application"].includes(node.category);
+          return ["client", "dns", "cdn", "networking"].includes(node.category);
         case "security":
           return (
             ["security", "dns"].includes(node.category) ||
             Boolean(node.security_controls && node.security_controls.length > 0)
           );
-        case "infrastructure":
-          return ["compute", "database", "storage", "cdn", "networking"].includes(node.category);
         case "deployment":
-          return ["cicd", "compute", "client", "security"].includes(node.category);
+          return ["cicd", "compute"].includes(node.category);
+        case "data_flow":
+        case "infrastructure":
+          return ["database", "storage", "compute", "application"].includes(node.category);
         default:
           return true;
       }
     },
     [viewMode]
+  );
+
+  // Compute active edge filter by viewMode
+  const isEdgeActiveInView = useCallback(
+    (edge: UnifiedEdge): boolean => {
+      if (viewMode === "topology") return true;
+      const srcNode = layout.nodes.find((n) => n.id === edge.source);
+      const tgtNode = layout.nodes.find((n) => n.id === edge.target);
+      if (!srcNode || !tgtNode) return false;
+      return isNodeActiveInView(srcNode) && isNodeActiveInView(tgtNode);
+    },
+    [viewMode, layout.nodes, isNodeActiveInView]
   );
 
   // Export handlers
@@ -456,84 +474,83 @@ export function ArchitectureCanvas({
     <div
       role="img"
       aria-label="Interactive Architecture Explorer"
-      className={`relative select-none rounded-xl border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
-        isFullscreen ? "fixed inset-0 z-50 rounded-none bg-white dark:bg-[#121316] p-4" : className
+      className={`relative flex flex-col select-none rounded-xl border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
+        isFullscreen ? "fixed inset-0 z-50 rounded-none bg-white dark:bg-[#121316] h-full w-full" : className
       }`}
     >
-      {/* Control Bar & Journey Toolbar */}
-      <div className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
-        <div className="pointer-events-auto">
-          <DiagramToolbar
-            zoom={zoom}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onResetZoom={handleReset}
-            onFitToScreen={fitToScreen}
-            layoutMode={layoutMode}
-            onToggleLayoutMode={() => setLayoutMode(layoutMode === "auto" ? "preset" : "auto")}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-            isLive={isLive}
-            onToggleLive={toggleLive}
-            isJourneyActive={isJourneyActive}
-            isJourneyPlaying={isJourneyPlaying}
-            journeySpeed={journeySpeed}
-            journeyLoop={journeyLoop}
-            currentStepInfo={currentStepInfo}
-            onStartJourney={startJourney}
-            onStopJourney={stopJourney}
-            onToggleJourneyPlay={toggleJourneyPlay}
-            onNextJourneyStep={nextJourneyStep}
-            onPrevJourneyStep={prevJourneyStep}
-            onSetJourneySpeed={setJourneySpeed}
-            onToggleJourneyLoop={toggleJourneyLoop}
-            extraActions={
-              <div className="flex items-center gap-1">
-                {/* Export Static SVG */}
-                <button
-                  type="button"
-                  onClick={handleExportSvg}
-                  disabled={isExporting}
-                  className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                  title="Export Static Vector SVG"
-                  aria-label="Export Static SVG"
-                >
-                  <FileCode className="h-3.5 w-3.5 text-cobalt" />
-                  <span className="mono text-[9px] font-bold uppercase hidden sm:inline">SVG</span>
-                </button>
+      {/* Dedicated Top Toolbar Bar (Separated from stage so NO cards are ever hidden behind it) */}
+      <div className="w-full border-b border-border/80 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md px-4 py-2.5 z-20 shrink-0">
+        <DiagramToolbar
+          zoom={zoom}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onResetZoom={handleReset}
+          onFitToScreen={fitToScreen}
+          layoutMode={layoutMode}
+          onToggleLayoutMode={() => setLayoutMode(layoutMode === "auto" ? "preset" : "auto")}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+          onOpenWorkspace={onOpenWorkspace}
+          isLive={isLive}
+          onToggleLive={toggleLive}
+          isJourneyActive={isJourneyActive}
+          isJourneyPlaying={isJourneyPlaying}
+          journeySpeed={journeySpeed}
+          journeyLoop={journeyLoop}
+          currentStepInfo={currentStepInfo}
+          onStartJourney={startJourney}
+          onStopJourney={stopJourney}
+          onToggleJourneyPlay={toggleJourneyPlay}
+          onNextJourneyStep={nextJourneyStep}
+          onPrevJourneyStep={prevJourneyStep}
+          onSetJourneySpeed={setJourneySpeed}
+          onToggleJourneyLoop={toggleJourneyLoop}
+          extraActions={
+            <div className="flex items-center gap-1">
+              {/* Export Static SVG */}
+              <button
+                type="button"
+                onClick={handleExportSvg}
+                disabled={isExporting}
+                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
+                title="Export Static Vector SVG"
+                aria-label="Export Static SVG"
+              >
+                <FileCode className="h-3.5 w-3.5 text-cobalt" />
+                <span className="mono text-[9px] font-bold uppercase hidden sm:inline">SVG</span>
+              </button>
 
-                {/* Export Animated SVG */}
-                <button
-                  type="button"
-                  onClick={handleExportAnimatedSvg}
-                  disabled={isExporting}
-                  className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                  title="Export Animated SVG with inlined CSS"
-                  aria-label="Export Animated SVG"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                  <span className="mono text-[9px] font-bold uppercase hidden md:inline">ANIM. SVG</span>
-                </button>
+              {/* Export Animated SVG */}
+              <button
+                type="button"
+                onClick={handleExportAnimatedSvg}
+                disabled={isExporting}
+                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
+                title="Export Animated SVG with inlined CSS"
+                aria-label="Export Animated SVG"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                <span className="mono text-[9px] font-bold uppercase hidden md:inline">ANIM. SVG</span>
+              </button>
 
-                {/* Export PNG */}
-                <button
-                  type="button"
-                  onClick={handleExportPng}
-                  disabled={isExporting}
-                  className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                  title="Export High-Resolution PNG"
-                  aria-label="Export PNG"
-                >
-                  <ImageIcon className="h-3.5 w-3.5 text-cobalt" />
-                  <span className="mono text-[9px] font-bold uppercase hidden sm:inline">PNG</span>
-                </button>
-              </div>
-            }
-          />
-        </div>
+              {/* Export PNG */}
+              <button
+                type="button"
+                onClick={handleExportPng}
+                disabled={isExporting}
+                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
+                title="Export High-Resolution PNG"
+                aria-label="Export PNG"
+              >
+                <ImageIcon className="h-3.5 w-3.5 text-cobalt" />
+                <span className="mono text-[9px] font-bold uppercase hidden sm:inline">PNG</span>
+              </button>
+            </div>
+          }
+        />
       </div>
 
-      {/* Main Interactive Pan/Zoom Surface */}
+      {/* Main Interactive Pan/Zoom Surface (Takes 100% of remaining height) */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
@@ -544,7 +561,7 @@ export function ArchitectureCanvas({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
-        className={`relative h-[650px] sm:h-[700px] lg:h-[760px] w-full overflow-hidden ${
+        className={`relative flex-1 min-h-[580px] w-full overflow-hidden ${
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
         style={{
@@ -592,7 +609,7 @@ export function ArchitectureCanvas({
           {/* SVG Vector Connections Layer */}
           <svg
             className="absolute inset-0 pointer-events-none"
-            style={{ width: "3600px", height: "2400px", overflow: "visible" }}
+            style={{ width: "4200px", height: "2800px", overflow: "visible" }}
           >
             <ArrowheadMarkers />
 
@@ -603,13 +620,15 @@ export function ArchitectureCanvas({
                 const isJourneyEdge = currentJourneyEdgeId === edge.id;
                 const isEdgeSelected = selectedEdgeId === edge.id;
                 const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
-                const isDimmed = hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected;
+                const isActiveInView = isEdgeActiveInView(edge);
+                const isDimmed =
+                  !isActiveInView || (hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected);
 
                 return (
                   <AnimatedEdge
                     key={edge.id}
                     edge={edge}
-                    shouldAnimate={shouldAnimate}
+                    shouldAnimate={shouldAnimate && isActiveInView}
                     isFocused={isEdgeFocused}
                     isJourneyActive={isJourneyEdge}
                     isSelected={isEdgeSelected}
@@ -628,8 +647,8 @@ export function ArchitectureCanvas({
               const isNodeJourney = currentJourneyNodeId === node.id;
               const isNodeSelected = selectedNodeId === node.id;
               const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
-              const isDimmed = hasActiveFocus && !isNodeFocused && !isNodeJourney && !isNodeSelected;
               const isActiveInView = isNodeActiveInView(node);
+              const isDimmed = !isActiveInView || (hasActiveFocus && !isNodeFocused && !isNodeJourney && !isNodeSelected);
 
               return (
                 <div

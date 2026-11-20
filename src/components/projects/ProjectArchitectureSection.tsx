@@ -1,4 +1,4 @@
-import { Network, Info, ArrowRight, Layers } from "lucide-react";
+import { Network, Info, ArrowRight, Layers, Maximize2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { PortfolioProject } from "@/lib/portfolio-projects";
 import { ArchitectureDiagram } from "@/components/portfolio/ArchitectureDiagram";
@@ -36,7 +36,10 @@ export function ProjectArchitectureSection({ project }: ProjectArchitectureSecti
       {/* Interactive Architecture Diagram (Full Width) */}
       {project.architecture_data && (
         <div className="w-full">
-          <ArchitectureDiagram data={project.architecture_data} />
+          <ArchitectureDiagram
+            data={project.architecture_data}
+            diagramSlug={diagramSlug}
+          />
         </div>
       )}
 
@@ -56,14 +59,24 @@ export function ProjectArchitectureSection({ project }: ProjectArchitectureSecti
               </p>
             </div>
           </div>
-          <Link
-            to="/architecture"
-            search={{ diagram: diagramSlug }}
-            className="mono inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-cobalt text-white text-xs font-bold hover:bg-cobalt/90 transition-colors shadow-xs shrink-0"
-          >
-            <span>EXPLORE TOPOLOGY</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Link
+              to="/architecture"
+              search={{ diagram: diagramSlug, workspace: "fullscreen" }}
+              className="mono inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-cobalt text-white text-xs font-bold hover:bg-cobalt/90 transition-colors shadow-xs"
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+              <span>OPEN FULL SCREEN</span>
+            </Link>
+            <Link
+              to="/architecture"
+              search={{ diagram: diagramSlug }}
+              className="mono inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-200 text-xs font-bold hover:border-cobalt hover:text-cobalt transition-colors shadow-xs"
+            >
+              <span>EXPLORE TOPOLOGY</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
       )}
     </section>
