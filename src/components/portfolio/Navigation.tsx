@@ -11,6 +11,8 @@ interface NavItem {
   isExternalPage?: boolean;
 }
 
+const SECTION_IDS = ["hero", "projects", "skills", "experience", "certifications", "contact"];
+
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
   { id: "projects", label: "Projects", href: "/#projects" },
@@ -39,6 +41,15 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Initial hash sync on home page mount / hash change
+  useEffect(() => {
+    if (!isHome || typeof window === "undefined") return;
+    const hash = window.location.hash.replace(/^#/, "");
+    if (hash && SECTION_IDS.includes(hash)) {
+      setActiveSection(hash);
+    }
+  }, [isHome]);
+
   useEffect(() => {
     if (!isHome) {
       if (isProjects) {
@@ -51,7 +62,7 @@ export function Navigation() {
 
     const handleScrollSpy = () => {
       // Near top: Hero
-      if (window.scrollY < 120) {
+      if (window.scrollY < 80) {
         setActiveSection("hero");
         return;
       }
@@ -59,24 +70,46 @@ export function Navigation() {
       // Bottom of page: Contact
       const scrollBottom = window.innerHeight + window.scrollY;
       const totalHeight = document.documentElement.scrollHeight;
-      if (scrollBottom >= totalHeight - 80) {
+      if (scrollBottom >= totalHeight - 60) {
         setActiveSection("contact");
         return;
       }
 
-      // Track sections by offset position
-      const scrollPosition = window.scrollY + 160;
-      const sectionIds = ["hero", "projects", "skills", "experience", "certifications", "contact"];
+      // Focal reading line: 35% down the viewport (where visitor attention rests)
+      const focalPoint = Math.min(320, window.innerHeight * 0.35);
 
-      let current = "hero";
-      for (const id of sectionIds) {
+      // 1. Primary check: Which section currently spans across the focal line?
+      for (const id of SECTION_IDS) {
         const el = document.getElementById(id);
-        if (el && scrollPosition >= el.offsetTop) {
-          current = id;
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= focalPoint && rect.bottom > focalPoint) {
+          setActiveSection(id);
+          return;
         }
       }
 
-      setActiveSection(current);
+      // 2. Secondary check / rapid scroll / transition fallback: Find section with maximum visible height in viewport
+      let candidate = "hero";
+      let maxOverlap = -1;
+
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        const visibleTop = Math.max(rect.top, 80);
+        const visibleBottom = Math.min(rect.bottom, window.innerHeight);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+        if (visibleHeight > maxOverlap) {
+          maxOverlap = visibleHeight;
+          candidate = id;
+        }
+      }
+
+      if (maxOverlap > 0) {
+        setActiveSection(candidate);
+      }
     };
 
     handleScrollSpy();
@@ -88,6 +121,34 @@ export function Navigation() {
       window.removeEventListener("resize", handleScrollSpy);
     };
   }, [isHome, isGithub, isProjects]);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
+    if (item.isExternalPage) return;
+
+    if (isHome) {
+      e.preventDefault();
+      setActiveSection(item.id);
+      if (mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+
+      const el = document.getElementById(item.id);
+      if (el) {
+        const headerOffset = 80;
+        const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = Math.max(0, elementPosition - headerOffset);
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+
+        if (window.history.pushState) {
+          window.history.pushState(null, "", `#${item.id}`);
+        }
+      }
+    }
+  };
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -193,6 +254,7 @@ export function Navigation() {
                 <a
                   key={item.id}
                   href={getItemHref(item)}
+                  onClick={(e) => handleNavClick(e, item)}
                   aria-current={isActive ? "page" : undefined}
                   className={`mono relative py-1 text-[11px] font-medium tracking-wider transition-colors ${
                     isActive ? "text-cobalt font-semibold" : "text-carbon/75 hover:text-cobalt"
@@ -305,7 +367,7 @@ export function Navigation() {
                 <a
                   key={item.id}
                   href={getItemHref(item)}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, item)}
                   className={`flex items-center justify-between border-b border-border py-3.5 text-base font-medium transition-colors ${
                     isActive ? "text-cobalt font-semibold" : "text-carbon hover:text-cobalt"
                   }`}
