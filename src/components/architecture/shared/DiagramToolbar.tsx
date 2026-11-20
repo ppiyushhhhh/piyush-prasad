@@ -11,8 +11,8 @@ import {
   Minimize2,
   X,
   Repeat,
-  Gauge,
-  Activity,
+  Scan,
+  LayoutGrid,
 } from "lucide-react";
 import type { JourneyStepInfo } from "./useDiagramAnimation";
 
@@ -21,6 +21,9 @@ interface DiagramToolbarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onResetZoom: () => void;
+  onFitToScreen?: () => void;
+  layoutMode?: "auto" | "preset";
+  onToggleLayoutMode?: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   // Live State
@@ -49,6 +52,9 @@ export function DiagramToolbar({
   onZoomIn,
   onZoomOut,
   onResetZoom,
+  onFitToScreen,
+  layoutMode,
+  onToggleLayoutMode,
   isFullscreen,
   onToggleFullscreen,
   isLive,
@@ -167,9 +173,32 @@ export function DiagramToolbar({
               </button>
             </div>
           )}
+
+          {/* Optional Layout Mode Toggle */}
+          {onToggleLayoutMode && (
+            <button
+              type="button"
+              onClick={onToggleLayoutMode}
+              className={`mono inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-[10px] font-bold tracking-wider transition-colors cursor-pointer ${
+                layoutMode === "auto"
+                  ? "border-cobalt/40 bg-cobalt/10 text-cobalt"
+                  : "border-border bg-white dark:bg-neutral-900 text-muted-foreground hover:text-carbon"
+              }`}
+              title={
+                layoutMode === "auto"
+                  ? "Topological Tier View Active (Click for Preset)"
+                  : "Preset Diagram Coordinates Active (Click for Tiered Auto-Layout)"
+              }
+            >
+              <LayoutGrid className="h-3 w-3" />
+              <span className="hidden sm:inline">
+                {layoutMode === "auto" ? "TIER VIEW" : "PRESET"}
+              </span>
+            </button>
+          )}
         </div>
 
-        {/* Right Controls: Live/Paused + Zoom + Fullscreen */}
+        {/* Right Controls: Live/Paused + Zoom + Fit + Reset + Fullscreen */}
         <div className="flex items-center gap-1.5 p-1 rounded-md border border-border bg-white dark:bg-neutral-900 shadow-2xs">
           {/* Live / Paused Status Toggle */}
           <button
@@ -215,12 +244,26 @@ export function DiagramToolbar({
           >
             <ZoomIn className="h-3.5 w-3.5" />
           </button>
+
+          {/* Fit to Screen */}
+          {onFitToScreen && (
+            <button
+              type="button"
+              onClick={onFitToScreen}
+              className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-cobalt transition-colors cursor-pointer"
+              title="Fit to Screen"
+              aria-label="Fit diagram to screen"
+            >
+              <Scan className="h-3.5 w-3.5" />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onResetZoom}
             className="rounded p-1 text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon transition-colors cursor-pointer"
-            title="Reset Zoom"
-            aria-label="Reset zoom"
+            title="Reset View"
+            aria-label="Reset zoom and center"
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
@@ -251,30 +294,6 @@ export function DiagramToolbar({
           </button>
         </div>
       </div>
-
-      {/* Request Journey Live Step Caption Bar */}
-      {isJourneyActive && currentStepInfo && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-center gap-2.5 px-3.5 py-2 rounded-md border border-cobalt/30 bg-cobalt/[0.04] dark:bg-cobalt/[0.08] backdrop-blur-md shadow-2xs text-xs transition-all animate-fadeIn"
-        >
-          <span className="mono font-bold text-cobalt px-1.5 py-0.5 rounded bg-cobalt/15 text-[10px] shrink-0">
-            STEP {currentStepInfo.stepNumber}/{currentStepInfo.totalSteps}
-          </span>
-          <p className="text-[11px] text-carbon dark:text-neutral-200 truncate font-medium">
-            <span className="font-bold text-cobalt">{currentStepInfo.node.name}</span>
-            {currentStepInfo.node.port && (
-              <span className="mono text-[10px] text-muted-foreground ml-1.5 font-semibold">
-                (Port {currentStepInfo.node.port})
-              </span>
-            )}
-            <span className="text-muted-foreground ml-1.5 font-normal">
-              &bull; {currentStepInfo.node.description}
-            </span>
-          </p>
-        </div>
-      )}
     </div>
   );
 }

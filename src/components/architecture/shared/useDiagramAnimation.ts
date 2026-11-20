@@ -6,6 +6,9 @@ export interface JourneyStepInfo {
   totalSteps: number;
   node: UnifiedNode;
   edge?: UnifiedEdge;
+  nextNode?: UnifiedNode;
+  transferredData?: string;
+  servicePurpose?: string;
   caption: string;
 }
 
@@ -138,7 +141,7 @@ export function useDiagramAnimation({
     return match?.id || null;
   }, [isJourneyActive, journeyStep, journeyPath, totalJourneySteps, edges]);
 
-  // Step Caption calculation
+  // Step Caption & Rich Journey details calculation
   const currentStepInfo: JourneyStepInfo | null = useMemo(() => {
     if (!isJourneyActive || !currentJourneyNodeId) return null;
     const node = nodes.find((n) => n.id === currentJourneyNodeId);
@@ -147,8 +150,14 @@ export function useDiagramAnimation({
     let edge: UnifiedEdge | undefined;
     if (journeyStep > 0) {
       const prevId = journeyPath[journeyStep - 1];
-      edge = edges.find((e) => e.source === prevId && e.target === currentJourneyNodeId);
+      edge = edges.find((e) => (e.source === prevId && e.target === currentJourneyNodeId) || (e.source === currentJourneyNodeId && e.target === prevId));
     }
+
+    const nextNodeId = journeyStep + 1 < totalJourneySteps ? journeyPath[journeyStep + 1] : null;
+    const nextNode = nextNodeId ? nodes.find((n) => n.id === nextNodeId) : undefined;
+
+    const transferredData = edge?.description || (edge?.protocol ? `${edge.protocol} Traffic · ${edge.label || "Synchronous packet transmission"}` : (node.port ? `Port ${node.port} · Ingress Traffic` : "Application layer event & data dispatch"));
+    const servicePurpose = node.responsibilities && node.responsibilities.length > 0 ? node.responsibilities[0] : node.description;
 
     const proto = edge?.protocol || edge?.label || node.port ? `Port ${node.port || ""}` : "Direct Connection";
     const desc = node.description ? ` · ${node.description.slice(0, 75)}` : "";
@@ -159,6 +168,9 @@ export function useDiagramAnimation({
       totalSteps: totalJourneySteps,
       node,
       edge,
+      nextNode,
+      transferredData,
+      servicePurpose,
       caption,
     };
   }, [isJourneyActive, currentJourneyNodeId, journeyStep, totalJourneySteps, nodes, edges, journeyPath]);

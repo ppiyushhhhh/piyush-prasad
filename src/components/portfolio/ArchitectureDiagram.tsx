@@ -79,6 +79,18 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
     },
   });
 
+  // Fit to screen handler
+  const fitToScreen = useCallback(() => {
+    if (!containerRef.current) return;
+    const { clientWidth, clientHeight } = containerRef.current;
+    if (!clientWidth || !clientHeight) return;
+    const scale = Math.min((clientWidth - 48) / layout.viewBox.width, (clientHeight - 48) / layout.viewBox.height, 1.2);
+    const newZoom = Math.min(Math.max(Number(scale.toFixed(2)), 0.5), 1.4);
+    const panX = Math.round((clientWidth - layout.viewBox.width * newZoom) / 2);
+    setZoom(newZoom);
+    setPan({ x: panX, y: 10 });
+  }, [layout.viewBox]);
+
   // Zoom handlers
   const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.15).toFixed(2)), 1.8));
   const handleZoomOut = () => setZoom((prev) => Math.max(Number((prev - 0.15).toFixed(2)), 0.6));
@@ -151,6 +163,7 @@ export function ArchitectureDiagram({ data, className = "" }: ArchitectureDiagra
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onResetZoom={handleResetZoom}
+          onFitToScreen={fitToScreen}
           isFullscreen={isFullscreen}
           onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
           isLive={isLive}
