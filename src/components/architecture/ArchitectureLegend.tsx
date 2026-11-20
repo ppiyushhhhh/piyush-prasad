@@ -97,6 +97,24 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
           </div>
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="mono font-semibold text-carbon dark:text-neutral-300">
+            Audit Source:
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">
+              Verified in code (100% evidence)
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+            <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">
+              From project docs
+            </span>
+          </div>
+        </div>
+
         <div className="mono text-[10px] text-muted-foreground">
           Click any component to inspect technical specifications, ports, and security controls.
         </div>

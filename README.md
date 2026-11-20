@@ -167,7 +167,7 @@ Located at [`/dashboard/rate-limiting`](https://www.piyushprasad.in/dashboard/ra
 | **Email Dispatch** | Resend REST API, Nodemailer SMTP, Web3Forms Fallback |
 | **Tooling & Bundler** | Vite 8, TypeScript 5.8, ESLint 9, Prettier |
 | **Hosting & CDN** | Vercel Edge Network, Cloudflare Anycast DNS & SSL Termination |
-| **CI/CD & Security** | GitHub Actions, GitHub CodeQL SAST Analysis, Dependabot |
+| **CI/CD & Security** | GitHub Actions, GitHub CodeQL SAST Analysis, Branch Protection |
 
 ---
 

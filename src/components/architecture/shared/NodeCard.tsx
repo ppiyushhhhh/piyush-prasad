@@ -136,15 +136,31 @@ export function NodeCard({
               <h4 className="text-[12px] font-bold text-carbon dark:text-white leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
                 {node.name}
               </h4>
-              {/* Status Dot with Soft Pulse Ring */}
-              <div className="relative flex items-center justify-center shrink-0 mt-0.5">
-                {shouldAnimate && (
-                  <span className="absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-60 animate-ping" />
+              {/* Status Dot with Soft Pulse Ring & Verification Dot */}
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                {node.verification && (
+                  <span
+                    className={`h-2 w-2 rounded-full ring-1 ${
+                      node.verification === "code"
+                        ? "bg-emerald-500 ring-emerald-500/30"
+                        : "bg-amber-500 ring-amber-500/30"
+                    }`}
+                    title={
+                      node.verification === "code"
+                        ? "Verified in code (100% repository evidence)"
+                        : "From project docs (Documented specification)"
+                    }
+                  />
                 )}
-                <span
-                  className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30"
-                  title={`Status: ${node.status || "operational"}`}
-                />
+                <div className="relative flex items-center justify-center">
+                  {shouldAnimate && (
+                    <span className="absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-60 animate-ping" />
+                  )}
+                  <span
+                    className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30"
+                    title={`Status: ${node.status || "operational"}`}
+                  />
+                </div>
               </div>
             </div>
 

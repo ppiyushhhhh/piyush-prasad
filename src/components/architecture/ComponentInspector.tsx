@@ -219,6 +219,22 @@ export function ComponentInspector({
                   {node.status.toUpperCase()}
                 </span>
               )}
+              {node.verification && (
+                <span
+                  className={`mono inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                    node.verification === "code"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                      : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      node.verification === "code" ? "bg-emerald-500" : "bg-amber-500"
+                    }`}
+                  />
+                  {node.verification === "code" ? "Verified in code" : "From project docs"}
+                </span>
+              )}
             </div>
             <h3 className="text-base font-bold text-carbon dark:text-white leading-tight truncate">
               {node.name}
@@ -296,6 +312,30 @@ export function ComponentInspector({
                 <div key={i} className="flex items-start gap-2">
                   <span className="text-cobalt font-bold">&bull;</span>
                   <span className="text-carbon dark:text-neutral-300">{cfg}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Verified Repository Evidence */}
+        {node.evidence && node.evidence.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="mono text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                VERIFIED REPOSITORY EVIDENCE
+              </span>
+              <span className="mono text-[9px] text-muted-foreground font-semibold">
+                {node.evidence.length} {node.evidence.length === 1 ? "source" : "sources"}
+              </span>
+            </div>
+            <div className="border border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-md p-2.5 space-y-1.5">
+              {node.evidence.map((ev, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                  <code className="mono text-[10.5px] text-carbon dark:text-neutral-200 break-all bg-white dark:bg-neutral-900 px-1.5 py-0.5 rounded border border-emerald-200/50 dark:border-emerald-800/40 font-semibold">
+                    {ev}
+                  </code>
                 </div>
               ))}
             </div>

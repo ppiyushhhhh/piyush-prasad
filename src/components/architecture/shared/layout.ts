@@ -22,6 +22,8 @@ export interface UnifiedNode {
   responsibilities?: string[];
   configuration?: string[];
   security_controls?: string[];
+  verification?: "code" | "documented";
+  evidence?: string[];
   raw?: any;
 }
 
@@ -373,6 +375,8 @@ export function layoutArchitectureCanvas(data: ArchitectureDiagramData): LayoutR
       responsibilities: n.responsibilities,
       configuration: n.configuration,
       security_controls: n.security_controls,
+      verification: n.verification,
+      evidence: n.evidence,
       raw: n,
     });
   });

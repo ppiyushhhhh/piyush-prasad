@@ -145,7 +145,7 @@ export const VERIFIED_PROJECT_DETAILS: Record<string, VerifiedProjectDetails> = 
     architecture:
       "Cloudflare Workers global edge → TanStack Start server functions → Supabase PostgreSQL database + Google Gemini AI REST API.",
     deployment:
-      "Continuous deployment via Cloudflare Pages and GitHub Actions with automated TypeScript verification and asset bundling.",
+      "Continuous deployment via Vercel Edge Network and GitHub Actions with automated TypeScript verification and asset bundling.",
     liveDemoUrl: "https://piyushprasad.in/dashboard",
     liveDemoLabel: "piyushprasad.in/dashboard",
   },

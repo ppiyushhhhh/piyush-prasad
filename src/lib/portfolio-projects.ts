@@ -633,7 +633,7 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     live_demo_url: "https://piyushprasad.in/dashboard",
     cover_image_url: null,
     screenshots: [],
-    deployment_environment: "Cloudflare Pages & Supabase Cloud",
+    deployment_environment: "Vercel & Supabase Cloud",
     started_at: "2024-01-15",
     updated_at_date: "2026-11-18",
     is_featured: true,
