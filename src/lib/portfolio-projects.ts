@@ -24,6 +24,8 @@ export interface ArchitectureConnection {
   label?: string;
   protocol?: string;
   category?: "network" | "data" | "security" | "deployment" | "telemetry";
+  direction?: "directional" | "bidirectional";
+  secondary?: boolean;
 }
 
 export interface ArchitectureData {

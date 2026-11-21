@@ -1,18 +1,13 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
-  FileCode,
-  Image as ImageIcon,
-  Sparkles,
   ArrowRight,
   CheckCircle2,
   Play,
   Pause,
   SkipBack,
   SkipForward,
-  Repeat,
   X,
   Compass,
-  Maximize2,
   Search,
   RotateCcw,
 } from "lucide-react";
@@ -23,15 +18,14 @@ import type {
   ArchitectureViewMode,
 } from "@/lib/architecture-diagrams";
 import {
-  exportDiagramAsSvg,
-  exportDiagramAsAnimatedSvg,
   exportDiagramAsPng,
+  exportDiagramAsPdf,
+  exportDiagramAsGif,
+  type FlowItem,
 } from "@/lib/architecture-export";
 import {
   layoutArchitectureCanvas,
   deriveRequestJourney,
-  DEFAULT_NODE_WIDTH,
-  DEFAULT_NODE_HEIGHT,
   type UnifiedNode,
   type UnifiedEdge,
 } from "./shared/layout";
@@ -46,6 +40,9 @@ import { toast } from "sonner";
 
 interface ArchitectureCanvasProps {
   data: ArchitectureDiagramData;
+  title?: string;
+  slug?: string;
+  description?: string;
   viewMode: ArchitectureViewMode;
   selectedNode: ArchitectureNode | null;
   selectedEdge?: ArchitectureEdge | null;
@@ -61,6 +58,9 @@ interface ArchitectureCanvasProps {
 
 export function ArchitectureCanvas({
   data,
+  title = "Cloud Infrastructure Architecture",
+  slug = "infrastructure-architecture",
+  description = "",
   viewMode,
   selectedNode,
   selectedEdge,
@@ -107,10 +107,16 @@ export function ArchitectureCanvas({
     }
   }, [propsIsIsolated, onToggleIsolate]);
 
+  // Secondary flows state (hidden by default)
+  const [showSecondary, setShowSecondary] = useState(false);
+  const secondaryCount = useMemo(() => {
+    return (data.edges || []).filter((e) => e.secondary || e.category === "telemetry").length;
+  }, [data.edges]);
+
   // Compute unified DAG layout for nodes & edges
   const layout = useMemo(
-    () => layoutArchitectureCanvas(data, { autoLayout: layoutMode === "auto" }),
-    [data, layoutMode]
+    () => layoutArchitectureCanvas(data, { autoLayout: layoutMode === "auto", showSecondary }),
+    [data, layoutMode, showSecondary]
   );
 
   const [zoom, setZoom] = useState(1);
@@ -121,6 +127,8 @@ export function ArchitectureCanvas({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [gifProgress, setGifProgress] = useState<number | null>(null);
+  const gifAbortControllerRef = useRef<AbortController | null>(null);
 
   // Derive sequential request journey
   const journeyPath = useMemo(
@@ -517,42 +525,93 @@ export function ArchitectureCanvas({
   );
 
   // Export handlers
-  const handleExportSvg = async () => {
-    if (!containerRef.current) return;
-    try {
-      setIsExporting(true);
-      await exportDiagramAsSvg(containerRef.current, "infrastructure-architecture", data, "Cloud Infrastructure Architecture");
-      toast.success("Static vector SVG exported successfully");
-    } catch (err) {
-      toast.error(`Export failed: ${err instanceof Error ? err.message : "Unknown error"}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportAnimatedSvg = async () => {
-    if (!containerRef.current) return;
-    try {
-      setIsExporting(true);
-      await exportDiagramAsAnimatedSvg(containerRef.current, "infrastructure-architecture-live", data, "Cloud Infrastructure Architecture");
-      toast.success("Animated vector SVG exported with inlined CSS");
-    } catch (err) {
-      toast.error(`Export failed: ${err instanceof Error ? err.message : "Unknown error"}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
   const handleExportPng = async () => {
     if (!containerRef.current) return;
     try {
       setIsExporting(true);
-      await exportDiagramAsPng(containerRef.current, "infrastructure-architecture", data, "Cloud Infrastructure Architecture");
+      await exportDiagramAsPng(
+        containerRef.current,
+        slug,
+        data,
+        title,
+        description
+      );
       toast.success("High-resolution PNG exported successfully");
     } catch (err) {
       toast.error(`Export failed: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!containerRef.current) return;
+    try {
+      setIsExporting(true);
+      const flows: FlowItem[] = layout.edges
+        .filter((e) => e.badgeIndex !== undefined)
+        .map((e) => {
+          const srcNode = layout.nodes.find((n) => n.id === e.source);
+          const tgtNode = layout.nodes.find((n) => n.id === e.target);
+          return {
+            badgeIndex: e.badgeIndex!,
+            from: srcNode?.name || e.source,
+            to: tgtNode?.name || e.target,
+            label: e.label || "",
+            protocol: e.protocol,
+            category: e.category,
+          };
+        });
+
+      await exportDiagramAsPdf(
+        containerRef.current,
+        slug,
+        data,
+        title,
+        description,
+        flows
+      );
+      toast.success("Vector PDF document exported successfully");
+    } catch (err) {
+      toast.error(`PDF export failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportGif = async () => {
+    if (!containerRef.current) return;
+    try {
+      setIsExporting(true);
+      setGifProgress(0);
+      const controller = new AbortController();
+      gifAbortControllerRef.current = controller;
+
+      await exportDiagramAsGif(
+        containerRef.current,
+        slug,
+        data,
+        title,
+        (percent) => setGifProgress(percent),
+        controller.signal
+      );
+      toast.success("Animated GIF exported successfully (3s loop)");
+    } catch (err) {
+      if ((err as Error)?.message?.includes("cancelled")) {
+        toast.info("GIF export cancelled");
+      } else {
+        toast.error(`GIF export failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+      }
+    } finally {
+      setIsExporting(false);
+      setGifProgress(null);
+      gifAbortControllerRef.current = null;
+    }
+  };
+
+  const handleCancelGif = () => {
+    if (gifAbortControllerRef.current) {
+      gifAbortControllerRef.current.abort();
     }
   };
 
@@ -577,6 +636,9 @@ export function ArchitectureCanvas({
           isFullscreen={isFullscreen}
           onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
           onOpenWorkspace={onOpenWorkspace}
+          showSecondary={showSecondary}
+          onToggleSecondary={() => setShowSecondary(!showSecondary)}
+          secondaryCount={secondaryCount}
           isLive={isLive}
           onToggleLive={toggleLive}
           isJourneyActive={isJourneyActive}
@@ -591,48 +653,12 @@ export function ArchitectureCanvas({
           onPrevJourneyStep={prevJourneyStep}
           onSetJourneySpeed={setJourneySpeed}
           onToggleJourneyLoop={toggleJourneyLoop}
-          extraActions={
-            <div className="flex items-center gap-1">
-              {/* Export Static SVG */}
-              <button
-                type="button"
-                onClick={handleExportSvg}
-                disabled={isExporting}
-                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                title="Export Static Vector SVG"
-                aria-label="Export Static SVG"
-              >
-                <FileCode className="h-3.5 w-3.5 text-cobalt" />
-                <span className="mono text-[9px] font-bold uppercase hidden sm:inline">SVG</span>
-              </button>
-
-              {/* Export Animated SVG */}
-              <button
-                type="button"
-                onClick={handleExportAnimatedSvg}
-                disabled={isExporting}
-                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                title="Export Animated SVG with inlined CSS"
-                aria-label="Export Animated SVG"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                <span className="mono text-[9px] font-bold uppercase hidden md:inline">ANIM. SVG</span>
-              </button>
-
-              {/* Export PNG */}
-              <button
-                type="button"
-                onClick={handleExportPng}
-                disabled={isExporting}
-                className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-300 transition-colors cursor-pointer inline-flex items-center gap-1"
-                title="Export High-Resolution PNG"
-                aria-label="Export PNG"
-              >
-                <ImageIcon className="h-3.5 w-3.5 text-cobalt" />
-                <span className="mono text-[9px] font-bold uppercase hidden sm:inline">PNG</span>
-              </button>
-            </div>
-          }
+          onExportPng={handleExportPng}
+          onExportPdf={handleExportPdf}
+          onExportGif={handleExportGif}
+          isExporting={isExporting}
+          gifProgress={gifProgress}
+          onCancelGif={handleCancelGif}
         />
       </div>
 
@@ -764,20 +790,18 @@ export function ArchitectureCanvas({
                     : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 }`}
               >
-                {/* 32px Dedicated Header Strip for Title */}
-                <div className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none">
+                {/* 32px Dedicated Header Strip for Title (No subtitle on box face) */}
+                <div
+                  className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
+                  title={zone.description}
+                >
                   <span
-                    className={`mono text-[10px] font-bold tracking-wider uppercase ${
+                    className={`mono text-[11px] font-bold tracking-wider uppercase truncate ${
                       zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-carbon dark:text-neutral-200"
                     }`}
                   >
                     {zone.title}
                   </span>
-                  {zone.description && (
-                    <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">
-                      {zone.description}
-                    </span>
-                  )}
                 </div>
               </div>
             ))}
@@ -997,47 +1021,84 @@ export function ArchitectureCanvas({
         </div>
       )}
 
-      {/* Bottom Connections Table when > 8 edges */}
-      {layout.edges.length > 8 && (
+      {/* Bottom Flow List Table: [ # | From -> To | Flow / Action | Protocol / Type ] */}
+      {layout.edges.length > 0 && (
         <div className="w-full border-t border-border/80 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md px-4 py-2.5 z-20 shrink-0">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="mono text-[10.5px] font-bold uppercase tracking-wider text-carbon dark:text-neutral-200">
-              Active Data Connections ({layout.edges.length})
-            </span>
-            <span className="mono text-[9px] text-muted-foreground">
-              Hover row to trace &bull; Click to inspect
+            <div className="flex items-center gap-2">
+              <span className="mono text-[10.5px] font-bold uppercase tracking-wider text-carbon dark:text-neutral-200">
+                End-to-End Flows ({layout.edges.length})
+              </span>
+              <span className="mono text-[9px] px-1.5 py-0.5 rounded bg-cobalt/10 text-cobalt font-semibold">
+                Numbered Corridors
+              </span>
+            </div>
+            <span className="mono text-[9px] text-muted-foreground hidden sm:inline">
+              Hover row to highlight connection &bull; Click to inspect
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 max-h-32 overflow-y-auto pr-1">
-            {layout.edges.map((e) => {
-              const srcNode = layout.nodes.find((n) => n.id === e.source);
-              const tgtNode = layout.nodes.find((n) => n.id === e.target);
-              const isHovered = hoveredEdgeId === e.id || selectedEdgeId === e.id;
-              return (
-                <div
-                  key={e.id}
-                  onMouseEnter={() => setHoveredEdgeId(e.id)}
-                  onMouseLeave={() => setHoveredEdgeId(null)}
-                  onClick={() => handleEdgeClick(e)}
-                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded border text-[10.5px] transition-colors cursor-pointer select-none ${
-                    isHovered
-                      ? "border-cobalt bg-cobalt/10 ring-1 ring-cobalt/40 text-carbon dark:text-white"
-                      : "border-border/60 hover:border-cobalt/40 bg-white/70 dark:bg-neutral-900/60 text-muted-foreground hover:text-carbon"
-                  }`}
-                >
-                  <span className="mono h-4 w-4 rounded-full flex items-center justify-center font-bold text-[9px] bg-neutral-100 dark:bg-neutral-800 border border-border shrink-0">
-                    {e.badgeIndex ?? "#"}
-                  </span>
-                  <div className="min-w-0 flex-1 truncate">
-                    <div className="flex items-center gap-1 font-semibold truncate text-[10px]">
-                      <span className="truncate">{srcNode?.name || e.source}</span>
-                      <span className="text-muted-foreground shrink-0">&rarr;</span>
-                      <span className="truncate">{tgtNode?.name || e.target}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+
+          <div className="overflow-x-auto max-h-36 overflow-y-auto pr-1">
+            <table className="w-full text-left border-collapse text-[11px]">
+              <thead>
+                <tr className="border-b border-border/60 text-muted-foreground mono text-[9.5px] uppercase tracking-wider">
+                  <th className="py-1 px-2 w-8">#</th>
+                  <th className="py-1 px-2 min-w-[200px]">From &rarr; To</th>
+                  <th className="py-1 px-2 min-w-[220px]">Flow / Action</th>
+                  <th className="py-1 px-2 min-w-[120px]">Protocol / Type</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {layout.edges.map((e) => {
+                  const srcNode = layout.nodes.find((n) => n.id === e.source);
+                  const tgtNode = layout.nodes.find((n) => n.id === e.target);
+                  const isHovered = hoveredEdgeId === e.id || selectedEdgeId === e.id;
+                  const isSec = Boolean(e.secondary);
+
+                  return (
+                    <tr
+                      key={e.id}
+                      onMouseEnter={() => setHoveredEdgeId(e.id)}
+                      onMouseLeave={() => setHoveredEdgeId(null)}
+                      onClick={() => handleEdgeClick(e)}
+                      className={`transition-colors cursor-pointer select-none ${
+                        isHovered
+                          ? "bg-cobalt/10 text-carbon dark:text-white"
+                          : "hover:bg-neutral-100/70 dark:hover:bg-neutral-800/70 text-muted-foreground hover:text-carbon dark:hover:text-neutral-200"
+                      }`}
+                    >
+                      <td className="py-1 px-2 font-mono font-bold text-cobalt">
+                        {e.badgeIndex ? (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-cobalt/15 text-cobalt text-[9px]">
+                            {e.badgeIndex}
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-neutral-400">--</span>
+                        )}
+                      </td>
+                      <td className="py-1 px-2 font-semibold">
+                        <span className="text-carbon dark:text-neutral-100">{srcNode?.name || e.source}</span>
+                        <span className="text-muted-foreground mx-1.5">&rarr;</span>
+                        <span className="text-carbon dark:text-neutral-100">{tgtNode?.name || e.target}</span>
+                      </td>
+                      <td className="py-1 px-2 truncate max-w-xs">
+                        <span className="font-medium text-carbon dark:text-neutral-200">
+                          {e.label || "Data Transfer"}
+                        </span>
+                        {isSec && (
+                          <span className="ml-1.5 mono text-[8.5px] px-1 py-0.5 rounded bg-stone-100 dark:bg-neutral-800 text-stone-500">
+                            secondary
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-1 px-2 mono text-[9.5px] text-muted-foreground">
+                        {e.protocol || e.category}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

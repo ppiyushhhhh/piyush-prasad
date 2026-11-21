@@ -42,22 +42,18 @@ export function AnimatedEdge({
     : `arrow-${edge.category}`;
 
   const isBidirectional = edge.direction === "bidirectional";
+  const isSecondary = Boolean(edge.secondary || edge.category === "telemetry");
 
   // Base animation duration scaled if highlighted
   const duration = isHighlighted ? colors.duration * 0.75 : colors.duration;
 
   // Primary label & secondary port/protocol
   const primaryText = edge.label || edge.protocol;
-  const secondaryText = edge.label && edge.protocol && edge.label !== edge.protocol ? edge.protocol : null;
-  const hasLabel = Boolean(primaryText);
 
-  // Determine pill dimensions
-  const pillWidth = primaryText ? Math.max(primaryText.length * 8 + 24, 60) : 0;
-  const pillHeight = 24;
-
-  // Edge stroke properties: minimum 0.6 opacity at rest, 2px stroke
-  const strokeOpacity = isDimmed ? 0.2 : isHighlighted ? 1.0 : 0.75;
-  const strokeWidth = isHighlighted ? "2.5" : "2";
+  // Edge stroke properties
+  const strokeOpacity = isDimmed ? 0.2 : isHighlighted ? 1.0 : isSecondary ? 0.5 : 0.75;
+  const strokeWidth = isHighlighted ? (isSecondary ? "2" : "2.5") : isSecondary ? "1.2" : "2";
+  const strokeColor = isHighlighted ? colors.activeStroke : isSecondary ? "#9CA3AF" : colors.stroke;
 
   return (
     <g
@@ -66,6 +62,8 @@ export function AnimatedEdge({
       }`}
       onClick={onClick}
     >
+      <title>{edge.description || `${edge.badgeIndex ? `#${edge.badgeIndex}: ` : ""}${primaryText || "Flow"}`}</title>
+
       {/* Hidden Path Definition for AnimateMotion referencing */}
       <defs>
         <path id={pathId} d={edge.pathData} fill="none" />
@@ -74,16 +72,18 @@ export function AnimatedEdge({
         )}
       </defs>
 
-      {/* 1. Underlying static solid path (Always clearly visible at rest: 2px stroke, >= 0.6 opacity) */}
+      {/* 1. Underlying path */}
       <path
         d={edge.pathData}
         fill="none"
-        stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+        stroke={strokeColor}
         strokeWidth={strokeWidth}
         strokeOpacity={strokeOpacity}
+        strokeDasharray={isSecondary ? "4 4" : undefined}
         strokeLinecap="round"
         strokeLinejoin="round"
         markerEnd={`url(#${markerId})`}
+        markerStart={isBidirectional ? `url(#${markerId})` : undefined}
       />
 
       {/* 2. Soft outer glow when highlighted or active in journey */}
@@ -100,7 +100,7 @@ export function AnimatedEdge({
       )}
 
       {/* 3. Flowing dashed stroke forward for live telemetry/data visualization */}
-      {shouldAnimate && (
+      {shouldAnimate && !isSecondary && (
         <path
           d={edge.pathData}
           fill="none"
@@ -115,22 +115,23 @@ export function AnimatedEdge({
         />
       )}
 
-      {/* 4. Bidirectional edge: second parallel line 6px apart */}
-      {isBidirectional && (
+      {/* 4. Bidirectional edge: second parallel line 6px apart if exists */}
+      {isBidirectional && edge.parallelPathData && (
         <>
           <path
-            d={edge.parallelPathData || edge.pathData}
+            d={edge.parallelPathData}
             fill="none"
-            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+            stroke={strokeColor}
             strokeWidth={strokeWidth}
             strokeOpacity={strokeOpacity}
+            strokeDasharray={isSecondary ? "4 4" : undefined}
             strokeLinecap="round"
             strokeLinejoin="round"
             markerStart={`url(#${markerId})`}
           />
-          {shouldAnimate && (
+          {shouldAnimate && !isSecondary && (
             <path
-              d={edge.parallelPathData || edge.pathData}
+              d={edge.parallelPathData}
               fill="none"
               stroke={isHighlighted ? colors.activeStroke : colors.stroke}
               strokeWidth={strokeWidth}
@@ -161,15 +162,15 @@ export function AnimatedEdge({
         </circle>
       )}
 
-      {/* 6. Numbered Badge (for > 8 edges) or Centered Label Pill (>= 11px font) */}
-      {edge.badgeIndex !== undefined ? (
+      {/* 6. Numbered Badge (Numbered badges on all primary visible edges, 0 text pills) */}
+      {edge.badgeIndex !== undefined && !isSecondary && (
         <g
           transform={`translate(${edge.midX}, ${edge.midY})`}
           className="pointer-events-auto select-none transition-transform duration-200 hover:scale-110 edge-badge"
         >
           <title>{edge.description || `${edge.badgeIndex}: ${primaryText}`}</title>
           <circle
-            r="11"
+            r="10"
             fill="#FFFFFF"
             className="dark:fill-[#121316]"
             stroke={isHighlighted ? colors.activeStroke : colors.stroke}
@@ -178,9 +179,9 @@ export function AnimatedEdge({
           />
           <text
             x="0"
-            y="4"
+            y="3.5"
             textAnchor="middle"
-            fontSize="11"
+            fontSize="10"
             fontWeight="700"
             fontFamily="var(--font-mono, monospace)"
             fill={isHighlighted ? colors.activeStroke : colors.text}
@@ -188,42 +189,7 @@ export function AnimatedEdge({
             {edge.badgeIndex}
           </text>
         </g>
-      ) : hasLabel ? (
-        <g
-          transform={`translate(${edge.midX}, ${edge.midY})`}
-          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105 edge-label"
-        >
-          <title>{edge.description || `${primaryText}${secondaryText ? ` (${secondaryText})` : ""}`}</title>
-          {/* Solid background pill */}
-          <rect
-            x={-pillWidth / 2}
-            y={-pillHeight / 2}
-            width={pillWidth}
-            height={pillHeight}
-            rx={pillHeight / 2}
-            fill="#FFFFFF"
-            className="dark:fill-[#121316]"
-            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-            strokeWidth={isHighlighted ? "1.8" : "1.2"}
-            strokeOpacity={isHighlighted ? 0.9 : 0.6}
-            filter="drop-shadow(0 1px 3px rgba(0, 0, 0, 0.08))"
-          />
-
-          {/* Label Text: minimum 11px font */}
-          <text
-            x="0"
-            y="4"
-            textAnchor="middle"
-            fontSize="11"
-            fontWeight="600"
-            fontFamily="var(--font-mono, monospace)"
-            fill={isHighlighted ? colors.activeStroke : colors.text}
-            className="transition-colors duration-150"
-          >
-            {primaryText}
-          </text>
-        </g>
-      ) : null}
+      )}
     </g>
   );
 }

@@ -74,6 +74,7 @@ export interface ArchitectureEdge {
   description: string;
   category: "network" | "data" | "security" | "deployment" | "telemetry";
   animated?: boolean;
+  secondary?: boolean;
 }
 
 export interface ArchitectureDiagramData {
@@ -1310,6 +1311,7 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
           direction: "bidirectional",
           description: "Circuit breaker triggers Llama 3 edge fallback if Gemini API fails.",
           category: "data",
+          secondary: true,
         },
         {
           id: "e-worker-d1",
@@ -1319,7 +1321,8 @@ export const INITIAL_ARCHITECTURES: ArchitectureDiagram[] = [
           protocol: "D1 Prepared SQL",
           direction: "bidirectional",
           description: "Stores session history and operational metrics into Cloudflare D1.",
-          category: "data",
+          category: "telemetry",
+          secondary: true,
         },
         {
           id: "e-worker-tgapi-reply",

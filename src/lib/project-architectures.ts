@@ -489,6 +489,7 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
           direction: "directional",
           category: "data",
           animated: false,
+          secondary: true,
           description:
             "Nodemailer fallback transport engaged when Resend key is missing or returns error.",
         },

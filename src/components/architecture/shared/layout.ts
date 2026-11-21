@@ -3,8 +3,8 @@ import type { ArchitectureData, ArchitectureComponent, ArchitectureConnection } 
 import type { ArchitectureDiagramData, ArchitectureNode, ArchitectureEdge } from "@/lib/architecture-diagrams";
 
 // Single Source of Truth for Card Dimensions & Layout Spacing
-export const NODE_WIDTH = 264;
-export const NODE_HEIGHT = 176;
+export const NODE_WIDTH = 200;
+export const NODE_HEIGHT = 96;
 export const DEFAULT_NODE_WIDTH = NODE_WIDTH;
 export const DEFAULT_NODE_HEIGHT = NODE_HEIGHT;
 export const NODE_GAP_Y = 48; // "node-to-node 48 px vertical"
@@ -53,6 +53,8 @@ export interface UnifiedEdge {
   midX: number;
   midY: number;
   badgeIndex?: number;
+  secondary?: boolean;
+  originalEdgeIds?: string[];
 }
 
 export interface LayoutOptions {
@@ -60,6 +62,7 @@ export interface LayoutOptions {
   direction?: "RIGHT" | "DOWN";
   isMobile?: boolean;
   viewportWidth?: number;
+  showSecondary?: boolean;
 }
 
 export interface LayoutZone {
@@ -384,6 +387,69 @@ function rectsOverlap(
 }
 
 /**
+ * Merges bidirectional pairs (A->B and B->A) into a single edge with direction: "bidirectional".
+ * Keeps both original edges referenced in originalEdgeIds.
+ */
+export function mergeBidirectionalEdges<
+  T extends {
+    id: string;
+    source: string;
+    target: string;
+    label?: string;
+    protocol?: string;
+    category?: any;
+    direction?: any;
+    description?: string;
+    animated?: boolean;
+    secondary?: boolean;
+  }
+>(
+  edges: T[]
+): (T & { direction: "directional" | "bidirectional"; originalEdgeIds: string[] })[] {
+  const merged: (T & { direction: "directional" | "bidirectional"; originalEdgeIds: string[] })[] = [];
+  const handled = new Set<string>();
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    if (handled.has(e.id)) continue;
+
+    const rev = edges.find(
+      (other, oIdx) =>
+        oIdx !== i &&
+        !handled.has(other.id) &&
+        other.source === e.target &&
+        other.target === e.source
+    );
+
+    if (rev) {
+      handled.add(e.id);
+      handled.add(rev.id);
+      const combinedLabel = [e.label, rev.label].filter(Boolean).join(" / ");
+      const combinedProtocol = e.protocol || rev.protocol;
+      const isSec = Boolean(e.secondary && rev.secondary);
+      merged.push({
+        ...e,
+        id: `${e.id}--merged--${rev.id}`,
+        direction: "bidirectional",
+        label: combinedLabel || e.label || rev.label,
+        protocol: combinedProtocol,
+        secondary: isSec,
+        originalEdgeIds: [e.id, rev.id],
+      });
+    } else {
+      handled.add(e.id);
+      merged.push({
+        ...e,
+        direction: e.direction || "directional",
+        originalEdgeIds: [e.id],
+      });
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Layout engine for full architecture diagram canvas data (ArchitectureDiagramData).
  * Automatically chooses direction:
  * - RIGHT on desktop for <= 4 layers
@@ -452,7 +518,7 @@ export function layoutArchitectureCanvas(
 
   const activeSections = effectiveSections.filter((sec) => sec.nodes.length > 0);
 
-  // Direction Choice: "RIGHT on desktop for 4 layers or fewer, DOWN otherwise and always on mobile"
+  // Direction Choice
   const isMobile = options.isMobile ?? (typeof window !== "undefined" && window.innerWidth <= 768);
   const direction: "RIGHT" | "DOWN" =
     options.direction ||
@@ -476,12 +542,11 @@ export function layoutArchitectureCanvas(
       const tierX = startPadX;
       const tierY = currentY;
 
-      // Cards inside tier row
       const cardsStartX = tierX + TIER_PADDING;
       const cardsStartY = tierY + TIER_HEADER_H + TIER_PADDING;
 
       const layerWidth = TIER_PADDING * 2 + secNodeCount * NODE_WIDTH + (secNodeCount - 1) * 36;
-      const tierW = Math.max(layerWidth, 312);
+      const tierW = Math.max(layerWidth, 248);
       const tierH = TIER_HEADER_H + TIER_PADDING * 2 + NODE_HEIGHT;
 
       computedZones.push({
@@ -525,21 +590,15 @@ export function layoutArchitectureCanvas(
         });
       });
 
-      currentY += tierH + LAYER_GAP_X; // Gap between vertical layers
+      currentY += tierH + LAYER_GAP_X;
     });
 
     totalWidth = Math.max(...computedZones.map((z) => z.x + z.width)) + startPadX;
     totalHeight = currentY - LAYER_GAP_X + startPadY;
   } else {
     // Left-to-Right Flow
-    const maxNodesInCol = Math.max(...activeSections.map((s) => s.nodes.length), 1);
     const totalCols = activeSections.length;
 
-    // Dimensions:
-    // Distance between columns: LAYER_GAP_X = 120px
-    // Distance between cards in same column: NODE_GAP_Y = 48px
-    // Tier box: width = NODE_WIDTH + 2 * TIER_PADDING = 312px
-    // Cards start at: tierY + TIER_HEADER_H + TIER_PADDING = tierY + 56px
     activeSections.forEach((sec, colIdx) => {
       const secX = startPadX + colIdx * (NODE_WIDTH + LAYER_GAP_X);
       const secY = startPadY;
@@ -547,8 +606,8 @@ export function layoutArchitectureCanvas(
 
       const tierX = secX - TIER_PADDING;
       const tierY = secY;
-      const tierW = NODE_WIDTH + TIER_PADDING * 2; // 312px
-      const cardsStartY = tierY + TIER_HEADER_H + TIER_PADDING; // 56px
+      const tierW = NODE_WIDTH + TIER_PADDING * 2;
+      const cardsStartY = tierY + TIER_HEADER_H + TIER_PADDING;
       const tierH = TIER_HEADER_H + TIER_PADDING * 2 + secNodeCount * NODE_HEIGHT + (secNodeCount - 1) * NODE_GAP_Y;
 
       computedZones.push({
@@ -599,15 +658,28 @@ export function layoutArchitectureCanvas(
   }
 
   const nodesList = Array.from(nodeMap.values());
-  const placedLabels: { left: number; top: number; right: number; bottom: number }[] = [];
-  const useBadges = validEdges.length > 8;
+  const placedBadges: { left: number; top: number; right: number; bottom: number }[] = [];
 
   const topCorridorY = 16;
   const bottomCorridorY = totalHeight - 16;
 
-  const edges: UnifiedEdge[] = validEdges.map((e, edgeIdx) => {
+  // 1. Merge bidirectional edges
+  const mergedEdges = mergeBidirectionalEdges(validEdges);
+
+  // 2. Filter secondary edges unless showSecondary is true
+  const showSecondary = Boolean(options.showSecondary);
+  const activeEdges = mergedEdges.filter((e) => {
+    const isSec = Boolean(e.secondary || e.category === "telemetry");
+    return showSecondary || !isSec;
+  });
+
+  // 3. Assign sequential numbered badges 1, 2, 3... to all primary visible edges
+  let badgeCounter = 1;
+  const edges: UnifiedEdge[] = activeEdges.map((e, edgeIdx) => {
     const srcNode = nodeMap.get(e.source)!;
     const tgtNode = nodeMap.get(e.target)!;
+    const isSec = Boolean(e.secondary || e.category === "telemetry");
+    const badgeIndex = isSec ? undefined : badgeCounter++;
 
     const routingContext: EdgeRoutingContext = {
       sourceCol: srcNode.col,
@@ -622,15 +694,12 @@ export function layoutArchitectureCanvas(
 
     const { pathData, parallelPathData, midX, midY } = computeEdgePath(srcNode, tgtNode, routingContext);
 
-    const badgeIndex = useBadges ? edgeIdx + 1 : undefined;
-    const labelText = e.label || e.protocol || "";
-    const pillW = useBadges ? 28 : Math.max(labelText.length * 8 + 24, 60);
+    const pillW = 24;
     const pillH = 24;
 
     let adjustedMidX = midX;
     let adjustedMidY = midY;
 
-    // Strict collision resolution against nodes, zone titles, and existing labels
     let collides = true;
     let attempts = 0;
     while (collides && attempts < 15) {
@@ -646,7 +715,6 @@ export function layoutArchitectureCanvas(
         const nBox = { left: n.x, top: n.y, right: n.x + n.width, bottom: n.y + n.height };
         if (rectsOverlap(lBox, nBox, 4)) {
           collides = true;
-          // Shift vertically into the row gap
           adjustedMidY = n.y - pillH - 8;
           break;
         }
@@ -669,10 +737,10 @@ export function layoutArchitectureCanvas(
       }
 
       if (!collides) {
-        for (const pl of placedLabels) {
-          if (rectsOverlap(lBox, pl, 4)) {
+        for (const pb of placedBadges) {
+          if (rectsOverlap(lBox, pb, 4)) {
             collides = true;
-            adjustedMidX += pillW + 16;
+            adjustedMidX += pillW + 12;
             break;
           }
         }
@@ -681,12 +749,14 @@ export function layoutArchitectureCanvas(
       attempts++;
     }
 
-    placedLabels.push({
-      left: adjustedMidX - pillW / 2,
-      top: adjustedMidY - pillH / 2,
-      right: adjustedMidX + pillW / 2,
-      bottom: adjustedMidY + pillH / 2,
-    });
+    if (!isSec) {
+      placedBadges.push({
+        left: adjustedMidX - pillW / 2,
+        top: adjustedMidY - pillH / 2,
+        right: adjustedMidX + pillW / 2,
+        bottom: adjustedMidY + pillH / 2,
+      });
+    }
 
     return {
       id: e.id,
@@ -698,6 +768,8 @@ export function layoutArchitectureCanvas(
       direction: e.direction || "directional",
       description: e.description,
       animated: e.animated,
+      secondary: isSec,
+      originalEdgeIds: e.originalEdgeIds,
       pathData,
       parallelPathData,
       midX: adjustedMidX,
@@ -731,7 +803,22 @@ export function layoutProjectArchitecture(
   const rawConnections = data.connections || [];
 
   const compIds = new Set(components.map((c) => c.name));
-  const validConnections = validateConnections(rawConnections, compIds, "ProjectArchitecture");
+  const validConnections = validateConnections(
+    rawConnections.map((c, i) => ({
+      id: `conn-${i}-${c.from}-${c.to}`,
+      source: c.from,
+      target: c.to,
+      from: c.from,
+      to: c.to,
+      label: c.label,
+      protocol: c.protocol,
+      category: c.category,
+      direction: c.direction,
+      secondary: c.secondary,
+    })),
+    compIds,
+    "ProjectArchitecture"
+  );
 
   // Map components to nodes with NODE_WIDTH and NODE_HEIGHT
   const nodes: UnifiedNode[] = [];
@@ -800,12 +887,25 @@ export function layoutProjectArchitecture(
 
   const topCorridorY = 16;
   const bottomCorridorY = totalHeight - 16;
-  const placedLabels: { left: number; top: number; right: number; bottom: number }[] = [];
-  const useBadges = validConnections.length > 8;
+  const placedBadges: { left: number; top: number; right: number; bottom: number }[] = [];
 
-  const edges: UnifiedEdge[] = validConnections.map((conn, idx) => {
-    const src = nodeMap.get(conn.from)!;
-    const tgt = nodeMap.get(conn.to)!;
+  // 1. Merge bidirectional edges
+  const mergedConnections = mergeBidirectionalEdges(validConnections);
+
+  // 2. Filter secondary flows
+  const showSecondary = Boolean(options.showSecondary);
+  const activeConnections = mergedConnections.filter((conn) => {
+    const isSec = Boolean(conn.secondary || conn.category === "telemetry");
+    return showSecondary || !isSec;
+  });
+
+  // 3. Assign numbered badges sequentially
+  let badgeCounter = 1;
+  const edges: UnifiedEdge[] = activeConnections.map((conn, idx) => {
+    const src = nodeMap.get(conn.source)!;
+    const tgt = nodeMap.get(conn.target)!;
+    const isSec = Boolean(conn.secondary || conn.category === "telemetry");
+    const badgeIndex = isSec ? undefined : badgeCounter++;
 
     const routingContext: EdgeRoutingContext = {
       sourceCol: src.col,
@@ -819,9 +919,7 @@ export function layoutProjectArchitecture(
     };
 
     const { pathData, parallelPathData, midX, midY } = computeEdgePath(src, tgt, routingContext);
-    const badgeIndex = useBadges ? idx + 1 : undefined;
-    const labelText = conn.label || conn.protocol || "";
-    const pillW = useBadges ? 28 : Math.max(labelText.length * 8 + 24, 60);
+    const pillW = 24;
     const pillH = 24;
 
     let adjustedMidX = midX;
@@ -848,10 +946,10 @@ export function layoutProjectArchitecture(
       }
 
       if (!collides) {
-        for (const pl of placedLabels) {
-          if (rectsOverlap(lBox, pl, 4)) {
+        for (const pb of placedBadges) {
+          if (rectsOverlap(lBox, pb, 4)) {
             collides = true;
-            adjustedMidX += pillW + 16;
+            adjustedMidX += pillW + 12;
             break;
           }
         }
@@ -860,28 +958,32 @@ export function layoutProjectArchitecture(
       attempts++;
     }
 
-    placedLabels.push({
-      left: adjustedMidX - pillW / 2,
-      top: adjustedMidY - pillH / 2,
-      right: adjustedMidX + pillW / 2,
-      bottom: adjustedMidY + pillH / 2,
-    });
+    if (!isSec) {
+      placedBadges.push({
+        left: adjustedMidX - pillW / 2,
+        top: adjustedMidY - pillH / 2,
+        right: adjustedMidX + pillW / 2,
+        bottom: adjustedMidY + pillH / 2,
+      });
+    }
 
-    let category: UnifiedEdge["category"] = "network";
+    let category: UnifiedEdge["category"] = conn.category || "network";
     if (src.category === "database" || tgt.category === "database") category = "data";
     else if (src.category === "security" || tgt.category === "security") category = "security";
     else if (src.category === "cicd" || tgt.category === "cicd") category = "deployment";
     else if (src.category === "monitoring" || tgt.category === "monitoring") category = "telemetry";
 
     return {
-      id: `edge-${conn.from}-${conn.to}-${idx}`,
-      source: conn.from,
-      target: conn.to,
+      id: conn.id,
+      source: conn.source,
+      target: conn.target,
       label: conn.label,
       protocol: conn.protocol,
       category,
-      direction: "directional",
+      direction: conn.direction || "directional",
       animated: true,
+      secondary: isSec,
+      originalEdgeIds: conn.originalEdgeIds,
       pathData,
       parallelPathData,
       midX: adjustedMidX,
