@@ -13,6 +13,8 @@ import {
   X,
   Compass,
   Maximize2,
+  Search,
+  RotateCcw,
 } from "lucide-react";
 import type {
   ArchitectureDiagramData,
@@ -52,6 +54,8 @@ interface ArchitectureCanvasProps {
   onOpenWorkspace?: () => void;
   isEditable?: boolean;
   onUpdateNodes?: (nodes: ArchitectureNode[]) => void;
+  isIsolated?: boolean;
+  onToggleIsolate?: () => void;
   className?: string;
 }
 
@@ -65,12 +69,42 @@ export function ArchitectureCanvas({
   onOpenWorkspace,
   isEditable = false,
   onUpdateNodes,
+  isIsolated: propsIsIsolated,
+  onToggleIsolate,
   className = "",
 }: ArchitectureCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Layout mode: "auto" (clean infrastructure tier lanes) vs "preset" (original / custom coordinates)
   const [layoutMode, setLayoutMode] = useState<"auto" | "preset">("auto");
+
+  // Search, Filter and Isolation States
+  const [internalIsolated, setInternalIsolated] = useState(false);
+  const isIsolated = propsIsIsolated !== undefined ? propsIsIsolated : internalIsolated;
+  const toggleIsolated = onToggleIsolate || (() => setInternalIsolated((prev) => !prev));
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedProvider, setSelectedProvider] = useState<string>("all");
+
+  const availableCategories = useMemo(() => {
+    return Array.from(new Set(data.nodes.map((n) => n.category))).sort();
+  }, [data.nodes]);
+
+  const availableProviders = useMemo(() => {
+    return Array.from(new Set(data.nodes.map((n) => n.provider))).sort();
+  }, [data.nodes]);
+
+  const resetFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSelectedProvider("all");
+    if (propsIsIsolated === undefined) {
+      setInternalIsolated(false);
+    } else if (onToggleIsolate && propsIsIsolated) {
+      onToggleIsolate();
+    }
+  }, [propsIsIsolated, onToggleIsolate]);
 
   // Compute unified DAG layout for nodes & edges
   const layout = useMemo(
@@ -390,9 +424,38 @@ export function ArchitectureCanvas({
     }
   }, [selectedNode, selectedEdge, isJourneyActive, setSelectedNodeId, setSelectedEdgeId]);
 
-  // Compute active node filter by viewMode
+  // Compute active node filter by viewMode, search, category, provider, and isolation mode
   const isNodeActiveInView = useCallback(
     (node: UnifiedNode): boolean => {
+      // Isolation Mode: if active and a node is selected, only keep selected node + directly connected nodes
+      if (isIsolated && selectedNodeId) {
+        if (node.id !== selectedNodeId && !connectedNodeIds.has(node.id)) {
+          return false;
+        }
+      }
+
+      // Search query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = node.name.toLowerCase().includes(q);
+        const matchTech = node.tech.toLowerCase().includes(q);
+        const matchDesc = node.description ? node.description.toLowerCase().includes(q) : false;
+        const matchProvider = node.provider.toLowerCase().includes(q);
+        if (!matchName && !matchTech && !matchDesc && !matchProvider) {
+          return false;
+        }
+      }
+
+      // Category filter
+      if (selectedCategory !== "all" && node.category !== selectedCategory) {
+        return false;
+      }
+
+      // Provider filter
+      if (selectedProvider !== "all" && node.provider !== selectedProvider) {
+        return false;
+      }
+
       switch (viewMode) {
         case "topology":
           return true;
@@ -415,19 +478,41 @@ export function ArchitectureCanvas({
           return true;
       }
     },
-    [viewMode]
+    [isIsolated, selectedNodeId, connectedNodeIds, searchQuery, selectedCategory, selectedProvider, viewMode]
   );
 
-  // Compute active edge filter by viewMode
+  // Compute active edge filter by viewMode, isolation mode, and active nodes
   const isEdgeActiveInView = useCallback(
     (edge: UnifiedEdge): boolean => {
-      if (viewMode === "topology") return true;
+      if (isIsolated && selectedNodeId) {
+        if (edge.source !== selectedNodeId && edge.target !== selectedNodeId) {
+          return false;
+        }
+      }
+      if (
+        viewMode === "topology" &&
+        !isIsolated &&
+        !searchQuery.trim() &&
+        selectedCategory === "all" &&
+        selectedProvider === "all"
+      ) {
+        return true;
+      }
       const srcNode = layout.nodes.find((n) => n.id === edge.source);
       const tgtNode = layout.nodes.find((n) => n.id === edge.target);
       if (!srcNode || !tgtNode) return false;
       return isNodeActiveInView(srcNode) && isNodeActiveInView(tgtNode);
     },
-    [viewMode, layout.nodes, isNodeActiveInView]
+    [
+      isIsolated,
+      selectedNodeId,
+      viewMode,
+      searchQuery,
+      selectedCategory,
+      selectedProvider,
+      layout.nodes,
+      isNodeActiveInView,
+    ]
   );
 
   // Export handlers
@@ -550,6 +635,91 @@ export function ArchitectureCanvas({
         />
       </div>
 
+      {/* Search & Filter Strip */}
+      <div className="w-full border-b border-border/70 bg-[#FAF9F6]/90 dark:bg-[#121316]/90 backdrop-blur-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 z-10 shrink-0 text-xs">
+        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[160px] max-w-xs">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search components or tech..."
+              className="w-full pl-8 pr-7 py-1 text-xs rounded-md border border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-100 placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-cobalt"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-carbon cursor-pointer"
+                title="Clear Search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Dropdown */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-2.5 py-1 text-xs rounded-md border border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-cobalt cursor-pointer"
+          >
+            <option value="all">All Categories ({availableCategories.length})</option>
+            {availableCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </option>
+            ))}
+          </select>
+
+          {/* Provider Dropdown */}
+          <select
+            value={selectedProvider}
+            onChange={(e) => setSelectedProvider(e.target.value)}
+            className="px-2.5 py-1 text-xs rounded-md border border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-cobalt cursor-pointer"
+          >
+            <option value="all">All Providers ({availableProviders.length})</option>
+            {availableProviders.map((prov) => (
+              <option key={prov} value={prov}>
+                {prov}
+              </option>
+            ))}
+          </select>
+
+          {/* Reset Filters button if any filter active */}
+          {(searchQuery || selectedCategory !== "all" || selectedProvider !== "all" || isIsolated) && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="mono text-[10px] font-semibold text-muted-foreground hover:text-carbon dark:hover:text-white px-2 py-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors inline-flex items-center gap-1 cursor-pointer"
+              title="Reset all search & filters"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reset
+            </button>
+          )}
+        </div>
+
+        {/* Isolation Mode Toggle (When a node is selected) */}
+        {selectedNodeId && (
+          <button
+            type="button"
+            onClick={toggleIsolated}
+            className={`mono text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+              isIsolated
+                ? "bg-cobalt text-white border-cobalt shadow-xs"
+                : "bg-white dark:bg-neutral-900 border-border text-carbon dark:text-neutral-200 hover:border-cobalt"
+            }`}
+            title="Isolate selected component and its direct dependencies"
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${isIsolated ? "bg-white animate-pulse" : "bg-cobalt"}`} />
+            {isIsolated ? "Isolation Active (Connected Only)" : "Show Related Components"}
+          </button>
+        )}
+      </div>
+
       {/* Main Interactive Pan/Zoom Surface (Takes 100% of remaining height) */}
       <div
         ref={containerRef}
@@ -565,7 +735,7 @@ export function ArchitectureCanvas({
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
         style={{
-          backgroundImage: `radial-gradient(circle, rgba(26, 75, 255, 0.08) 1.2px, transparent 1.2px)`,
+          backgroundImage: `radial-gradient(circle, rgba(100, 116, 139, 0.12) 1.2px, transparent 1.2px)`,
           backgroundSize: "28px 28px",
           backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
@@ -590,17 +760,22 @@ export function ArchitectureCanvas({
                 className={`absolute rounded-2xl pointer-events-none transition-all ${
                   zone.isAwsVpc
                     ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
-                    : "border border-dashed border-[#DCDAD2] bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                    : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 }`}
               >
-                <div className="absolute top-2.5 left-3.5 flex items-center gap-1.5">
+                <div className="absolute top-2.5 left-3.5 right-3.5 flex flex-col gap-0.5 pointer-events-none">
                   <span
-                    className={`mono text-[9px] font-bold tracking-widest uppercase ${
-                      zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
+                    className={`mono text-[10px] font-bold tracking-wider uppercase ${
+                      zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-carbon dark:text-neutral-200"
                     }`}
                   >
                     {zone.title}
                   </span>
+                  {zone.description && (
+                    <span className="text-[10px] text-muted-foreground line-clamp-2 leading-tight">
+                      {zone.description}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

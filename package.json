@@ -3,6 +3,9 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "imports": {
+    "@/*": "./src/*"
+  },
   "scripts": {
     "dev": "vite dev",
     "dev:staging": "vite dev --mode staging --port 3001",
@@ -13,7 +16,8 @@
     "preview:staging": "vite preview --mode staging --port 3001",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check:architecture": "node scripts/measure-architecture-layout.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -53,6 +57,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "elkjs": "^0.12.1",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.42.2",
     "input-otp": "^1.4.2",
@@ -88,6 +93,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
+    "playwright": "^1.65.1",
     "prettier": "^3.7.3",
     "simple-icons": "^16.38.0",
     "typescript": "^5.8.3",

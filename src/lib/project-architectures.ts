@@ -49,6 +49,38 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
         "node-resend-email",
         "node-gemini-api",
       ],
+      sections: [
+        {
+          id: "sec-portfolio-dns",
+          title: "01. Client & Domain Resolution",
+          description: "Resolves domain records and routes visitor traffic to edge servers.",
+          nodeIds: ["node-visitor", "node-cloudflare-dns"],
+        },
+        {
+          id: "sec-portfolio-compute",
+          title: "02. Compute & Application Runtime",
+          description: "Executes server-side React application code and edge API handlers.",
+          nodeIds: ["node-vercel-runtime"],
+        },
+        {
+          id: "sec-portfolio-storage",
+          title: "03. Data Storage & Persistence",
+          description: "Stores structured portfolio data, telemetry logs, and media assets.",
+          nodeIds: ["node-supabase-pg"],
+        },
+        {
+          id: "sec-portfolio-ai-email",
+          title: "04. AI & Communication Services",
+          description: "Powers AI interactions and multi-channel notification delivery.",
+          nodeIds: ["node-gemini-api", "node-resend-email", "node-smtp-email", "node-web3forms"],
+        },
+        {
+          id: "sec-portfolio-cicd",
+          title: "05. CI/CD & Automation",
+          description: "Automates testing, security verification, and zero-downtime deployment.",
+          nodeIds: ["node-github-ci", "node-credly-api"],
+        },
+      ],
       nodes: [
         {
           id: "node-visitor",
@@ -549,6 +581,32 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
         "node-auto-report",
         "node-auto-smtp",
       ],
+      sections: [
+        {
+          id: "sec-auto-triggers",
+          title: "01. Schedule & Triggers",
+          description: "Initiates scheduled cron maintenance runs and on-demand triggers.",
+          nodeIds: ["node-auto-cron"],
+        },
+        {
+          id: "sec-auto-compute",
+          title: "02. Execution Engines",
+          description: "Executes automated table dumps, record verification, and Lighthouse audits.",
+          nodeIds: ["node-auto-backup", "node-auto-report"],
+        },
+        {
+          id: "sec-auto-storage",
+          title: "03. Data & Storage Targets",
+          description: "Queries active database tables and archives encrypted SQL dumps.",
+          nodeIds: ["node-auto-supabase-extract", "node-auto-storage"],
+        },
+        {
+          id: "sec-auto-alerts",
+          title: "04. Multi-Channel Alerting",
+          description: "Dispatches execution summaries and failure alerts with fallback routing.",
+          nodeIds: ["node-auto-smtp", "node-auto-web3forms"],
+        },
+      ],
       nodes: [
         {
           id: "node-auto-cron",
@@ -928,6 +986,38 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
         "node-sentinel-proc",
         "node-sentinel-sqlite",
       ],
+      sections: [
+        {
+          id: "sec-sentinel-access",
+          title: "01. Access & Domain Resolution",
+          description: "Handles administrator authentication and corporate domain resolution.",
+          nodeIds: ["node-sentinel-visitor", "node-sentinel-dns"],
+        },
+        {
+          id: "sec-sentinel-perimeter",
+          title: "02. Perimeter & SSL Proxy",
+          description: "Terminates HTTPS, enforces rate limits, and proxies API traffic.",
+          nodeIds: ["node-sentinel-nginx"],
+        },
+        {
+          id: "sec-sentinel-control",
+          title: "03. Telemetry & Control Plane",
+          description: "Ingests host system metrics, queries Docker socket, and parses kernel state.",
+          nodeIds: ["node-sentinel-api", "node-sentinel-docker", "node-sentinel-proc"],
+        },
+        {
+          id: "sec-sentinel-storage",
+          title: "04. Security Audit & Storage",
+          description: "Maintains local time-series records and parses container CVE audits.",
+          nodeIds: ["node-sentinel-sqlite", "node-sentinel-trivy"],
+        },
+        {
+          id: "sec-sentinel-alerts",
+          title: "05. Incident Alerting",
+          description: "Dispatches threshold violation alerts to operations channels.",
+          nodeIds: ["node-sentinel-alerts"],
+        },
+      ],
       nodes: [
         {
           id: "node-sentinel-visitor",
@@ -1300,6 +1390,38 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
         "node-trivy-gate",
         "node-container-registry",
       ],
+      sections: [
+        {
+          id: "sec-devsecops-origin",
+          title: "01. Source & Commit Origin",
+          description: "Receives code changes and triggers pre-commit security hooks.",
+          nodeIds: ["node-dev-workstation"],
+        },
+        {
+          id: "sec-devsecops-precommit",
+          title: "02. Local Git Security Gates",
+          description: "Scans staged diffs for private keys, tokens, and leaked credentials.",
+          nodeIds: ["node-precommit-scanner"],
+        },
+        {
+          id: "sec-devsecops-ci",
+          title: "03. CI Automation Pipeline",
+          description: "Executes automated continuous integration and multi-stage testing.",
+          nodeIds: ["node-github-ci-runner"],
+        },
+        {
+          id: "sec-devsecops-linting",
+          title: "04. Container Security & Quality",
+          description: "Lints Dockerfile practices and gates container CVE vulnerabilities.",
+          nodeIds: ["node-hadolint-step", "node-trivy-gate"],
+        },
+        {
+          id: "sec-devsecops-registry",
+          title: "05. Registry & Compliance",
+          description: "Stores certified container images and generates compliance reports.",
+          nodeIds: ["node-container-registry", "node-compliance-reporter"],
+        },
+      ],
       nodes: [
         {
           id: "node-dev-workstation",
@@ -1589,12 +1711,46 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
       version: 1,
       viewport: { x: 0, y: 0, zoom: 0.95 },
       journey: [
-        "node-iac-runner",
         "node-aws-vpc-net",
         "node-public-subnets-tier",
         "node-nat-gateways-tier",
+        "node-iam-security-roles",
         "node-private-subnets-tier",
+        "node-cloud-init-tier",
         "node-ebs-backup-tier",
+        "node-iac-runner",
+      ],
+      sections: [
+        {
+          id: "sec-aws-network",
+          title: "01. Cloud Network",
+          description: "Provides the isolated AWS network where application resources operate.",
+          nodeIds: ["node-aws-vpc-net", "node-public-subnets-tier", "node-nat-gateways-tier"],
+        },
+        {
+          id: "sec-aws-security",
+          title: "02. Security & Access",
+          description: "Controls which resources can communicate and which identities can access them.",
+          nodeIds: ["node-iam-security-roles"],
+        },
+        {
+          id: "sec-aws-compute",
+          title: "03. Compute & Provisioning",
+          description: "Creates and configures the servers and application environments.",
+          nodeIds: ["node-private-subnets-tier", "node-cloud-init-tier"],
+        },
+        {
+          id: "sec-aws-storage",
+          title: "04. Storage & Backup",
+          description: "Stores application data and maintains recovery points.",
+          nodeIds: ["node-ebs-backup-tier"],
+        },
+        {
+          id: "sec-aws-cicd",
+          title: "05. CI/CD & Automation",
+          description: "Automates infrastructure creation and deployment.",
+          nodeIds: ["node-iac-runner"],
+        },
       ],
       nodes: [
         {

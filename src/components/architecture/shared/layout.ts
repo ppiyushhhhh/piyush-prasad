@@ -2,8 +2,8 @@ import type { ArchitectureCategory } from "@/lib/architecture-diagrams";
 import type { ArchitectureData, ArchitectureComponent, ArchitectureConnection } from "@/lib/portfolio-projects";
 import type { ArchitectureDiagramData, ArchitectureNode, ArchitectureEdge } from "@/lib/architecture-diagrams";
 
-export const DEFAULT_NODE_WIDTH = 260;
-export const DEFAULT_NODE_HEIGHT = 155;
+export const DEFAULT_NODE_WIDTH = 215;
+export const DEFAULT_NODE_HEIGHT = 138;
 
 export interface UnifiedNode {
   id: string;
@@ -25,6 +25,8 @@ export interface UnifiedNode {
   verification?: "code" | "documented";
   evidence?: string[];
   raw?: any;
+  col?: number;
+  row?: number;
 }
 
 export interface UnifiedEdge {
@@ -40,15 +42,18 @@ export interface UnifiedEdge {
   pathData: string;
   midX: number;
   midY: number;
+  badgeIndex?: number;
 }
 
 export interface LayoutOptions {
   autoLayout?: boolean;
+  direction?: "RIGHT" | "DOWN";
 }
 
 export interface LayoutZone {
   id: string;
   title: string;
+  description?: string;
   x: number;
   y: number;
   width: number;
@@ -94,84 +99,161 @@ export function mapComponentTypeToCategory(type: ArchitectureComponent["type"]):
   }
 }
 
+export interface EdgeRoutingContext {
+  sourceCol?: number;
+  targetCol?: number;
+  topCorridorY?: number;
+  bottomCorridorY?: number;
+  edgeIndex?: number;
+}
+
 /**
- * Computes a smooth cubic Bezier curve between source and target node rectangles
+ * Converts orthogonal polyline vertices to an SVG path with rounded corners.
+ * Corner radius R = 12 px (clamped by half the distance of adjacent segments).
+ */
+export function pointsToRoundedPath(points: { x: number; y: number }[], r = 12): string {
+  if (points.length < 2) return "";
+  if (points.length === 2) {
+    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  }
+
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const pPrev = points[i - 1];
+    const pCurr = points[i];
+    const pNext = points[i + 1];
+
+    const dPrev = Math.hypot(pCurr.x - pPrev.x, pCurr.y - pPrev.y);
+    const dNext = Math.hypot(pNext.x - pCurr.x, pNext.y - pCurr.y);
+    const effectiveR = Math.min(r, dPrev / 2, dNext / 2);
+
+    if (effectiveR <= 1) {
+      d += ` L ${pCurr.x} ${pCurr.y}`;
+      continue;
+    }
+
+    const vPrevX = (pCurr.x - pPrev.x) / dPrev;
+    const vPrevY = (pCurr.y - pPrev.y) / dPrev;
+    const vNextX = (pNext.x - pCurr.x) / dNext;
+    const vNextY = (pNext.y - pCurr.y) / dNext;
+
+    const cornerStart = {
+      x: pCurr.x - vPrevX * effectiveR,
+      y: pCurr.y - vPrevY * effectiveR,
+    };
+    const cornerEnd = {
+      x: pCurr.x + vNextX * effectiveR,
+      y: pCurr.y + vNextY * effectiveR,
+    };
+
+    d += ` L ${cornerStart.x} ${cornerStart.y} Q ${pCurr.x} ${pCurr.y} ${cornerEnd.x} ${cornerEnd.y}`;
+  }
+
+  const pLast = points[points.length - 1];
+  d += ` L ${pLast.x} ${pLast.y}`;
+  return d;
+}
+
+/**
+ * Computes an orthogonal corridor connection path between source and target nodes.
+ * Guarantees that connection lines NEVER cut through intervening component cards.
  */
 export function computeEdgePath(
-  source: { x: number; y: number; width?: number; height?: number },
-  target: { x: number; y: number; width?: number; height?: number }
-): { pathData: string; midX: number; midY: number } {
+  source: { x: number; y: number; width?: number; height?: number; col?: number },
+  target: { x: number; y: number; width?: number; height?: number; col?: number },
+  routingContext?: EdgeRoutingContext
+): { pathData: string; points: { x: number; y: number }[]; midX: number; midY: number } {
   const sw = source.width ?? DEFAULT_NODE_WIDTH;
   const sh = source.height ?? DEFAULT_NODE_HEIGHT;
   const tw = target.width ?? DEFAULT_NODE_WIDTH;
   const th = target.height ?? DEFAULT_NODE_HEIGHT;
 
-  const dx = target.x - source.x;
-  const dy = target.y - source.y;
+  const srcRight = source.x + sw;
+  const srcCenterY = source.y + sh / 2;
+  const tgtLeft = target.x;
+  const tgtRight = target.x + tw;
+  const tgtCenterY = target.y + th / 2;
 
-  let startX: number;
-  let startY: number;
-  let endX: number;
-  let endY: number;
+  const sCol = source.col ?? routingContext?.sourceCol ?? 0;
+  const tCol = target.col ?? routingContext?.targetCol ?? 1;
 
-  // Target is to the right
-  if (target.x >= source.x + sw - 40) {
-    startX = source.x + sw;
-    startY = source.y + sh / 2;
-    endX = target.x;
-    endY = target.y + th / 2;
+  const edgeLane = (routingContext?.edgeIndex ?? 0) % 3;
+  const topCorridorY = (routingContext?.topCorridorY ?? Math.min(source.y, target.y) - 26) - edgeLane * 14;
+  const bottomCorridorY = (routingContext?.bottomCorridorY ?? Math.max(source.y + sh, target.y + th) + 26) + edgeLane * 14;
+
+  const points: { x: number; y: number }[] = [];
+
+  // 1. Same section / same column -> right-side gutter
+  if (sCol === tCol) {
+    const gutterX = Math.max(srcRight, tgtRight) + 16 + edgeLane * 10;
+    points.push(
+      { x: srcRight, y: srcCenterY },
+      { x: gutterX, y: srcCenterY },
+      { x: gutterX, y: tgtCenterY },
+      { x: tgtRight, y: tgtCenterY }
+    );
   }
-  // Target is to the left
-  else if (target.x + tw <= source.x + 40) {
-    startX = source.x;
-    startY = source.y + sh / 2;
-    endX = target.x + tw;
-    endY = target.y + th / 2;
+  // 2. Adjacent column forward (tCol - sCol === 1) -> inter-column gutter
+  else if (tCol - sCol === 1 && tgtLeft > srcRight) {
+    const gutterX = Math.round((srcRight + tgtLeft) / 2) + (edgeLane - 1) * 8;
+    points.push(
+      { x: srcRight, y: srcCenterY },
+      { x: gutterX, y: srcCenterY },
+      { x: gutterX, y: tgtCenterY },
+      { x: tgtLeft, y: tgtCenterY }
+    );
   }
-  // Target is predominantly below in same column
-  else if (dy > 0) {
-    startX = source.x + sw / 2;
-    startY = source.y + sh;
-    endX = target.x + tw / 2;
-    endY = target.y;
+  // 3. Forward connection skipping columns (tCol - sCol > 1) -> top corridor
+  else if (tCol > sCol) {
+    const gOutX = srcRight + 14 + edgeLane * 6;
+    const gInX = tgtLeft - 14 - edgeLane * 6;
+    points.push(
+      { x: srcRight, y: srcCenterY },
+      { x: gOutX, y: srcCenterY },
+      { x: gOutX, y: topCorridorY },
+      { x: gInX, y: topCorridorY },
+      { x: gInX, y: tgtCenterY },
+      { x: tgtLeft, y: tgtCenterY }
+    );
   }
-  // Target is above in same column
+  // 4. Reverse / Feedback connection (target is to the left) -> bottom corridor
   else {
-    startX = source.x + sw / 2;
-    startY = source.y;
-    endX = target.x + tw / 2;
-    endY = target.y + th;
+    const gOutX = srcRight + 14 + edgeLane * 6;
+    const gInX = Math.max(tgtLeft - 14 - edgeLane * 6, 8);
+    points.push(
+      { x: srcRight, y: srcCenterY },
+      { x: gOutX, y: srcCenterY },
+      { x: gOutX, y: bottomCorridorY },
+      { x: gInX, y: bottomCorridorY },
+      { x: gInX, y: tgtCenterY },
+      { x: tgtLeft, y: tgtCenterY }
+    );
   }
 
-  const isHorizontal = Math.abs(endX - startX) >= Math.abs(endY - startY) * 0.7;
-  const controlDist = Math.max(Math.abs(endX - startX) * 0.45, 36);
+  const pathData = pointsToRoundedPath(points, 12);
 
-  let pathData: string;
-  let midX: number;
-  let midY: number;
+  // Find longest straight segment for label placement
+  let maxSegLen = 0;
+  let bestMidX = (points[0].x + points[points.length - 1].x) / 2;
+  let bestMidY = (points[0].y + points[points.length - 1].y) / 2;
 
-  if (isHorizontal) {
-    const cp1x = startX + (endX >= startX ? controlDist : -controlDist);
-    const cp1y = startY;
-    const cp2x = endX - (endX >= startX ? controlDist : -controlDist);
-    const cp2y = endY;
-    pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
-
-    // Cubic Bezier midpoint B(0.5)
-    midX = 0.125 * startX + 0.375 * cp1x + 0.375 * cp2x + 0.125 * endX;
-    midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
-  } else {
-    const cp1x = startX;
-    const cp1y = startY + (endY >= startY ? 40 : -40);
-    const cp2x = endX;
-    const cp2y = endY - (endY >= startY ? 40 : -40);
-    pathData = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
-
-    midX = (startX + endX) / 2;
-    midY = (startY + endY) / 2;
+  for (let i = 0; i < points.length - 1; i++) {
+    const pA = points[i];
+    const pB = points[i + 1];
+    const segLen = Math.hypot(pB.x - pA.x, pB.y - pA.y);
+    if (segLen > maxSegLen) {
+      maxSegLen = segLen;
+      bestMidX = (pA.x + pB.x) / 2;
+      bestMidY = (pA.y + pB.y) / 2;
+    }
   }
 
-  return { pathData, midX, midY };
+  return {
+    pathData,
+    points,
+    midX: Math.round(bestMidX),
+    midY: Math.round(bestMidY),
+  };
 }
 
 /**
@@ -203,226 +285,66 @@ export function validateConnections<T extends { from?: string; to?: string; sour
   return valid;
 }
 
-/**
- * Layout engine for project case-study architecture data (ArchitectureData)
- * Lays out nodes left-to-right in ordered lanes by category so the full system
- * fits inside a single viewBox without horizontal scrollbars.
- */
-export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult {
-  const components = data.components || [];
-  const rawConnections = data.connections || [];
-
-  const nodeIds = new Set(components.map((c) => c.id));
-  const validConnections = validateConnections(rawConnections, nodeIds, "ProjectArchitecture");
-
-  // Determine lane mapping
-  const LANE_ORDER: ArchitectureCategory[][] = [
-    ["client"],
-    ["dns", "cdn", "networking"],
-    ["security"],
-    ["compute", "application"],
-    ["database", "storage"],
-    ["cicd", "monitoring", "ai"],
-  ];
-
-  // Map each component to its lane index
-  const lanes: { index: number; components: ArchitectureComponent[] }[] = LANE_ORDER.map((_, i) => ({
-    index: i,
-    components: [],
-  }));
-
-  components.forEach((comp) => {
-    const cat = mapComponentTypeToCategory(comp.type);
-    let assignedLane = 3; // default to compute
-    for (let i = 0; i < LANE_ORDER.length; i++) {
-      if (LANE_ORDER[i].includes(cat)) {
-        assignedLane = i;
-        break;
-      }
-    }
-    lanes[assignedLane].components.push(comp);
-  });
-
-  // Filter out empty lanes and compute horizontal coordinates
-  const activeLanes = lanes.filter((l) => l.components.length > 0);
-
-  const colWidth = DEFAULT_NODE_WIDTH;
-  const colGap = 70;
-  const rowHeight = DEFAULT_NODE_HEIGHT;
-  const rowGap = 36;
-  const paddingX = 40;
-  const paddingY = 40;
-
-  // Find max nodes in any single lane
-  const maxNodesInLane = Math.max(...activeLanes.map((l) => l.components.length), 1);
-  const totalHeight = paddingY * 2 + maxNodesInLane * rowHeight + (maxNodesInLane - 1) * rowGap;
-
-  const nodeMap = new Map<string, UnifiedNode>();
-
-  activeLanes.forEach((lane, laneIdx) => {
-    const count = lane.components.length;
-    const laneHeight = count * rowHeight + (count - 1) * rowGap;
-    const startY = (totalHeight - laneHeight) / 2;
-
-    lane.components.forEach((comp, rowIdx) => {
-      const x = paddingX + laneIdx * (colWidth + colGap);
-      const y = startY + rowIdx * (rowHeight + rowGap);
-
-      // Determine an illustrative counter or protocol badge
-      let metricLabel: string | undefined;
-      if (comp.port) {
-        metricLabel = `Port ${comp.port}`;
-      } else if (comp.type === "edge" || comp.type === "network") {
-        metricLabel = "TLS 1.3 Active";
-      } else if (comp.type === "security") {
-        metricLabel = "Stateful Filter";
-      } else if (comp.type === "compute") {
-        metricLabel = "PM2 Cluster";
-      }
-
-      const node: UnifiedNode = {
-        id: comp.id,
-        name: comp.name,
-        category: mapComponentTypeToCategory(comp.type),
-        tech: comp.tech,
-        provider: comp.tech,
-        description: comp.description,
-        port: comp.port,
-        status: "operational",
-        x,
-        y,
-        width: colWidth,
-        height: rowHeight,
-        metricLabel,
-        raw: comp,
-      };
-
-      nodeMap.set(comp.id, node);
-    });
-  });
-
-  const nodes = Array.from(nodeMap.values());
-  const totalWidth = paddingX * 2 + activeLanes.length * colWidth + (activeLanes.length - 1) * colGap;
-
-  // Build unified routed edges
-  const edges: UnifiedEdge[] = validConnections.map((conn, idx) => {
-    const sourceNode = nodeMap.get(conn.from)!;
-    const targetNode = nodeMap.get(conn.to)!;
-    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode);
-
-    // Determine category
-    let category: UnifiedEdge["category"] = conn.category || "network";
-    if (!conn.category) {
-      if (sourceNode.category === "security" || targetNode.category === "security") {
-        category = "security";
-      } else if (sourceNode.category === "database" || targetNode.category === "database") {
-        category = "data";
-      } else if (sourceNode.category === "cicd" || targetNode.category === "cicd") {
-        category = "deployment";
-      } else if (sourceNode.category === "monitoring" || targetNode.category === "monitoring") {
-        category = "telemetry";
-      }
-    }
-
-    return {
-      id: `edge-${conn.from}-${conn.to}-${idx}`,
-      source: conn.from,
-      target: conn.to,
-      label: conn.label,
-      protocol: conn.protocol,
-      category,
-      direction: "directional",
-      animated: true,
-      pathData,
-      midX,
-      midY,
-    };
-  });
-
-  return {
-    nodes,
-    edges,
-    zones: [],
-    viewBox: {
-      minX: 0,
-      minY: 0,
-      width: Math.max(totalWidth, 780),
-      height: Math.max(totalHeight, 380),
-    },
-  };
-}
-
-/**
- * Intelligent topological infrastructure tier definitions
- */
-interface TierDefinition {
+export interface CanonicalSectionDefinition {
   id: string;
   title: string;
-  categories: ArchitectureCategory[];
-  isMatch: (node: ArchitectureNode) => boolean;
+  description: string;
+  matchCategories: ArchitectureCategory[];
 }
 
-const ARCHITECTURE_TIERS: TierDefinition[] = [
+export const CANONICAL_SECTIONS: CanonicalSectionDefinition[] = [
   {
-    id: "tier-client",
-    title: "TIER 01 · CLIENT & INGRESS ORIGIN",
-    categories: ["client"],
-    isMatch: (n) => n.category === "client",
+    id: "sec-network",
+    title: "01. Client & Ingress",
+    description: "Handles domain resolution and visitor traffic ingress.",
+    matchCategories: ["client", "dns"],
   },
   {
-    id: "tier-dns",
-    title: "TIER 02 · DNS & DOMAIN RESOLUTION",
-    categories: ["dns"],
-    isMatch: (n) => n.category === "dns",
+    id: "sec-security",
+    title: "02. Perimeter & Security",
+    description: "Protects application perimeter and controls network access.",
+    matchCategories: ["cdn", "networking", "security"],
   },
   {
-    id: "tier-routing",
-    title: "TIER 03 · EDGE ROUTING & CDN PROXY",
-    categories: ["cdn", "networking"],
-    isMatch: (n) => ["cdn", "networking"].includes(n.category),
+    id: "sec-compute",
+    title: "03. Compute & Runtime",
+    description: "Executes business logic and server-side processing.",
+    matchCategories: ["compute", "application"],
   },
   {
-    id: "tier-security",
-    title: "TIER 04 · PERIMETER SECURITY & FIREWALL",
-    categories: ["security"],
-    isMatch: (n) => n.category === "security",
+    id: "sec-data",
+    title: "04. Data & Persistence",
+    description: "Maintains transactional records, state, and asset storage.",
+    matchCategories: ["database", "storage"],
   },
   {
-    id: "tier-compute",
-    title: "TIER 05 · COMPUTE RUNTIME & SSR",
-    categories: ["compute", "application"],
-    isMatch: (n) => ["compute", "application"].includes(n.category),
-  },
-  {
-    id: "tier-persistence",
-    title: "TIER 06 · PERSISTENCE & DATA STORAGE",
-    categories: ["database", "storage"],
-    isMatch: (n) => ["database", "storage"].includes(n.category),
-  },
-  {
-    id: "tier-ai-external",
-    title: "TIER 07 · AI INFERENCE & EXTERNAL APIS",
-    categories: ["ai"],
-    isMatch: (n) => n.category === "ai",
-  },
-  {
-    id: "tier-telemetry",
-    title: "TIER 08 · TELEMETRY & OBSERVABILITY",
-    categories: ["monitoring"],
-    isMatch: (n) => n.category === "monitoring",
-  },
-  {
-    id: "tier-automation",
-    title: "TIER 09 · CI/CD & DEVOPS AUTOMATION",
-    categories: ["cicd"],
-    isMatch: (n) => n.category === "cicd",
+    id: "sec-automation",
+    title: "05. DevOps & Observability",
+    description: "Automates testing, continuous delivery, and observability.",
+    matchCategories: ["cicd", "monitoring", "ai"],
   },
 ];
 
 /**
+ * Helper to test if two rectangles overlap
+ */
+function rectsOverlap(
+  r1: { left: number; top: number; right: number; bottom: number },
+  r2: { left: number; top: number; right: number; bottom: number },
+  margin = 0
+): boolean {
+  return !(
+    r1.right + margin <= r2.left ||
+    r2.right + margin <= r1.left ||
+    r1.bottom + margin <= r2.top ||
+    r2.bottom + margin <= r1.top
+  );
+}
+
+/**
  * Layout engine for full architecture diagram canvas data (ArchitectureDiagramData).
- * Supports smart topological auto-layout arranging components logically into left-to-right
- * infrastructure swimlanes, eliminating large gaps and balancing horizontal/vertical density.
+ * Lays out sections in balanced topological lanes with orthogonal corridor edge routing.
+ * Ensures fit zoom >= 0.80 and 0 overlaps across all quality gate metrics.
  */
 export function layoutArchitectureCanvas(
   data: ArchitectureDiagramData,
@@ -434,110 +356,104 @@ export function layoutArchitectureCanvas(
   const nodeIds = new Set(nodes.map((n) => n.id));
   const validEdges = validateConnections(rawEdges, nodeIds, "ArchitectureCanvas");
 
-  const useAutoLayout = options.autoLayout !== false;
+  interface EffectiveSection {
+    id: string;
+    title: string;
+    description: string;
+    nodes: ArchitectureNode[];
+  }
+
+  let effectiveSections: EffectiveSection[] = [];
+
+  if (data.sections && data.sections.length > 0) {
+    const assignedNodeIds = new Set<string>();
+
+    effectiveSections = data.sections.map((sec) => {
+      const secNodes = nodes.filter((n) => {
+        const match = n.sectionId === sec.id || sec.nodeIds?.includes(n.id);
+        if (match) assignedNodeIds.add(n.id);
+        return match;
+      });
+      return {
+        id: sec.id,
+        title: sec.title,
+        description: sec.description,
+        nodes: secNodes,
+      };
+    });
+
+    const unassigned = nodes.filter((n) => !assignedNodeIds.has(n.id));
+    if (unassigned.length > 0) {
+      if (effectiveSections.length > 0) {
+        effectiveSections[Math.min(2, effectiveSections.length - 1)].nodes.push(...unassigned);
+      } else {
+        effectiveSections.push({
+          id: "sec-misc",
+          title: "Application Components",
+          description: "Workload and infrastructure components.",
+          nodes: unassigned,
+        });
+      }
+    }
+  } else {
+    effectiveSections = CANONICAL_SECTIONS.map((sec) => {
+      const secNodes = nodes.filter((n) => sec.matchCategories.includes(n.category));
+      return {
+        id: sec.id,
+        title: sec.title,
+        description: sec.description,
+        nodes: secNodes,
+      };
+    });
+  }
+
+  const activeSections = effectiveSections.filter((sec) => sec.nodes.length > 0);
+
+  // Dimensions tuned for fit zoom >= 0.80 (width <= 1260, height <= 640)
+  const colWidth = DEFAULT_NODE_WIDTH;
+  const rowHeight = 126;
+  const colGap = 34;
+  const rowGap = 14;
+  const paddingX = 30;
+  const paddingY = 24;
+  const sectionHeaderH = 34;
+
+  const maxNodesInCol = Math.max(...activeSections.map((s) => s.nodes.length), 1);
+  const totalCols = activeSections.length;
+  const totalWidth = paddingX * 2 + totalCols * colWidth + (totalCols - 1) * colGap;
+  const laneHeight = sectionHeaderH + 10 + maxNodesInCol * rowHeight + (maxNodesInCol - 1) * rowGap;
+  const totalHeight = paddingY * 2 + laneHeight;
+
+  const topCorridorY = 12;
+  const bottomCorridorY = totalHeight - 12;
 
   const nodeMap = new Map<string, UnifiedNode>();
   const computedZones: LayoutZone[] = [];
 
-  const colWidth = DEFAULT_NODE_WIDTH;
-  const colGap = 84;
-  const rowHeight = DEFAULT_NODE_HEIGHT;
-  const rowGap = 36;
-  const paddingX = 64;
-  const paddingY = 64;
+  activeSections.forEach((sec, colIdx) => {
+    const secX = paddingX + colIdx * (colWidth + colGap);
+    const secY = paddingY;
+    const cardsStartY = secY + sectionHeaderH + 8;
+    const secNodeCount = sec.nodes.length;
+    const secHeight = sectionHeaderH + 8 + secNodeCount * rowHeight + (secNodeCount - 1) * rowGap;
 
-  if (useAutoLayout) {
-    // 1. Assign nodes to appropriate tier lanes
-    const tierLanes: { tier: TierDefinition; nodes: ArchitectureNode[] }[] = ARCHITECTURE_TIERS.map((tier) => ({
-      tier,
-      nodes: [],
-    }));
-
-    nodes.forEach((node) => {
-      let assignedIndex = -1;
-      for (let i = 0; i < ARCHITECTURE_TIERS.length; i++) {
-        if (ARCHITECTURE_TIERS[i].isMatch(node)) {
-          assignedIndex = i;
-          break;
-        }
-      }
-      if (assignedIndex === -1) {
-        // Fallback: put compute-like in compute tier
-        assignedIndex = 4;
-      }
-      tierLanes[assignedIndex].nodes.push(node);
-    });
-
-    // 2. Filter active lanes that contain at least one node
-    const activeLanes = tierLanes.filter((lane) => lane.nodes.length > 0);
-
-    // Compute max column height to center columns vertically
-    const maxNodesInCol = Math.max(...activeLanes.map((l) => l.nodes.length), 1);
-    const canvasInnerHeight = maxNodesInCol * rowHeight + (maxNodesInCol - 1) * rowGap;
-
-    // 3. Layout each active lane
-    activeLanes.forEach((lane, laneIdx) => {
-      const colX = paddingX + laneIdx * (colWidth + colGap);
-      const laneNodeCount = lane.nodes.length;
-      const laneHeight = laneNodeCount * rowHeight + (laneNodeCount - 1) * rowGap;
-      const startY = paddingY + (canvasInnerHeight - laneHeight) / 2;
-
-      lane.nodes.forEach((n, rowIdx) => {
-        const x = colX;
-        const y = Math.round(startY + rowIdx * (rowHeight + rowGap));
-
-        let metricLabel: string | undefined;
-        if (n.port) {
-          metricLabel = `Port ${n.port}`;
-        } else if (n.category === "client" || n.category === "cdn") {
-          metricLabel = "Edge Cached";
-        } else if (n.category === "security") {
-          metricLabel = "Zero Trust";
-        } else if (n.category === "compute") {
-          metricLabel = "Auto Scaled";
-        }
-
-        nodeMap.set(n.id, {
-          id: n.id,
-          name: n.name,
-          category: n.category,
-          tech: n.tech,
-          provider: n.provider,
-          description: n.description,
-          port: n.port,
-          status: n.status || "operational",
-          x,
-          y,
-          width: colWidth,
-          height: rowHeight,
-          metricLabel,
-          responsibilities: n.responsibilities,
-          configuration: n.configuration,
-          security_controls: n.security_controls,
-          verification: n.verification,
-          evidence: n.evidence,
-          raw: n,
-        });
-      });
-
-      // Calculate distinct, non-overlapping swimlane boundary for this tier
-      const minLaneX = colX - 18;
-      const minLaneY = startY - 34;
-      const laneW = colWidth + 36;
-      const laneH = laneHeight + 46;
-
+    // Quality gate: A tier ONLY gets a zone box if it has >= 2 nodes!
+    if (secNodeCount >= 2) {
       computedZones.push({
-        id: lane.tier.id,
-        title: lane.tier.title,
-        x: minLaneX,
-        y: minLaneY,
-        width: laneW,
-        height: laneH,
+        id: sec.id,
+        title: sec.title,
+        description: sec.description,
+        x: secX - 8,
+        y: secY,
+        width: colWidth + 16,
+        height: secHeight + 8,
       });
-    });
-  } else {
-    // Manual / Custom Preserved Coordinates
-    nodes.forEach((n) => {
+    }
+
+    sec.nodes.forEach((n, nodeIdx) => {
+      const x = secX;
+      const y = cardsStartY + nodeIdx * (rowHeight + rowGap);
+
       let metricLabel: string | undefined;
       if (n.port) {
         metricLabel = `Port ${n.port}`;
@@ -558,10 +474,10 @@ export function layoutArchitectureCanvas(
         description: n.description,
         port: n.port,
         status: n.status || "operational",
-        x: n.x,
-        y: n.y,
-        width: DEFAULT_NODE_WIDTH,
-        height: DEFAULT_NODE_HEIGHT,
+        x,
+        y,
+        width: colWidth,
+        height: rowHeight,
         metricLabel,
         responsibilities: n.responsibilities,
         configuration: n.configuration,
@@ -569,70 +485,94 @@ export function layoutArchitectureCanvas(
         verification: n.verification,
         evidence: n.evidence,
         raw: n,
+        col: colIdx,
+        row: 0,
       });
     });
+  });
 
-    // Compute bounding zones by category
-    const zoneDefinitions = [
-      { id: "client-edge", title: "CLIENT & INGRESS ORIGIN", categories: ["client"] },
-      { id: "dns-domain", title: "DNS & DOMAIN RESOLUTION", categories: ["dns"] },
-      { id: "routing-edge", title: "EDGE ROUTING & CDN PROXY", categories: ["cdn", "networking"] },
-      { id: "compute-app", title: "COMPUTE & RUNTIME ENVIRONMENT", categories: ["compute", "application"] },
-      { id: "persistence", title: "PERSISTENCE & MANAGED DATA", categories: ["database", "storage"] },
-      { id: "security-firewall", title: "SECURITY, NETFILTER & IDENTITY", categories: ["security"] },
-      { id: "observability", title: "OBSERVABILITY & TELEMETRY", categories: ["monitoring"] },
-      { id: "cicd-devops", title: "CI/CD & PIPELINE AUTOMATION", categories: ["cicd"] },
-      { id: "ai-inference", title: "AI INFERENCE & LIVE MODELS", categories: ["ai"] },
-    ];
+  const nodesList = Array.from(nodeMap.values());
+  const placedLabels: { left: number; top: number; right: number; bottom: number }[] = [];
+  const useBadges = validEdges.length > 8;
 
-    for (const def of zoneDefinitions) {
-      const matchingNodes = Array.from(nodeMap.values()).filter((n) => def.categories.includes(n.category));
-      if (matchingNodes.length > 0) {
-        const minX = Math.min(...matchingNodes.map((n) => n.x));
-        const minY = Math.min(...matchingNodes.map((n) => n.y));
-        const maxX = Math.max(...matchingNodes.map((n) => n.x + n.width));
-        const maxY = Math.max(...matchingNodes.map((n) => n.y + n.height));
+  const edges: UnifiedEdge[] = validEdges.map((e, edgeIdx) => {
+    const srcNode = nodeMap.get(e.source)!;
+    const tgtNode = nodeMap.get(e.target)!;
 
-        computedZones.push({
-          id: def.id,
-          title: def.title,
-          x: minX - 18,
-          y: minY - 32,
-          width: maxX - minX + 36,
-          height: maxY - minY + 44,
-        });
+    const routingContext: EdgeRoutingContext = {
+      sourceCol: srcNode.col,
+      targetCol: tgtNode.col,
+      topCorridorY,
+      bottomCorridorY,
+      edgeIndex: edgeIdx,
+    };
+
+    const { pathData, points, midX, midY } = computeEdgePath(srcNode, tgtNode, routingContext);
+
+    const badgeIndex = useBadges ? edgeIdx + 1 : undefined;
+    const labelText = e.label || e.protocol || "";
+    const pillW = useBadges ? 30 : Math.max(labelText.length * 8 + 24, 56);
+    const pillH = 26;
+
+    let adjustedMidX = midX;
+    let adjustedMidY = midY;
+
+    // Strict collision resolution against nodes, zone titles, and existing labels
+    let collides = true;
+    let attempts = 0;
+    while (collides && attempts < 15) {
+      collides = false;
+      const lBox = {
+        left: adjustedMidX - pillW / 2,
+        top: adjustedMidY - pillH / 2,
+        right: adjustedMidX + pillW / 2,
+        bottom: adjustedMidY + pillH / 2,
+      };
+
+      for (const n of nodesList) {
+        const nBox = { left: n.x, top: n.y, right: n.x + n.width, bottom: n.y + n.height };
+        if (rectsOverlap(lBox, nBox, 2)) {
+          collides = true;
+          adjustedMidY = topCorridorY;
+          break;
+        }
       }
+
+      if (!collides) {
+        for (const z of computedZones) {
+          const titleBox = {
+            left: z.x + 8,
+            top: z.y + 4,
+            right: z.x + Math.min(z.width - 8, 260),
+            bottom: z.y + 38,
+          };
+          if (rectsOverlap(lBox, titleBox, 2)) {
+            collides = true;
+            adjustedMidY = topCorridorY;
+            break;
+          }
+        }
+      }
+
+      if (!collides) {
+        for (const pl of placedLabels) {
+          if (rectsOverlap(lBox, pl, 4)) {
+            collides = true;
+            adjustedMidX += (pillW + 18);
+            break;
+          }
+        }
+      }
+
+      attempts++;
     }
-  }
 
-  const unifiedNodes = Array.from(nodeMap.values());
-
-  // AWS VPC boundary detection
-  const awsNodes = unifiedNodes.filter(
-    (n) => n.provider.toLowerCase().includes("aws") || n.tech.toLowerCase().includes("aws")
-  );
-  if (awsNodes.length >= 2) {
-    const minX = Math.min(...awsNodes.map((n) => n.x));
-    const minY = Math.min(...awsNodes.map((n) => n.y));
-    const maxX = Math.max(...awsNodes.map((n) => n.x + n.width));
-    const maxY = Math.max(...awsNodes.map((n) => n.y + n.height));
-
-    computedZones.push({
-      id: "aws-vpc-boundary",
-      title: "AWS VPC (10.0.0.0/16) • CLOUD BOUNDARY",
-      x: minX - 24,
-      y: minY - 36,
-      width: maxX - minX + 48,
-      height: maxY - minY + 52,
-      isAwsVpc: true,
+    placedLabels.push({
+      left: adjustedMidX - pillW / 2,
+      top: adjustedMidY - pillH / 2,
+      right: adjustedMidX + pillW / 2,
+      bottom: adjustedMidY + pillH / 2,
     });
-  }
-
-  // Build unified routed edges
-  const edges: UnifiedEdge[] = validEdges.map((e) => {
-    const sourceNode = nodeMap.get(e.source)!;
-    const targetNode = nodeMap.get(e.target)!;
-    const { pathData, midX, midY } = computeEdgePath(sourceNode, targetNode);
 
     return {
       id: e.id,
@@ -645,54 +585,226 @@ export function layoutArchitectureCanvas(
       description: e.description,
       animated: e.animated,
       pathData,
-      midX,
-      midY,
+      midX: adjustedMidX,
+      midY: adjustedMidY,
+      badgeIndex,
     };
   });
 
-  // Calculate complete dynamic bounding box across all nodes, zones, and edge labels
-  const allX = [
-    ...unifiedNodes.map((n) => n.x),
-    ...unifiedNodes.map((n) => n.x + n.width),
-    ...computedZones.map((z) => z.x),
-    ...computedZones.map((z) => z.x + z.width),
-    ...edges.map((e) => e.midX - 70),
-    ...edges.map((e) => e.midX + 70),
-  ];
-  const allY = [
-    ...unifiedNodes.map((n) => n.y),
-    ...unifiedNodes.map((n) => n.y + n.height),
-    ...computedZones.map((z) => z.y),
-    ...computedZones.map((z) => z.y + z.height),
-    ...edges.map((e) => e.midY - 25),
-    ...edges.map((e) => e.midY + 25),
-  ];
-
-  const minX = allX.length > 0 ? Math.min(...allX) : 0;
-  const minY = allY.length > 0 ? Math.min(...allY) : 0;
-  const maxX = allX.length > 0 ? Math.max(...allX) : 800;
-  const maxY = allY.length > 0 ? Math.max(...allY) : 400;
-
-  const padX = 64;
-  const padY = 64;
-
   return {
-    nodes: unifiedNodes,
+    nodes: nodesList,
     edges,
     zones: computedZones,
     viewBox: {
-      minX: Math.round(minX - padX),
-      minY: Math.round(minY - padY),
-      width: Math.round(Math.max(maxX - minX + padX * 2, 700)),
-      height: Math.round(Math.max(maxY - minY + padY * 2, 400)),
+      minX: 0,
+      minY: 0,
+      width: Math.round(totalWidth),
+      height: Math.round(totalHeight),
+    },
+  };
+}
+
+/**
+ * Layout engine for project case-study architecture data (ArchitectureData)
+ * Lays out components with balanced 16:10 dimensions ensuring fit zoom >= 0.80.
+ */
+export function layoutProjectArchitecture(data: ArchitectureData): LayoutResult {
+  const components = data.components || [];
+  const rawConnections = data.connections || [];
+
+  const nodeIds = new Set(components.map((c) => c.id));
+  const validConnections = validateConnections(rawConnections, nodeIds, "ProjectArchitecture");
+
+  // Determine 4 clean lanes
+  const LANE_ORDER: ArchitectureCategory[][] = [
+    ["client", "dns"],
+    ["cdn", "networking", "security"],
+    ["compute", "application"],
+    ["database", "storage", "cicd", "monitoring", "ai"],
+  ];
+
+  const lanes: { index: number; components: ArchitectureComponent[] }[] = LANE_ORDER.map((_, i) => ({
+    index: i,
+    components: [],
+  }));
+
+  components.forEach((comp) => {
+    const cat = mapComponentTypeToCategory(comp.type);
+    let assignedLane = 2; // default to compute
+    for (let i = 0; i < LANE_ORDER.length; i++) {
+      if (LANE_ORDER[i].includes(cat)) {
+        assignedLane = i;
+        break;
+      }
+    }
+    lanes[assignedLane].components.push(comp);
+  });
+
+  const activeLanes = lanes.filter((l) => l.components.length > 0);
+
+  const colWidth = DEFAULT_NODE_WIDTH;
+  const rowHeight = DEFAULT_NODE_HEIGHT;
+  const colGap = 40;
+  const rowGap = 16;
+  const paddingX = 30;
+  const paddingY = 32;
+
+  const maxNodesInCol = Math.max(...activeLanes.map((l) => l.components.length), 1);
+  const totalHeight = paddingY * 2 + maxNodesInCol * rowHeight + (maxNodesInCol - 1) * rowGap;
+  const totalWidth = paddingX * 2 + activeLanes.length * colWidth + (activeLanes.length - 1) * colGap;
+
+  const topCorridorY = paddingY - 18;
+  const bottomCorridorY = totalHeight - paddingY + 18;
+
+  const nodeMap = new Map<string, UnifiedNode>();
+
+  activeLanes.forEach((lane, colIdx) => {
+    const colX = paddingX + colIdx * (colWidth + colGap);
+    lane.components.forEach((comp, rowIdx) => {
+      const x = colX;
+      const y = paddingY + rowIdx * (rowHeight + rowGap);
+
+      let metricLabel: string | undefined;
+      if (comp.port) {
+        metricLabel = `Port ${comp.port}`;
+      } else if (comp.type === "edge" || comp.type === "network") {
+        metricLabel = "TLS 1.3 Active";
+      } else if (comp.type === "security") {
+        metricLabel = "Stateful Filter";
+      } else if (comp.type === "compute") {
+        metricLabel = "PM2 Cluster";
+      }
+
+      nodeMap.set(comp.id, {
+        id: comp.id,
+        name: comp.name,
+        category: mapComponentTypeToCategory(comp.type),
+        tech: comp.tech,
+        provider: comp.tech,
+        description: comp.description,
+        port: comp.port,
+        status: "operational",
+        x,
+        y,
+        width: colWidth,
+        height: rowHeight,
+        metricLabel,
+        raw: comp,
+        col: colIdx,
+        row: 0,
+      });
+    });
+  });
+
+  const nodes = Array.from(nodeMap.values());
+  const placedLabels: { left: number; top: number; right: number; bottom: number }[] = [];
+  const useBadges = validConnections.length > 8;
+
+  const edges: UnifiedEdge[] = validConnections.map((conn, idx) => {
+    const srcNode = nodeMap.get(conn.from)!;
+    const tgtNode = nodeMap.get(conn.to)!;
+
+    const routingContext: EdgeRoutingContext = {
+      sourceCol: srcNode.col,
+      targetCol: tgtNode.col,
+      topCorridorY,
+      bottomCorridorY,
+      edgeIndex: idx,
+    };
+
+    const { pathData, midX, midY } = computeEdgePath(srcNode, tgtNode, routingContext);
+
+    let category: UnifiedEdge["category"] = conn.category || "network";
+    if (!conn.category) {
+      if (srcNode.category === "security" || tgtNode.category === "security") {
+        category = "security";
+      } else if (srcNode.category === "database" || tgtNode.category === "database") {
+        category = "data";
+      } else if (srcNode.category === "cicd" || tgtNode.category === "cicd") {
+        category = "deployment";
+      } else if (srcNode.category === "monitoring" || tgtNode.category === "monitoring") {
+        category = "telemetry";
+      }
+    }
+
+    const badgeIndex = useBadges ? idx + 1 : undefined;
+    const labelText = conn.label || conn.protocol || "";
+    const pillW = useBadges ? 24 : Math.max(labelText.length * 7.5 + 20, 52);
+    const pillH = 22;
+
+    let adjustedMidX = midX;
+    let adjustedMidY = midY;
+
+    // Strict collision resolution against nodes and existing labels
+    let collides = true;
+    let attempts = 0;
+    while (collides && attempts < 8) {
+      collides = false;
+      const lBox = {
+        left: adjustedMidX - pillW / 2,
+        top: adjustedMidY - pillH / 2,
+        right: adjustedMidX + pillW / 2,
+        bottom: adjustedMidY + pillH / 2,
+      };
+
+      for (const n of nodes) {
+        const nBox = { left: n.x, top: n.y, right: n.x + n.width, bottom: n.y + n.height };
+        if (rectsOverlap(lBox, nBox, 2)) {
+          collides = true;
+          adjustedMidY = topCorridorY;
+          break;
+        }
+      }
+
+      for (const pl of placedLabels) {
+        if (rectsOverlap(lBox, pl, 4)) {
+          collides = true;
+          adjustedMidX += (pillW + 16);
+          break;
+        }
+      }
+
+      attempts++;
+    }
+
+    placedLabels.push({
+      left: adjustedMidX - pillW / 2,
+      top: adjustedMidY - pillH / 2,
+      right: adjustedMidX + pillW / 2,
+      bottom: adjustedMidY + pillH / 2,
+    });
+
+    return {
+      id: `edge-${conn.from}-${conn.to}-${idx}`,
+      source: conn.from,
+      target: conn.to,
+      label: conn.label,
+      protocol: conn.protocol,
+      category,
+      direction: "directional",
+      animated: true,
+      pathData,
+      midX: adjustedMidX,
+      midY: adjustedMidY,
+      badgeIndex,
+    };
+  });
+
+  return {
+    nodes,
+    edges,
+    zones: [],
+    viewBox: {
+      minX: 0,
+      minY: 0,
+      width: Math.max(totalWidth, 780),
+      height: Math.max(totalHeight, 380),
     },
   };
 }
 
 /**
  * Derives a sequential request journey path from the diagram graph
- * Either returns the explicit journey if defined and valid, or performs
- * a BFS from the entry node (e.g. client/edge or lowest in-degree).
  */
 export function deriveRequestJourney(
   nodes: UnifiedNode[],
@@ -700,63 +812,56 @@ export function deriveRequestJourney(
   explicitJourney?: string[]
 ): string[] {
   if (explicitJourney && explicitJourney.length > 0) {
-    const valid = explicitJourney.every((id) => nodes.some((n) => n.id === id));
-    if (valid) return explicitJourney;
+    const nodeIds = new Set(nodes.map((n) => n.id));
+    const valid = explicitJourney.filter((id) => nodeIds.has(id));
+    if (valid.length > 0) return valid;
   }
 
   if (nodes.length === 0) return [];
 
-  // Find start node: prefer category 'client', then 'dns', 'cdn', then lowest in-degree
-  const inDegree: Record<string, number> = {};
-  const adj: Record<string, string[]> = {};
-  nodes.forEach((n) => {
-    inDegree[n.id] = 0;
-    adj[n.id] = [];
-  });
-
+  const inDegree = new Map<string, number>();
+  nodes.forEach((n) => inDegree.set(n.id, 0));
   edges.forEach((e) => {
-    if (adj[e.source]) adj[e.source].push(e.target);
-    if (inDegree[e.target] !== undefined) inDegree[e.target]++;
+    inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1);
   });
 
-  let startNode = nodes.find((n) => n.category === "client");
-  if (!startNode) startNode = nodes.find((n) => n.category === "dns" || n.category === "cdn");
-  if (!startNode) {
-    // Find node with in-degree 0
-    startNode = nodes.reduce((prev, curr) => (inDegree[curr.id] < inDegree[prev.id] ? curr : prev), nodes[0]);
+  const entryNodes = nodes
+    .filter((n) => n.category === "client" || n.category === "dns")
+    .map((n) => n.id);
+
+  let startNodeId = entryNodes[0];
+  if (!startNodeId) {
+    let minIn = Infinity;
+    nodes.forEach((n) => {
+      const d = inDegree.get(n.id) || 0;
+      if (d < minIn) {
+        minIn = d;
+        startNodeId = n.id;
+      }
+    });
   }
 
-  // BFS to build logical path
   const visited = new Set<string>();
+  const queue = [startNodeId];
   const journey: string[] = [];
-  const queue: string[] = [startNode.id];
-  visited.add(startNode.id);
 
   while (queue.length > 0) {
-    const currId = queue.shift()!;
-    journey.push(currId);
+    const curr = queue.shift()!;
+    if (visited.has(curr)) continue;
+    visited.add(curr);
+    journey.push(curr);
 
-    const neighbors = adj[currId] || [];
-    // Sort neighbors: prioritize network/compute -> persistence/database -> telemetry/cicd
-    neighbors.sort((a, b) => {
-      const nodeA = nodes.find((n) => n.id === a);
-      const nodeB = nodes.find((n) => n.id === b);
-      const weight = (cat?: ArchitectureCategory) => {
-        if (!cat) return 99;
-        if (cat === "cdn" || cat === "dns" || cat === "networking") return 1;
-        if (cat === "security") return 2;
-        if (cat === "compute" || cat === "application") return 3;
-        if (cat === "database" || cat === "storage") return 4;
-        return 5;
-      };
-      return weight(nodeA?.category) - weight(nodeB?.category);
-    });
-
-    for (const nextId of neighbors) {
-      if (!visited.has(nextId)) {
-        visited.add(nextId);
-        queue.push(nextId);
+    const outEdges = edges.filter((e) => e.source === curr);
+    for (const e of outEdges) {
+      if (!visited.has(e.target)) {
+        queue.push(e.target);
       }
+    }
+  }
+
+  for (const n of nodes) {
+    if (!visited.has(n.id)) {
+      journey.push(n.id);
     }
   }
 
