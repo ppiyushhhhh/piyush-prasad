@@ -86,6 +86,7 @@ export function ArchitectureCanvas({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedProvider, setSelectedProvider] = useState<string>("all");
+  const [hoveredEdgeId, setHoveredEdgeId] = useState<string | null>(null);
 
   const availableCategories = useMemo(() => {
     return Array.from(new Set(data.nodes.map((n) => n.category))).sort();
@@ -757,13 +758,14 @@ export function ArchitectureCanvas({
                   width: `${zone.width}px`,
                   height: `${zone.height}px`,
                 }}
-                className={`absolute rounded-2xl pointer-events-none transition-all ${
+                className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
                   zone.isAwsVpc
                     ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
                     : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 }`}
               >
-                <div className="absolute top-2.5 left-3.5 right-3.5 flex flex-col gap-0.5 pointer-events-none">
+                {/* 32px Dedicated Header Strip for Title */}
+                <div className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none">
                   <span
                     className={`mono text-[10px] font-bold tracking-wider uppercase ${
                       zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-carbon dark:text-neutral-200"
@@ -772,7 +774,7 @@ export function ArchitectureCanvas({
                     {zone.title}
                   </span>
                   {zone.description && (
-                    <span className="text-[10px] text-muted-foreground line-clamp-2 leading-tight">
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">
                       {zone.description}
                     </span>
                   )}
@@ -791,7 +793,7 @@ export function ArchitectureCanvas({
             {/* Connection Paths */}
             <g className="pointer-events-auto">
               {layout.edges.map((edge) => {
-                const isEdgeFocused = connectedEdgeIds.has(edge.id);
+                const isEdgeFocused = connectedEdgeIds.has(edge.id) || hoveredEdgeId === edge.id;
                 const isJourneyEdge = currentJourneyEdgeId === edge.id;
                 const isEdgeSelected = selectedEdgeId === edge.id;
                 const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
@@ -991,6 +993,51 @@ export function ArchitectureCanvas({
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Connections Table when > 8 edges */}
+      {layout.edges.length > 8 && (
+        <div className="w-full border-t border-border/80 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md px-4 py-2.5 z-20 shrink-0">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="mono text-[10.5px] font-bold uppercase tracking-wider text-carbon dark:text-neutral-200">
+              Active Data Connections ({layout.edges.length})
+            </span>
+            <span className="mono text-[9px] text-muted-foreground">
+              Hover row to trace &bull; Click to inspect
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 max-h-32 overflow-y-auto pr-1">
+            {layout.edges.map((e) => {
+              const srcNode = layout.nodes.find((n) => n.id === e.source);
+              const tgtNode = layout.nodes.find((n) => n.id === e.target);
+              const isHovered = hoveredEdgeId === e.id || selectedEdgeId === e.id;
+              return (
+                <div
+                  key={e.id}
+                  onMouseEnter={() => setHoveredEdgeId(e.id)}
+                  onMouseLeave={() => setHoveredEdgeId(null)}
+                  onClick={() => handleEdgeClick(e)}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded border text-[10.5px] transition-colors cursor-pointer select-none ${
+                    isHovered
+                      ? "border-cobalt bg-cobalt/10 ring-1 ring-cobalt/40 text-carbon dark:text-white"
+                      : "border-border/60 hover:border-cobalt/40 bg-white/70 dark:bg-neutral-900/60 text-muted-foreground hover:text-carbon"
+                  }`}
+                >
+                  <span className="mono h-4 w-4 rounded-full flex items-center justify-center font-bold text-[9px] bg-neutral-100 dark:bg-neutral-800 border border-border shrink-0">
+                    {e.badgeIndex ?? "#"}
+                  </span>
+                  <div className="min-w-0 flex-1 truncate">
+                    <div className="flex items-center gap-1 font-semibold truncate text-[10px]">
+                      <span className="truncate">{srcNode?.name || e.source}</span>
+                      <span className="text-muted-foreground shrink-0">&rarr;</span>
+                      <span className="truncate">{tgtNode?.name || e.target}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

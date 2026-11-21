@@ -17,7 +17,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "check:architecture": "node scripts/measure-architecture-layout.cjs"
+    "check:architecture": "node scripts/check-architecture-dom.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

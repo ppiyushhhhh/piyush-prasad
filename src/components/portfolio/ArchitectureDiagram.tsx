@@ -237,6 +237,29 @@ export function ArchitectureDiagram({
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           }}
         >
+          {/* Visual Zones Layer */}
+          {layout.zones && layout.zones.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none">
+              {layout.zones.map((zone) => (
+                <div
+                  key={zone.id}
+                  style={{
+                    transform: `translate(${zone.x}px, ${zone.y}px)`,
+                    width: `${zone.width}px`,
+                    height: `${zone.height}px`,
+                  }}
+                  className="tier-container absolute rounded-2xl pointer-events-none transition-all border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                >
+                  <div className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none">
+                    <span className="mono text-[10px] font-bold tracking-wider uppercase text-carbon dark:text-neutral-200">
+                      {zone.title}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* SVG Vector Connections Layer */}
           <svg
             viewBox={viewBoxStr}
@@ -290,7 +313,7 @@ export function ArchitectureDiagram({
                     left: `${node.x}px`,
                     top: `${node.y}px`,
                   }}
-                  className="pointer-events-auto"
+                  className="node-interactive pointer-events-auto"
                 >
                   <NodeCard
                     node={node}

@@ -23,6 +23,7 @@ import { ProjectResultsNextSteps } from "@/components/projects/ProjectResultsNex
 import {
   fetchProjectBySlug,
   fetchPublishedProjects,
+  INITIAL_PORTFOLIO_PROJECTS,
 } from "@/lib/portfolio-projects";
 import { SITE_URL } from "@/lib/site";
 
@@ -73,6 +74,7 @@ function ProjectDetailPage() {
   } = useQuery({
     queryKey: ["portfolio-project", slug],
     queryFn: () => fetchProjectBySlug(slug),
+    initialData: () => INITIAL_PORTFOLIO_PROJECTS.find((p) => p.slug.toLowerCase() === slug.toLowerCase()),
     staleTime: 5 * 60_000,
   });
 

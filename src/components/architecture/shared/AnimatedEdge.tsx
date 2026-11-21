@@ -33,6 +33,7 @@ export function AnimatedEdge({
 }: AnimatedEdgeProps) {
   const edgeId = useId().replace(/:/g, "_");
   const pathId = `path-${edge.id}-${edgeId}`;
+  const parallelPathId = `path-parallel-${edge.id}-${edgeId}`;
   const colors = CATEGORY_EDGE_COLORS[edge.category] || CATEGORY_EDGE_COLORS.network;
 
   const isHighlighted = isFocused || isJourneyActive || isSelected;
@@ -45,39 +46,44 @@ export function AnimatedEdge({
   // Base animation duration scaled if highlighted
   const duration = isHighlighted ? colors.duration * 0.75 : colors.duration;
 
-  // Packet count: 2 for short, 3 for active journey
-  const packetCount = isJourneyActive ? 3 : 2;
-  const packetDelays = [0, duration * 0.5, duration * 0.25];
-
   // Primary label & secondary port/protocol
   const primaryText = edge.label || edge.protocol;
   const secondaryText = edge.label && edge.protocol && edge.label !== edge.protocol ? edge.protocol : null;
   const hasLabel = Boolean(primaryText);
 
   // Determine pill dimensions
-  const pillWidth = primaryText ? Math.max(primaryText.length * 7.5 + 24, 60) : 0;
-  const pillHeight = 22;
+  const pillWidth = primaryText ? Math.max(primaryText.length * 8 + 24, 60) : 0;
+  const pillHeight = 24;
+
+  // Edge stroke properties: minimum 0.6 opacity at rest, 2px stroke
+  const strokeOpacity = isDimmed ? 0.2 : isHighlighted ? 1.0 : 0.75;
+  const strokeWidth = isHighlighted ? "2.5" : "2";
 
   return (
     <g
       className={`transition-opacity duration-300 cursor-pointer ${
-        isDimmed ? "opacity-15" : "opacity-100"
+        isDimmed ? "opacity-25" : "opacity-100"
       }`}
       onClick={onClick}
     >
       {/* Hidden Path Definition for AnimateMotion referencing */}
       <defs>
         <path id={pathId} d={edge.pathData} fill="none" />
+        {isBidirectional && edge.parallelPathData && (
+          <path id={parallelPathId} d={edge.parallelPathData} fill="none" />
+        )}
       </defs>
 
-      {/* 1. Underlying static path */}
+      {/* 1. Underlying static solid path (Always clearly visible at rest: 2px stroke, >= 0.6 opacity) */}
       <path
         d={edge.pathData}
         fill="none"
         stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-        strokeWidth={isHighlighted ? "2.4" : "1.6"}
-        strokeOpacity={isHighlighted ? 0.5 : 0.3}
+        strokeWidth={strokeWidth}
+        strokeOpacity={strokeOpacity}
         strokeLinecap="round"
+        strokeLinejoin="round"
+        markerEnd={`url(#${markerId})`}
       />
 
       {/* 2. Soft outer glow when highlighted or active in journey */}
@@ -87,50 +93,62 @@ export function AnimatedEdge({
           fill="none"
           stroke={colors.activeStroke}
           strokeWidth="6"
-          strokeOpacity="0.2"
+          strokeOpacity="0.25"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
       )}
 
-      {/* 3. Flowing dashed stroke forward */}
-      <path
-        d={edge.pathData}
-        fill="none"
-        stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-        strokeWidth={isHighlighted ? "2.2" : "1.6"}
-        strokeDasharray={shouldAnimate ? "6 4" : undefined}
-        strokeLinecap="round"
-        markerEnd={`url(#${markerId})`}
-        style={
-          shouldAnimate
-            ? {
-                animation: `edgeFlow ${duration}s linear infinite`,
-              }
-            : undefined
-        }
-      />
-
-      {/* 4. If bidirectional, opposite flowing stroke */}
-      {isBidirectional && shouldAnimate && (
+      {/* 3. Flowing dashed stroke forward for live telemetry/data visualization */}
+      {shouldAnimate && (
         <path
           d={edge.pathData}
           fill="none"
-          stroke={colors.stroke}
-          strokeWidth="1.2"
-          strokeDasharray="4 6"
-          strokeOpacity="0.75"
+          stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray="6 6"
           strokeLinecap="round"
-          markerStart={`url(#${markerId})`}
+          strokeLinejoin="round"
           style={{
-            animation: `edgeFlowReverse ${duration * 1.2}s linear infinite`,
+            animation: `edgeFlow ${duration}s linear infinite`,
           }}
         />
       )}
 
-      {/* 5. Journey Active Signal Beacon (Shown strictly when tracing request journey, no decorative floating clutter) */}
+      {/* 4. Bidirectional edge: second parallel line 6px apart */}
+      {isBidirectional && (
+        <>
+          <path
+            d={edge.parallelPathData || edge.pathData}
+            fill="none"
+            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+            strokeWidth={strokeWidth}
+            strokeOpacity={strokeOpacity}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            markerStart={`url(#${markerId})`}
+          />
+          {shouldAnimate && (
+            <path
+              d={edge.parallelPathData || edge.pathData}
+              fill="none"
+              stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+              strokeWidth={strokeWidth}
+              strokeDasharray="6 6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                animation: `edgeFlowReverse ${duration * 1.2}s linear infinite`,
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {/* 5. Journey Active Signal Beacon */}
       {isJourneyActive && shouldAnimate && (
         <circle
-          r="4"
+          r="4.5"
           fill={colors.activeStroke}
           className="drop-shadow-xs"
         >
@@ -147,7 +165,7 @@ export function AnimatedEdge({
       {edge.badgeIndex !== undefined ? (
         <g
           transform={`translate(${edge.midX}, ${edge.midY})`}
-          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-110"
+          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-110 edge-badge"
         >
           <title>{edge.description || `${edge.badgeIndex}: ${primaryText}`}</title>
           <circle
@@ -155,8 +173,8 @@ export function AnimatedEdge({
             fill="#FFFFFF"
             className="dark:fill-[#121316]"
             stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-            strokeWidth={isHighlighted ? "2" : "1.5"}
-            filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08))"
+            strokeWidth={isHighlighted ? "2.2" : "1.8"}
+            filter="drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))"
           />
           <text
             x="0"
@@ -173,7 +191,7 @@ export function AnimatedEdge({
       ) : hasLabel ? (
         <g
           transform={`translate(${edge.midX}, ${edge.midY})`}
-          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105"
+          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105 edge-label"
         >
           <title>{edge.description || `${primaryText}${secondaryText ? ` (${secondaryText})` : ""}`}</title>
           {/* Solid background pill */}
@@ -185,18 +203,22 @@ export function AnimatedEdge({
             rx={pillHeight / 2}
             fill="#FFFFFF"
             className="dark:fill-[#121316]"
-            stroke={isHighlighted ? colors.activeStroke : "#E5E5DF"}
-            strokeWidth={isHighlighted ? "1.6" : "1"}
-            filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))"
+            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+            strokeWidth={isHighlighted ? "1.8" : "1.2"}
+            strokeOpacity={isHighlighted ? 0.9 : 0.6}
+            filter="drop-shadow(0 1px 3px rgba(0, 0, 0, 0.08))"
           />
+
+          {/* Label Text: minimum 11px font */}
           <text
             x="0"
-            y="3.5"
+            y="4"
             textAnchor="middle"
             fontSize="11"
-            fontWeight="700"
+            fontWeight="600"
             fontFamily="var(--font-mono, monospace)"
             fill={isHighlighted ? colors.activeStroke : colors.text}
+            className="transition-colors duration-150"
           >
             {primaryText}
           </text>
