@@ -55,8 +55,8 @@ export function AnimatedEdge({
   const hasLabel = Boolean(primaryText);
 
   // Determine pill dimensions
-  const pillWidth = primaryText ? Math.max(primaryText.length * 7 + 20, 68) : 0;
-  const pillHeight = secondaryText ? 26 : 18;
+  const pillWidth = primaryText ? Math.max(primaryText.length * 7.5 + 24, 60) : 0;
+  const pillHeight = 22;
 
   return (
     <g
@@ -143,8 +143,34 @@ export function AnimatedEdge({
         </circle>
       )}
 
-      {/* 6. Centered Protocol / Port Pill (Rendered only when meaningful label/protocol exists) */}
-      {hasLabel && (
+      {/* 6. Numbered Badge (for > 8 edges) or Centered Label Pill (>= 11px font) */}
+      {edge.badgeIndex !== undefined ? (
+        <g
+          transform={`translate(${edge.midX}, ${edge.midY})`}
+          className="pointer-events-auto select-none transition-transform duration-200 hover:scale-110"
+        >
+          <title>{edge.description || `${edge.badgeIndex}: ${primaryText}`}</title>
+          <circle
+            r="11"
+            fill="#FFFFFF"
+            className="dark:fill-[#121316]"
+            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
+            strokeWidth={isHighlighted ? "2" : "1.5"}
+            filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08))"
+          />
+          <text
+            x="0"
+            y="4"
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="700"
+            fontFamily="var(--font-mono, monospace)"
+            fill={isHighlighted ? colors.activeStroke : colors.text}
+          >
+            {edge.badgeIndex}
+          </text>
+        </g>
+      ) : hasLabel ? (
         <g
           transform={`translate(${edge.midX}, ${edge.midY})`}
           className="pointer-events-auto select-none transition-transform duration-200 hover:scale-105"
@@ -163,48 +189,19 @@ export function AnimatedEdge({
             strokeWidth={isHighlighted ? "1.6" : "1"}
             filter="drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))"
           />
-
-          {secondaryText ? (
-            <>
-              <text
-                x="0"
-                y="-1"
-                textAnchor="middle"
-                fontSize="8"
-                fontWeight="700"
-                fontFamily="var(--font-mono, monospace)"
-                fill={isHighlighted ? colors.activeStroke : colors.text}
-              >
-                {primaryText}
-              </text>
-              <text
-                x="0"
-                y="8"
-                textAnchor="middle"
-                fontSize="7"
-                fontWeight="600"
-                fontFamily="var(--font-mono, monospace)"
-                fill="#64748B"
-                className="dark:fill-neutral-400"
-              >
-                {secondaryText}
-              </text>
-            </>
-          ) : (
-            <text
-              x="0"
-              y="3"
-              textAnchor="middle"
-              fontSize="8"
-              fontWeight="700"
-              fontFamily="var(--font-mono, monospace)"
-              fill={isHighlighted ? colors.activeStroke : colors.text}
-            >
-              {primaryText}
-            </text>
-          )}
+          <text
+            x="0"
+            y="3.5"
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="700"
+            fontFamily="var(--font-mono, monospace)"
+            fill={isHighlighted ? colors.activeStroke : colors.text}
+          >
+            {primaryText}
+          </text>
         </g>
-      )}
+      ) : null}
     </g>
   );
 }

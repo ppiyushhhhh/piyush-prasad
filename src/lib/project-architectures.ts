@@ -66,19 +66,19 @@ export const PROJECT_ARCHITECTURES: ArchitectureDiagram[] = [
           id: "sec-portfolio-storage",
           title: "03. Data Storage & Persistence",
           description: "Stores structured portfolio data, telemetry logs, and media assets.",
-          nodeIds: ["node-supabase-pg", "node-supabase-storage"],
+          nodeIds: ["node-supabase-pg"],
         },
         {
           id: "sec-portfolio-ai-email",
           title: "04. AI & Communication Services",
           description: "Powers AI interactions and multi-channel notification delivery.",
-          nodeIds: ["node-gemini-api", "node-resend-email", "node-nodemailer-smtp"],
+          nodeIds: ["node-gemini-api", "node-resend-email", "node-smtp-email", "node-web3forms"],
         },
         {
           id: "sec-portfolio-cicd",
           title: "05. CI/CD & Automation",
           description: "Automates testing, security verification, and zero-downtime deployment.",
-          nodeIds: ["node-gh-actions-deploy"],
+          nodeIds: ["node-github-ci", "node-credly-api"],
         },
       ],
       nodes: [
