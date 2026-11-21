@@ -835,6 +835,7 @@ export function ArchitectureCanvas({
                     isSelected={isEdgeSelected}
                     isDimmed={isDimmed}
                     onClick={() => handleEdgeClick(edge)}
+                    onHover={(id) => setHoveredEdgeId(id)}
                   />
                 );
               })}
@@ -1071,6 +1072,10 @@ export function ArchitectureCanvas({
                         {e.badgeIndex ? (
                           <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-cobalt/15 text-cobalt text-[9px]">
                             {e.badgeIndex}
+                          </span>
+                        ) : e.badgeLetter ? (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-stone-200 dark:bg-neutral-700 text-stone-600 dark:text-stone-300 text-[9px]">
+                            {e.badgeLetter}
                           </span>
                         ) : (
                           <span className="text-[9px] text-neutral-400">--</span>

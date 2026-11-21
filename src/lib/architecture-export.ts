@@ -88,13 +88,13 @@ export async function buildFullDiagramSvg(
       .sans { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     </style>
     ${Object.entries(categoryColors)
-      .map(
-        ([cat, col]) => `
-    <marker id="arrow-${cat}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        .map(
+          ([cat, col]) => `
+    <marker id="arrow-${cat}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="${col}" />
     </marker>`
-      )
-      .join("")}
+        )
+        .join("")}
   </defs>
 
   <!-- Background Canvas -->
@@ -103,11 +103,11 @@ export async function buildFullDiagramSvg(
   <!-- Grid Pattern -->
   <g opacity="0.35">
     ${Array.from({ length: Math.ceil(width / 28) })
-      .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${height}" stroke="#E5E5DF" stroke-width="0.5" />`)
-      .join("")}
+        .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${height}" stroke="#E5E5DF" stroke-width="0.5" />`)
+        .join("")}
     ${Array.from({ length: Math.ceil(height / 28) })
-      .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${width}" y2="${i * 28}" stroke="#E5E5DF" stroke-width="0.5" />`)
-      .join("")}
+        .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${width}" y2="${i * 28}" stroke="#E5E5DF" stroke-width="0.5" />`)
+        .join("")}
   </g>
 
   <!-- Header Block -->
@@ -115,60 +115,62 @@ export async function buildFullDiagramSvg(
     <rect x="0" y="-18" width="5" height="22" fill="#1A4BFF" rx="2" />
     <text x="14" y="-3" class="mono" font-size="10" font-weight="700" fill="#1A4BFF" letter-spacing="1.2">PIYUSH PRASAD • CLOUD ARCHITECTURE EXPLORER</text>
     <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#121316">${diagramTitle}</text>
-    ${
-      diagramDescription
+    ${diagramDescription
         ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5A5C66">${diagramDescription.slice(0, 110)}${diagramDescription.length > 110 ? "..." : ""}</text>`
         : ""
-    }
+      }
     <text x="${width - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#6B7280" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
   </g>
 
   <!-- Edges Layer -->
   <g>
     ${edges
-      .map((edge, idx) => {
-        const source = nodes.find((n) => n.id === edge.source);
-        const target = nodes.find((n) => n.id === edge.target);
-        if (!source || !target) return "";
+        .map((edge, idx) => {
+          const source = nodes.find((n) => n.id === edge.source);
+          const target = nodes.find((n) => n.id === edge.target);
+          if (!source || !target) return "";
 
-        const sx = source.x + offsetX;
-        const sy = source.y + offsetY;
-        const tx = target.x + offsetX;
-        const ty = target.y + offsetY;
+          const sx = source.x + offsetX;
+          const sy = source.y + offsetY;
+          const tx = target.x + offsetX;
+          const ty = target.y + offsetY;
 
-        const startX = sx + NODE_WIDTH;
-        const startY = sy + NODE_HEIGHT / 2;
-        const endX = tx;
-        const endY = ty + NODE_HEIGHT / 2;
+          const startX = sx + NODE_WIDTH;
+          const startY = sy + NODE_HEIGHT / 2;
+          const endX = tx;
+          const endY = ty + NODE_HEIGHT / 2;
 
-        const midX = (startX + endX) / 2;
-        const midY = (startY + endY) / 2;
-        const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+          const midX = (startX + endX) / 2;
+          const midY = (startY + endY) / 2;
+          const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
 
-        const strokeColor = categoryColors[edge.category] || "#1A4BFF";
-        const markerId = `arrow-${edge.category || "network"}`;
-        const badgeNum = idx + 1;
+          const strokeColor = categoryColors[edge.category] || "#1A4BFF";
+          const markerId = `arrow-${edge.category || "network"}`;
+          const isBidirectional = edge.direction === "bidirectional";
+          const badgeLabel = edge.secondary
+            ? ((edge as any).badgeLetter || "A")
+            : String((edge as any).badgeIndex || idx + 1);
 
-        return `
+          return `
     <g>
-      <path d="${pathData}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${markerId})" />
-      <circle cx="${midX}" cy="${midY}" r="10" fill="#FFFFFF" stroke="${strokeColor}" stroke-width="1.8" />
-      <text x="${midX}" y="${midY + 3.5}" class="mono" font-size="10" font-weight="700" fill="${strokeColor}" text-anchor="middle">${badgeNum}</text>
+      <path d="${(edge as any).pathData || pathData}" fill="none" stroke="${strokeColor}" stroke-width="1.75" stroke-dasharray="${edge.secondary ? "4 4" : "6 4"}" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${markerId})"${isBidirectional ? ` marker-start="url(#${markerId})"` : ""} />
+      <circle cx="${(edge as any).midX ?? midX}" cy="${(edge as any).midY ?? midY}" r="10" fill="${edge.secondary ? "#F3F4F6" : "#FFFFFF"}" stroke="${edge.secondary ? "#9CA3AF" : strokeColor}" stroke-width="1.5" />
+      <text x="${(edge as any).midX ?? midX}" y="${((edge as any).midY ?? midY) + 3.5}" class="mono" font-size="11" font-weight="700" fill="${edge.secondary ? "#6B7280" : strokeColor}" text-anchor="middle">${badgeLabel}</text>
     </g>`;
-      })
-      .join("")}
+        })
+        .join("")}
   </g>
 
   <!-- Compact Node Cards (200x96) -->
   <g>
     ${nodes
-      .map((node) => {
-        const x = node.x + offsetX;
-        const y = node.y + offsetY;
-        const logo = resolveLogo(node.tech, node.provider);
-        const logoUri = logo ? logoMap.get(logo.src) || "" : "";
+        .map((node) => {
+          const x = node.x + offsetX;
+          const y = node.y + offsetY;
+          const logo = resolveLogo(node.tech, node.provider);
+          const logoUri = logo ? logoMap.get(logo.src) || "" : "";
 
-        return `
+          return `
     <g transform="translate(${x}, ${y})">
       <rect width="${NODE_WIDTH}" height="${NODE_HEIGHT}" rx="10" fill="#FFFFFF" stroke="#E2E0D8" stroke-width="1.2" />
       <g transform="translate(10, 10)">
@@ -184,8 +186,8 @@ export async function buildFullDiagramSvg(
         <circle cx="142" cy="8" r="3" fill="#10B981" />
       </g>
     </g>`;
-      })
-      .join("")}
+        })
+        .join("")}
   </g>
 
   <!-- Footer Block -->

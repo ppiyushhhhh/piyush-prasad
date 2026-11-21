@@ -49,10 +49,11 @@ export interface UnifiedEdge {
   description?: string;
   animated?: boolean;
   pathData: string;
-  parallelPathData?: string;
   midX: number;
   midY: number;
   badgeIndex?: number;
+  badgeLetter?: string;
+  step?: number;
   secondary?: boolean;
   originalEdgeIds?: string[];
 }
@@ -136,28 +137,6 @@ export function pointsToRoundedPath(points: { x: number; y: number }[], r = 12):
   return d;
 }
 
-/**
- * Offsets orthogonal points by a fixed distance perpendicular to each segment
- */
-function offsetOrthogonalPoints(points: { x: number; y: number }[], offset: number): { x: number; y: number }[] {
-  if (points.length < 2) return points;
-  return points.map((p, idx) => {
-    // For horizontal lines, offset in Y; for vertical lines, offset in X
-    if (idx === 0) {
-      const next = points[1];
-      if (Math.abs(next.x - p.x) > Math.abs(next.y - p.y)) {
-        return { x: p.x, y: p.y + offset };
-      }
-      return { x: p.x + offset, y: p.y };
-    }
-    const prev = points[idx - 1];
-    if (Math.abs(p.x - prev.x) > Math.abs(p.y - prev.y)) {
-      return { x: p.x, y: p.y + offset };
-    }
-    return { x: p.x + offset, y: p.y };
-  });
-}
-
 export interface EdgeRoutingContext {
   sourceCol?: number;
   targetCol?: number;
@@ -173,12 +152,14 @@ export interface EdgeRoutingContext {
  * Computes an orthogonal corridor connection path between source and target nodes.
  * Routes directly through the inter-column / inter-row gaps, starting and ending
  * precisely on card borders within 2 px.
+ * Leaves each card from the side that faces its target with a stub of at least 24 px.
+ * Lines of different connections stay at least 18 px apart.
  */
 export function computeEdgePath(
   source: { x: number; y: number; width?: number; height?: number; col?: number; row?: number },
   target: { x: number; y: number; width?: number; height?: number; col?: number; row?: number },
   routingContext?: EdgeRoutingContext
-): { pathData: string; parallelPathData?: string; points: { x: number; y: number }[]; midX: number; midY: number } {
+): { pathData: string; points: { x: number; y: number }[]; midX: number; midY: number } {
   const sw = source.width ?? NODE_WIDTH;
   const sh = source.height ?? NODE_HEIGHT;
   const tw = target.width ?? NODE_WIDTH;
@@ -187,20 +168,22 @@ export function computeEdgePath(
   const sCol = source.col ?? routingContext?.sourceCol ?? 0;
   const tCol = target.col ?? routingContext?.targetCol ?? 1;
   const direction = routingContext?.direction ?? "RIGHT";
-  const edgeLane = (routingContext?.edgeIndex ?? 0) % 3;
+  const edgeLane = (routingContext?.edgeIndex ?? 0) % 5;
+  // Lines of different connections stay at least 18 px apart
+  const laneOffset = (edgeLane - 2) * 18;
 
   const points: { x: number; y: number }[] = [];
 
   if (direction === "DOWN") {
     // Top-to-Bottom Flow
-    const srcBottomX = source.x + sw / 2 + (edgeLane - 1) * 20;
+    const srcBottomX = source.x + sw / 2 + laneOffset;
     const srcBottomY = source.y + sh;
-    const tgtTopX = target.x + tw / 2 + (edgeLane - 1) * 20;
+    const tgtTopX = target.x + tw / 2 + laneOffset;
     const tgtTopY = target.y;
 
     if (target.y > source.y) {
-      // Forward down: route through the vertical layer gap
-      const midGutterY = Math.round((srcBottomY + tgtTopY) / 2) + (edgeLane - 1) * 12;
+      // Forward down: vertical stub >= 24 px
+      const midGutterY = Math.round((srcBottomY + tgtTopY) / 2) + laneOffset;
       points.push(
         { x: srcBottomX, y: srcBottomY },
         { x: srcBottomX, y: midGutterY },
@@ -208,8 +191,8 @@ export function computeEdgePath(
         { x: tgtTopX, y: tgtTopY }
       );
     } else {
-      // Reverse / Feedback up: route around the left or right side gutter
-      const sideGutterX = Math.max(source.x + sw, target.x + tw) + 36 + edgeLane * 12;
+      // Reverse up: routes around side gutter with stub >= 24 px
+      const sideGutterX = Math.max(source.x + sw, target.x + tw) + 36 + Math.abs(laneOffset);
       points.push(
         { x: source.x + sw, y: source.y + sh / 2 },
         { x: sideGutterX, y: source.y + sh / 2 },
@@ -220,26 +203,46 @@ export function computeEdgePath(
   } else {
     // Left-to-Right Flow
     const srcRight = source.x + sw;
-    const srcCenterY = source.y + sh / 2 + (edgeLane - 1) * 16;
+    const srcCenterY = source.y + sh / 2 + laneOffset;
     const tgtLeft = target.x;
     const tgtRight = target.x + tw;
-    const tgtCenterY = target.y + th / 2 + (edgeLane - 1) * 16;
+    const tgtCenterY = target.y + th / 2 + laneOffset;
 
-    // 1. Same column: route via right gutter inside the column gap
-    if (sCol === tCol) {
-      const gutterX = Math.max(srcRight, tgtRight) + 32 + edgeLane * 14;
-      points.push(
-        { x: srcRight, y: srcCenterY },
-        { x: gutterX, y: srcCenterY },
-        { x: gutterX, y: tgtCenterY },
-        { x: tgtRight, y: tgtCenterY }
-      );
+    // 1. Same column: target is above or below source (faces vertical borders)
+    if (sCol === tCol || Math.abs(source.x - target.x) < 40) {
+      if (target.y > source.y) {
+        // Target is BELOW source: leaves source bottom, enters target top (stubs >= 24px)
+        const srcBottomX = source.x + sw / 2 + laneOffset;
+        const srcBottomY = source.y + sh;
+        const tgtTopX = target.x + tw / 2 + laneOffset;
+        const tgtTopY = target.y;
+        const midY = Math.round((srcBottomY + tgtTopY) / 2);
+        points.push(
+          { x: srcBottomX, y: srcBottomY },
+          { x: srcBottomX, y: midY },
+          { x: tgtTopX, y: midY },
+          { x: tgtTopX, y: tgtTopY }
+        );
+      } else {
+        // Target is ABOVE source: leaves source top, enters target bottom (stubs >= 24px)
+        const srcTopX = source.x + sw / 2 + laneOffset;
+        const srcTopY = source.y;
+        const tgtBottomX = target.x + tw / 2 + laneOffset;
+        const tgtBottomY = target.y + th;
+        const midY = Math.round((srcTopY + tgtBottomY) / 2);
+        points.push(
+          { x: srcTopX, y: srcTopY },
+          { x: srcTopX, y: midY },
+          { x: tgtBottomX, y: midY },
+          { x: tgtBottomX, y: tgtBottomY }
+        );
+      }
     }
-    // 2. Adjacent column forward: direct step in the 120px inter-column gap
+    // 2. Adjacent column forward: direct step in the 120px inter-column gap (stubs >= 24px)
     else if (tCol === sCol + 1 && tgtLeft > srcRight) {
-      const midGutterX = Math.round((srcRight + tgtLeft) / 2) + (edgeLane - 1) * 14;
+      const midGutterX = Math.round((srcRight + tgtLeft) / 2) + laneOffset;
       if (Math.abs(srcCenterY - tgtCenterY) < 4) {
-        // Direct straight horizontal line
+        // Direct straight horizontal line from right border to left border
         points.push(
           { x: srcRight, y: srcCenterY },
           { x: tgtLeft, y: tgtCenterY }
@@ -253,11 +256,11 @@ export function computeEdgePath(
         );
       }
     }
-    // 3. Multi-column forward (tCol > sCol + 1): route through horizontal row gap or top channel
+    // 3. Multi-column forward (tCol > sCol + 1): route through top channel (stubs >= 24px)
     else if (tCol > sCol) {
-      const topCorridorY = (routingContext?.topCorridorY ?? Math.min(source.y, target.y) - 36) - edgeLane * 12;
-      const gOutX = srcRight + 24 + edgeLane * 8;
-      const gInX = tgtLeft - 24 - edgeLane * 8;
+      const topCorridorY = (routingContext?.topCorridorY ?? Math.min(source.y, target.y) - 36) - Math.abs(laneOffset);
+      const gOutX = srcRight + 24 + Math.abs(laneOffset);
+      const gInX = tgtLeft - 24 - Math.abs(laneOffset);
       points.push(
         { x: srcRight, y: srcCenterY },
         { x: gOutX, y: srcCenterY },
@@ -267,29 +270,26 @@ export function computeEdgePath(
         { x: tgtLeft, y: tgtCenterY }
       );
     }
-    // 4. Reverse / Feedback edge (tCol < sCol): route through bottom channel
+    // 4. Reverse / Feedback edge (tCol < sCol): target is to the left of source
+    // Faces target to the left: leaves source from left border with stub >= 24px
     else {
-      const bottomCorridorY = (routingContext?.bottomCorridorY ?? Math.max(source.y + sh, target.y + th) + 36) + edgeLane * 12;
-      const gOutX = srcRight + 24 + edgeLane * 8;
-      const gInX = Math.max(tgtLeft - 24 - edgeLane * 8, 12);
+      const bottomCorridorY = (routingContext?.bottomCorridorY ?? Math.max(source.y + sh, target.y + th) + 36) + Math.abs(laneOffset);
+      const gOutX = source.x - 24 - Math.abs(laneOffset);
+      const gInX = tgtRight + 24 + Math.abs(laneOffset);
       points.push(
-        { x: srcRight, y: srcCenterY },
+        { x: source.x, y: srcCenterY },
         { x: gOutX, y: srcCenterY },
         { x: gOutX, y: bottomCorridorY },
         { x: gInX, y: bottomCorridorY },
         { x: gInX, y: tgtCenterY },
-        { x: tgtLeft, y: tgtCenterY }
+        { x: tgtRight, y: tgtCenterY }
       );
     }
   }
 
   const pathData = pointsToRoundedPath(points, 12);
 
-  // For bidirectional edges: generate second parallel path offset by 6px
-  const parallelPoints = offsetOrthogonalPoints(points, 6);
-  const parallelPathData = pointsToRoundedPath(parallelPoints, 12);
-
-  // Find longest straight segment for label placement in the gap
+  // Find longest straight segment >= 48px so midpoint is at least 24px from any bend or card
   let maxSegLen = 0;
   let bestMidX = (points[0].x + points[points.length - 1].x) / 2;
   let bestMidY = (points[0].y + points[points.length - 1].y) / 2;
@@ -298,16 +298,29 @@ export function computeEdgePath(
     const pA = points[i];
     const pB = points[i + 1];
     const segLen = Math.hypot(pB.x - pA.x, pB.y - pA.y);
-    if (segLen > maxSegLen) {
+    if (segLen >= 48 && segLen > maxSegLen) {
       maxSegLen = segLen;
       bestMidX = (pA.x + pB.x) / 2;
       bestMidY = (pA.y + pB.y) / 2;
     }
   }
 
+  // Fallback if no single segment >= 48px
+  if (maxSegLen === 0) {
+    for (let i = 0; i < points.length - 1; i++) {
+      const pA = points[i];
+      const pB = points[i + 1];
+      const segLen = Math.hypot(pB.x - pA.x, pB.y - pA.y);
+      if (segLen > maxSegLen) {
+        maxSegLen = segLen;
+        bestMidX = (pA.x + pB.x) / 2;
+        bestMidY = (pA.y + pB.y) / 2;
+      }
+    }
+  }
+
   return {
     pathData,
-    parallelPathData,
     points,
     midX: Math.round(bestMidX),
     midY: Math.round(bestMidY),
@@ -402,6 +415,7 @@ export function mergeBidirectionalEdges<
     description?: string;
     animated?: boolean;
     secondary?: boolean;
+    step?: number;
   }
 >(
   edges: T[]
@@ -427,6 +441,11 @@ export function mergeBidirectionalEdges<
       const combinedLabel = [e.label, rev.label].filter(Boolean).join(" / ");
       const combinedProtocol = e.protocol || rev.protocol;
       const isSec = Boolean(e.secondary && rev.secondary);
+      const combinedStep =
+        typeof e.step === "number" && typeof rev.step === "number"
+          ? Math.min(e.step, rev.step)
+          : e.step ?? rev.step;
+
       merged.push({
         ...e,
         id: `${e.id}--merged--${rev.id}`,
@@ -434,6 +453,7 @@ export function mergeBidirectionalEdges<
         label: combinedLabel || e.label || rev.label,
         protocol: combinedProtocol,
         secondary: isSec,
+        step: combinedStep,
         originalEdgeIds: [e.id, rev.id],
       });
     } else {
@@ -447,6 +467,138 @@ export function mergeBidirectionalEdges<
   }
 
   return merged;
+}
+
+/**
+ * Assigns sequential flow badges in real request traversal order:
+ * Primary edges: 1..N (unique, contiguous, no gaps)
+ * Secondary edges: A, B, C...
+ */
+export function assignTraversalFlowBadges<
+  T extends {
+    id: string;
+    source: string;
+    target: string;
+    direction?: string;
+    secondary?: boolean;
+    category?: string;
+    step?: number;
+  }
+>(
+  edges: T[],
+  nodes: { id: string; col?: number; x?: number; category?: string }[]
+): (T & { badgeIndex?: number; badgeLetter?: string })[] {
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
+  const primaryEdges: T[] = [];
+  const secondaryEdges: T[] = [];
+
+  for (const e of edges) {
+    const isSec = Boolean(e.secondary || e.category === "telemetry");
+    if (isSec) {
+      secondaryEdges.push(e);
+    } else {
+      primaryEdges.push(e);
+    }
+  }
+
+  // 1. Order primary edges
+  const hasExplicitSteps = primaryEdges.some((e) => typeof e.step === "number");
+
+  let orderedPrimary: T[] = [];
+  if (hasExplicitSteps) {
+    orderedPrimary = [...primaryEdges].sort((a, b) => {
+      const stepA = a.step ?? 999;
+      const stepB = b.step ?? 999;
+      if (stepA !== stepB) return stepA - stepB;
+      const srcA = nodeMap.get(a.source);
+      const srcB = nodeMap.get(b.source);
+      return (srcA?.col ?? srcA?.x ?? 0) - (srcB?.col ?? srcB?.x ?? 0);
+    });
+  } else {
+    // Breadth-first traversal starting from entry node
+    const inDegree = new Map<string, number>();
+    for (const e of primaryEdges) {
+      inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1);
+    }
+
+    let entryNode = nodes[0];
+    let bestScore = Infinity;
+    for (const n of nodes) {
+      const colScore = (n.col ?? Math.round((n.x ?? 0) / 250)) * 10;
+      const degScore = inDegree.get(n.id) || 0;
+      const catBonus = n.category === "client" || n.category === "dns" ? -5 : 0;
+      const score = colScore + degScore + catBonus;
+      if (score < bestScore) {
+        bestScore = score;
+        entryNode = n;
+      }
+    }
+
+    const visitedEdges = new Set<string>();
+    const visitedNodes = new Set<string>([entryNode?.id || ""]);
+    const queue: string[] = entryNode ? [entryNode.id] : [];
+
+    while (queue.length > 0) {
+      const currId = queue.shift()!;
+      const outgoing = primaryEdges.filter(
+        (e) => !visitedEdges.has(e.id) && (e.source === currId || (e.direction === "bidirectional" && e.target === currId))
+      );
+
+      outgoing.sort((a, b) => {
+        const nextIdA = a.source === currId ? a.target : a.source;
+        const nextIdB = b.source === currId ? b.target : b.source;
+        const nodeA = nodeMap.get(nextIdA);
+        const nodeB = nodeMap.get(nextIdB);
+        const currNode = nodeMap.get(currId);
+        const currCol = currNode?.col ?? 0;
+        const colA = nodeA?.col ?? 0;
+        const colB = nodeB?.col ?? 0;
+
+        const isFwdA = colA > currCol ? 1 : colA === currCol ? 2 : 3;
+        const isFwdB = colB > currCol ? 1 : colB === currCol ? 2 : 3;
+        if (isFwdA !== isFwdB) return isFwdA - isFwdB;
+        return colA - colB;
+      });
+
+      for (const edge of outgoing) {
+        visitedEdges.add(edge.id);
+        orderedPrimary.push(edge);
+        const nextId = edge.source === currId ? edge.target : edge.source;
+        if (!visitedNodes.has(nextId)) {
+          visitedNodes.add(nextId);
+          queue.push(nextId);
+        }
+      }
+    }
+
+    for (const e of primaryEdges) {
+      if (!visitedEdges.has(e.id)) {
+        visitedEdges.add(e.id);
+        orderedPrimary.push(e);
+      }
+    }
+  }
+
+  // Sequential 1..N unique, contiguous integers
+  const primaryWithBadges = orderedPrimary.map((e, idx) => ({
+    ...e,
+    badgeIndex: idx + 1,
+    badgeLetter: undefined,
+  }));
+
+  // Letters A, B, C... for secondary flows
+  const secondaryWithBadges = secondaryEdges.map((e, idx) => ({
+    ...e,
+    badgeIndex: undefined,
+    badgeLetter: String.fromCharCode(65 + (idx % 26)),
+  }));
+
+  const edgeMap = new Map<string, T & { badgeIndex?: number; badgeLetter?: string }>();
+  for (const e of primaryWithBadges) edgeMap.set(e.id, e);
+  for (const e of secondaryWithBadges) edgeMap.set(e.id, e);
+
+  return edges.map((e) => edgeMap.get(e.id)!);
 }
 
 /**
@@ -673,13 +825,13 @@ export function layoutArchitectureCanvas(
     return showSecondary || !isSec;
   });
 
-  // 3. Assign sequential numbered badges 1, 2, 3... to all primary visible edges
-  let badgeCounter = 1;
-  const edges: UnifiedEdge[] = activeEdges.map((e, edgeIdx) => {
+  // 3. Assign sequential traversal flow badges (1..N for primary, A, B, C for secondary)
+  const edgesWithBadges = assignTraversalFlowBadges(activeEdges, nodesList);
+
+  const edges: UnifiedEdge[] = edgesWithBadges.map((e, edgeIdx) => {
     const srcNode = nodeMap.get(e.source)!;
     const tgtNode = nodeMap.get(e.target)!;
     const isSec = Boolean(e.secondary || e.category === "telemetry");
-    const badgeIndex = isSec ? undefined : badgeCounter++;
 
     const routingContext: EdgeRoutingContext = {
       sourceCol: srcNode.col,
@@ -692,7 +844,7 @@ export function layoutArchitectureCanvas(
       bottomCorridorY,
     };
 
-    const { pathData, parallelPathData, midX, midY } = computeEdgePath(srcNode, tgtNode, routingContext);
+    const { pathData, midX, midY } = computeEdgePath(srcNode, tgtNode, routingContext);
 
     const pillW = 24;
     const pillH = 24;
@@ -749,14 +901,12 @@ export function layoutArchitectureCanvas(
       attempts++;
     }
 
-    if (!isSec) {
-      placedBadges.push({
-        left: adjustedMidX - pillW / 2,
-        top: adjustedMidY - pillH / 2,
-        right: adjustedMidX + pillW / 2,
-        bottom: adjustedMidY + pillH / 2,
-      });
-    }
+    placedBadges.push({
+      left: adjustedMidX - pillW / 2,
+      top: adjustedMidY - pillH / 2,
+      right: adjustedMidX + pillW / 2,
+      bottom: adjustedMidY + pillH / 2,
+    });
 
     return {
       id: e.id,
@@ -769,12 +919,13 @@ export function layoutArchitectureCanvas(
       description: e.description,
       animated: e.animated,
       secondary: isSec,
+      step: (e as any).step,
       originalEdgeIds: e.originalEdgeIds,
       pathData,
-      parallelPathData,
       midX: adjustedMidX,
       midY: adjustedMidY,
-      badgeIndex,
+      badgeIndex: e.badgeIndex,
+      badgeLetter: e.badgeLetter,
     };
   });
 
@@ -899,13 +1050,13 @@ export function layoutProjectArchitecture(
     return showSecondary || !isSec;
   });
 
-  // 3. Assign numbered badges sequentially
-  let badgeCounter = 1;
-  const edges: UnifiedEdge[] = activeConnections.map((conn, idx) => {
+  // 3. Assign sequential traversal flow badges (1..N for primary, A, B, C for secondary)
+  const connectionsWithBadges = assignTraversalFlowBadges(activeConnections, nodes);
+
+  const edges: UnifiedEdge[] = connectionsWithBadges.map((conn, idx) => {
     const src = nodeMap.get(conn.source)!;
     const tgt = nodeMap.get(conn.target)!;
     const isSec = Boolean(conn.secondary || conn.category === "telemetry");
-    const badgeIndex = isSec ? undefined : badgeCounter++;
 
     const routingContext: EdgeRoutingContext = {
       sourceCol: src.col,
@@ -918,7 +1069,7 @@ export function layoutProjectArchitecture(
       bottomCorridorY,
     };
 
-    const { pathData, parallelPathData, midX, midY } = computeEdgePath(src, tgt, routingContext);
+    const { pathData, midX, midY } = computeEdgePath(src, tgt, routingContext);
     const pillW = 24;
     const pillH = 24;
 
@@ -958,14 +1109,12 @@ export function layoutProjectArchitecture(
       attempts++;
     }
 
-    if (!isSec) {
-      placedBadges.push({
-        left: adjustedMidX - pillW / 2,
-        top: adjustedMidY - pillH / 2,
-        right: adjustedMidX + pillW / 2,
-        bottom: adjustedMidY + pillH / 2,
-      });
-    }
+    placedBadges.push({
+      left: adjustedMidX - pillW / 2,
+      top: adjustedMidY - pillH / 2,
+      right: adjustedMidX + pillW / 2,
+      bottom: adjustedMidY + pillH / 2,
+    });
 
     let category: UnifiedEdge["category"] = conn.category || "network";
     if (src.category === "database" || tgt.category === "database") category = "data";
@@ -983,12 +1132,13 @@ export function layoutProjectArchitecture(
       direction: conn.direction || "directional",
       animated: true,
       secondary: isSec,
+      step: (conn as any).step,
       originalEdgeIds: conn.originalEdgeIds,
       pathData,
-      parallelPathData,
       midX: adjustedMidX,
       midY: adjustedMidY,
-      badgeIndex,
+      badgeIndex: conn.badgeIndex,
+      badgeLetter: conn.badgeLetter,
     };
   });
 
@@ -1019,51 +1169,26 @@ export function deriveRequestJourney(
 
   if (nodes.length === 0) return [];
 
-  const inDegree = new Map<string, number>();
-  nodes.forEach((n) => inDegree.set(n.id, 0));
-  edges.forEach((e) => {
-    inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1);
-  });
+  // Trace Request playback walks 1, 2, 3... in exact order
+  const primaryEdges = edges
+    .filter((e) => !e.secondary && typeof e.badgeIndex === "number")
+    .sort((a, b) => (a.badgeIndex || 0) - (b.badgeIndex || 0));
 
-  const entryNodes = nodes
-    .filter((n) => n.category === "client" || n.category === "dns")
-    .map((n) => n.id);
-
-  let startNodeId = entryNodes[0];
-  if (!startNodeId) {
-    let minIn = Infinity;
-    nodes.forEach((n) => {
-      const d = inDegree.get(n.id) || 0;
-      if (d < minIn) {
-        minIn = d;
-        startNodeId = n.id;
-      }
-    });
-  }
-
-  const visited = new Set<string>();
-  const queue = [startNodeId];
-  const journey: string[] = [];
-
-  while (queue.length > 0) {
-    const curr = queue.shift()!;
-    if (visited.has(curr)) continue;
-    visited.add(curr);
-    journey.push(curr);
-
-    const outEdges = edges.filter((e) => e.source === curr);
-    for (const e of outEdges) {
-      if (!visited.has(e.target)) {
-        queue.push(e.target);
+  if (primaryEdges.length > 0) {
+    const journey: string[] = [primaryEdges[0].source];
+    for (const e of primaryEdges) {
+      if (journey[journey.length - 1] !== e.target) {
+        journey.push(e.target);
       }
     }
-  }
-
-  for (const n of nodes) {
-    if (!visited.has(n.id)) {
-      journey.push(n.id);
+    const visited = new Set(journey);
+    for (const n of nodes) {
+      if (!visited.has(n.id)) {
+        journey.push(n.id);
+      }
     }
+    return journey;
   }
 
-  return journey;
+  return nodes.map((n) => n.id);
 }

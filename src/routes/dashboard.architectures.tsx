@@ -570,7 +570,7 @@ function DashboardArchitecturesPage() {
             title="Upsert all verified built-in architecture diagrams into database"
           >
             <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
-            <span>SYNC SEEDS</span>
+            <span>SYNC BUILT-IN DIAGRAMS</span>
           </button>
           <a
             href="/architecture"

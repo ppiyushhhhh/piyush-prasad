@@ -1,0 +1,66 @@
+{
+  "kamlesh-prasad-cicd": [
+    "Vite",
+    "Nginx",
+    "Vercel",
+    "Gemini",
+    "GitHub Actions",
+    "Nodemailer",
+    "Cloudflare"
+  ],
+  "onixmall-devsecops": [
+    "Vite",
+    "Express",
+    "MongoDB",
+    "Docker",
+    "Nginx",
+    "GitHub Actions",
+    "Ansible",
+    "Trivy"
+  ],
+  "sentinel-cloud-view": [
+    "Vite",
+    "Express",
+    "SQLite",
+    "Docker",
+    "PM2",
+    "Nginx",
+    "GitHub Actions",
+    "Nodemailer"
+  ],
+  "personal-portfolio": [
+    "TanStack",
+    "PostgreSQL",
+    "Gemini",
+    "Resend",
+    "GitHub Actions",
+    "Cloudflare"
+  ],
+  "telegram-ai-agent": [
+    "Telegram",
+    "Cloudflare",
+    "Gemini",
+    "SQLite"
+  ],
+  "site-automation": [
+    "GitHub Actions",
+    "Node.js",
+    "PostgreSQL",
+    "Puppeteer",
+    "Nodemailer"
+  ],
+  "devsecops-pipeline-scripts": [
+    "Git",
+    "GitHub Actions",
+    "Hadolint",
+    "Trivy",
+    "Container Registry"
+  ],
+  "aws-infrastructure-templates": [
+    "Terraform",
+    "VPC",
+    "Subnets",
+    "NAT Gateway",
+    "IAM"
+  ]
+}

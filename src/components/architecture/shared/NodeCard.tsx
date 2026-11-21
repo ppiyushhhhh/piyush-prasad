@@ -151,9 +151,9 @@ export function NodeCard({
             </div>
           </div>
 
-          {/* 1-line Tech Badge */}
+          {/* Tech Badge (wraps to 2 lines, no ellipsis) */}
           <span
-            className="mono text-[9.5px] text-cobalt font-semibold block truncate leading-tight mt-1"
+            className="mono text-[9.5px] text-cobalt font-semibold block line-clamp-2 break-words leading-tight mt-1"
             title={node.tech}
           >
             {node.tech}

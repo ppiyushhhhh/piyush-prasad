@@ -20,6 +20,7 @@ interface AnimatedEdgeProps {
   isJourneyActive?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
+  onHover?: (id: string | null) => void;
 }
 
 export function AnimatedEdge({
@@ -30,10 +31,10 @@ export function AnimatedEdge({
   isJourneyActive = false,
   isSelected = false,
   onClick,
+  onHover,
 }: AnimatedEdgeProps) {
   const edgeId = useId().replace(/:/g, "_");
   const pathId = `path-${edge.id}-${edgeId}`;
-  const parallelPathId = `path-parallel-${edge.id}-${edgeId}`;
   const colors = CATEGORY_EDGE_COLORS[edge.category] || CATEGORY_EDGE_COLORS.network;
 
   const isHighlighted = isFocused || isJourneyActive || isSelected;
@@ -50,10 +51,16 @@ export function AnimatedEdge({
   // Primary label & secondary port/protocol
   const primaryText = edge.label || edge.protocol;
 
-  // Edge stroke properties
-  const strokeOpacity = isDimmed ? 0.2 : isHighlighted ? 1.0 : isSecondary ? 0.5 : 0.75;
-  const strokeWidth = isHighlighted ? (isSecondary ? "2" : "2.5") : isSecondary ? "1.2" : "2";
+  // Static dashed line has opacity at least 0.7
+  const strokeOpacity = isDimmed ? 0.2 : isHighlighted ? 1.0 : isSecondary ? 0.7 : 0.85;
   const strokeColor = isHighlighted ? colors.activeStroke : isSecondary ? "#9CA3AF" : colors.stroke;
+
+  // Badge label: primary gets number (1, 2, 3..), secondary gets letter (A, B, C..)
+  const badgeLabel = !isSecondary && edge.badgeIndex !== undefined
+    ? String(edge.badgeIndex)
+    : isSecondary && edge.badgeLetter
+      ? edge.badgeLetter
+      : null;
 
   return (
     <g
@@ -61,95 +68,52 @@ export function AnimatedEdge({
         isDimmed ? "opacity-25" : "opacity-100"
       }`}
       onClick={onClick}
+      onMouseEnter={() => onHover?.(edge.id)}
+      onMouseLeave={() => onHover?.(null)}
     >
-      <title>{edge.description || `${edge.badgeIndex ? `#${edge.badgeIndex}: ` : ""}${primaryText || "Flow"}`}</title>
+      <title>{edge.description || `${badgeLabel ? `#${badgeLabel}: ` : ""}${primaryText || "Flow"}`}</title>
 
-      {/* Hidden Path Definition for AnimateMotion referencing */}
+      {/* Path reference for animateMotion */}
       <defs>
         <path id={pathId} d={edge.pathData} fill="none" />
-        {isBidirectional && edge.parallelPathData && (
-          <path id={parallelPathId} d={edge.parallelPathData} fill="none" />
-        )}
       </defs>
 
-      {/* 1. Underlying path */}
+      {/* 1. Fully transparent wide path (stroke-width 14) only as hover/click target */}
+      <path
+        d={edge.pathData}
+        fill="none"
+        stroke="transparent"
+        strokeWidth="14"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="pointer-events-auto"
+      />
+
+      {/* 2. Exactly ONE visible stroke per connection */}
       <path
         d={edge.pathData}
         fill="none"
         stroke={strokeColor}
-        strokeWidth={strokeWidth}
+        strokeWidth="1.75"
         strokeOpacity={strokeOpacity}
-        strokeDasharray={isSecondary ? "4 4" : undefined}
+        strokeDasharray={isSecondary ? "4 4" : "6 4"}
         strokeLinecap="round"
         strokeLinejoin="round"
         markerEnd={`url(#${markerId})`}
         markerStart={isBidirectional ? `url(#${markerId})` : undefined}
+        style={
+          shouldAnimate && !isSecondary
+            ? {
+                animation: `edgeFlow ${duration}s linear infinite`,
+              }
+            : undefined
+        }
       />
 
-      {/* 2. Soft outer glow when highlighted or active in journey */}
-      {isHighlighted && (
-        <path
-          d={edge.pathData}
-          fill="none"
-          stroke={colors.activeStroke}
-          strokeWidth="6"
-          strokeOpacity="0.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      )}
-
-      {/* 3. Flowing dashed stroke forward for live telemetry/data visualization */}
-      {shouldAnimate && !isSecondary && (
-        <path
-          d={edge.pathData}
-          fill="none"
-          stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-          strokeWidth={strokeWidth}
-          strokeDasharray="6 6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{
-            animation: `edgeFlow ${duration}s linear infinite`,
-          }}
-        />
-      )}
-
-      {/* 4. Bidirectional edge: second parallel line 6px apart if exists */}
-      {isBidirectional && edge.parallelPathData && (
-        <>
-          <path
-            d={edge.parallelPathData}
-            fill="none"
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            strokeOpacity={strokeOpacity}
-            strokeDasharray={isSecondary ? "4 4" : undefined}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            markerStart={`url(#${markerId})`}
-          />
-          {shouldAnimate && !isSecondary && (
-            <path
-              d={edge.parallelPathData}
-              fill="none"
-              stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-              strokeWidth={strokeWidth}
-              strokeDasharray="6 6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                animation: `edgeFlowReverse ${duration * 1.2}s linear infinite`,
-              }}
-            />
-          )}
-        </>
-      )}
-
-      {/* 5. Journey Active Signal Beacon */}
+      {/* 3. Journey Active Beacon */}
       {isJourneyActive && shouldAnimate && (
         <circle
-          r="4.5"
+          r="4"
           fill={colors.activeStroke}
           className="drop-shadow-xs"
         >
@@ -162,31 +126,31 @@ export function AnimatedEdge({
         </circle>
       )}
 
-      {/* 6. Numbered Badge (Numbered badges on all primary visible edges, 0 text pills) */}
-      {edge.badgeIndex !== undefined && !isSecondary && (
+      {/* 4. Numbered / Lettered Badge: 20px circle, 11px bold, 1.5px border */}
+      {badgeLabel && (
         <g
           transform={`translate(${edge.midX}, ${edge.midY})`}
           className="pointer-events-auto select-none transition-transform duration-200 hover:scale-110 edge-badge"
         >
-          <title>{edge.description || `${edge.badgeIndex}: ${primaryText}`}</title>
+          <title>{edge.description || `${badgeLabel}: ${primaryText}`}</title>
           <circle
             r="10"
-            fill="#FFFFFF"
-            className="dark:fill-[#121316]"
-            stroke={isHighlighted ? colors.activeStroke : colors.stroke}
-            strokeWidth={isHighlighted ? "2.2" : "1.8"}
+            fill={isSecondary ? "#F3F4F6" : "#FFFFFF"}
+            className={isSecondary ? "fill-stone-100 dark:fill-neutral-800" : "fill-white dark:fill-[#121316]"}
+            stroke={isSecondary ? "#9CA3AF" : (isHighlighted ? colors.activeStroke : colors.stroke)}
+            strokeWidth="1.5"
             filter="drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))"
           />
           <text
             x="0"
             y="3.5"
             textAnchor="middle"
-            fontSize="10"
+            fontSize="11"
             fontWeight="700"
             fontFamily="var(--font-mono, monospace)"
-            fill={isHighlighted ? colors.activeStroke : colors.text}
+            fill={isSecondary ? "#6B7280" : (isHighlighted ? colors.activeStroke : colors.text)}
           >
-            {edge.badgeIndex}
+            {badgeLabel}
           </text>
         </g>
       )}

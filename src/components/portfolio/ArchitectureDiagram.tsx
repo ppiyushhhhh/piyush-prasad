@@ -35,6 +35,7 @@ export function ArchitectureDiagram({
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hoveredEdgeId, setHoveredEdgeId] = useState<string | null>(null);
   const [inspectedNode, setInspectedNode] = useState<UnifiedNode | null>(null);
   const [inspectedEdge, setInspectedEdge] = useState<UnifiedEdge | null>(null);
 
@@ -271,10 +272,10 @@ export function ArchitectureDiagram({
             {/* Render all animated edges */}
             <g className="pointer-events-auto">
               {layout.edges.map((edge) => {
-                const isEdgeFocused = connectedEdgeIds.has(edge.id);
+                const isEdgeFocused = connectedEdgeIds.has(edge.id) || hoveredEdgeId === edge.id;
                 const isJourneyEdge = currentJourneyEdgeId === edge.id;
                 const isEdgeSelected = selectedEdgeId === edge.id;
-                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
+                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive || hoveredEdgeId);
                 const isDimmed = hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected;
 
                 return (
@@ -287,6 +288,7 @@ export function ArchitectureDiagram({
                     isSelected={isEdgeSelected}
                     isDimmed={isDimmed}
                     onClick={() => handleEdgeClick(edge)}
+                    onHover={(id) => setHoveredEdgeId(id)}
                   />
                 );
               })}
@@ -366,16 +368,18 @@ export function ArchitectureDiagram({
                 {layout.edges.map((e) => {
                   const srcNode = layout.nodes.find((n) => n.id === e.source);
                   const tgtNode = layout.nodes.find((n) => n.id === e.target);
-                  const isHovered = hoveredNodeId === e.source || hoveredNodeId === e.target || selectedEdgeId === e.id;
+                  const isHovered = hoveredEdgeId === e.id || hoveredNodeId === e.source || hoveredNodeId === e.target || selectedEdgeId === e.id;
                   const isSec = Boolean(e.secondary);
 
                   return (
                     <tr
                       key={e.id}
                       onMouseEnter={() => {
+                        setHoveredEdgeId(e.id);
                         setHoveredNodeId(e.source);
                       }}
                       onMouseLeave={() => {
+                        setHoveredEdgeId(null);
                         setHoveredNodeId(null);
                       }}
                       onClick={() => handleEdgeClick(e)}
@@ -389,6 +393,10 @@ export function ArchitectureDiagram({
                         {e.badgeIndex ? (
                           <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-cobalt/15 text-cobalt text-[9px]">
                             {e.badgeIndex}
+                          </span>
+                        ) : e.badgeLetter ? (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-stone-200 dark:bg-neutral-700 text-stone-600 dark:text-stone-300 text-[9px]">
+                            {e.badgeLetter}
                           </span>
                         ) : (
                           <span className="text-[9px] text-neutral-400">--</span>
