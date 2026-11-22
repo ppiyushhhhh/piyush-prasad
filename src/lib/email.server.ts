@@ -56,8 +56,8 @@ export function getContactSenderEmail(): string {
 export function sanitizeEmailError(err: unknown): string {
   const raw = err instanceof Error ? err.message : String(err);
   return raw
-    .replace(/re_[a-zA-Z0-9_\-]+/g, "[REDACTED_RESEND_KEY]")
-    .replace(/Bearer\s+[a-zA-Z0-9._\-]+/gi, "Bearer [REDACTED_TOKEN]")
+    .replace(/re_[a-zA-Z0-9_-]+/g, "[REDACTED_RESEND_KEY]")
+    .replace(/Bearer\s+[a-zA-Z0-9._-]+/gi, "Bearer [REDACTED_TOKEN]")
     .replace(/key-[a-zA-Z0-9]+/g, "[REDACTED_API_KEY]")
     .replace(/password[:=]\s*\S+/gi, "password=[REDACTED]");
 }

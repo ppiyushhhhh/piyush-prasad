@@ -337,7 +337,7 @@ function AiChatPage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {/* 1. Credly Digital Badges Index */}
-                <div className="border border-border bg-[#FAF9F6] p-4 flex flex-col justify-between">
+                <div className="border border-border bg-surface-muted p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="mono text-[10px] font-bold text-muted-foreground uppercase">
                       Credly Digital Badges
@@ -354,7 +354,7 @@ function AiChatPage() {
                 </div>
 
                 {/* 2. Custom Facts & FAQs */}
-                <div className="border border-border bg-[#FAF9F6] p-4 flex flex-col justify-between">
+                <div className="border border-border bg-surface-muted p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="mono text-[10px] font-bold text-muted-foreground uppercase">
                       Custom Facts & FAQs
@@ -370,7 +370,7 @@ function AiChatPage() {
                 </div>
 
                 {/* 3. Core Knowledge Base */}
-                <div className="border border-border bg-[#FAF9F6] p-4 flex flex-col justify-between">
+                <div className="border border-border bg-surface-muted p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="mono text-[10px] font-bold text-muted-foreground uppercase">
                       Total Indexed Units
@@ -386,7 +386,7 @@ function AiChatPage() {
                 </div>
 
                 {/* 4. Synchronization Status */}
-                <div className="border border-border bg-[#FAF9F6] p-4 flex flex-col justify-between">
+                <div className="border border-border bg-surface-muted p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2">
                     <span className="mono text-[10px] font-bold text-muted-foreground uppercase">
                       Knowledge State
@@ -427,7 +427,7 @@ function AiChatPage() {
               {/* Granular Source Breakdown Table */}
               {knowledge?.sources && knowledge.sources.length > 0 && (
                 <div className="mb-4 border border-border/80 bg-white">
-                  <div className="border-b border-border/60 bg-[#FAF9F6] px-4 py-2 flex items-center justify-between">
+                  <div className="border-b border-border/60 bg-surface-muted px-4 py-2 flex items-center justify-between">
                     <span className="mono text-[10px] uppercase font-bold text-muted-foreground">
                       Independent Knowledge Sources ({knowledge.sources.length} sources)
                     </span>
@@ -443,7 +443,7 @@ function AiChatPage() {
                       >
                         <div className="flex items-center gap-2">
                           <span className="mono font-semibold text-carbon">{src.name}</span>
-                          <span className="mono text-[9px] uppercase border border-border bg-[#FAF9F6] px-1.5 py-0.2 text-muted-foreground">
+                          <span className="mono text-[9px] uppercase border border-border bg-surface-muted px-1.5 py-0.2 text-muted-foreground">
                             {src.sourceType}
                           </span>
                         </div>
@@ -507,10 +507,10 @@ function AiChatPage() {
                   {customFacts.map((fact) => (
                     <tr
                       key={fact.id}
-                      className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors"
+                      className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/60 transition-colors"
                     >
                       <td className="py-2.5 pr-4">
-                        <span className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-semibold text-carbon">
+                        <span className="mono inline-flex items-center gap-1 border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold text-carbon">
                           <Tag className="h-2.5 w-2.5 text-cobalt" />
                           {fact.category}
                         </span>
@@ -595,7 +595,7 @@ function AiChatPage() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Ask something (e.g. 'What Credly badges does Piyush have?')"
-                    className="flex-1 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                    className="flex-1 rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                   />
                   <button
                     type="submit"
@@ -612,7 +612,7 @@ function AiChatPage() {
                 </form>
 
                 {testResponse && (
-                  <div className="mt-4 rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4 shadow-2xs">
+                  <div className="mt-4 rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-4 shadow-2xs">
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-2 border-b border-[#E5E5DF] pb-1.5">
                       <span className="font-semibold text-cobalt flex items-center gap-1">
                         <Bot className="h-3.5 w-3.5" />
@@ -652,7 +652,7 @@ function AiChatPage() {
                     return (
                       <tr
                         key={row.id}
-                        className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors"
+                        className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/60 transition-colors"
                       >
                         <td className="py-2.5 pr-4 text-carbon font-mono text-[11px]">
                           {fmtDateTime(row.occurred_at)}
@@ -733,7 +733,7 @@ function AiChatPage() {
                 <select
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value)}
-                  className="w-full border border-border bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-border bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 >
                   <option value="Career">Career & Goals</option>
                   <option value="Availability">Availability & Notice Period</option>
@@ -752,7 +752,7 @@ function AiChatPage() {
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
                   placeholder="e.g. What is Piyush's availability for full-time roles?"
-                  className="w-full border border-border bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-border bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                   required
                 />
               </div>
@@ -766,7 +766,7 @@ function AiChatPage() {
                   value={formContent}
                   onChange={(e) => setFormContent(e.target.value)}
                   placeholder="e.g. Piyush is immediately available for full-time Cloud & DevOps engineer positions on-site in Mumbai or remote."
-                  className="w-full border border-border bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none resize-none leading-relaxed"
+                  className="w-full border border-border bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none resize-none leading-relaxed"
                   required
                 />
               </div>
@@ -792,7 +792,7 @@ function AiChatPage() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="mono border border-border bg-white px-4 py-2 text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors cursor-pointer"
+                className="mono border border-border bg-white px-4 py-2 text-xs font-semibold text-carbon hover:bg-surface-muted transition-colors cursor-pointer"
               >
                 Cancel
               </button>

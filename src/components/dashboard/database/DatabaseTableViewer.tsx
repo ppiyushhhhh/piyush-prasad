@@ -100,7 +100,7 @@ export function DatabaseTableViewer({
       return (
         <button
           onClick={() => setSelectedRecordForModal(val)}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] text-cobalt hover:bg-white text-[11px] mono transition-colors"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-surface-muted border border-[#E5E5DF] text-cobalt hover:bg-white text-[11px] mono transition-colors"
         >
           <FileJson className="h-3 w-3" />
           <span>JSON ({Object.keys(val).length})</span>
@@ -202,7 +202,7 @@ export function DatabaseTableViewer({
                 className={`w-full text-left rounded-sm px-3 py-2.5 transition-all text-xs flex items-center justify-between group ${
                   isSelected
                     ? "bg-cobalt/10 border border-cobalt/20 text-cobalt font-semibold"
-                    : "border border-transparent hover:bg-[#FAF9F6] text-muted-foreground hover:text-carbon"
+                    : "border border-transparent hover:bg-surface-muted text-muted-foreground hover:text-carbon"
                 }`}
               >
                 <div className="min-w-0 pr-2">
@@ -218,7 +218,7 @@ export function DatabaseTableViewer({
                     className={`px-2 py-0.5 rounded-sm text-[10px] mono ${
                       isSelected
                         ? "bg-cobalt/20 text-cobalt font-bold"
-                        : "bg-[#FAF9F6] border border-[#E5E5DF] text-muted-foreground group-hover:text-carbon"
+                        : "bg-surface-muted border border-[#E5E5DF] text-muted-foreground group-hover:text-carbon"
                     }`}
                   >
                     {(stat?.rowCount ?? 0).toLocaleString()}
@@ -246,7 +246,7 @@ export function DatabaseTableViewer({
                 <h3 className="text-base font-semibold text-carbon">
                   {activeTableMeta.displayName}
                 </h3>
-                <span className="mono text-xs px-2 py-0.5 rounded-sm bg-[#FAF9F6] text-muted-foreground border border-[#E5E5DF]">
+                <span className="mono text-xs px-2 py-0.5 rounded-sm bg-surface-muted text-muted-foreground border border-[#E5E5DF]">
                   {activeTableName}
                 </span>
               </div>
@@ -288,7 +288,7 @@ export function DatabaseTableViewer({
                 onClick={onRefresh}
                 disabled={isLoading}
                 title="Refresh Table Data"
-                className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] transition-colors disabled:opacity-50 shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-carbon hover:bg-surface-muted transition-colors disabled:opacity-50 shadow-2xs"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin text-cobalt" : ""}`} />
                 Refresh
@@ -341,7 +341,7 @@ export function DatabaseTableViewer({
 
           <div className="overflow-x-auto max-h-[600px]">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-10 bg-[#FAF9F6] border-b border-[#E5E5DF]">
+              <thead className="sticky top-0 z-10 bg-surface-muted border-b border-[#E5E5DF]">
                 <tr className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-semibold mono">
                   <th className="py-2.5 px-3 w-10 text-center text-muted-foreground">#</th>
                   {columns.map((col) => {
@@ -389,7 +389,7 @@ export function DatabaseTableViewer({
                   rows.map((row, idx) => {
                     const rowId = String(row.id ?? idx);
                     return (
-                      <tr key={rowId} className="hover:bg-[#FAF9F6]/80 transition-colors">
+                      <tr key={rowId} className="hover:bg-surface-muted/80 transition-colors">
                         <td className="py-2.5 px-3 text-center text-muted-foreground text-[10px]">
                           {(page - 1) * pageSize + idx + 1}
                         </td>
@@ -401,7 +401,7 @@ export function DatabaseTableViewer({
                         <td className="py-2.5 px-3 text-right">
                           <button
                             onClick={() => setSelectedRecordForModal(row)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-sm hover:bg-[#FAF9F6] text-muted-foreground hover:text-cobalt transition-colors font-sans text-[11px]"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-sm hover:bg-surface-muted text-muted-foreground hover:text-cobalt transition-colors font-sans text-[11px]"
                             title="Inspect full row"
                           >
                             <Eye className="h-3.5 w-3.5" />
@@ -417,7 +417,7 @@ export function DatabaseTableViewer({
           </div>
 
           {/* Pagination Controls Footer */}
-          <div className="border-t border-[#E5E5DF] px-4 py-3 bg-[#FAF9F6] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="border-t border-[#E5E5DF] px-4 py-3 bg-surface-muted flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
             <div className="mono text-[11px]">
               Page <span className="text-carbon font-semibold">{page}</span> of{" "}
               <span className="text-carbon font-semibold">{totalPages}</span> ({totalCount} total)
@@ -427,7 +427,7 @@ export function DatabaseTableViewer({
               <button
                 disabled={page <= 1 || isLoading}
                 onClick={() => onPageChange(page - 1)}
-                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-surface-muted disabled:opacity-40 transition-colors shadow-2xs"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Previous
@@ -436,7 +436,7 @@ export function DatabaseTableViewer({
               <button
                 disabled={page >= totalPages || isLoading}
                 onClick={() => onPageChange(page + 1)}
-                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-surface-muted disabled:opacity-40 transition-colors shadow-2xs"
               >
                 Next
                 <ChevronRight className="h-3.5 w-3.5" />

@@ -90,9 +90,9 @@ export function ComponentInspector({
         aria-label={`Connection details for ${edge.label || edge.protocol}`}
       >
         <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full mx-auto mt-2 mb-0.5 md:hidden" />
-        <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
+        <div className="flex items-start justify-between p-5 border-b border-border bg-surface-muted dark:bg-neutral-900/40 gap-3">
           <div>
-            <span className="mono inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-blue-200 bg-blue-50 text-cobalt">
+            <span className="mono inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-accent/30 bg-accent-soft text-cobalt">
               LAYER: {edge.category.toUpperCase()}
             </span>
             <h3 className="text-base font-bold text-carbon dark:text-white leading-tight mt-1.5">
@@ -134,7 +134,7 @@ export function ComponentInspector({
               <button
                 type="button"
                 onClick={() => onSelectNode(sourceNode)}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-surface-muted dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
               >
                 <div>
                   <span className="mono text-[9px] text-muted-foreground block">SOURCE ORIGIN</span>
@@ -155,7 +155,7 @@ export function ComponentInspector({
               <button
                 type="button"
                 onClick={() => onSelectNode(targetNode)}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-surface-muted dark:bg-neutral-900/50 hover:border-cobalt text-left transition-colors cursor-pointer group"
               >
                 <div>
                   <span className="mono text-[9px] text-muted-foreground block">TARGET DESTINATION</span>
@@ -170,13 +170,13 @@ export function ComponentInspector({
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-2">
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">DIRECTION</span>
               <span className="mono font-semibold text-[11px] text-carbon dark:text-white uppercase">
                 {edge.direction || "directional"}
               </span>
             </div>
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">FLOW MODE</span>
               <span className="mono font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
                 Live Active Flow
@@ -207,7 +207,7 @@ export function ComponentInspector({
       <div className="w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full mx-auto mt-2 mb-0.5 md:hidden" />
 
       {/* Top Header */}
-      <div className="flex items-start justify-between p-5 border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/40 gap-3">
+      <div className="flex items-start justify-between p-5 border-b border-border bg-surface-muted dark:bg-neutral-900/40 gap-3">
         <div className="flex items-center gap-3.5 min-w-0">
           <NodeLogo
             tech={node.tech}
@@ -296,13 +296,13 @@ export function ComponentInspector({
           </span>
           <p className="text-xs text-muted-foreground leading-relaxed">{node.description}</p>
           <div className="grid grid-cols-2 gap-2 pt-2">
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">PROVIDER</span>
               <span className="mono font-semibold text-[11px] text-carbon dark:text-white truncate block">
                 {node.provider}
               </span>
             </div>
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">REGION / ZONE</span>
               <span className="mono font-semibold text-[11px] text-carbon dark:text-white truncate block">
                 {node.region || "Global Multi-Region"}
@@ -310,7 +310,7 @@ export function ComponentInspector({
             </div>
           </div>
           {node.port && (
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">ACTIVE PORTS</span>
               <span className="mono font-bold text-[11px] text-cobalt">{node.port}</span>
             </div>
@@ -340,7 +340,7 @@ export function ComponentInspector({
             <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               TECHNICAL CONFIGURATION
             </span>
-            <div className="border border-border bg-[#FAF9F6] dark:bg-neutral-900/80 rounded p-2.5 font-mono text-[11px] space-y-1">
+            <div className="border border-border bg-surface-muted dark:bg-neutral-900/80 rounded p-2.5 font-mono text-[11px] space-y-1">
               {node.configuration.map((cfg, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <span className="text-cobalt font-bold">&bull;</span>
@@ -402,7 +402,7 @@ export function ComponentInspector({
             <Activity className="h-3 w-3 text-cobalt" />
           </span>
           <div className="grid grid-cols-2 gap-2">
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">INGRESS PROTOCOLS</span>
               <span className="mono font-semibold text-[11px] text-carbon dark:text-white">
                 {inboundEdges.length > 0
@@ -410,7 +410,7 @@ export function ComponentInspector({
                   : "Origin / Edge Entry"}
               </span>
             </div>
-            <div className="p-2 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-900/50">
+            <div className="p-2 rounded border border-border bg-surface-muted dark:bg-neutral-900/50">
               <span className="mono text-[9px] text-muted-foreground block">EGRESS DISPATCH</span>
               <span className="mono font-semibold text-[11px] text-carbon dark:text-white">
                 {outboundEdges.length > 0
@@ -427,7 +427,7 @@ export function ComponentInspector({
             <span className="mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               DEPENDENCIES &amp; RUNTIME PREREQUISITES
             </span>
-            <div className="border border-border bg-[#FAF9F6] dark:bg-neutral-900/50 rounded-lg p-3 space-y-2.5">
+            <div className="border border-border bg-surface-muted dark:bg-neutral-900/50 rounded-lg p-3 space-y-2.5">
               {downstreamNodes.length > 0 && (
                 <div>
                   <span className="mono text-[9px] font-bold text-cobalt block mb-1">

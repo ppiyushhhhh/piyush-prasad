@@ -112,7 +112,7 @@ export function EditRateLimitConfigDialog({
                 required
                 value={maxRequests}
                 onChange={(e) => setMaxRequests(parseInt(e.target.value) || 1)}
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs font-mono text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs font-mono text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
               />
               <p className="mono text-[10px] text-muted-foreground mt-1">
                 Permitted requests within the time window before HTTP 429 is enforced.
@@ -130,14 +130,14 @@ export function EditRateLimitConfigDialog({
                 required
                 value={windowSeconds}
                 onChange={(e) => setWindowSeconds(parseInt(e.target.value) || 1)}
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs font-mono text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs font-mono text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
               />
               <p className="mono text-[10px] text-muted-foreground mt-1">
                 Sliding window duration (e.g. 60 = 1 minute, 300 = 5 minutes, 3600 = 1 hour).
               </p>
             </div>
 
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+            <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="mono text-xs font-bold text-carbon">Tier Protection Status</span>
@@ -186,7 +186,7 @@ export function EditRateLimitConfigDialog({
               type="button"
               disabled={isSubmitting}
               onClick={onClose}
-              className="mono rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-1.5 text-xs font-semibold text-carbon hover:bg-white transition-colors"
+              className="mono rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-1.5 text-xs font-semibold text-carbon hover:bg-white transition-colors"
             >
               Cancel
             </button>

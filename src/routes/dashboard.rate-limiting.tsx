@@ -271,7 +271,7 @@ function RateLimitingDashboardPage() {
             className={`mono flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-xs font-semibold border transition-colors ${
               autoRefresh
                 ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                : "border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground"
+                : "border-[#E5E5DF] bg-surface-muted text-muted-foreground"
             }`}
           >
             <span
@@ -402,7 +402,7 @@ function RateLimitingDashboardPage() {
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-[10px] uppercase text-muted-foreground tracking-wider">
+            <thead className="border-b border-[#E5E5DF] bg-surface-muted text-[10px] uppercase text-muted-foreground tracking-wider">
               <tr>
                 <th className="px-3 py-2.5 font-bold">Tier / Rule Name</th>
                 <th className="px-3 py-2.5 font-bold">Endpoints Covered</th>
@@ -419,13 +419,13 @@ function RateLimitingDashboardPage() {
                   Math.round((config.max_requests / (config.window_seconds / 60)) * 10) / 10;
 
                 return (
-                  <tr key={config.id} className="hover:bg-[#FAF9F6] transition-colors">
+                  <tr key={config.id} className="hover:bg-surface-muted transition-colors">
                     <td className="px-3 py-3">
                       <div className="font-bold text-carbon text-xs">{config.name}</div>
                       <div className="text-[10px] text-muted-foreground">{config.description}</div>
                     </td>
                     <td className="px-3 py-3 text-carbon font-semibold">
-                      <code className="rounded-xs bg-[#FAF9F6] border border-[#E5E5DF] px-1.5 py-0.5 text-[11px] text-cobalt">
+                      <code className="rounded-xs bg-surface-muted border border-[#E5E5DF] px-1.5 py-0.5 text-[11px] text-cobalt">
                         {config.endpoint_pattern}
                       </code>
                     </td>
@@ -443,7 +443,7 @@ function RateLimitingDashboardPage() {
                         className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded-xs ${
                           config.enabled
                             ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                            : "bg-[#FAF9F6] text-muted-foreground border border-[#E5E5DF]"
+                            : "bg-surface-muted text-muted-foreground border border-[#E5E5DF]"
                         }`}
                       >
                         {config.enabled ? "ACTIVE" : "BYPASSED"}

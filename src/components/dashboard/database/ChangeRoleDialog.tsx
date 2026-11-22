@@ -87,7 +87,7 @@ export function ChangeRoleDialog({
               className={`flex items-start gap-3 p-3.5 rounded-sm border cursor-pointer transition-colors ${
                 selectedRole === "user"
                   ? "border-cobalt bg-cobalt/5 text-carbon shadow-2xs"
-                  : "border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:border-[#D5D5CF]"
+                  : "border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:border-[#D5D5CF]"
               }`}
             >
               <input
@@ -110,7 +110,7 @@ export function ChangeRoleDialog({
               className={`flex items-start gap-3 p-3.5 rounded-sm border cursor-pointer transition-colors ${
                 selectedRole === "admin"
                   ? "border-purple-600 bg-purple-50 text-carbon shadow-2xs"
-                  : "border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:border-[#D5D5CF]"
+                  : "border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:border-[#D5D5CF]"
               }`}
             >
               <input
@@ -147,7 +147,7 @@ export function ChangeRoleDialog({
               type="button"
               disabled={isSubmitting}
               onClick={onClose}
-              className="rounded-sm border border-[#E5E5DF] bg-white px-4 py-2 text-xs font-mono font-medium text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs"
+              className="rounded-sm border border-[#E5E5DF] bg-white px-4 py-2 text-xs font-mono font-medium text-carbon hover:bg-surface-muted disabled:opacity-50 transition-colors shadow-2xs"
             >
               Cancel
             </button>

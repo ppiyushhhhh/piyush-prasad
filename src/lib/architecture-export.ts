@@ -126,13 +126,13 @@ export async function buildFullDiagramSvg(
 
     const categoryColors: Record<string, string> = {
       network: "#1A4BFF",
-      data: "#059669",
+      data: "#0284C7",
       security: "#D97706",
       deployment: "#7C3AED",
-      telemetry: "#EA580C",
+      telemetry: "#64748B",
     };
 
-    let svg = `<?xml version="1.0" encoding="UTF-8"?>
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}" height="${totalHeight}">
   <defs>
     <style>
@@ -175,7 +175,7 @@ export async function buildFullDiagramSvg(
         ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5A5C66">${escapeXml(diagramDescription.slice(0, 120))}${diagramDescription.length > 120 ? "…" : ""}</text>`
         : ""
     }
-    <text x="${totalWidth - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#6B7280" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
+    <text x="${totalWidth - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#5A5C66" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
   </g>
 
   <!-- Main Architecture Stage -->
@@ -189,16 +189,16 @@ export async function buildFullDiagramSvg(
           if (isDocker) {
             return `
       <g>
-        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F0F7FF" stroke="#38BDF8" stroke-width="1.5" />
-        <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#E0F2FE" />
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F3F3ED" stroke="#1A4BFF" stroke-width="1.5" />
+        <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#EEF2FF" />
         ${dockerLogo ? `<image href="${dockerLogo}" x="${zone.x + 14}" y="${zone.y + 9}" width="18" height="18" preserveAspectRatio="xMidYMid meet" />` : ""}
-        <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#0369A1">${escapeXml(zone.title)}</text>
+        <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#1A4BFF">${escapeXml(zone.title)}</text>
       </g>`;
           }
           return `
       <g>
-        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="12" fill="#FAF9F6" stroke="#E2E0D8" stroke-dasharray="4 4" stroke-width="1.2" />
-        <text x="${zone.x + 16}" y="${zone.y + 24}" class="mono" font-size="11" font-weight="700" fill="#4B5563" letter-spacing="0.5">${escapeXml(zone.title)}</text>
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="12" fill="#F3F3ED" stroke="#E5E5DF" stroke-dasharray="4 4" stroke-width="1.2" />
+        <text x="${zone.x + 16}" y="${zone.y + 24}" class="mono" font-size="11" font-weight="700" fill="#5A5C66" letter-spacing="0.5">${escapeXml(zone.title)}</text>
       </g>`;
         })
         .join("")}
@@ -208,7 +208,7 @@ export async function buildFullDiagramSvg(
     <g>
       ${edges
         .map((edge, idx) => {
-          const strokeColor = edge.secondary ? "#9CA3AF" : categoryColors[edge.category] || "#1A4BFF";
+          const strokeColor = edge.secondary ? "#9CA3AF" : categoryColors[edge.category] || "#0F766E";
           const markerId = edge.secondary ? "arrow-secondary" : `arrow-${edge.category || "network"}`;
           const isBidirectional = edge.direction === "bidirectional";
           const badgeLabel = edge.secondary
@@ -263,10 +263,10 @@ export async function buildFullDiagramSvg(
 
           return `
       <g transform="translate(${node.x}, ${node.y})">
-        <rect width="${w}" height="${h}" rx="10" fill="#FFFFFF" stroke="#E2E0D8" stroke-width="1.2" />
+        <rect width="${w}" height="${h}" rx="10" fill="#FFFFFF" stroke="#E5E5DF" stroke-width="1.2" />
         <g transform="translate(10, 10)">
           <!-- Logo Tile 32x32 -->
-          <rect width="32" height="32" rx="6" fill="#F8F8F6" stroke="#E5E5DF" stroke-width="1" />
+          <rect width="32" height="32" rx="6" fill="#F3F3ED" stroke="#E5E5DF" stroke-width="1" />
           ${logoUri ? `<image href="${logoUri}" x="3" y="3" width="26" height="26" preserveAspectRatio="xMidYMid meet" />` : ""}
 
           <!-- Title & Tech -->
@@ -274,7 +274,7 @@ export async function buildFullDiagramSvg(
             <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#121316">${escapeXml(node.name.length > 22 ? node.name.slice(0, 21) + "…" : node.name)}</text>
             <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${escapeXml(node.tech.length > 24 ? node.tech.slice(0, 23) + "…" : node.tech)}</text>
           </g>
-          <circle cx="${w - 24}" cy="8" r="3" fill="#10B981" />
+          <circle cx="${w - 24}" cy="8" r="3" fill="#16A34A" />
         </g>
       </g>`;
         })
@@ -443,12 +443,12 @@ export async function exportDiagramAsPdf(
   // Header Title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.setTextColor(18, 19, 22);
+  doc.setTextColor(15, 27, 26);
   doc.text(diagramTitle, margin, margin + 4);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.setTextColor(90, 92, 102);
+  doc.setTextColor(91, 107, 104);
   const subtitle = diagramDescription
     ? diagramDescription.slice(0, 140)
     : "Piyush Prasad • Infrastructure Architecture Explorer";
@@ -464,7 +464,7 @@ export async function exportDiagramAsPdf(
   if (flows && flows.length > 0 && tableY < pageHeight - 30) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setTextColor(26, 75, 255);
+    doc.setTextColor(15, 118, 110);
     doc.text("END-TO-END DATA FLOWS", margin, tableY);
 
     // Table Header

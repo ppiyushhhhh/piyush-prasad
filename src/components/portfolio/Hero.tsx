@@ -30,15 +30,15 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden border-b border-border bg-[#FAF9F6] pt-28 pb-16 md:pt-36 md:pb-24 scroll-mt-20"
+      className="relative overflow-hidden border-b border-border bg-background pt-28 pb-16 md:pt-36 md:pb-24 scroll-mt-20"
     >
       {/* Subtle Technical Engineering Blueprint Grid */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        className="pointer-events-none absolute inset-0 opacity-[0.035] text-text"
         style={{
           backgroundImage:
-            "linear-gradient(#121316 1px, transparent 1px), linear-gradient(90deg, #121316 1px, transparent 1px)",
+            "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
@@ -49,19 +49,19 @@ export function Hero() {
           variants={fadeIn}
           initial="hidden"
           animate="show"
-          className="mono mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-carbon/70"
+          className="mono mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-text-muted"
         >
-          <div className="inline-flex items-center gap-2 border border-border bg-white px-3 py-1 shadow-2xs">
+          <div className="inline-flex items-center gap-2 border border-border bg-surface px-3 py-1 shadow-2xs">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
-            <span className="font-semibold text-carbon">SYSTEM STATUS: OPERATIONAL</span>
+            <span className="font-semibold text-text">SYSTEM STATUS: OPERATIONAL</span>
           </div>
           <span className="hidden text-border sm:inline">•</span>
           <span>NAVI MUMBAI, INDIA</span>
           <span className="hidden text-border sm:inline">•</span>
-          <span className="text-cobalt font-medium">AWS & DEVOPS ENGINEERING</span>
+          <span className="text-accent font-medium">AWS & DEVOPS ENGINEERING</span>
         </motion.div>
 
         {/* Main Grid: Asymmetric Editorial Split */}
@@ -74,7 +74,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.1 }}
-              className="mono text-cobalt text-[11px] font-bold tracking-[0.2em] mb-4"
+              className="mono text-accent text-[11px] font-bold tracking-[0.2em] mb-4"
             >
               CLOUD &amp; DEVOPS ENGINEER
             </motion.div>
@@ -85,13 +85,13 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.2 }}
-              className="display text-[38px] leading-[1.04] sm:text-[54px] md:text-[68px] xl:text-[76px] text-carbon tracking-tight"
+              className="display text-[38px] leading-[1.04] sm:text-[54px] md:text-[68px] xl:text-[76px] text-text tracking-tight"
             >
               Building Reliable
               <br />
               Infrastructure for
               <br />
-              <span className="text-cobalt">a Scalable Tomorrow</span>
+              <span className="text-accent">a Scalable Tomorrow</span>
             </motion.h1>
 
             {/* Concise Description */}
@@ -117,7 +117,7 @@ export function Hero() {
             >
               <a
                 href="#projects"
-                className="mono inline-flex items-center gap-2.5 bg-cobalt px-6 py-3.5 text-[11px] font-semibold tracking-wider text-white transition-all hover:bg-carbon hover:shadow-sm"
+                className="mono inline-flex items-center gap-2.5 bg-accent px-6 py-3.5 text-[11px] font-semibold tracking-wider text-text-on-accent transition-all hover:bg-accent-hover hover:shadow-sm"
               >
                 <span>VIEW GITHUB PROJECTS</span>
                 <ArrowDown className="h-3.5 w-3.5" />
@@ -128,7 +128,7 @@ export function Hero() {
                 target="_blank"
                 rel="noreferrer"
                 download="Piyush_Prasad_Resume.pdf"
-                className="mono inline-flex items-center gap-2.5 border border-carbon bg-white px-6 py-3.5 text-[11px] font-semibold tracking-wider text-carbon transition-all hover:border-cobalt hover:text-cobalt hover:bg-white"
+                className="mono inline-flex items-center gap-2.5 border border-border bg-surface px-6 py-3.5 text-[11px] font-semibold tracking-wider text-text transition-all hover:border-accent hover:text-accent"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>DOWNLOAD RESUME</span>
@@ -141,7 +141,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.5 }}
-              className="mt-10 flex flex-wrap items-center gap-5 border-t border-border pt-6 text-xs text-carbon/80 font-medium"
+              className="mt-10 flex flex-wrap items-center gap-5 border-t border-border pt-6 text-xs text-text/80 font-medium"
             >
               <span className="mono text-[10px] text-muted-foreground uppercase tracking-wider">
                 CONNECT:
@@ -150,7 +150,7 @@ export function Hero() {
                 href={GITHUB}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 transition-colors hover:text-cobalt"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-accent"
               >
                 <Github className="h-4 w-4" />
                 <span>GitHub</span>
@@ -160,7 +160,7 @@ export function Hero() {
                 href={LINKEDIN}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 transition-colors hover:text-cobalt"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-accent"
               >
                 <Linkedin className="h-4 w-4" />
                 <span>LinkedIn</span>
@@ -168,7 +168,7 @@ export function Hero() {
               <span className="text-border">/</span>
               <a
                 href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-1.5 transition-colors hover:text-cobalt"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-accent"
               >
                 <Mail className="h-4 w-4" />
                 <span>{EMAIL}</span>
@@ -183,7 +183,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.35 }}
-              className="border border-border bg-white p-6 md:p-8 shadow-xs"
+              className="border border-border bg-surface p-6 md:p-8 shadow-xs"
             >
               {/* Terminal / Monitor Header */}
               <div className="flex items-center justify-between border-b border-border pb-4">
@@ -191,66 +191,66 @@ export function Hero() {
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
-                  <span className="mono ml-2 text-[10px] font-semibold text-carbon/70">
+                  <span className="mono ml-2 text-[10px] font-semibold text-text-muted">
                     INFRASTRUCTURE TOPOLOGY
                   </span>
                 </div>
-                <span className="mono text-[10px] text-cobalt font-semibold">ap-south-1</span>
+                <span className="mono text-[10px] text-accent font-semibold">ap-south-1</span>
               </div>
 
               {/* Technical Spec List */}
               <div className="mt-5 space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-surface-muted text-accent">
                     <Server className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Compute &amp; OS
                     </div>
-                    <div className="text-sm font-semibold text-carbon">
+                    <div className="text-sm font-semibold text-text">
                       AWS EC2 · Ubuntu Linux 24.04 LTS
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-surface-muted text-accent">
                     <Terminal className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Automation &amp; CI/CD
                     </div>
-                    <div className="text-sm font-semibold text-carbon">
+                    <div className="text-sm font-semibold text-text">
                       GitHub Actions · Docker · PM2
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-surface-muted text-accent">
                     <ShieldCheck className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Security &amp; Hardening
                     </div>
-                    <div className="text-sm font-semibold text-carbon">
+                    <div className="text-sm font-semibold text-text">
                       Trivy Scan · UFW Firewall · Certbot SSL
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-surface-muted text-accent">
                     <Activity className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Observability Stack
                     </div>
-                    <div className="text-sm font-semibold text-carbon">
+                    <div className="text-sm font-semibold text-text">
                       Prometheus · Grafana · Node Exporter
                     </div>
                   </div>
@@ -258,14 +258,14 @@ export function Hero() {
               </div>
 
               {/* Bottom Operational Summary Box */}
-              <div className="mt-6 border border-dashed border-border bg-[#FAF9F6] p-4">
+              <div className="mt-6 border border-dashed border-border bg-surface-muted p-4">
                 <div className="flex items-center justify-between text-xs">
                   <span className="mono text-[10px] text-muted-foreground">CORE SPECIALTY</span>
-                  <span className="mono text-[10px] font-semibold text-cobalt">
+                  <span className="mono text-[10px] font-semibold text-accent">
                     PRODUCTION GRADE
                   </span>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-carbon/80">
+                <p className="mt-2 text-xs leading-relaxed text-text/80">
                   Bridging IT Service Management with DevSecOps — turning ticket queues into
                   reliable, automated, observable pipelines.
                 </p>

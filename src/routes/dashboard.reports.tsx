@@ -38,7 +38,7 @@ function downloadReportFile(report: {
     h1 { margin-top: 0; color: #121316; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
     .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
-    .card { background: #FAF9F6; padding: 18px; border-radius: 4px; border: 1px solid #E5E5DF; text-align: center; }
+    .card { background: #F3F3ED; padding: 18px; border-radius: 4px; border: 1px solid #E5E5DF; text-align: center; }
     .card-num { font-size: 30px; font-weight: bold; color: #1A4BFF; font-family: monospace; }
     .card-label { font-size: 11px; text-transform: uppercase; color: #5A5C66; letter-spacing: 0.1em; font-family: monospace; margin-top: 4px; }
     table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px; }
@@ -48,7 +48,7 @@ function downloadReportFile(report: {
     @media print {
       body { background: #fff; color: #000; padding: 0; }
       .container { border: none; box-shadow: none; padding: 0; background: #fff; }
-      .card { border: 1px solid #e2e8f0; background: #f8fafc; }
+      .card { border: 1px solid #E5E5DF; background: #F3F3ED; }
       .card-num { color: #1A4BFF; }
     }
   </style>
@@ -240,7 +240,7 @@ function ReportsPage() {
               {data && data.length > 0 ? (
                 <DataTable headers={["Date", "Health Score", "Lighthouse", "Status", "Download / Export"]}>
                   {data.map((row) => (
-                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors">
+                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/60 transition-colors">
                       <td className="py-2.5 pr-4 font-mono font-medium text-carbon">
                         {fmtDate(row.report_date)}
                       </td>

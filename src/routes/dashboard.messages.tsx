@@ -399,7 +399,7 @@ function MessagesPage() {
             <button
               onClick={() => loadData(true)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-[#FAF9F6] hover:text-carbon transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-surface-muted hover:text-carbon transition-colors"
               title="Refresh ledger"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-cobalt" : ""}`} />
@@ -421,7 +421,7 @@ function MessagesPage() {
                   setPage(1);
                 }}
                 placeholder="Search by sender name, email, subject, or message…"
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/40 pl-9 pr-3 py-1.5 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted/40 pl-9 pr-3 py-1.5 text-xs text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:outline-none"
               />
               {search && (
                 <button
@@ -434,7 +434,7 @@ function MessagesPage() {
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center gap-1 bg-[#FAF9F6] p-1 border border-[#E5E5DF] rounded-sm text-[11px] mono">
+            <div className="flex items-center gap-1 bg-surface-muted p-1 border border-[#E5E5DF] rounded-sm text-[11px] mono">
               {(
                 [
                   { id: "all", label: "All Messages", count: stats.total },
@@ -478,7 +478,7 @@ function MessagesPage() {
         ) : (
           <div className="space-y-3">
             {/* Table Header / Selection Bar */}
-            <div className="flex items-center justify-between px-3 py-2 bg-[#FAF9F6] border border-[#E5E5DF] text-xs font-mono text-muted-foreground">
+            <div className="flex items-center justify-between px-3 py-2 bg-surface-muted border border-[#E5E5DF] text-xs font-mono text-muted-foreground">
               <div className="flex items-center gap-3">
                 <button
                   onClick={toggleSelectAll}
@@ -512,7 +512,7 @@ function MessagesPage() {
                 return (
                   <div
                     key={item.id}
-                    className={`group p-4 transition-colors hover:bg-[#FAF9F6]/80 ${
+                    className={`group p-4 transition-colors hover:bg-surface-muted/80 ${
                       isNew ? "bg-cobalt/[0.02]" : ""
                     } ${isSelected ? "bg-cobalt/5" : ""}`}
                   >
@@ -633,7 +633,7 @@ function MessagesPage() {
                         {/* View full message */}
                         <button
                           onClick={() => setViewingItem(item)}
-                          className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-[#FAF9F6] hover:text-carbon transition-colors"
+                          className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-surface-muted hover:text-carbon transition-colors"
                           title="View complete message"
                         >
                           <Eye className="h-3 w-3" />
@@ -645,7 +645,7 @@ function MessagesPage() {
                           onClick={() =>
                             handleToggleStatus(item, item.status === "new" ? "read" : "new")
                           }
-                          className="rounded-sm border border-[#E5E5DF] bg-white p-1.5 text-xs text-muted-foreground hover:bg-[#FAF9F6] hover:text-carbon transition-colors"
+                          className="rounded-sm border border-[#E5E5DF] bg-white p-1.5 text-xs text-muted-foreground hover:bg-surface-muted hover:text-carbon transition-colors"
                           title={item.status === "new" ? "Mark as Read" : "Mark as Unread"}
                         >
                           {item.status === "new" ? (
@@ -680,7 +680,7 @@ function MessagesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-carbon/50 p-4 backdrop-blur-xs">
           <div className="relative w-full max-w-2xl rounded-sm border border-[#E5E5DF] bg-white shadow-xl max-h-[90vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#E5E5DF] bg-[#FAF9F6] px-6 py-4">
+            <div className="flex items-center justify-between border-b border-[#E5E5DF] bg-surface-muted px-6 py-4">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-full border border-[#E4E4E7] bg-white text-carbon font-mono text-xs font-bold flex items-center justify-center">
                   {getInitials(viewingItem.name)}
@@ -708,7 +708,7 @@ function MessagesPage() {
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-5 flex-1">
               {/* Telemetry metadata banner */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-[#FAF9F6] border border-[#E5E5DF] text-xs font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-surface-muted border border-[#E5E5DF] text-xs font-mono">
                 <div>
                   <span className="text-[10px] uppercase text-muted-foreground block">Received</span>
                   <span className="font-semibold text-carbon">
@@ -734,7 +734,7 @@ function MessagesPage() {
                 <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-muted-foreground">
                   Subject
                 </span>
-                <div className="mt-1 p-3 rounded-xs bg-[#FAF9F6]/60 border border-[#E5E5DF] text-sm font-semibold text-carbon">
+                <div className="mt-1 p-3 rounded-xs bg-surface-muted/60 border border-[#E5E5DF] text-sm font-semibold text-carbon">
                   {viewingItem.subject || "(No subject provided)"}
                 </div>
               </div>
@@ -762,7 +762,7 @@ function MessagesPage() {
               </div>
 
               {/* Email Delivery Audit Details */}
-              <div className="p-3.5 border border-[#E5E5DF] bg-[#FAF9F6]/50 rounded-xs space-y-1.5 text-xs font-mono">
+              <div className="p-3.5 border border-[#E5E5DF] bg-surface-muted/50 rounded-xs space-y-1.5 text-xs font-mono">
                 <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mb-1">
                   Email Dispatch Diagnostics
                 </div>
@@ -825,7 +825,7 @@ function MessagesPage() {
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E5DF] bg-[#FAF9F6] px-6 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E5DF] bg-surface-muted px-6 py-4">
               <button
                 onClick={() => {
                   setDeletingItem(viewingItem);
@@ -844,7 +844,7 @@ function MessagesPage() {
                       viewingItem.status === "new" ? "read" : "new",
                     )
                   }
-                  className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-[#FAF9F6] transition-colors"
+                  className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-surface-muted transition-colors"
                 >
                   {viewingItem.status === "new" ? "Mark as Read" : "Mark as Unread"}
                 </button>
@@ -885,13 +885,13 @@ function MessagesPage() {
 
             <p className="text-xs text-carbon/80 leading-relaxed">
               This action will permanently delete this submission record from the{" "}
-              <code className="bg-[#FAF9F6] px-1 py-0.5 border border-[#E5E5DF] font-mono text-[11px]">
+              <code className="bg-surface-muted px-1 py-0.5 border border-[#E5E5DF] font-mono text-[11px]">
                 public.contact_submissions
               </code>{" "}
               table in your PostgreSQL database.
             </p>
 
-            <div className="mt-3 p-3 bg-[#FAF9F6] border border-[#E5E5DF] rounded-xs text-[11px] font-mono text-muted-foreground">
+            <div className="mt-3 p-3 bg-surface-muted border border-[#E5E5DF] rounded-xs text-[11px] font-mono text-muted-foreground">
               <div>
                 <strong>Sender:</strong> {deletingItem.name} &lt;{deletingItem.email}&gt;
               </div>
@@ -907,7 +907,7 @@ function MessagesPage() {
               <button
                 onClick={() => setDeletingItem(null)}
                 disabled={isDeleting}
-                className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-[#FAF9F6] transition-colors"
+                className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-surface-muted transition-colors"
               >
                 Cancel
               </button>
@@ -956,7 +956,7 @@ function MessagesPage() {
             <p className="text-xs text-carbon/80 leading-relaxed">
               Are you sure you want to permanently delete all{" "}
               <strong>{selectedIds.length}</strong> selected entries from the PostgreSQL{" "}
-              <code className="bg-[#FAF9F6] px-1 py-0.5 border border-[#E5E5DF] font-mono text-[11px]">
+              <code className="bg-surface-muted px-1 py-0.5 border border-[#E5E5DF] font-mono text-[11px]">
                 contact_submissions
               </code>{" "}
               table? This action cannot be reversed.
@@ -966,7 +966,7 @@ function MessagesPage() {
               <button
                 onClick={() => setShowBatchDeleteModal(false)}
                 disabled={isDeleting}
-                className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-[#FAF9F6] transition-colors"
+                className="rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-medium text-carbon hover:bg-surface-muted transition-colors"
               >
                 Cancel
               </button>

@@ -101,7 +101,7 @@ function BadgeArtwork({
   if (hasError || !src) {
     return (
       <div
-        className={`relative flex ${containerSizes} shrink-0 items-center justify-center border border-border bg-[#FAF9F6] p-2.5 shadow-2xs`}
+        className={`relative flex ${containerSizes} shrink-0 items-center justify-center border border-border bg-surface-muted p-2.5 shadow-2xs`}
         aria-hidden="true"
       >
         <Award className="h-8 w-8 text-cobalt/60" />
@@ -210,7 +210,7 @@ export function Certifications() {
   return (
     <section
       id="certifications"
-      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28 scroll-mt-24"
+      className="relative border-b border-border bg-surface-muted py-20 md:py-28 scroll-mt-24"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
@@ -240,7 +240,7 @@ export function Certifications() {
               {displayedCerts.map((cert) => (
                 <div
                   key={cert.name}
-                  className="group flex items-start gap-4 p-4 sm:p-5 transition-colors hover:bg-[#FAF9F6]"
+                  className="group flex items-start gap-4 p-4 sm:p-5 transition-colors hover:bg-surface-muted"
                 >
                   {/* Issuer Logo or Monogram with dynamic hover micro-interaction */}
                   <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
@@ -289,7 +289,7 @@ export function Certifications() {
                 type="button"
                 onClick={() => setShowAllCerts(!showAllCerts)}
                 aria-expanded={showAllCerts}
-                className="mono mt-5 inline-flex items-center gap-2 border border-border bg-white px-4 py-2.5 text-[11px] font-semibold text-cobalt transition-all hover:border-cobalt hover:bg-[#FAF9F6] cursor-pointer"
+                className="mono mt-5 inline-flex items-center gap-2 border border-border bg-white px-4 py-2.5 text-[11px] font-semibold text-cobalt transition-all hover:border-cobalt hover:bg-surface-muted cursor-pointer"
               >
                 <span>
                   {showAllCerts
@@ -436,7 +436,7 @@ export function Certifications() {
           {isError && sortedBadges.length === 0 && (
             <div className="border border-border bg-white p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xs">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-surface-muted text-cobalt">
                   <AlertCircle className="h-6 w-6" />
                 </div>
                 <div>
@@ -461,7 +461,7 @@ export function Certifications() {
           {/* 3. Empty State */}
           {!isLoading && !isError && sortedBadges.length === 0 && (
             <div className="border border-border bg-white p-10 text-center shadow-2xs">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt mb-4">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center border border-border bg-surface-muted text-cobalt mb-4">
                 <Award className="h-7 w-7" />
               </div>
               <h4 className="text-lg font-bold text-carbon">No Digital Badges Published Yet</h4>
@@ -561,7 +561,7 @@ export function Certifications() {
                                 {badge.skills.map((skill) => (
                                   <span
                                     key={skill}
-                                    className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-medium text-carbon"
+                                    className="mono inline-flex items-center gap-1 border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-medium text-carbon"
                                   >
                                     <Tag className="h-2.5 w-2.5 text-cobalt/70 shrink-0" />
                                     <span>{skill}</span>
@@ -605,7 +605,7 @@ export function Certifications() {
                     type="button"
                     onClick={handleToggleBadgesView}
                     aria-expanded={showAllBadges}
-                    className="mono inline-flex items-center gap-2.5 border border-border bg-white px-6 py-3.5 text-xs font-bold tracking-wider text-cobalt uppercase transition-all duration-200 hover:border-cobalt hover:bg-[#FAF9F6] hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                    className="mono inline-flex items-center gap-2.5 border border-border bg-white px-6 py-3.5 text-xs font-bold tracking-wider text-cobalt uppercase transition-all duration-200 hover:border-cobalt hover:bg-surface-muted hover:shadow-xs active:scale-[0.99] cursor-pointer"
                   >
                     <span>
                       {showAllBadges ? "SHOW LESS" : `VIEW MORE CREDENTIALS (${remainingCount})`}
@@ -660,7 +660,7 @@ export function Certifications() {
 
               {/* Modal Metadata Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border pt-4 mt-3 text-xs font-mono">
-                <div className="flex items-center gap-2.5 border border-border bg-[#FAF9F6] p-2.5">
+                <div className="flex items-center gap-2.5 border border-border bg-surface-muted p-2.5">
                   <Calendar className="h-4 w-4 text-cobalt shrink-0" />
                   <div>
                     <div className="text-[10px] text-muted-foreground uppercase">Issue Date</div>
@@ -669,7 +669,7 @@ export function Certifications() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5 border border-border bg-[#FAF9F6] p-2.5">
+                <div className="flex items-center gap-2.5 border border-border bg-surface-muted p-2.5">
                   <ShieldCheck className="h-4 w-4 text-cobalt shrink-0" />
                   <div>
                     <div className="text-[10px] text-muted-foreground uppercase">
@@ -694,7 +694,7 @@ export function Certifications() {
                     {selectedBadge.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="mono inline-flex items-center gap-1 border border-border bg-[#FAF9F6] px-2.5 py-1 text-[10px] font-medium text-carbon"
+                        className="mono inline-flex items-center gap-1 border border-border bg-surface-muted px-2.5 py-1 text-[10px] font-medium text-carbon"
                       >
                         <Tag className="h-2.5 w-2.5 text-cobalt/70 shrink-0" />
                         <span>{skill}</span>

@@ -97,7 +97,7 @@ export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProp
               href={project.live_demo_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mono inline-flex items-center gap-2 rounded-md bg-cobalt px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors shadow-2xs"
+              className="mono inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-xs font-semibold text-text-on-accent hover:bg-accent-hover transition-colors shadow-2xs"
               aria-label={`Open live demonstration for ${project.title}`}
             >
               <ExternalLink className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProp
           <button
             type="button"
             onClick={onCopyLink}
-            className="mono inline-flex items-center gap-1.5 rounded-md border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 px-3 py-2 text-xs font-semibold text-carbon dark:text-white hover:border-cobalt hover:text-cobalt transition-colors shadow-2xs cursor-pointer"
+            className="mono inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-text hover:border-accent hover:text-accent transition-colors shadow-2xs cursor-pointer"
             aria-label="Share this case study"
           >
             {copiedLink ? (

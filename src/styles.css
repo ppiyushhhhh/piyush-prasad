@@ -8,10 +8,6 @@
   --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --color-stone: #FAF9F6;
-  --color-carbon: #121316;
-  --color-cobalt: #1A4BFF;
-  --color-aluminum: #E5E5DF;
 }
 
 @theme inline {
@@ -19,49 +15,98 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Teal Ops Palette Tokens */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-text-on-accent: var(--text-on-accent);
+  --color-highlight: var(--highlight);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  /* Semantic UI Tokens */
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--text-on-accent);
+  --color-secondary: var(--surface-muted);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--text-muted);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--text-on-accent);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+
+  /* Legacy Aliases mapped to Teal Ops variables */
+  --color-stone: var(--background);
+  --color-carbon: var(--text);
+  --color-cobalt: var(--accent);
+  --color-cobalt-hover: var(--accent-hover);
+  --color-aluminum: var(--border);
 }
 
 :root {
+  color-scheme: light;
   --radius: 0.25rem;
+
+  /* Restored Original Warm Off-White & Cobalt Blue Tokens */
   --background: #FAF9F6;
   --foreground: #121316;
-  --card: #FFFFFF;
-  --card-foreground: #121316;
-  --popover: #FFFFFF;
-  --popover-foreground: #121316;
-  --primary: #1A4BFF;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3F3ED;
-  --secondary-foreground: #121316;
-  --muted: #F3F3ED;
-  --muted-foreground: #5A5C66;
-  --accent: #1A4BFF;
-  --accent-foreground: #FFFFFF;
-  --destructive: #C0392B;
-  --destructive-foreground: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-muted: #F3F3ED;
+  --text: #121316;
+  --text-muted: #5A5C66;
   --border: #E5E5DF;
-  --input: #E5E5DF;
-  --ring: #1A4BFF;
+  --accent: #1A4BFF;
+  --accent-hover: #1439CC;
+  --accent-soft: #EEF2FF;
+  --text-on-accent: #FFFFFF;
+  --highlight: #F59E0B;
+
+  --success: #16A34A;
+  --warning: #D97706;
+  --danger: #DC2626;
+  --info: #0284C7;
+
   --stack-base-top: 4.5rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Restored Original Dark Mode Background & Vibrant Blue Tokens */
+  --background: #0E0F12;
+  --foreground: #EDEDED;
+  --surface: #121316;
+  --surface-muted: #1A1B20;
+  --text: #EDEDED;
+  --text-muted: #9E9E9E;
+  --border: #262626;
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-soft: #1E293B;
+  --text-on-accent: #0A0A0A;
+  --highlight: #F59E0B;
+
+  --success: #4ADE80;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --info: #38BDF8;
 }
 
 @media (min-width: 768px) {
@@ -71,18 +116,28 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--background);
+    color: var(--text);
+  }
   body {
-    background-color: var(--color-stone);
-    color: var(--color-carbon);
+    background-color: var(--background);
+    color: var(--text);
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
+  ::selection {
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+  }
   :focus-visible {
-    outline: 2px solid var(--color-cobalt);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }
@@ -112,7 +167,7 @@
 }
 
 @utility hairline {
-  border-color: var(--color-aluminum);
+  border-color: var(--border);
 }
 
 @keyframes edgeFlow {

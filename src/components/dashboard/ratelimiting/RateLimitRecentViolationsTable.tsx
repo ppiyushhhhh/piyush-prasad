@@ -38,7 +38,7 @@ export function RateLimitRecentViolationsTable({
             placeholder="Filter by endpoint, IP, or method..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] py-1.5 pl-8 pr-3 text-xs font-mono text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:bg-white focus:outline-none"
+            className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted py-1.5 pl-8 pr-3 text-xs font-mono text-carbon placeholder:text-muted-foreground focus:border-cobalt focus:bg-white focus:outline-none"
           />
         </div>
 
@@ -51,7 +51,7 @@ export function RateLimitRecentViolationsTable({
               className={`mono whitespace-nowrap rounded-xs px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                 filterRule === rule
                   ? "bg-carbon text-white"
-                  : "border border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:text-carbon"
+                  : "border border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:text-carbon"
               }`}
             >
               {rule}
@@ -63,7 +63,7 @@ export function RateLimitRecentViolationsTable({
       {/* Table */}
       <div className="overflow-x-auto border border-[#E5E5DF] bg-white">
         <table className="w-full text-left text-xs font-mono">
-          <thead className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-[10px] uppercase text-muted-foreground tracking-wider">
+          <thead className="border-b border-[#E5E5DF] bg-surface-muted text-[10px] uppercase text-muted-foreground tracking-wider">
             <tr>
               <th className="px-3 py-2.5 font-bold">Timestamp</th>
               <th className="px-3 py-2.5 font-bold">Method</th>
@@ -100,7 +100,7 @@ export function RateLimitRecentViolationsTable({
                 return (
                   <tr
                     key={item.id}
-                    className="hover:bg-[#FAF9F6] transition-colors"
+                    className="hover:bg-surface-muted transition-colors"
                   >
                     <td className="px-3 py-2 whitespace-nowrap text-muted-foreground text-[11px]">
                       <span className="flex items-center gap-1.5">
@@ -140,7 +140,7 @@ export function RateLimitRecentViolationsTable({
                       </span>
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      <span className="border border-[#E5E5DF] bg-[#FAF9F6] px-1.5 py-0.5 text-[10px] font-semibold text-carbon uppercase">
+                      <span className="border border-[#E5E5DF] bg-surface-muted px-1.5 py-0.5 text-[10px] font-semibold text-carbon uppercase">
                         {item.rule_name}
                       </span>
                     </td>

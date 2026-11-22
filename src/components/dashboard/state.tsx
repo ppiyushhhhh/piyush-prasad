@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 export function LoadingState({ label = "Loading data…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 rounded-sm border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/60 px-6 py-10 text-sm text-muted-foreground">
+    <div className="flex items-center justify-center gap-2 rounded-sm border border-dashed border-[#E5E5DF] bg-surface-muted/60 px-6 py-10 text-sm text-muted-foreground">
       <Loader2 className="h-4 w-4 animate-spin text-cobalt" aria-hidden="true" />
       {label}
     </div>
@@ -34,7 +34,7 @@ export function DataTable({
     <div className="-mx-5 overflow-x-auto px-5">
       <table className="w-full min-w-[640px] border-collapse text-left text-xs">
         <thead>
-          <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6]/40">
+          <tr className="border-b border-[#E5E5DF] bg-surface-muted/40">
             {headers.map((h) => (
               <th
                 key={h}
@@ -51,12 +51,5 @@ export function DataTable({
   );
 }
 
-export const fmtDateTime = (value?: string | null) =>
-  value ? new Date(value).toLocaleString() : null;
-
-export const fmtDate = (value?: string | null) =>
-  value ? new Date(value).toLocaleDateString() : null;
-
-export const boolLabel = (value?: boolean | null) =>
-  value === null || value === undefined ? null : value ? "OK" : "Failing";
+export { fmtDateTime, fmtDate, boolLabel } from "./formatters";
 

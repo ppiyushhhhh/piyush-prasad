@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 /**
@@ -22,6 +22,8 @@ export function CustomCursor() {
   const ringX = useSpring(cursorX, springConfig);
   const ringY = useSpring(cursorY, springConfig);
 
+  const visibleRef = useRef(false);
+
   useEffect(() => {
     // Check if the device uses touch/coarse pointer
     if (typeof window === "undefined") return;
@@ -34,27 +36,33 @@ export function CustomCursor() {
     const handleMouseMove = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        setIsVisible(true);
+      }
+
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const interactive = target.closest(
+          'a, button, input, textarea, select, [role="button"], label, summary, [data-cursor="pointer"], .cursor-pointer'
+        );
+        setIsHovered(Boolean(interactive));
+      }
     };
 
     const handleMouseDown = () => setIsClicked(true);
     const handleMouseUp = () => setIsClicked(false);
 
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
-
-    const checkInteractiveTarget = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      const interactive = target.closest(
-        'a, button, input, textarea, select, [role="button"], label, summary, [data-cursor="pointer"], .cursor-pointer'
-      );
-      setIsHovered(Boolean(interactive));
+    const handleMouseLeave = () => {
+      visibleRef.current = false;
+      setIsVisible(false);
+    };
+    const handleMouseEnter = () => {
+      visibleRef.current = true;
+      setIsVisible(true);
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mousemove", checkInteractiveTarget, { passive: true });
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mouseleave", handleMouseLeave);
@@ -62,13 +70,12 @@ export function CustomCursor() {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousemove", checkInteractiveTarget);
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [cursorX, cursorY, isVisible]);
+  }, [cursorX, cursorY]);
 
   // Disable on touch screens or when user prefers reduced motion
   if (isTouchDevice || shouldReduceMotion) {
@@ -89,8 +96,8 @@ export function CustomCursor() {
           y: ringY,
           width: isHovered ? 42 : 26,
           height: isHovered ? 42 : 26,
-          borderColor: isHovered ? "rgba(18, 19, 22, 0.45)" : "rgba(18, 19, 22, 0.22)",
-          backgroundColor: isHovered ? "rgba(18, 19, 22, 0.05)" : "rgba(18, 19, 22, 0.02)",
+          borderColor: isHovered ? "var(--color-accent)" : "color-mix(in srgb, var(--color-accent) 40%, transparent)",
+          backgroundColor: isHovered ? "var(--color-accent-soft)" : "transparent",
         }}
         animate={{
           scale: isClicked ? 0.85 : 1,
@@ -98,9 +105,9 @@ export function CustomCursor() {
         transition={{ duration: 0.15 }}
       />
 
-      {/* Center Deep Carbon (#121316) Precision Dot */}
+      {/* Center Teal Ops Accent Precision Dot */}
       <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#121316] shadow-[0_0_4px_rgba(18,19,22,0.3)]"
+        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_6px_var(--color-accent)]"
         style={{
           x: cursorX,
           y: cursorY,

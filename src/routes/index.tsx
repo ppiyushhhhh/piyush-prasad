@@ -51,7 +51,7 @@ export const Route = createFileRoute("/")({
 
 function PortfolioPage() {
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white">
+    <div className="relative min-h-screen bg-background text-carbon selection:bg-cobalt selection:text-white">
       {/* Minimalist Deep Carbon Custom Pointer */}
       <CustomCursor />
 

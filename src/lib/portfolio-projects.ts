@@ -140,10 +140,10 @@ export const STATUS_STYLES: Record<
   },
   "Personal Project": {
     label: "Personal Project",
-    bg: "bg-blue-50 dark:bg-blue-950/40",
-    text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-800",
-    dot: "bg-blue-500",
+    bg: "bg-accent-soft dark:bg-accent-soft",
+    text: "text-accent dark:text-accent",
+    border: "border-accent/30 dark:border-accent/40",
+    dot: "bg-accent",
   },
   Development: {
     label: "Development",

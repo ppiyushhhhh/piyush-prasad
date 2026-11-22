@@ -29,7 +29,7 @@ import {
   Home,
 } from "lucide-react";
 
-export interface NavModule {
+interface NavModule {
   to: string;
   label: string;
   icon: typeof Gauge;
@@ -39,7 +39,7 @@ export interface NavModule {
   keywords: string[];
 }
 
-export const DASHBOARD_NAV_MODULES: NavModule[] = [
+const DASHBOARD_NAV_MODULES: NavModule[] = [
   {
     to: "/dashboard",
     label: "Overview",
@@ -333,7 +333,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
             <button
               type="button"
               onClick={onSignOut}
-              className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors"
               title="Sign Out"
               aria-label="Sign Out"
             >
@@ -343,7 +343,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
         </div>
 
         {/* Active Module Indicator & Quick Filter Trigger */}
-        <div className="flex items-center justify-between border-t border-[#E5E5DF]/70 bg-[#FAF9F6]/80 px-3.5 py-1.5 text-[11px]">
+        <div className="flex items-center justify-between border-t border-[#E5E5DF]/70 bg-surface-muted/80 px-3.5 py-1.5 text-[11px]">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="mono text-[9px] uppercase tracking-widest text-muted-foreground shrink-0">
               MODULE:
@@ -394,7 +394,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                 className={`mono flex items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 ${
                   isActive
                     ? "bg-cobalt text-white font-bold shadow-2xs"
-                    : "border border-[#E5E5DF] bg-[#FAF9F6] text-carbon/75 hover:border-cobalt hover:text-cobalt"
+                    : "border border-[#E5E5DF] bg-surface-muted text-carbon/75 hover:border-cobalt hover:text-cobalt"
                 }`}
               >
                 <Icon className={`h-3 w-3 ${isActive ? "text-white" : "text-muted-foreground"}`} />
@@ -416,7 +416,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
           {/* Drawer Content Container */}
           <div className="relative flex flex-col h-full w-full max-w-lg mx-auto bg-white shadow-2xl animate-in slide-in-from-top-4 duration-200">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-[#E5E5DF] px-4 py-3 bg-[#FAF9F6]">
+            <div className="flex items-center justify-between border-b border-[#E5E5DF] px-4 py-3 bg-surface-muted">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center border border-carbon/20 bg-white text-cobalt shadow-2xs">
                   <Compass className="h-4 w-4" />
@@ -451,7 +451,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter pages (e.g. database, health, cicd, email)..."
-                  className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] py-2 pl-9 pr-8 text-xs font-mono text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                  className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted py-2 pl-9 pr-8 text-xs font-mono text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                 />
                 {searchQuery && (
                   <button
@@ -482,7 +482,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                       className={`mono whitespace-nowrap rounded-xs px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                         isSelected
                           ? "bg-carbon text-white"
-                          : "border border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:text-carbon hover:border-carbon/30"
+                          : "border border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:text-carbon hover:border-carbon/30"
                       }`}
                     >
                       {cat} ({count})
@@ -495,7 +495,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
             {/* Modules List (Scrollable Area) */}
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {filteredModules.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/60">
+                <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-[#E5E5DF] bg-surface-muted/60">
                   <Search className="h-8 w-8 text-muted-foreground/40 mb-2" />
                   <p className="mono text-xs font-bold uppercase text-carbon">
                     No Matching Modules
@@ -530,7 +530,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                       className={`group flex items-start gap-3 rounded-sm border p-3 transition-all ${
                         isActive
                           ? "border-cobalt bg-cobalt/5 shadow-2xs"
-                          : "border-[#E5E5DF] bg-white hover:border-cobalt/50 hover:bg-[#FAF9F6]"
+                          : "border-[#E5E5DF] bg-white hover:border-cobalt/50 hover:bg-surface-muted"
                       }`}
                     >
                       {/* Module Icon Box */}
@@ -538,7 +538,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border transition-colors ${
                           isActive
                             ? "border-cobalt bg-cobalt text-white shadow-2xs"
-                            : "border-[#E5E5DF] bg-[#FAF9F6] text-carbon group-hover:border-cobalt/40 group-hover:text-cobalt"
+                            : "border-[#E5E5DF] bg-surface-muted text-carbon group-hover:border-cobalt/40 group-hover:text-cobalt"
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -555,7 +555,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
                             {module.label}
                           </span>
 
-                          <span className="mono text-[8px] uppercase tracking-wider text-muted-foreground bg-[#FAF9F6] border border-[#E5E5DF] px-1.5 py-0.2 rounded-xs">
+                          <span className="mono text-[8px] uppercase tracking-wider text-muted-foreground bg-surface-muted border border-[#E5E5DF] px-1.5 py-0.2 rounded-xs">
                             {module.category}
                           </span>
 
@@ -590,7 +590,7 @@ export function MobileDashboardNav({ currentPath, userEmail, onSignOut }: Mobile
             </div>
 
             {/* Drawer Footer & Quick Exit Actions */}
-            <div className="border-t border-[#E5E5DF] bg-[#FAF9F6] p-3 space-y-2">
+            <div className="border-t border-[#E5E5DF] bg-surface-muted p-3 space-y-2">
               {/* Authenticated user pill */}
               {userEmail && (
                 <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1.5 text-xs">

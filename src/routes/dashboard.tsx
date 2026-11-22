@@ -111,8 +111,8 @@ function DashboardLayout() {
   // Checking session loading state
   if (session === undefined) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center text-muted-foreground font-mono text-xs gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-cobalt" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-muted-foreground font-mono text-xs gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-accent" />
         <span>Verifying admin authentication…</span>
       </div>
     );
@@ -121,10 +121,10 @@ function DashboardLayout() {
   // If not logged in, show access wall with redirect to login
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-carbon">
-        <div className="max-w-md w-full rounded-sm border border-[#E5E5DF] bg-white p-8 text-center shadow-sm overflow-hidden">
-          <div className="h-0.5 w-full bg-cobalt -mt-8 -mx-8 mb-8" />
-          <div className="flex h-14 w-14 items-center justify-center border border-carbon/15 bg-white shadow-xs mx-auto mb-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-text">
+        <div className="max-w-md w-full rounded-sm border border-border bg-surface p-8 text-center shadow-sm overflow-hidden">
+          <div className="h-0.5 w-full bg-accent -mt-8 -mx-8 mb-8" />
+          <div className="flex h-14 w-14 items-center justify-center border border-border bg-surface shadow-xs mx-auto mb-4">
             <img
               src="/pp-logo.png"
               alt="Piyush Prasad"
@@ -134,12 +134,12 @@ function DashboardLayout() {
                 target.style.display = "none";
                 if (target.parentElement) {
                   target.parentElement.innerHTML =
-                    '<span class="mono font-bold text-cobalt text-base">PP</span>';
+                    '<span class="mono font-bold text-accent text-base">PP</span>';
                 }
               }}
             />
           </div>
-          <h2 className="text-base font-bold tracking-tight text-carbon">
+          <h2 className="text-base font-bold tracking-tight text-text">
             Piyush Prasad &bull; Operations Console
           </h2>
           <p className="mt-1 mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -152,14 +152,14 @@ function DashboardLayout() {
           <div className="mt-6 flex flex-col gap-2.5">
             <Link
               to="/dashboard/login"
-              className="inline-flex items-center justify-center gap-2 rounded-sm bg-cobalt py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-sm bg-accent py-2.5 text-xs font-semibold text-text-on-accent shadow-2xs hover:bg-accent-hover transition-colors"
             >
               <Shield className="h-4 w-4" />
               Sign In to Console
             </Link>
             <Link
               to="/"
-              className="inline-flex items-center justify-center py-2 text-xs text-muted-foreground hover:text-carbon transition-colors"
+              className="inline-flex items-center justify-center py-2 text-xs text-muted-foreground hover:text-text transition-colors"
             >
               Return to Public Portfolio
             </Link>
@@ -171,16 +171,16 @@ function DashboardLayout() {
 
   // Authenticated admin view
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white">
+    <div className="min-h-screen bg-background text-text selection:bg-accent selection:text-text-on-accent">
       <div className="mx-auto flex max-w-[1440px]">
         {/* Sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[#E5E5DF] bg-white px-4 py-6 md:flex justify-between">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex justify-between">
           <div>
             <Link
               to="/"
               className="mb-8 flex items-center gap-3 px-2 transition-opacity hover:opacity-90"
             >
-              <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-2xs">
+              <div className="flex h-9 w-9 items-center justify-center border border-border bg-surface shadow-2xs">
                 <img
                   src="/pp-logo.png"
                   alt="PP"
@@ -190,13 +190,13 @@ function DashboardLayout() {
                     target.style.display = "none";
                     if (target.parentElement) {
                       target.parentElement.innerHTML =
-                        '<span class="mono font-bold text-cobalt text-[12px]">PP</span>';
+                        '<span class="mono font-bold text-accent text-[12px]">PP</span>';
                     }
                   }}
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-[13px] font-bold tracking-tight text-carbon">PP · OPS</span>
+                <span className="text-[13px] font-bold tracking-tight text-text">PP · OPS</span>
                 <span className="mono text-[9px] text-muted-foreground tracking-widest">
                   MONITORING CONSOLE
                 </span>
@@ -208,8 +208,8 @@ function DashboardLayout() {
                   key={to}
                   to={to}
                   activeOptions={{ exact: to === "/dashboard" }}
-                  activeProps={{ className: "bg-cobalt text-white font-semibold shadow-2xs" }}
-                  className="flex items-center gap-3 rounded-sm px-3 py-2 text-xs font-medium text-carbon/75 transition-colors hover:bg-[#FAF9F6] hover:text-cobalt"
+                  activeProps={{ className: "bg-accent text-text-on-accent font-semibold shadow-2xs" }}
+                  className="flex items-center gap-3 rounded-sm px-3 py-2 text-xs font-medium text-text-muted transition-colors hover:bg-surface-muted hover:text-accent"
                 >
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                   {label}
@@ -219,9 +219,9 @@ function DashboardLayout() {
           </div>
 
           {/* User profile & Sign Out in sidebar footer */}
-          <div className="border-t border-[#E5E5DF] pt-4 mt-6">
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-2.5 mb-2">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+          <div className="border-t border-border pt-4 mt-6">
+            <div className="rounded-sm border border-border bg-surface-muted p-2.5 mb-2">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-success">
                 <Shield className="h-3 w-3" />
                 <span>Admin Session</span>
               </div>

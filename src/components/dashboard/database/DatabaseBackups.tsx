@@ -182,7 +182,7 @@ export function DatabaseBackups({
             <button
               onClick={onRefresh}
               disabled={isLoading}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-medium text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] transition-colors disabled:opacity-50 shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3.5 py-2 text-xs font-medium text-muted-foreground hover:text-carbon hover:bg-surface-muted transition-colors disabled:opacity-50 shadow-2xs"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin text-cobalt" : ""}`} />
               Refresh
@@ -213,7 +213,7 @@ export function DatabaseBackups({
         {/* 6 Key Operational Telemetry KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 text-xs mono">
           {/* Card 1: Last Successful Backup */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Last Successful Backup</span>
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
@@ -231,7 +231,7 @@ export function DatabaseBackups({
           </div>
 
           {/* Card 2: Next Scheduled Backup */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Next Scheduled Backup</span>
               <Clock className="h-3.5 w-3.5 text-cobalt" />
@@ -245,7 +245,7 @@ export function DatabaseBackups({
           </div>
 
           {/* Card 3: Current Backup Status */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Current Backup Status</span>
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -269,7 +269,7 @@ export function DatabaseBackups({
           </div>
 
           {/* Card 4: Stored Backups in Storage */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Stored in Supabase</span>
               <DatabaseIcon className="h-3.5 w-3.5 text-cobalt" />
@@ -283,7 +283,7 @@ export function DatabaseBackups({
           </div>
 
           {/* Card 5: Storage Used */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Storage Used</span>
               <Layers className="h-3.5 w-3.5 text-amber-600" />
@@ -297,7 +297,7 @@ export function DatabaseBackups({
           </div>
 
           {/* Card 6: Retention Period */}
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1.5">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1.5">
             <div className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center justify-between font-sans">
               <span>Retention Period</span>
               <Calendar className="h-3.5 w-3.5 text-cobalt" />
@@ -347,7 +347,7 @@ export function DatabaseBackups({
             className={`px-3 py-1.5 rounded-sm text-xs mono font-medium transition-all ${
               selectedMonthlyReport === null
                 ? "bg-cobalt text-white shadow-2xs font-bold"
-                : "border border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+                : "border border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon hover:bg-surface-muted"
             }`}
           >
             October 2026 (Live Current)
@@ -361,7 +361,7 @@ export function DatabaseBackups({
               className={`px-3 py-1.5 rounded-sm text-xs mono font-medium transition-all ${
                 selectedMonthlyReport?.id === r.id
                   ? "bg-cobalt text-white shadow-2xs font-bold"
-                  : "border border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+                  : "border border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon hover:bg-surface-muted"
               }`}
             >
               {r.month_name} {r.year} ({r.success_percentage}%)
@@ -370,7 +370,7 @@ export function DatabaseBackups({
         </div>
 
         {/* Monthly Summary Card Presentation */}
-        <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-6 space-y-6">
+        <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-6 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#E5E5DF]">
             <div>
               <div className="text-[11px] mono uppercase tracking-wider text-cobalt font-semibold">
@@ -433,19 +433,19 @@ export function DatabaseBackups({
               Storage &amp; Retention Statistics
             </h5>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 mono">
-              <div className="p-3 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF]">
+              <div className="p-3 rounded-sm bg-surface-muted border border-[#E5E5DF]">
                 <span className="text-muted-foreground text-[10px] block uppercase font-sans">Backups Created</span>
                 <span className="text-carbon font-bold text-sm">
                   {activeReport ? activeReport.total_backup_size_pretty : totalStoredPretty}
                 </span>
               </div>
-              <div className="p-3 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF]">
+              <div className="p-3 rounded-sm bg-surface-muted border border-[#E5E5DF]">
                 <span className="text-muted-foreground text-[10px] block uppercase font-sans">Automatically Deleted (7-day rotation)</span>
                 <span className="text-amber-700 font-bold text-sm">
                   {activeReport ? `${activeReport.deleted_backups_count} Backups` : `${backups.filter(b => b.deleted_at).length} Backups`}
                 </span>
               </div>
-              <div className="p-3 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF]">
+              <div className="p-3 rounded-sm bg-surface-muted border border-[#E5E5DF]">
                 <span className="text-muted-foreground text-[10px] block uppercase font-sans">Retention Policy</span>
                 <span className="text-cobalt font-bold text-sm">
                   7 Days Continuous
@@ -524,7 +524,7 @@ export function DatabaseBackups({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs mono">
                 <thead>
-                  <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground text-[10px] font-sans uppercase tracking-wider">
+                  <tr className="border-b border-[#E5E5DF] bg-surface-muted text-muted-foreground text-[10px] font-sans uppercase tracking-wider">
                     <th className="py-3 px-4 font-semibold">Backup Date &amp; Time</th>
                     <th className="py-3 px-3 font-semibold">Type / Tag</th>
                     <th className="py-3 px-3 font-semibold">Filename</th>
@@ -543,7 +543,7 @@ export function DatabaseBackups({
                     return (
                       <tr
                         key={b.id}
-                        className="hover:bg-[#FAF9F6]/80 transition-colors"
+                        className="hover:bg-surface-muted/80 transition-colors"
                       >
                         <td className="py-3 px-4 text-carbon">
                           <div className="font-semibold text-carbon">
@@ -635,7 +635,7 @@ export function DatabaseBackups({
                             {/* Inspect Details Button */}
                             <button
                               onClick={() => setSelectedBackupForModal(b)}
-                              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] hover:bg-[#FAF9F6] px-2 py-1 text-[11px] text-muted-foreground hover:text-carbon transition-colors"
+                              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] hover:bg-surface-muted px-2 py-1 text-[11px] text-muted-foreground hover:text-carbon transition-colors"
                               title="Inspect Full History Record"
                             >
                               <Eye className="h-3 w-3" />
@@ -650,7 +650,7 @@ export function DatabaseBackups({
             </div>
           </div>
         ) : (
-          <div className="rounded-sm border border-dashed border-[#E5E5DF] bg-[#FAF9F6] p-8 text-center space-y-3">
+          <div className="rounded-sm border border-dashed border-[#E5E5DF] bg-surface-muted p-8 text-center space-y-3">
             <HardDrive className="h-8 w-8 text-muted-foreground mx-auto" />
             <h4 className="text-sm font-semibold text-carbon">
               No Backups Recorded Yet
@@ -688,7 +688,7 @@ export function DatabaseBackups({
               </div>
             </div>
 
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4 space-y-2 text-xs text-muted-foreground leading-relaxed font-sans">
+            <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-4 space-y-2 text-xs text-muted-foreground leading-relaxed font-sans">
               <p className="font-semibold text-carbon">
                 Rotation Policy Guarantees:
               </p>
@@ -703,7 +703,7 @@ export function DatabaseBackups({
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 onClick={() => setShowPruneConfirmDialog(false)}
-                className="px-4 py-2 rounded-sm border border-[#E5E5DF] bg-white text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors"
+                className="px-4 py-2 rounded-sm border border-[#E5E5DF] bg-white text-xs font-semibold text-carbon hover:bg-surface-muted transition-colors"
               >
                 Cancel
               </button>
@@ -737,7 +737,7 @@ export function DatabaseBackups({
               </div>
               <button
                 onClick={() => setSelectedBackupForModal(null)}
-                className="rounded-sm p-1 text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6]"
+                className="rounded-sm p-1 text-muted-foreground hover:text-carbon hover:bg-surface-muted"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -745,19 +745,19 @@ export function DatabaseBackups({
 
             <div className="flex-1 overflow-y-auto space-y-4 text-xs mono pr-1">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Backup Filename</span>
                   <span className="text-carbon font-bold truncate block">
                     {selectedBackupForModal.filename}
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Status</span>
                   <span className={`font-bold ${selectedBackupForModal.status === "SUCCESS" ? "text-emerald-700" : "text-rose-700"}`}>
                     {selectedBackupForModal.status}
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Execution Mode / Tag</span>
                   <span className="font-bold flex items-center gap-1.5 mt-0.5">
                     {selectedBackupForModal.backup_type === "manual" || (selectedBackupForModal.metadata as any)?.backupTypeTag === "MANUAL" ? (
@@ -771,25 +771,25 @@ export function DatabaseBackups({
                     )}
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Created Timestamp</span>
                   <span className="text-carbon font-bold">
                     {new Date(selectedBackupForModal.created_at).toLocaleString()}
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Storage Size</span>
                   <span className="text-carbon font-bold">
                     {selectedBackupForModal.file_size_pretty}
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Storage Bucket</span>
                   <span className="text-carbon">
                     {selectedBackupForModal.storage_bucket || "database-backups"} (Private)
                   </span>
                 </div>
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3">
                   <span className="text-[10px] text-muted-foreground uppercase block font-sans">Retention State</span>
                   <span className={selectedBackupForModal.deleted_at ? "text-amber-700 font-bold" : "text-emerald-700 font-bold"}>
                     {selectedBackupForModal.deleted_at
@@ -811,7 +811,7 @@ export function DatabaseBackups({
               )}
 
               {selectedBackupForModal.tables_included && selectedBackupForModal.tables_included.length > 0 && (
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3 space-y-2">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3 space-y-2">
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold block font-sans">
                     Tables Included in SQL Dump
                   </span>
@@ -829,7 +829,7 @@ export function DatabaseBackups({
               )}
 
               {selectedBackupForModal.metadata && (
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3 space-y-1">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3 space-y-1">
                   <span className="text-[10px] text-muted-foreground uppercase font-semibold block font-sans">
                     Execution Metadata
                   </span>

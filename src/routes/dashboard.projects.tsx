@@ -464,7 +464,7 @@ function DashboardProjectsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter by name, slug, technology..."
-                  className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 pl-9 pr-3 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded-md border border-border bg-surface-muted dark:bg-neutral-950 pl-9 pr-3 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -472,7 +472,7 @@ function DashboardProjectsPage() {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 aria-label="Filter by category"
-                className="rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-2.5 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
+                className="rounded-md border border-border bg-surface-muted dark:bg-neutral-950 px-2.5 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
               >
                 <option value="all">All Categories</option>
                 {PROJECT_CATEGORIES.map((cat) => (
@@ -486,7 +486,7 @@ function DashboardProjectsPage() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 aria-label="Filter by status"
-                className="rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-2.5 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
+                className="rounded-md border border-border bg-surface-muted dark:bg-neutral-950 px-2.5 py-1.5 text-xs focus:border-cobalt focus:outline-hidden"
               >
                 <option value="all">All Statuses</option>
                 {PROJECT_STATUSES.map((st) => (
@@ -521,7 +521,7 @@ function DashboardProjectsPage() {
           ) : (
             <div className="overflow-x-auto rounded border border-border">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAF9F6] dark:bg-neutral-950 border-b border-border mono text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                <thead className="bg-surface-muted dark:bg-neutral-950 border-b border-border mono text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                   <tr>
                     <th className="py-2.5 px-3">Order</th>
                     <th className="py-2.5 px-3">Project Title & Slug</th>
@@ -726,7 +726,7 @@ function DashboardProjectsPage() {
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="e.g. AWS Multi-AZ VPC Architecture"
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -745,7 +745,7 @@ function DashboardProjectsPage() {
                     }))
                   }
                   placeholder="e.g. aws-multi-az-vpc"
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 font-mono focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 font-mono focus:border-cobalt focus:outline-hidden"
                 />
               </div>
             </div>
@@ -759,7 +759,7 @@ function DashboardProjectsPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 >
                   {PROJECT_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -778,7 +778,7 @@ function DashboardProjectsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, status: e.target.value as ProjectStatus }))
                   }
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 >
                   {PROJECT_STATUSES.map((st) => (
                     <option key={st} value={st}>
@@ -799,7 +799,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, deployment_environment: e.target.value }))
                   }
                   placeholder="e.g. AWS EC2 (ap-south-1)"
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
             </div>
@@ -817,7 +817,7 @@ function DashboardProjectsPage() {
                   setFormData((prev) => ({ ...prev, short_description: e.target.value }))
                 }
                 placeholder="Concise technical summary..."
-                className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
               />
             </div>
 
@@ -831,7 +831,7 @@ function DashboardProjectsPage() {
                 value={formData.overview}
                 onChange={(e) => setFormData((prev) => ({ ...prev, overview: e.target.value }))}
                 placeholder="Comprehensive technical overview..."
-                className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
               />
             </div>
 
@@ -848,7 +848,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, problem_solved: e.target.value }))
                   }
                   placeholder="What operational gap or security challenge did this solve?"
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -861,7 +861,7 @@ function DashboardProjectsPage() {
                   value={formData.objectives || ""}
                   onChange={(e) => setFormData((prev) => ({ ...prev, objectives: e.target.value }))}
                   placeholder="1. Build X\n2. Enforce Y..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
             </div>
@@ -875,7 +875,7 @@ function DashboardProjectsPage() {
                 value={formData.solution || ""}
                 onChange={(e) => setFormData((prev) => ({ ...prev, solution: e.target.value }))}
                 placeholder="Architectural approach taken..."
-                className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
               />
             </div>
 
@@ -891,7 +891,7 @@ function DashboardProjectsPage() {
                   onChange={(e) => setTechInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTech())}
                   placeholder="e.g. AWS EC2, Docker, Prometheus..."
-                  className="flex-1 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="flex-1 rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
                 <button
                   type="button"
@@ -933,7 +933,7 @@ function DashboardProjectsPage() {
                   onChange={(e) => setFeatureInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddFeature())}
                   placeholder="e.g. Automated push-to-deploy pipeline with GitHub Actions..."
-                  className="flex-1 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="flex-1 rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
                 <button
                   type="button"
@@ -972,7 +972,7 @@ function DashboardProjectsPage() {
                   setFormData((prev) => ({ ...prev, architecture_description: e.target.value }))
                 }
                 placeholder="Client → Cloudflare → AWS EC2 → Nginx..."
-                className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
               />
             </div>
 
@@ -989,7 +989,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, implementation_details: e.target.value }))
                   }
                   placeholder="Step-by-step setup..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -1004,7 +1004,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, cicd_details: e.target.value }))
                   }
                   placeholder="GitHub Actions triggers & scripts..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -1019,7 +1019,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, security_details: e.target.value }))
                   }
                   placeholder="Firewall, scanning, TLS..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
             </div>
@@ -1035,7 +1035,7 @@ function DashboardProjectsPage() {
                   value={formData.challenges || ""}
                   onChange={(e) => setFormData((prev) => ({ ...prev, challenges: e.target.value }))}
                   placeholder="Root cause & resolution..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -1048,7 +1048,7 @@ function DashboardProjectsPage() {
                   value={formData.results || ""}
                   onChange={(e) => setFormData((prev) => ({ ...prev, results: e.target.value }))}
                   placeholder="Observed performance & reliability results..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
             </div>
@@ -1066,7 +1066,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, repository_url: e.target.value }))
                   }
                   placeholder="https://github.com/ppiyushhhhh/..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -1081,7 +1081,7 @@ function DashboardProjectsPage() {
                     setFormData((prev) => ({ ...prev, live_demo_url: e.target.value }))
                   }
                   placeholder="https://..."
-                  className="w-full rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                 />
               </div>
 
@@ -1097,7 +1097,7 @@ function DashboardProjectsPage() {
                       setFormData((prev) => ({ ...prev, cover_image_url: e.target.value }))
                     }
                     placeholder="https://... or upload"
-                    className="flex-1 rounded border border-border bg-[#FAF9F6] dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
+                    className="flex-1 rounded border border-border bg-surface-muted dark:bg-neutral-950 p-2 focus:border-cobalt focus:outline-hidden"
                   />
                   <label className="rounded border border-border bg-white dark:bg-neutral-900 px-3 py-2 cursor-pointer hover:border-cobalt transition-colors inline-flex items-center">
                     <Upload className={`h-4 w-4 ${isUploading ? "animate-spin" : ""}`} />

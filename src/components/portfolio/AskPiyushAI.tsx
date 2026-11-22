@@ -35,11 +35,11 @@ export function AskPiyushAI() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 4, scale: 0.96 }}
                   transition={{ duration: 0.15 }}
-                  className="pointer-events-none absolute bottom-full right-0 mb-3 hidden sm:flex items-center gap-2 whitespace-nowrap border border-border bg-carbon px-3 py-1.5 text-xs font-mono font-medium text-white shadow-lg"
+                  className="pointer-events-none absolute bottom-full right-0 mb-3 hidden sm:flex items-center gap-2 whitespace-nowrap border border-border bg-surface px-3 py-1.5 text-xs font-mono font-medium text-text shadow-lg"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-cobalt animate-pulse" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                   <span>Ask my AI assistant</span>
-                  <span className="text-[10px] text-white/50 border border-white/20 px-1 py-0.2 rounded-2xs">
+                  <span className="text-[10px] text-text-muted border border-border px-1 py-0.2 rounded-2xs">
                     CLI
                   </span>
                 </motion.div>
@@ -61,12 +61,12 @@ export function AskPiyushAI() {
               whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
               whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="group relative flex h-14 w-14 items-center justify-center rounded-full border border-carbon bg-carbon text-white shadow-[0_8px_24px_-4px_rgba(18,19,22,0.4)] transition-colors hover:border-cobalt hover:bg-cobalt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2"
+              className="group relative flex h-14 w-14 items-center justify-center rounded-full border border-accent bg-accent text-text-on-accent shadow-[0_8px_24px_-4px_rgba(15,118,110,0.4)] transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
             >
               {/* Online Pulse Indicator Badge */}
               <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-carbon bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-surface bg-success" />
               </span>
 
               {/* Terminal / Assistant Icon */}

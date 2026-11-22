@@ -36,7 +36,7 @@ export function RecordDetailsDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col bg-white border-[#E5E5DF] text-carbon p-0 overflow-hidden shadow-xl rounded-sm">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E5E5DF] shrink-0 bg-[#FAF9F6]">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#E5E5DF] shrink-0 bg-surface-muted">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-sm bg-white border border-[#E5E5DF] text-cobalt shadow-2xs">
@@ -53,7 +53,7 @@ export function RecordDetailsDialog({
             </div>
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono text-carbon hover:bg-[#FAF9F6] transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono text-carbon hover:bg-surface-muted transition-colors shadow-2xs"
             >
               {copied ? (
                 <>
@@ -82,7 +82,7 @@ export function RecordDetailsDialog({
                   </span>
                   <div className="flex-1 text-carbon break-all overflow-x-auto">
                     {isObj ? (
-                      <pre className="text-[11px] p-2 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] text-cobalt whitespace-pre-wrap">
+                      <pre className="text-[11px] p-2 rounded-sm bg-surface-muted border border-[#E5E5DF] text-cobalt whitespace-pre-wrap">
                         {JSON.stringify(value, null, 2)}
                       </pre>
                     ) : value === null || value === undefined ? (
@@ -104,7 +104,7 @@ export function RecordDetailsDialog({
             <summary className="cursor-pointer text-[11px] text-muted-foreground hover:text-carbon select-none pb-2 font-sans font-medium">
               ▸ View Raw JSON Payload
             </summary>
-            <pre className="mt-2 p-4 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] text-carbon text-[11px] overflow-x-auto leading-relaxed shadow-2xs">
+            <pre className="mt-2 p-4 rounded-sm bg-surface-muted border border-[#E5E5DF] text-carbon text-[11px] overflow-x-auto leading-relaxed shadow-2xs">
               {jsonString}
             </pre>
           </details>

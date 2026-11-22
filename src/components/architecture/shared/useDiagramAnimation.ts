@@ -34,7 +34,9 @@ export function useDiagramAnimation({
         const stored = localStorage.getItem("pp_arch_diagram_live");
         return stored !== "false";
       }
-    } catch {}
+    } catch {
+      // Ignore localStorage access restrictions
+    }
     return true;
   });
 
@@ -43,7 +45,9 @@ export function useDiagramAnimation({
       const next = !prev;
       try {
         localStorage.setItem("pp_arch_diagram_live", String(next));
-      } catch {}
+      } catch {
+        // Ignore localStorage access restrictions
+      }
       return next;
     });
   }, []);

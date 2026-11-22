@@ -118,7 +118,7 @@ export function CloudArchitectureMatrix() {
   return (
     <div className="border border-[#E5E5DF] bg-white">
       {/* Header with Title and Mode Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E5E5DF] px-5 py-3.5 gap-4 bg-[#FAF9F6]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E5E5DF] px-5 py-3.5 gap-4 bg-surface-muted">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="mono text-[10px] font-bold uppercase tracking-[0.2em] text-cobalt">
@@ -173,7 +173,7 @@ export function CloudArchitectureMatrix() {
         {activeTab === "topology" && (
           <div className="space-y-0">
             {/* Visual End-to-End Pipeline Telemetry Strip */}
-            <div className="border-b border-[#E5E5DF] bg-[#FAF9F6] p-4">
+            <div className="border-b border-[#E5E5DF] bg-surface-muted p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                   LIVE INGRESS &amp; SERVICE TOPOLOGY ROUTE
@@ -192,7 +192,7 @@ export function CloudArchitectureMatrix() {
                   <p className="mono text-[10px] text-muted-foreground mt-0.5">TLS 1.3 &bull; IPv6 / HTTP/2</p>
                 </div>
 
-                <div className="p-3 text-center bg-blue-50/20">
+                <div className="p-3 text-center bg-accent-soft/20">
                   <div className="flex items-center justify-center gap-1.5 text-cobalt mb-1">
                     <Server className="h-4 w-4" />
                     <span className="mono text-[10px] font-bold uppercase tracking-wider">VERCEL SERVERLESS</span>
@@ -299,7 +299,7 @@ export function CloudArchitectureMatrix() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground uppercase tracking-wider text-[10px]">
+                <tr className="border-b border-[#E5E5DF] bg-surface-muted text-muted-foreground uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4 font-semibold mono">Layer</th>
                   <th className="py-3 px-4 font-semibold mono">Production Provider</th>
                   <th className="py-3 px-4 font-semibold mono">Architectural Specifications</th>
@@ -309,7 +309,7 @@ export function CloudArchitectureMatrix() {
               </thead>
               <tbody className="divide-y divide-[#E5E5DF] font-mono text-[11px]">
                 {architectureNodes.map((node) => (
-                  <tr key={node.id} className="hover:bg-[#FAF9F6]/80 transition-colors">
+                  <tr key={node.id} className="hover:bg-surface-muted/80 transition-colors">
                     <td className="py-3 px-4 text-carbon font-semibold">
                       {node.tag}
                     </td>
@@ -370,7 +370,7 @@ export function CloudArchitectureMatrix() {
         )}
 
         {/* DevOps Console Validation Strip */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E5DF] bg-[#FAF9F6] px-5 py-3 text-xs text-muted-foreground font-mono">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E5DF] bg-surface-muted px-5 py-3 text-xs text-muted-foreground font-mono">
           <div className="flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-wider">
             <span>EDGE COLD STARTS: &lt;150MS</span>
             <span className="text-[#E5E5DF]">|</span>

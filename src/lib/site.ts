@@ -1,5 +1,8 @@
 /** Single source of truth for site-wide identity and contact details. */
-export const SITE_URL = "https://www.piyushprasad.in";
+export const SITE_URL =
+  (typeof process !== "undefined" && (process.env?.VITE_SITE_URL || process.env?.SITE_URL)) ||
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
+  "https://www.piyushprasad.in";
 export const GH_USER = "ppiyushhhhh";
 export const EMAIL = "hello@piyushprasad.in";
 export const CONTACT_NOTIFICATION_EMAIL = "hello@piyushprasad.in";

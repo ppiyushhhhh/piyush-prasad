@@ -94,7 +94,7 @@ export function DatabaseOverview({
                 Live PostgreSQL Telemetry
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs mono bg-[#FAF9F6] border border-[#E5E5DF] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs mono bg-surface-muted border border-[#E5E5DF] text-muted-foreground">
                 <Info className="h-3.5 w-3.5 text-cobalt" />
                 Estimated Telemetry
               </span>
@@ -112,7 +112,7 @@ export function DatabaseOverview({
         </div>
 
         {/* Progress Bar & Quota Gauge */}
-        <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-5 space-y-4">
+        <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
             <div className="flex items-center gap-3">
               <span className="mono text-sm font-semibold text-carbon">
@@ -303,7 +303,7 @@ export function DatabaseOverview({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground mono text-[10px] uppercase tracking-wider">
+                <tr className="border-b border-[#E5E5DF] bg-surface-muted text-muted-foreground mono text-[10px] uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-semibold">Relation</th>
                   <th className="py-2.5 px-3 font-semibold text-right">Rows</th>
                   <th className="py-2.5 px-3 font-semibold text-right">Table Payload</th>
@@ -317,7 +317,7 @@ export function DatabaseOverview({
                 {overview.tableStorageBreakdown.map((row) => (
                   <tr
                     key={row.tableName}
-                    className="hover:bg-[#FAF9F6]/80 transition-colors"
+                    className="hover:bg-surface-muted/80 transition-colors"
                   >
                     <td className="py-2.5 px-4 font-medium text-carbon">
                       <div className="font-semibold text-carbon">{row.displayName}</div>
@@ -337,7 +337,7 @@ export function DatabaseOverview({
                     </td>
                     <td className="py-2.5 px-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 bg-[#FAF9F6] border border-[#E5E5DF] rounded-full overflow-hidden shrink-0">
+                        <div className="h-1.5 w-16 bg-surface-muted border border-[#E5E5DF] rounded-full overflow-hidden shrink-0">
                           <div
                             className="h-full bg-cobalt rounded-full"
                             style={{ width: `${Math.min(100, Math.max(4, row.percentOfDb))}%` }}
@@ -388,11 +388,11 @@ export function DatabaseOverview({
           </div>
 
           <div className="flex items-center gap-2 text-xs mono">
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-1 text-muted-foreground flex items-center gap-1.5 shadow-2xs">
+            <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted px-3 py-1 text-muted-foreground flex items-center gap-1.5 shadow-2xs">
               <Zap className="h-3.5 w-3.5 text-cobalt" />
               <span>Ping: <strong className="text-carbon">{overview.latencyMs} ms</strong></span>
             </div>
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-1 text-muted-foreground flex items-center gap-1.5 shadow-2xs">
+            <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted px-3 py-1 text-muted-foreground flex items-center gap-1.5 shadow-2xs">
               <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               <span>Last Probe: {new Date(overview.lastUpdated).toLocaleTimeString()}</span>
             </div>
@@ -401,7 +401,7 @@ export function DatabaseOverview({
 
         {/* Architectural Specs Grid */}
         <div className="mt-4 grid gap-4 sm:grid-cols-3 text-xs">
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1">
             <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               Gateway Architecture
             </div>
@@ -410,7 +410,7 @@ export function DatabaseOverview({
             </p>
           </div>
 
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1">
             <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               Row-Level Security (RLS)
             </div>
@@ -419,7 +419,7 @@ export function DatabaseOverview({
             </p>
           </div>
 
-          <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 space-y-1">
+          <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 space-y-1">
             <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               Service Role Authorization
             </div>

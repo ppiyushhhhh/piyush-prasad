@@ -35,7 +35,7 @@ import { NodeCard } from "./shared/NodeCard";
 import { ArrowheadMarkers } from "./shared/ArrowheadMarkers";
 import { DiagramToolbar } from "./shared/DiagramToolbar";
 import { NodeLogo } from "./NodeLogo";
-import { getNodeCategoryIcon } from "./shared/NodeCard";
+import { getNodeCategoryIcon } from "./shared/category-icons";
 import { toast } from "sonner";
 
 interface ArchitectureCanvasProps {
@@ -118,22 +118,22 @@ export function ArchitectureCanvas({
 
   // Real rendered card geometry measurement (Fix 1.1)
   useEffect(() => {
-    let changed = false;
-    const next = new Map(measuredCards);
-    cardElementsRef.current.forEach((el, id) => {
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-      if (w > 0 && h > 0) {
-        const prev = next.get(id);
-        if (!prev || Math.abs(prev.width - w) > 1 || Math.abs(prev.height - h) > 1) {
-          next.set(id, { width: w, height: h });
-          changed = true;
+    setMeasuredCards((prevCards) => {
+      let changed = false;
+      const next = new Map(prevCards);
+      cardElementsRef.current.forEach((el, id) => {
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        if (w > 0 && h > 0) {
+          const prev = next.get(id);
+          if (!prev || Math.abs(prev.width - w) > 1 || Math.abs(prev.height - h) > 1) {
+            next.set(id, { width: w, height: h });
+            changed = true;
+          }
         }
-      }
+      });
+      return changed ? next : prevCards;
     });
-    if (changed) {
-      setMeasuredCards(next);
-    }
   }, [data, layoutMode]);
 
   const isDebugGeometry = typeof window !== "undefined" && window.location.search.includes("debug=geometry");
@@ -653,7 +653,7 @@ export function ArchitectureCanvas({
     <div
       role="img"
       aria-label="Interactive Architecture Explorer"
-      className={`relative flex flex-col select-none rounded-xl border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
+      className={`relative flex flex-col select-none rounded-xl border border-border bg-surface-muted dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
         isFullscreen ? "fixed inset-0 z-50 rounded-none bg-white dark:bg-[#121316] h-full w-full" : className
       }`}
     >
@@ -697,7 +697,7 @@ export function ArchitectureCanvas({
       </div>
 
       {/* Search & Filter Strip */}
-      <div className="w-full border-b border-border/70 bg-[#FAF9F6]/90 dark:bg-[#121316]/90 backdrop-blur-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 z-10 shrink-0 text-xs">
+      <div className="w-full border-b border-border/70 bg-surface-muted/90 dark:bg-[#121316]/90 backdrop-blur-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 z-10 shrink-0 text-xs">
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[160px] max-w-xs">

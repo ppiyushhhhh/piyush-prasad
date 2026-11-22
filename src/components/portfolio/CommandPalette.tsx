@@ -111,7 +111,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#hero"))}
             className="cursor-pointer"
           >
-            <Home className="mr-2 h-4 w-4 text-cobalt" />
+            <Home className="mr-2 h-4 w-4 text-accent" />
             <span>Home / Overview</span>
             <CommandShortcut className="font-mono text-[10px]">#hero</CommandShortcut>
           </CommandItem>
@@ -120,7 +120,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#projects"))}
             className="cursor-pointer"
           >
-            <FolderGit2 className="mr-2 h-4 w-4 text-cobalt" />
+            <FolderGit2 className="mr-2 h-4 w-4 text-accent" />
             <span>GitHub Projects (Infrastructure & Automation)</span>
             <CommandShortcut className="font-mono text-[10px]">#projects</CommandShortcut>
           </CommandItem>
@@ -129,7 +129,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/architecture"))}
             className="cursor-pointer"
           >
-            <Network className="mr-2 h-4 w-4 text-cobalt" />
+            <Network className="mr-2 h-4 w-4 text-accent" />
             <span>Infrastructure Architecture Explorer</span>
             <CommandShortcut className="font-mono text-[10px]">/architecture</CommandShortcut>
           </CommandItem>
@@ -138,7 +138,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/github"))}
             className="cursor-pointer"
           >
-            <Github className="mr-2 h-4 w-4 text-cobalt" />
+            <Github className="mr-2 h-4 w-4 text-accent" />
             <span>GitHub Dashboard & All Repositories</span>
             <CommandShortcut className="font-mono text-[10px]">/github</CommandShortcut>
           </CommandItem>
@@ -147,7 +147,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#skills"))}
             className="cursor-pointer"
           >
-            <Code2 className="mr-2 h-4 w-4 text-cobalt" />
+            <Code2 className="mr-2 h-4 w-4 text-accent" />
             <span>Skills & Tech Stack</span>
             <CommandShortcut className="font-mono text-[10px]">#skills</CommandShortcut>
           </CommandItem>
@@ -156,7 +156,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#experience"))}
             className="cursor-pointer"
           >
-            <Briefcase className="mr-2 h-4 w-4 text-cobalt" />
+            <Briefcase className="mr-2 h-4 w-4 text-accent" />
             <span>Experience & Career Timeline</span>
             <CommandShortcut className="font-mono text-[10px]">#experience</CommandShortcut>
           </CommandItem>
@@ -165,7 +165,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#certifications"))}
             className="cursor-pointer"
           >
-            <Award className="mr-2 h-4 w-4 text-cobalt" />
+            <Award className="mr-2 h-4 w-4 text-accent" />
             <span>Certifications & Credentials</span>
             <CommandShortcut className="font-mono text-[10px]">#certifications</CommandShortcut>
           </CommandItem>
@@ -174,7 +174,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/#contact"))}
             className="cursor-pointer"
           >
-            <Mail className="mr-2 h-4 w-4 text-cobalt" />
+            <Mail className="mr-2 h-4 w-4 text-accent" />
             <span>Contact & Get In Touch</span>
             <CommandShortcut className="font-mono text-[10px]">#contact</CommandShortcut>
           </CommandItem>
@@ -192,7 +192,7 @@ export function CommandPalette() {
             }
             className="cursor-pointer"
           >
-            <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
+            <Terminal className="mr-2 h-4 w-4 text-text-muted" />
             <div className="flex flex-col">
               <span className="font-medium">Kamlesh-Prasad</span>
               <span className="mono text-[10px] text-muted-foreground">
@@ -207,7 +207,7 @@ export function CommandPalette() {
             }
             className="cursor-pointer"
           >
-            <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
+            <Terminal className="mr-2 h-4 w-4 text-text-muted" />
             <div className="flex flex-col">
               <span className="font-medium">onixmall</span>
               <span className="mono text-[10px] text-muted-foreground">
@@ -224,7 +224,7 @@ export function CommandPalette() {
             }
             className="cursor-pointer"
           >
-            <Terminal className="mr-2 h-4 w-4 text-carbon/70" />
+            <Terminal className="mr-2 h-4 w-4 text-text-muted" />
             <div className="flex flex-col">
               <span className="font-medium">sentinel-cloud-view</span>
               <span className="mono text-[10px] text-muted-foreground">
@@ -237,9 +237,9 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/github"))}
             className="cursor-pointer"
           >
-            <Github className="mr-2 h-4 w-4 text-cobalt" />
+            <Github className="mr-2 h-4 w-4 text-accent" />
             <div className="flex flex-col">
-              <span className="font-medium text-cobalt">
+              <span className="font-medium text-accent">
                 View All Repositories on GitHub Page →
               </span>
               <span className="mono text-[10px] text-muted-foreground">
@@ -257,7 +257,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => copyToClipboard(EMAIL, "Email"))}
             className="cursor-pointer"
           >
-            <Copy className="mr-2 h-4 w-4 text-cobalt" />
+            <Copy className="mr-2 h-4 w-4 text-accent" />
             <span>Copy Email Address ({EMAIL})</span>
             <CommandShortcut className="font-mono text-[10px]">Copy</CommandShortcut>
           </CommandItem>
@@ -266,7 +266,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => copyToClipboard(PHONE, "Phone"))}
             className="cursor-pointer"
           >
-            <Phone className="mr-2 h-4 w-4 text-cobalt" />
+            <Phone className="mr-2 h-4 w-4 text-accent" />
             <span>Copy Phone Number ({PHONE})</span>
             <CommandShortcut className="font-mono text-[10px]">Copy</CommandShortcut>
           </CommandItem>
@@ -275,7 +275,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(triggerDownloadResume)}
             className="cursor-pointer"
           >
-            <Download className="mr-2 h-4 w-4 text-cobalt" />
+            <Download className="mr-2 h-4 w-4 text-accent" />
             <span>Download Resume PDF</span>
             <CommandShortcut className="font-mono text-[10px]">PDF</CommandShortcut>
           </CommandItem>
@@ -284,13 +284,13 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => navigateTo("/resume"))}
             className="cursor-pointer"
           >
-            <FileText className="mr-2 h-4 w-4 text-cobalt" />
+            <FileText className="mr-2 h-4 w-4 text-accent" />
             <span>View Interactive Resume Page</span>
             <CommandShortcut className="font-mono text-[10px]">/resume</CommandShortcut>
           </CommandItem>
 
           <CommandItem onSelect={() => runCommand(openAiChat)} className="cursor-pointer">
-            <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+            <Sparkles className="mr-2 h-4 w-4 text-highlight" />
             <span>Ask Piyush's AI Assistant</span>
             <CommandShortcut className="font-mono text-[10px]">AI Chat</CommandShortcut>
           </CommandItem>
@@ -304,7 +304,7 @@ export function CommandPalette() {
             onSelect={() => runCommand(() => window.open(GITHUB, "_blank"))}
             className="cursor-pointer"
           >
-            <Github className="mr-2 h-4 w-4 text-carbon/70" />
+            <Github className="mr-2 h-4 w-4 text-text-muted" />
             <span>GitHub Profile (github.com/ppiyushhhhh)</span>
             <ExternalLink className="ml-auto h-3 w-3 text-muted-foreground" />
           </CommandItem>
@@ -321,28 +321,28 @@ export function CommandPalette() {
       </CommandList>
 
       {/* Command Palette Keyboard Legend Footer */}
-      <div className="flex items-center justify-between border-t border-border bg-[#FAF9F6] px-4 py-2.5 text-[11px] font-mono text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-border bg-surface-muted px-4 py-2.5 text-[11px] font-mono text-muted-foreground">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+            <kbd className="rounded border border-border bg-surface px-1 py-0.5 text-[9px] shadow-2xs">
               ↑↓
             </kbd>{" "}
             Navigate
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+            <kbd className="rounded border border-border bg-surface px-1 py-0.5 text-[9px] shadow-2xs">
               ↵
             </kbd>{" "}
             Select
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="rounded border border-border bg-white px-1 py-0.5 text-[9px] shadow-2xs">
+            <kbd className="rounded border border-border bg-surface px-1 py-0.5 text-[9px] shadow-2xs">
               ESC
             </kbd>{" "}
             Close
           </span>
         </div>
-        <span className="text-[10px] text-cobalt font-medium">PIYUSH PRASAD // CLI</span>
+        <span className="text-[10px] text-accent font-medium">PIYUSH PRASAD // CLI</span>
       </div>
     </CommandDialog>
   );

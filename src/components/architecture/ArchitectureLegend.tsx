@@ -50,7 +50,7 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
           return (
             <div
               key={cat}
-              className="flex items-center gap-2 p-1.5 rounded border border-border/60 bg-[#FAF9F6] dark:bg-neutral-900/40"
+              className="flex items-center gap-2 p-1.5 rounded border border-border/60 bg-surface-muted dark:bg-neutral-900/40"
             >
               <div
                 className={`flex h-6 w-6 items-center justify-center rounded border ${colors.border} ${colors.bg}`}
@@ -80,7 +80,7 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
             <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Network Traffic</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#059669]" />
+            <span className="h-2 w-2 rounded-full bg-[#0284C7]" />
             <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Data &amp; Persistence</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -92,7 +92,7 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
             <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">CI/CD &amp; Deployment</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#EA580C]" />
+            <span className="h-2 w-2 rounded-full bg-[#64748B]" />
             <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Telemetry &amp; Metrics</span>
           </div>
         </div>

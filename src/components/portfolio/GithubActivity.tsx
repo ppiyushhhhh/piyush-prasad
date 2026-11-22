@@ -209,7 +209,7 @@ function RepoCard({ repo }: { repo: Repo }) {
                 <GitBranch className="h-3 w-3" />
                 {repo.default_branch ?? "main"}
               </span>
-              <span className="border border-border bg-[#FAF9F6] px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
+              <span className="border border-border bg-surface-muted px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
                 Public
               </span>
             </div>
@@ -228,7 +228,7 @@ function RepoCard({ repo }: { repo: Repo }) {
             target="_blank"
             rel="noreferrer"
             aria-label={`View ${repo.name} on GitHub`}
-            className="flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-carbon/60 transition-all group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-surface-muted text-carbon/60 transition-all group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-white"
           >
             <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
@@ -245,7 +245,7 @@ function RepoCard({ repo }: { repo: Repo }) {
           {tags.map((t) => (
             <span
               key={t}
-              className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-medium text-carbon/70 group-hover:border-cobalt/30 transition-colors"
+              className="mono border border-border bg-surface-muted px-2 py-0.5 text-[9px] font-medium text-carbon/70 group-hover:border-cobalt/30 transition-colors"
             >
               #{t}
             </span>
@@ -283,7 +283,7 @@ function RepoCard({ repo }: { repo: Repo }) {
         </div>
 
         {commit ? (
-          <div className="border border-border bg-[#FAF9F6] p-2.5">
+          <div className="border border-border bg-surface-muted p-2.5">
             <p className="text-xs font-mono text-carbon/90 line-clamp-1 leading-snug">
               {commit.commit.message.split("\n")[0]}
             </p>
@@ -355,7 +355,7 @@ export function GithubActivity() {
   const hasMore = filteredRepos.length > 4;
 
   return (
-    <section id="github" className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28">
+    <section id="github" className="relative border-b border-border bg-surface-muted py-20 md:py-28">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         {/* Section Header */}
         <div className="mb-12 md:mb-16">

@@ -190,10 +190,10 @@ function ProjectDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="relative min-h-screen bg-[#FAF9F6] dark:bg-neutral-950 flex flex-col items-center justify-center p-6">
+      <div className="relative min-h-screen bg-background flex flex-col items-center justify-center p-6">
         <Navigation />
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-cobalt border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           <span className="mono text-xs text-muted-foreground">Loading case study...</span>
         </div>
       </div>
@@ -202,20 +202,20 @@ function ProjectDetailPage() {
 
   if (!project || error) {
     return (
-      <div className="relative min-h-screen bg-[#FAF9F6] dark:bg-neutral-950 flex flex-col justify-between">
+      <div className="relative min-h-screen bg-background flex flex-col justify-between">
         <Navigation />
         <div className="mx-auto max-w-lg px-6 py-32 text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-amber-500 mb-4" />
-          <h1 className="text-2xl font-bold text-carbon dark:text-white">Project Not Found</h1>
+          <AlertTriangle className="mx-auto h-12 w-12 text-warning mb-4" />
+          <h1 className="text-2xl font-bold text-text">Project Not Found</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             The project case study with slug{" "}
-            <code className="mono font-semibold text-cobalt">"{slug}"</code> does not exist or has
+            <code className="mono font-semibold text-accent">"{slug}"</code> does not exist or has
             not been published yet.
           </p>
           <div className="mt-6">
             <Link
               to="/projects"
-              className="mono inline-flex items-center gap-2 rounded-md bg-cobalt px-4 py-2 text-xs font-bold text-white hover:bg-cobalt/90 shadow-sm"
+              className="mono inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-xs font-bold text-text-on-accent hover:bg-accent-hover shadow-sm"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Back to All Projects</span>
@@ -228,7 +228,7 @@ function ProjectDetailPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white dark:bg-neutral-950 dark:text-neutral-100">
+    <div className="relative min-h-screen bg-background text-text selection:bg-accent selection:text-text-on-accent">
       <CustomCursor />
       <Navigation />
 
@@ -247,15 +247,15 @@ function ProjectDetailPage() {
             className="flex items-center gap-2 text-xs text-muted-foreground mb-6"
             aria-label="Breadcrumb"
           >
-            <Link to="/" className="hover:text-cobalt transition-colors">
+            <Link to="/" className="hover:text-accent transition-colors">
               Home
             </Link>
             <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
-            <Link to="/projects" className="hover:text-cobalt transition-colors">
+            <Link to="/projects" className="hover:text-accent transition-colors">
               Projects
             </Link>
             <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
-            <span className="text-carbon dark:text-white font-medium truncate max-w-[240px]">
+            <span className="text-text font-medium truncate max-w-[240px]">
               {project.title}
             </span>
           </nav>
@@ -268,7 +268,7 @@ function ProjectDetailPage() {
           />
 
           {/* Mobile / Tablet Horizontal Scroll-Spy Bar (< 1024px) */}
-          <div className="lg:hidden sticky top-[64px] z-20 -mx-6 px-6 py-2.5 bg-[#FAF9F6]/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-[#E5E5DF] dark:border-white/10 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+          <div className="lg:hidden sticky top-[64px] z-20 -mx-6 px-6 py-2.5 bg-background/95 backdrop-blur-md border-b border-border overflow-x-auto flex items-center gap-1.5 scrollbar-none">
             {tocSections.map((section) => {
               const isActive = activeSection === section.id;
               return (
@@ -276,8 +276,8 @@ function ProjectDetailPage() {
                   key={section.id}
                   href={`#${section.id}`}
                   className={`mono text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors shrink-0 ${isActive
-                    ? "bg-cobalt text-white font-bold shadow-2xs"
-                    : "text-muted-foreground hover:text-carbon dark:hover:text-white bg-white dark:bg-neutral-900 border border-[#E5E5DF] dark:border-white/10"
+                    ? "bg-accent text-text-on-accent font-bold shadow-2xs"
+                    : "text-muted-foreground hover:text-text bg-surface border border-border"
                     }`}
                 >
                   {section.label}
