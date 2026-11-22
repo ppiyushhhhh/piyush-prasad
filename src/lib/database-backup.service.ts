@@ -503,7 +503,7 @@ export async function sendOperationalEmail({
     `------------------------------------------------------------`,
     `Total Records Backed Up: ${totalRecords.toLocaleString()}`,
     ``,
-    `Inspect in Dashboard: https://piyushprasad.in/dashboard/database`,
+    `Inspect in Dashboard: https://admin.piyushprasad.in/database`,
     `============================================================`,
   ];
 
@@ -601,7 +601,7 @@ export async function sendOperationalEmail({
       }
 
       <div style="text-align: center;">
-        <a href="https://piyushprasad.in/dashboard/database" class="btn">View Database Console</a>
+        <a href="https://admin.piyushprasad.in/database" class="btn">View Database Console</a>
       </div>
     </div>
     <div class="footer">

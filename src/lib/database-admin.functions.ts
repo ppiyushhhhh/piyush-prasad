@@ -406,6 +406,18 @@ async function verifyAdminCaller() {
     }
 
     if (!countError && (count === 0 || count === null)) {
+      // Strict bootstrap safeguard: only allowed when explicitly enabled via environment variable
+      // or if caller matches the designated bootstrap admin email, preventing any unauthorized public signups
+      // from claiming the administrator role if the table query returns 0 or null.
+      const allowBootstrap =
+        process.env.ALLOW_ADMIN_BOOTSTRAP === "true" ||
+        (Boolean(user.email) && user.email?.toLowerCase() === (process.env.ADMIN_BOOTSTRAP_EMAIL || "hello@piyushprasad.in").toLowerCase());
+
+      if (!allowBootstrap) {
+        console.warn(`[DatabaseAdmin] Bootstrap blocked for user ${user.email} (${user.id}): bootstrap not permitted.`);
+        throw new Error("Forbidden: Initial admin bootstrap is disabled or user is not the designated admin.");
+      }
+
       // Bootstrap: First authenticated user claims admin role
       console.log(`[DatabaseAdmin] Bootstrap: Claiming admin role for first user ${user.email} (${user.id})`);
       try {

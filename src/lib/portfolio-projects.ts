@@ -658,7 +658,7 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     results:
       "Sub-100ms response latencies, 100% automated CI verification pass rate, and zero spam penetration across live contact forms.",
     repository_url: `${GITHUB}/piyush-prasad`,
-    live_demo_url: "https://piyushprasad.in/dashboard",
+    live_demo_url: "https://piyushprasad.in",
     cover_image_url: null,
     screenshots: [],
     deployment_environment: "Vercel & Supabase Cloud",

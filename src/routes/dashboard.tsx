@@ -39,7 +39,7 @@ export const Route = createFileRoute("/dashboard")({
         property: "og:description",
         content: "Privileged operations console and infrastructure monitoring.",
       },
-      { property: "og:url", content: "https://www.piyushprasad.in/dashboard" },
+      { property: "og:url", content: "https://admin.piyushprasad.in" },
       { property: "og:image", content: "https://www.piyushprasad.in/og-image.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Operations Console — Piyush Prasad" },

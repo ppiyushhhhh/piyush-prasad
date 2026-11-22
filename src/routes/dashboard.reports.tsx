@@ -119,7 +119,7 @@ function downloadReportFile(report: {
     </table>
 
     <div class="footer">
-      Piyush Prasad &bull; Automated Operations & DevSecOps Console &bull; piyushprasad.in/dashboard
+      Piyush Prasad &bull; Automated Operations & DevSecOps Console &bull; admin.piyushprasad.in
     </div>
   </div>
   <script>

@@ -185,6 +185,8 @@ export function classifyEndpointTier(pathname: string): "auth" | "sensitive" | "
   // Auth endpoints: login attempts, auth tokens
   if (
     path.startsWith("/dashboard/login") ||
+    path === "/login" ||
+    path.startsWith("/login/") ||
     path.startsWith("/api/auth") ||
     path.includes("reset-password") ||
     path.includes("update-password")

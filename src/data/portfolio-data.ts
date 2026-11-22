@@ -252,7 +252,7 @@ export const PROJECTS: ProjectItem[] = [
     year: "2026",
     body: "Engineered an enterprise-grade private cloud observability and database administration console (PP·OPS) monitoring live production endpoints. Features native TLS 1.3 socket inspection, distributed multi-tier rate limiting with atomic PostgreSQL row-level locks, automated 7-day database retention with pre-deletion SQL archives, and executive health auditing.",
     tech: ["TanStack Start", "React 19", "Supabase", "PostgreSQL", "Rate Limiter", "TLS 1.3"],
-    link: { label: "piyushprasad.in/dashboard", href: "/dashboard" },
+    link: null,
     repo: {
       label: "github.com/ppiyushhhhh/piyush-prasad",
       href: "https://github.com/ppiyushhhhh/piyush-prasad",
