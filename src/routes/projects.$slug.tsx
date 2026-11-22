@@ -275,11 +275,10 @@ function ProjectDetailPage() {
                 <a
                   key={section.id}
                   href={`#${section.id}`}
-                  className={`mono text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors shrink-0 ${
-                    isActive
-                      ? "bg-cobalt text-white font-bold shadow-2xs"
-                      : "text-muted-foreground hover:text-carbon dark:hover:text-white bg-white dark:bg-neutral-900 border border-[#E5E5DF] dark:border-white/10"
-                  }`}
+                  className={`mono text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors shrink-0 ${isActive
+                    ? "bg-cobalt text-white font-bold shadow-2xs"
+                    : "text-muted-foreground hover:text-carbon dark:hover:text-white bg-white dark:bg-neutral-900 border border-[#E5E5DF] dark:border-white/10"
+                    }`}
                 >
                   {section.label}
                 </a>

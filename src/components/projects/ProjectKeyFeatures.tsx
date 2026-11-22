@@ -25,9 +25,8 @@ export function ProjectKeyFeatures({ project }: ProjectKeyFeaturesProps) {
           return (
             <div
               key={idx}
-              className={`flex items-start gap-3.5 p-5 rounded-xl border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xs hover:border-cobalt/40 transition-colors h-full ${
-                isLastAndOdd ? "md:col-span-2" : ""
-              }`}
+              className={`flex items-start gap-3.5 p-5 rounded-xl border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xs hover:border-cobalt/40 transition-colors h-full ${isLastAndOdd ? "md:col-span-2" : ""
+                }`}
             >
               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-cobalt dark:bg-blue-950/50 mt-0.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-cobalt" />
