@@ -24,7 +24,7 @@ function validate(values: Fields): Errors {
 }
 
 const fieldClass =
-  "mt-2 w-full border border-border bg-white px-3.5 py-2.5 text-sm text-carbon placeholder:text-carbon/40 transition-colors focus:border-cobalt focus:outline-none focus-visible:ring-2 focus-visible:ring-cobalt";
+  "mt-2 w-full border border-border bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted/50 transition-colors focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
 export function ContactForm() {
   const [values, setValues] = useState<Fields>(EMPTY);

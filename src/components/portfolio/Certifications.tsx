@@ -111,7 +111,8 @@ function BadgeArtwork({
 
   return (
     <div
-      className={`relative flex ${containerSizes} shrink-0 items-center justify-center border border-border bg-white p-2.5 shadow-2xs transition-all duration-300 group-hover:scale-105 group-hover:border-cobalt`}
+      data-allow-light-tile="true"
+      className={`relative flex ${containerSizes} shrink-0 items-center justify-center rounded-lg border border-border bg-white p-2.5 shadow-2xs transition-all duration-300 group-hover:scale-105 group-hover:border-cobalt`}
     >
       <img
         src={src}
@@ -236,14 +237,14 @@ export function Certifications() {
               </span>
             </div>
 
-            <div className="divide-y divide-border border-b border-border bg-white">
+            <div className="divide-y divide-border border-b border-border bg-surface">
               {displayedCerts.map((cert) => (
                 <div
                   key={cert.name}
                   className="group flex items-start gap-4 p-4 sm:p-5 transition-colors hover:bg-surface-muted"
                 >
                   {/* Issuer Logo or Monogram with dynamic hover micro-interaction */}
-                  <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
+                  <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-surface p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
                     {cert.logo ? (
                       <img
                         src={cert.logo}
@@ -289,7 +290,7 @@ export function Certifications() {
                 type="button"
                 onClick={() => setShowAllCerts(!showAllCerts)}
                 aria-expanded={showAllCerts}
-                className="mono mt-5 inline-flex items-center gap-2 border border-border bg-white px-4 py-2.5 text-[11px] font-semibold text-cobalt transition-all hover:border-cobalt hover:bg-surface-muted cursor-pointer"
+                className="mono mt-5 inline-flex items-center gap-2 border border-border bg-surface px-4 py-2.5 text-[11px] font-semibold text-cobalt transition-all hover:border-cobalt hover:bg-surface-muted cursor-pointer"
               >
                 <span>
                   {showAllCerts
@@ -317,13 +318,13 @@ export function Certifications() {
               {EDUCATION_DATA.map((edu) => (
                 <div
                   key={edu.degree}
-                  className="group border border-border bg-white p-5 sm:p-6 transition-all hover:border-cobalt/60 hover:shadow-2xs"
+                  className="group border border-border bg-surface p-5 sm:p-6 transition-all hover:border-cobalt/60 hover:shadow-2xs"
                 >
                   <div className="mono text-[10px] font-bold text-cobalt mb-2">{edu.period}</div>
 
                   <div className="flex items-start gap-3.5">
                     {edu.logo && (
-                      <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-white p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
+                      <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center overflow-hidden border border-border bg-surface p-1 shadow-2xs transition-all duration-300 ease-out hover:scale-110 hover:-translate-y-0.5 hover:border-cobalt hover:shadow-md hover:ring-2 hover:ring-cobalt/20 group-hover:border-cobalt/70 cursor-pointer">
                         <img
                           src={edu.logo}
                           alt={edu.school}
@@ -373,7 +374,7 @@ export function Certifications() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <span className="mono border border-border bg-white px-3 py-1.5 text-[11px] font-bold text-carbon uppercase shadow-2xs">
+              <span className="mono border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-carbon uppercase shadow-2xs">
                 <span className="text-cobalt font-extrabold">{sortedBadges.length}</span>{" "}
                 {sortedBadges.length === 1 ? "CREDENTIAL VERIFIED" : "CREDENTIALS VERIFIED"}
               </span>
@@ -405,7 +406,7 @@ export function Certifications() {
                   {[1, 2, 3, 4, 5, 6].map((idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col justify-between border border-border bg-white p-6 sm:p-7 space-y-4"
+                      className="flex flex-col justify-between border border-border bg-surface p-6 sm:p-7 space-y-4"
                     >
                       <div className="flex justify-center mb-2">
                         <Skeleton className="h-24 w-24 rounded-none" />
@@ -434,7 +435,7 @@ export function Certifications() {
 
           {/* 2. Error State with Retry Button */}
           {isError && sortedBadges.length === 0 && (
-            <div className="border border-border bg-white p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xs">
+            <div className="border border-border bg-surface p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xs">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border bg-surface-muted text-cobalt">
                   <AlertCircle className="h-6 w-6" />
@@ -450,7 +451,7 @@ export function Certifications() {
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mono inline-flex items-center gap-2 border border-carbon bg-white px-4 py-2.5 text-xs font-bold text-carbon transition-colors hover:bg-carbon hover:text-white shrink-0 cursor-pointer"
+                className="mono inline-flex items-center gap-2 border border-border bg-surface px-4 py-2.5 text-xs font-bold text-carbon transition-colors hover:bg-surface-muted shrink-0 cursor-pointer"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span>Retry Connection</span>
@@ -460,7 +461,7 @@ export function Certifications() {
 
           {/* 3. Empty State */}
           {!isLoading && !isError && sortedBadges.length === 0 && (
-            <div className="border border-border bg-white p-10 text-center shadow-2xs">
+            <div className="border border-border bg-surface p-10 text-center shadow-2xs">
               <div className="mx-auto flex h-14 w-14 items-center justify-center border border-border bg-surface-muted text-cobalt mb-4">
                 <Award className="h-7 w-7" />
               </div>
@@ -522,7 +523,7 @@ export function Certifications() {
                               setSelectedBadge(badge);
                             }
                           }}
-                          className="group relative flex flex-col justify-between border border-border bg-white p-6 sm:p-7 transition-all duration-300 hover:border-cobalt hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 h-full text-left"
+                          className="group relative flex flex-col justify-between border border-border bg-surface p-6 sm:p-7 transition-all duration-300 hover:border-cobalt hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt focus-visible:ring-offset-2 h-full text-left"
                         >
                           <div>
                             {/* Centered Badge Artwork */}
@@ -605,7 +606,7 @@ export function Certifications() {
                     type="button"
                     onClick={handleToggleBadgesView}
                     aria-expanded={showAllBadges}
-                    className="mono inline-flex items-center gap-2.5 border border-border bg-white px-6 py-3.5 text-xs font-bold tracking-wider text-cobalt uppercase transition-all duration-200 hover:border-cobalt hover:bg-surface-muted hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                    className="mono inline-flex items-center gap-2.5 border border-border bg-surface px-6 py-3.5 text-xs font-bold tracking-wider text-cobalt uppercase transition-all duration-200 hover:border-cobalt hover:bg-surface-muted hover:shadow-xs active:scale-[0.99] cursor-pointer"
                   >
                     <span>
                       {showAllBadges ? "SHOW LESS" : `VIEW MORE CREDENTIALS (${remainingCount})`}
@@ -623,7 +624,7 @@ export function Certifications() {
       {/* 5. Detail Modal Interaction (Radix Dialog) */}
       {/* ------------------------------------------------------------- */}
       <Dialog open={!!selectedBadge} onOpenChange={(open) => !open && setSelectedBadge(null)}>
-        <DialogContent className="max-w-2xl bg-white p-6 sm:p-8 border border-border sm:rounded-none shadow-xl">
+        <DialogContent className="max-w-2xl bg-surface p-6 sm:p-8 border border-border sm:rounded-none shadow-xl">
           {selectedBadge && (
             <>
               {/* Centered Large Badge Artwork */}
