@@ -93,6 +93,7 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
   // Frontend & Frameworks
   react: { src: "/tech-logos/react.svg", label: "React", brandColor: "#61DAFB" },
   tanstack: { src: "/tech-logos/tanstack.svg", label: "TanStack", brandColor: "#EE832B" },
+  tailwindcss: { src: "/tech-logos/tailwindcss.svg", label: "Tailwind CSS", brandColor: "#06B6D4" },
 };
 
 /**
@@ -196,7 +197,14 @@ export function resolveLogo(
   }
 
   // 3. Security & Certs
-  if (tech.includes("certbot") || tech.includes("lets encrypt") || tech.includes("let s encrypt") || tech.includes("tls") || tech.includes("https")) {
+  if (
+    tech.includes("certbot") ||
+    tech.includes("lets encrypt") ||
+    tech.includes("let s encrypt") ||
+    tech.includes("ssl") ||
+    tech.includes("tls") ||
+    tech.includes("https")
+  ) {
     return TECH_LOGO_REGISTRY.letsencrypt;
   }
   if (tech.includes("codeql")) {
@@ -278,7 +286,7 @@ export function resolveLogo(
   if (tech.includes("terraform")) {
     return TECH_LOGO_REGISTRY.terraform;
   }
-  if (tech.includes("git cli") || tech === "git") {
+  if (tech.includes("git cli") || tech.includes("git hook") || tech === "git") {
     return TECH_LOGO_REGISTRY.git;
   }
 
@@ -302,6 +310,8 @@ export function resolveLogo(
   }
   if (
     tech.includes("linux") ||
+    tech.includes("bash") ||
+    tech.includes("shell") ||
     tech.includes("ufw") ||
     tech.includes("iptables") ||
     tech.includes("fail2ban") ||
@@ -312,6 +322,9 @@ export function resolveLogo(
   }
 
   // 10. Frontend & Frameworks
+  if (tech.includes("tailwind")) {
+    return TECH_LOGO_REGISTRY.tailwindcss;
+  }
   if (tech.includes("tanstack") || tech.includes("nitro")) {
     return TECH_LOGO_REGISTRY.tanstack;
   }

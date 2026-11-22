@@ -2,8 +2,10 @@ import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { Lock, X, Info, Maximize2 } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ArchitectureData, ArchitectureComponent } from "@/lib/portfolio-projects";
+import { PROJECT_ARCHITECTURES } from "@/lib/project-architectures";
 import {
   layoutProjectArchitecture,
+  layoutArchitectureCanvas,
   deriveRequestJourney,
   type UnifiedNode,
   type UnifiedEdge,
@@ -66,20 +68,35 @@ export function ArchitectureDiagram({
     }
   });
 
+  const fullDiagram = useMemo(() => {
+    if (!diagramSlug) return null;
+    return PROJECT_ARCHITECTURES.find((d) => d.slug === diagramSlug) || null;
+  }, [diagramSlug]);
+
   // Compute unified DAG layout for components & connections with measured cards
   const layout = useMemo(
     () =>
-      layoutProjectArchitecture(data, {
-        autoLayout: true,
-        cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
-      }),
-    [data, measuredCards]
+      fullDiagram
+        ? layoutArchitectureCanvas(fullDiagram.diagram_data, {
+            autoLayout: true,
+            cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
+          })
+        : layoutProjectArchitecture(data, {
+            autoLayout: true,
+            cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
+          }),
+    [fullDiagram, data, measuredCards]
   );
 
   // Derive sequential request journey
   const journeyPath = useMemo(
-    () => deriveRequestJourney(layout.nodes, layout.edges, data.journey),
-    [layout.nodes, layout.edges, data.journey]
+    () =>
+      deriveRequestJourney(
+        layout.nodes,
+        layout.edges,
+        fullDiagram ? fullDiagram.diagram_data.journey : data.journey
+      ),
+    [layout.nodes, layout.edges, fullDiagram, data.journey]
   );
 
   const {
@@ -137,14 +154,18 @@ export function ArchitectureDiagram({
   // Fit to screen handler
   const fitToScreen = useCallback(() => {
     if (!containerRef.current) return;
-    const { clientWidth, clientHeight } = containerRef.current;
-    if (!clientWidth || !clientHeight) return;
-    const scale = Math.min((clientWidth - 48) / layout.viewBox.width, (clientHeight - 48) / layout.viewBox.height, 1.2);
-    const newZoom = Math.min(Math.max(Number(scale.toFixed(2)), 0.5), 1.4);
-    const panX = Math.round((clientWidth - layout.viewBox.width * newZoom) / 2);
+    const { clientWidth } = containerRef.current;
+    if (!clientWidth) return;
+    const scale = Math.min((clientWidth - 48) / layout.viewBox.width, 1.2);
+    const newZoom = Math.min(Math.max(Number(scale.toFixed(2)), 0.4), 1.2);
+    const panX = Math.max(24, Math.round((clientWidth - layout.viewBox.width * newZoom) / 2));
     setZoom(newZoom);
-    setPan({ x: panX, y: 10 });
+    setPan({ x: panX, y: 24 });
   }, [layout.viewBox]);
+
+  useEffect(() => {
+    fitToScreen();
+  }, [fitToScreen]);
 
   // Zoom handlers
   const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.15).toFixed(2)), 1.8));
@@ -205,9 +226,13 @@ export function ArchitectureDiagram({
             />
           </div>
           <h4 className="text-base font-bold text-carbon dark:text-white mt-0.5">
-            {data.title || "Infrastructure & Traffic Flow"}
+            {fullDiagram?.title || data.title || "Infrastructure & Traffic Flow"}
           </h4>
-          {data.summary && <p className="mt-0.5 text-xs text-muted-foreground">{data.summary}</p>}
+          {(fullDiagram?.description || data.summary) && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {fullDiagram?.description || data.summary}
+            </p>
+          )}
         </div>
 
         {(diagramSlug || onOpenWorkspace) && (
@@ -232,7 +257,7 @@ export function ArchitectureDiagram({
           onFitToScreen={fitToScreen}
           isFullscreen={isFullscreen}
           onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-          onOpenWorkspace={diagramSlug || onOpenWorkspace ? handleOpenWorkspace : undefined}
+          onOpenWorkspace={undefined}
           isLive={isLive}
           onToggleLive={toggleLive}
           isJourneyActive={isJourneyActive}
@@ -261,6 +286,7 @@ export function ArchitectureDiagram({
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
         style={{
+          height: isFullscreen ? "calc(100vh - 200px)" : `${Math.max(380, Math.round(layout.viewBox.height * zoom + 48))}px`,
           backgroundImage: `radial-gradient(circle, rgba(26, 75, 255, 0.08) 1px, transparent 1px)`,
           backgroundSize: "20px 20px",
           backgroundPosition: `${pan.x}px ${pan.y}px`,

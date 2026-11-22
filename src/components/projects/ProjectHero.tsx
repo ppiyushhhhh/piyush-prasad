@@ -12,11 +12,11 @@ interface ProjectHeroProps {
 export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProps) {
   const statusConfig = STATUS_STYLES[project.status] || STATUS_STYLES["Personal Project"];
 
-  // Top logos for hero showcase
-  const heroLogos = project.technologies
-    .map((tech) => ({ tech, logo: resolveLogo(tech) }))
-    .filter((item): item is { tech: string; logo: NonNullable<typeof item.logo> } => item.logo !== null)
-    .slice(0, 6);
+  // Exact same technologies list as Technologies section
+  const heroLogos = project.technologies.map((tech) => ({
+    tech,
+    logo: resolveLogo(tech),
+  }));
 
   return (
     <div className="border-b border-[#E5E5DF] dark:border-white/10 pb-10">
@@ -51,8 +51,8 @@ export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProp
 
       {/* Hero Technology Logos & Action Links */}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-6 pt-6 border-t border-[#E5E5DF]/70 dark:border-white/5">
-        {/* Tech Stack Logos Bar */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Tech Stack Logos Bar - Exact same technologies as Tech Stack section */}
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-1">
             Stack:
           </span>
@@ -60,14 +60,16 @@ export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProp
             <div
               key={tech}
               className="flex items-center gap-1.5 rounded-lg border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 px-2.5 py-1.5 shadow-2xs"
-              title={logo.label}
+              title={logo ? logo.label : tech}
             >
-              <img
-                src={logo.src}
-                alt={logo.label}
-                className="h-4 w-4 object-contain shrink-0"
-                loading="lazy"
-              />
+              {logo && (
+                <img
+                  src={logo.src}
+                  alt={logo.label}
+                  className="h-4 w-4 object-contain shrink-0"
+                  loading="lazy"
+                />
+              )}
               <span className="mono text-xs font-medium text-carbon dark:text-neutral-200">
                 {tech}
               </span>
@@ -106,14 +108,13 @@ export function ProjectHero({ project, copiedLink, onCopyLink }: ProjectHeroProp
           <button
             type="button"
             onClick={onCopyLink}
-            className="mono inline-flex items-center gap-1.5 rounded-md border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-carbon dark:hover:text-white transition-colors cursor-pointer shadow-2xs"
-            title="Share case study"
-            aria-label="Share case study link"
+            className="mono inline-flex items-center gap-1.5 rounded-md border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 px-3 py-2 text-xs font-semibold text-carbon dark:text-white hover:border-cobalt hover:text-cobalt transition-colors shadow-2xs cursor-pointer"
+            aria-label="Share this case study"
           >
             {copiedLink ? (
               <>
                 <Check className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
+                <span className="text-emerald-600 dark:text-emerald-400">Link Copied!</span>
               </>
             ) : (
               <>
