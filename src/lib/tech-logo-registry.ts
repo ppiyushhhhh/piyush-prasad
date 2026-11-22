@@ -86,6 +86,7 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
   // Messaging, APIs & AI
   resend: { src: "/tech-logos/resend.svg", label: "Resend", brandColor: "#000000" },
   gmail: { src: "/tech-logos/gmail.svg", label: "Gmail / SMTP", brandColor: "#EA4335" },
+  mail: { src: "/tech-logos/mail.svg", label: "Mail / SMTP", brandColor: "#0284C7" },
   pdf: { src: "/tech-logos/pdf.svg", label: "PDFKit / PDF", brandColor: "#DC2626" },
   gemini: { src: "/tech-logos/gemini.svg", label: "Google Gemini", brandColor: "#8E75FF" },
   telegram: { src: "/tech-logos/telegram.svg", label: "Telegram", brandColor: "#26A5E4" },
