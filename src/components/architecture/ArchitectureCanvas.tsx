@@ -810,50 +810,67 @@ export function ArchitectureCanvas({
         >
           {/* Layer 1: Visual Zones & Boundaries Layer (Background) */}
           <div className="absolute inset-0 pointer-events-none">
-            {layout.zones.map((zone) => (
-              <div
-                key={zone.id}
-                data-node-id={zone.id}
-                data-group-id={zone.id}
-                style={{
-                  transform: `translate(${zone.x}px, ${zone.y}px)`,
-                  width: `${zone.width}px`,
-                  height: `${zone.height}px`,
-                }}
-                className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
-                  zone.isAwsVpc
-                    ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
-                    : zone.isDocker
-                      ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
-                      : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
-                }`}
-              >
-                {/* Dedicated Header Strip for Title (no ellipsis, single line) */}
+            {layout.zones.map((zone) => {
+              const isUat = zone.id === "group-uat" || zone.title.toLowerCase().includes("uat");
+              const isProd = zone.id === "group-prod" || zone.title.toLowerCase().includes("goes live only here");
+              return (
                 <div
-                  className="tier-header-strip absolute top-0 left-0 right-0 min-h-[32px] py-1 px-3.5 flex items-center gap-2 border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
-                  title={zone.description}
+                  key={zone.id}
+                  data-node-id={zone.id}
+                  data-group-id={zone.id}
+                  style={{
+                    transform: `translate(${zone.x}px, ${zone.y}px)`,
+                    width: `${zone.width}px`,
+                    height: `${zone.height}px`,
+                  }}
+                  className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
+                    isUat
+                      ? "border-2 border-dashed border-amber-500/60 bg-amber-500/[0.03] dark:border-amber-400/40 dark:bg-amber-400/[0.015]"
+                      : isProd
+                        ? "border-2 border-dashed border-teal-600/60 bg-teal-500/[0.03] dark:border-teal-400/40 dark:bg-teal-400/[0.015]"
+                        : zone.isAwsVpc
+                          ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
+                          : zone.isDocker
+                            ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
+                            : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                  }`}
                 >
-                  {(zone.isDocker || zone.title.toLowerCase().includes("docker")) && (
-                    <img
-                      src="/tech-logos/docker.svg"
-                      alt="Docker Logo"
-                      className="w-4 h-4 object-contain inline-block shrink-0"
-                    />
-                  )}
-                  <span
-                    className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${
-                      zone.isAwsVpc
-                        ? "text-amber-700 dark:text-amber-400"
-                        : zone.isDocker
-                          ? "text-sky-700 dark:text-sky-400"
-                          : "text-carbon dark:text-neutral-200"
-                    }`}
+                  {/* Dedicated Header Strip for Title (no ellipsis, single line) */}
+                  <div
+                    className="tier-header-strip absolute top-0 left-0 right-0 min-h-[32px] py-1 px-3.5 flex items-center gap-2 border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
+                    title={zone.description}
                   >
-                    {zone.title}
-                  </span>
+                    {(zone.isDocker || zone.title.toLowerCase().includes("docker")) && (
+                      <img
+                        src="/tech-logos/docker.svg"
+                        alt="Docker Logo"
+                        className="w-4 h-4 object-contain inline-block shrink-0"
+                      />
+                    )}
+                    <span
+                      className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${
+                        isUat
+                          ? "text-amber-700 dark:text-amber-400"
+                          : isProd
+                            ? "text-teal-700 dark:text-teal-300"
+                            : zone.isAwsVpc
+                              ? "text-amber-700 dark:text-amber-400"
+                              : zone.isDocker
+                                ? "text-sky-700 dark:text-sky-400"
+                                : "text-carbon dark:text-neutral-200"
+                      }`}
+                    >
+                      {zone.title}
+                    </span>
+                    {isProd && (
+                      <span className="mono text-[9px] font-bold px-2 py-0.5 rounded bg-teal-600 text-white dark:bg-teal-500 dark:text-neutral-900 ml-auto">
+                        goes live only here
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Layer 2: SVG Vector Connections Layer (Lines only) */}

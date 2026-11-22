@@ -2,9 +2,9 @@ name: "Enterprise DevSecOps CI/CD Pipeline"
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "uat"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "uat"]
   workflow_dispatch:
 
 concurrency:

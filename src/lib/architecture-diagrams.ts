@@ -77,6 +77,7 @@ export interface ArchitectureEdge {
   animated?: boolean;
   secondary?: boolean;
   step?: number;
+  badgeLetter?: string;
 }
 
 export interface ArchitectureDiagramData {
