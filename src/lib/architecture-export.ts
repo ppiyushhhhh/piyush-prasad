@@ -153,15 +153,15 @@ export async function buildFullDiagramSvg(
   </defs>
 
   <!-- Background Canvas -->
-  <rect width="100%" height="100%" fill="#F6F8F6" />
+  <rect width="100%" height="100%" fill="#FAF9F6" />
 
   <!-- Grid Pattern -->
   <g opacity="0.35">
     ${Array.from({ length: Math.ceil(totalWidth / 28) })
-      .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${totalHeight}" stroke="#E2E8E4" stroke-width="0.5" />`)
+      .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${totalHeight}" stroke="#E5E5DF" stroke-width="0.5" />`)
       .join("")}
     ${Array.from({ length: Math.ceil(totalHeight / 28) })
-      .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${totalWidth}" y2="${i * 28}" stroke="#E2E8E4" stroke-width="0.5" />`)
+      .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${totalWidth}" y2="${i * 28}" stroke="#E5E5DF" stroke-width="0.5" />`)
       .join("")}
   </g>
 
@@ -169,13 +169,13 @@ export async function buildFullDiagramSvg(
   <g transform="translate(${padding}, 40)">
     <rect x="0" y="-18" width="5" height="22" fill="#0F766E" rx="2" />
     <text x="14" y="-3" class="mono" font-size="10" font-weight="700" fill="#0F766E" letter-spacing="1.2">PIYUSH PRASAD • CLOUD ARCHITECTURE EXPLORER</text>
-    <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#0F1B1A">${escapeXml(diagramTitle)}</text>
+    <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#121316">${escapeXml(diagramTitle)}</text>
     ${
       diagramDescription
-        ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5B6B68">${escapeXml(diagramDescription.slice(0, 120))}${diagramDescription.length > 120 ? "…" : ""}</text>`
+        ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5A5C66">${escapeXml(diagramDescription.slice(0, 120))}${diagramDescription.length > 120 ? "…" : ""}</text>`
         : ""
     }
-    <text x="${totalWidth - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#5B6B68" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
+    <text x="${totalWidth - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#5A5C66" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
   </g>
 
   <!-- Main Architecture Stage -->
@@ -189,7 +189,7 @@ export async function buildFullDiagramSvg(
           if (isDocker) {
             return `
       <g>
-        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#EEF2EF" stroke="#0F766E" stroke-width="1.5" />
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F3F3ED" stroke="#0F766E" stroke-width="1.5" />
         <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#E4F2F0" />
         ${dockerLogo ? `<image href="${dockerLogo}" x="${zone.x + 14}" y="${zone.y + 9}" width="18" height="18" preserveAspectRatio="xMidYMid meet" />` : ""}
         <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#0F766E">${escapeXml(zone.title)}</text>
@@ -197,8 +197,8 @@ export async function buildFullDiagramSvg(
           }
           return `
       <g>
-        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="12" fill="#EEF2EF" stroke="#E2E8E4" stroke-dasharray="4 4" stroke-width="1.2" />
-        <text x="${zone.x + 16}" y="${zone.y + 24}" class="mono" font-size="11" font-weight="700" fill="#5B6B68" letter-spacing="0.5">${escapeXml(zone.title)}</text>
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="12" fill="#F3F3ED" stroke="#E5E5DF" stroke-dasharray="4 4" stroke-width="1.2" />
+        <text x="${zone.x + 16}" y="${zone.y + 24}" class="mono" font-size="11" font-weight="700" fill="#5A5C66" letter-spacing="0.5">${escapeXml(zone.title)}</text>
       </g>`;
         })
         .join("")}
@@ -263,15 +263,15 @@ export async function buildFullDiagramSvg(
 
           return `
       <g transform="translate(${node.x}, ${node.y})">
-        <rect width="${w}" height="${h}" rx="10" fill="#FFFFFF" stroke="#E2E8E4" stroke-width="1.2" />
+        <rect width="${w}" height="${h}" rx="10" fill="#FFFFFF" stroke="#E5E5DF" stroke-width="1.2" />
         <g transform="translate(10, 10)">
           <!-- Logo Tile 32x32 -->
-          <rect width="32" height="32" rx="6" fill="#EEF2EF" stroke="#E2E8E4" stroke-width="1" />
+          <rect width="32" height="32" rx="6" fill="#F3F3ED" stroke="#E5E5DF" stroke-width="1" />
           ${logoUri ? `<image href="${logoUri}" x="3" y="3" width="26" height="26" preserveAspectRatio="xMidYMid meet" />` : ""}
 
           <!-- Title & Tech -->
           <g transform="translate(40, 2)">
-            <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#0F1B1A">${escapeXml(node.name.length > 22 ? node.name.slice(0, 21) + "…" : node.name)}</text>
+            <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#121316">${escapeXml(node.name.length > 22 ? node.name.slice(0, 21) + "…" : node.name)}</text>
             <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#0F766E">${escapeXml(node.tech.length > 24 ? node.tech.slice(0, 23) + "…" : node.tech)}</text>
           </g>
           <circle cx="${w - 24}" cy="8" r="3" fill="#16A34A" />
@@ -284,8 +284,8 @@ export async function buildFullDiagramSvg(
 
   <!-- Footer Block -->
   <g transform="translate(${padding}, ${totalHeight - 18})">
-    <line x1="0" y1="-10" x2="${totalWidth - padding * 2}" y2="-10" stroke="#E2E8E4" stroke-width="0.8" />
-    <text x="0" y="4" class="mono" font-size="9.5" font-weight="600" fill="#5B6B68">piyushprasad.in • Infrastructure &amp; Cloud DevOps Architecture • ${dateStr}</text>
+    <line x1="0" y1="-10" x2="${totalWidth - padding * 2}" y2="-10" stroke="#E5E5DF" stroke-width="0.8" />
+    <text x="0" y="4" class="mono" font-size="9.5" font-weight="600" fill="#5A5C66">piyushprasad.in • Infrastructure &amp; Cloud DevOps Architecture • ${dateStr}</text>
     <text x="${totalWidth - padding * 2}" y="4" class="mono" font-size="9" fill="#9CA3AF" text-anchor="end">Exported from Architecture Explorer</text>
   </g>
 </svg>`;

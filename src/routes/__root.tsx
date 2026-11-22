@@ -222,8 +222,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { name: "color-scheme", content: "light dark" },
-      { name: "theme-color", media: "(prefers-color-scheme: light)", content: "#F6F8F6" },
-      { name: "theme-color", media: "(prefers-color-scheme: dark)", content: "#0B1412" },
+      { name: "theme-color", media: "(prefers-color-scheme: light)", content: "#FAF9F6" },
+      { name: "theme-color", media: "(prefers-color-scheme: dark)", content: "#0E0F12" },
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: isStaging ? "[STAGING] Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" : "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
