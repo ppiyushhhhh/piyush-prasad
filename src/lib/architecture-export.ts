@@ -1,9 +1,14 @@
 import type { ArchitectureDiagramData, ArchitectureNode } from "./architecture-diagrams";
 import { resolveLogo } from "./tech-logo-registry";
-import { NODE_WIDTH, NODE_HEIGHT } from "@/components/architecture/shared/layout";
+import {
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  layoutArchitectureCanvas,
+  type LayoutZone,
+} from "@/components/architecture/shared/layout";
 
 export interface FlowItem {
-  badgeIndex: number;
+  badgeIndex: number | string;
   from: string;
   to: string;
   label: string;
@@ -11,19 +16,41 @@ export interface FlowItem {
   category?: string;
 }
 
+export interface DiagramLayoutExportOptions {
+  nodes: any[];
+  edges: any[];
+  zones?: any[];
+  viewBox?: { minX: number; minY: number; width: number; height: number };
+}
+
+/**
+ * Escapes unsafe characters for valid SVG/XML attributes and text content.
+ */
+function escapeXml(unsafe: string | number | undefined | null): string {
+  if (unsafe === undefined || unsafe === null) return "";
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 /**
  * Inlines an SVG image URL as a base64 data URI so it renders reliably
  * in Canvas PNG conversions without CORS/path breakage.
  */
 async function toDataUri(url: string): Promise<string> {
+  if (!url) return "";
+  if (url.startsWith("data:")) return url;
   try {
     const res = await fetch(url);
-    if (!res.ok) return url;
+    if (!res.ok) return "";
     const svgText = await res.text();
     const encoded = btoa(unescape(encodeURIComponent(svgText)));
     return `data:image/svg+xml;base64,${encoded}`;
   } catch {
-    return url;
+    return "";
   }
 }
 
@@ -35,7 +62,8 @@ export async function buildFullDiagramSvg(
   containerElement: HTMLElement,
   diagramData?: ArchitectureDiagramData,
   diagramTitle: string = "Infrastructure Architecture",
-  diagramDescription?: string
+  diagramDescription?: string,
+  layoutParam?: DiagramLayoutExportOptions
 ): Promise<string> {
   const dateStr = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -43,21 +71,41 @@ export async function buildFullDiagramSvg(
     day: "numeric",
   });
 
-  if (diagramData && diagramData.nodes.length > 0) {
-    const nodes = diagramData.nodes;
-    const edges = diagramData.edges;
+  // Resolve layout either from layoutParam or by running layoutArchitectureCanvas
+  let nodes: any[] = [];
+  let edges: any[] = [];
+  let zones: any[] = [];
+  let viewBox = layoutParam?.viewBox;
 
-    const minX = Math.min(...nodes.map((n) => n.x));
-    const minY = Math.min(...nodes.map((n) => n.y));
-    const maxX = Math.max(...nodes.map((n) => n.x + NODE_WIDTH));
-    const maxY = Math.max(...nodes.map((n) => n.y + NODE_HEIGHT));
+  if (layoutParam && layoutParam.nodes && layoutParam.nodes.length > 0) {
+    nodes = layoutParam.nodes;
+    edges = layoutParam.edges || [];
+    zones = layoutParam.zones || [];
+  } else if (diagramData && diagramData.nodes && diagramData.nodes.length > 0) {
+    const computed = layoutArchitectureCanvas(diagramData, { autoLayout: true });
+    nodes = computed.nodes;
+    edges = computed.edges;
+    zones = computed.zones || [];
+    viewBox = computed.viewBox;
+  }
+
+  if (nodes.length > 0) {
+    const allX1 = [...nodes.map((n) => n.x), ...zones.map((z) => z.x)];
+    const allY1 = [...nodes.map((n) => n.y), ...zones.map((z) => z.y)];
+    const allX2 = [...nodes.map((n) => n.x + (n.width || NODE_WIDTH)), ...zones.map((z) => z.x + z.width)];
+    const allY2 = [...nodes.map((n) => n.y + (n.height || NODE_HEIGHT)), ...zones.map((z) => z.y + z.height)];
+
+    const minX = viewBox ? viewBox.minX : Math.min(...allX1);
+    const minY = viewBox ? viewBox.minY : Math.min(...allY1);
+    const maxX = viewBox ? viewBox.minX + viewBox.width : Math.max(...allX2);
+    const maxY = viewBox ? viewBox.minY + viewBox.height : Math.max(...allY2);
 
     const padding = 50;
     const headerHeight = 90;
     const footerHeight = 50;
 
-    const width = Math.max(maxX - minX + padding * 2, 1100);
-    const height = Math.max(maxY - minY + padding * 2 + headerHeight + footerHeight, 640);
+    const totalWidth = Math.max(maxX - minX + padding * 2, 1100);
+    const totalHeight = Math.max(maxY - minY + padding * 2 + headerHeight + footerHeight, 640);
 
     const offsetX = padding - minX;
     const offsetY = padding + headerHeight - minY;
@@ -68,8 +116,12 @@ export async function buildFullDiagramSvg(
       const logo = resolveLogo(node.tech, node.provider);
       if (logo && !logoMap.has(logo.src)) {
         const uri = await toDataUri(logo.src);
-        logoMap.set(logo.src, uri);
+        if (uri) logoMap.set(logo.src, uri);
       }
+    }
+    if (zones.some((z) => z.isDocker) && !logoMap.has("/tech-logos/docker.svg")) {
+      const uri = await toDataUri("/tech-logos/docker.svg");
+      if (uri) logoMap.set("/tech-logos/docker.svg", uri);
     }
 
     const categoryColors: Record<string, string> = {
@@ -81,20 +133,23 @@ export async function buildFullDiagramSvg(
     };
 
     let svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}" height="${totalHeight}">
   <defs>
     <style>
       .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
       .sans { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     </style>
     ${Object.entries(categoryColors)
-        .map(
-          ([cat, col]) => `
+      .map(
+        ([cat, col]) => `
     <marker id="arrow-${cat}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="${col}" />
     </marker>`
-        )
-        .join("")}
+      )
+      .join("")}
+    <marker id="arrow-secondary" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#9CA3AF" />
+    </marker>
   </defs>
 
   <!-- Background Canvas -->
@@ -102,99 +157,136 @@ export async function buildFullDiagramSvg(
 
   <!-- Grid Pattern -->
   <g opacity="0.35">
-    ${Array.from({ length: Math.ceil(width / 28) })
-        .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${height}" stroke="#E5E5DF" stroke-width="0.5" />`)
-        .join("")}
-    ${Array.from({ length: Math.ceil(height / 28) })
-        .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${width}" y2="${i * 28}" stroke="#E5E5DF" stroke-width="0.5" />`)
-        .join("")}
+    ${Array.from({ length: Math.ceil(totalWidth / 28) })
+      .map((_, i) => `<line x1="${i * 28}" y1="0" x2="${i * 28}" y2="${totalHeight}" stroke="#E5E5DF" stroke-width="0.5" />`)
+      .join("")}
+    ${Array.from({ length: Math.ceil(totalHeight / 28) })
+      .map((_, i) => `<line x1="0" y1="${i * 28}" x2="${totalWidth}" y2="${i * 28}" stroke="#E5E5DF" stroke-width="0.5" />`)
+      .join("")}
   </g>
 
   <!-- Header Block -->
   <g transform="translate(${padding}, 40)">
     <rect x="0" y="-18" width="5" height="22" fill="#1A4BFF" rx="2" />
     <text x="14" y="-3" class="mono" font-size="10" font-weight="700" fill="#1A4BFF" letter-spacing="1.2">PIYUSH PRASAD • CLOUD ARCHITECTURE EXPLORER</text>
-    <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#121316">${diagramTitle}</text>
-    ${diagramDescription
-        ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5A5C66">${diagramDescription.slice(0, 110)}${diagramDescription.length > 110 ? "..." : ""}</text>`
+    <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#121316">${escapeXml(diagramTitle)}</text>
+    ${
+      diagramDescription
+        ? `<text x="14" y="38" class="sans" font-size="10.5" fill="#5A5C66">${escapeXml(diagramDescription.slice(0, 120))}${diagramDescription.length > 120 ? "…" : ""}</text>`
         : ""
-      }
-    <text x="${width - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#6B7280" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
+    }
+    <text x="${totalWidth - padding * 2}" y="22" class="mono" font-size="10" font-weight="600" fill="#6B7280" text-anchor="end">${nodes.length} Components • ${edges.length} Connections</text>
   </g>
 
-  <!-- Edges Layer -->
-  <g>
-    ${edges
-        .map((edge, idx) => {
-          const source = nodes.find((n) => n.id === edge.source);
-          const target = nodes.find((n) => n.id === edge.target);
-          if (!source || !target) return "";
-
-          const sx = source.x + offsetX;
-          const sy = source.y + offsetY;
-          const tx = target.x + offsetX;
-          const ty = target.y + offsetY;
-
-          const startX = sx + NODE_WIDTH;
-          const startY = sy + NODE_HEIGHT / 2;
-          const endX = tx;
-          const endY = ty + NODE_HEIGHT / 2;
-
-          const midX = (startX + endX) / 2;
-          const midY = (startY + endY) / 2;
-          const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
-
-          const strokeColor = categoryColors[edge.category] || "#1A4BFF";
-          const markerId = `arrow-${edge.category || "network"}`;
-          const isBidirectional = edge.direction === "bidirectional";
-          const badgeLabel = edge.secondary
-            ? ((edge as any).badgeLetter || "A")
-            : String((edge as any).badgeIndex || idx + 1);
-
-          return `
+  <!-- Main Architecture Stage -->
+  <g transform="translate(${offsetX}, ${offsetY})">
+    <!-- Zones & Groups Layer -->
     <g>
-      <path d="${(edge as any).pathData || pathData}" fill="none" stroke="${strokeColor}" stroke-width="1.75" stroke-dasharray="${edge.secondary ? "4 4" : "6 4"}" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${markerId})"${isBidirectional ? ` marker-start="url(#${markerId})"` : ""} />
-      <circle cx="${(edge as any).midX ?? midX}" cy="${(edge as any).midY ?? midY}" r="10" fill="${edge.secondary ? "#F3F4F6" : "#FFFFFF"}" stroke="${edge.secondary ? "#9CA3AF" : strokeColor}" stroke-width="1.5" />
-      <text x="${(edge as any).midX ?? midX}" y="${((edge as any).midY ?? midY) + 3.5}" class="mono" font-size="11" font-weight="700" fill="${edge.secondary ? "#6B7280" : strokeColor}" text-anchor="middle">${badgeLabel}</text>
-    </g>`;
+      ${zones
+        .map((zone) => {
+          const isDocker = !!zone.isDocker;
+          const dockerLogo = isDocker ? logoMap.get("/tech-logos/docker.svg") || "" : "";
+          if (isDocker) {
+            return `
+      <g>
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F0F7FF" stroke="#38BDF8" stroke-width="1.5" />
+        <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#E0F2FE" />
+        ${dockerLogo ? `<image href="${dockerLogo}" x="${zone.x + 14}" y="${zone.y + 9}" width="18" height="18" preserveAspectRatio="xMidYMid meet" />` : ""}
+        <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#0369A1">${escapeXml(zone.title)}</text>
+      </g>`;
+          }
+          return `
+      <g>
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="12" fill="#FAF9F6" stroke="#E2E0D8" stroke-dasharray="4 4" stroke-width="1.2" />
+        <text x="${zone.x + 16}" y="${zone.y + 24}" class="mono" font-size="11" font-weight="700" fill="#4B5563" letter-spacing="0.5">${escapeXml(zone.title)}</text>
+      </g>`;
         })
         .join("")}
-  </g>
+    </g>
 
-  <!-- Compact Node Cards (200x96) -->
-  <g>
-    ${nodes
+    <!-- Edges Layer -->
+    <g>
+      ${edges
+        .map((edge, idx) => {
+          const strokeColor = edge.secondary ? "#9CA3AF" : categoryColors[edge.category] || "#1A4BFF";
+          const markerId = edge.secondary ? "arrow-secondary" : `arrow-${edge.category || "network"}`;
+          const isBidirectional = edge.direction === "bidirectional";
+          const badgeLabel = edge.secondary
+            ? edge.badgeLetter || "A"
+            : String(edge.badgeIndex !== undefined ? edge.badgeIndex : idx + 1);
+
+          let pathData = edge.pathData;
+          let midX = edge.midX;
+          let midY = edge.midY;
+
+          if (!pathData) {
+            const source = nodes.find((n) => n.id === edge.source);
+            const target = nodes.find((n) => n.id === edge.target) || zones.find((z) => z.id === edge.target);
+            if (!source || !target) return "";
+
+            const sx = source.x + (source.width || NODE_WIDTH);
+            const sy = source.y + (source.height || NODE_HEIGHT) / 2;
+            const tx = target.x;
+            const ty = target.y + (target.height || NODE_HEIGHT) / 2;
+
+            midX = (sx + tx) / 2;
+            midY = (sy + ty) / 2;
+            pathData = `M ${sx} ${sy} L ${midX} ${sy} L ${midX} ${ty} L ${tx} ${ty}`;
+          }
+
+          const hasBadge = midX !== undefined && midY !== undefined && midX !== 0 && midY !== 0;
+
+          return `
+      <g>
+        <path d="${pathData}" fill="none" stroke="${strokeColor}" stroke-width="1.75" stroke-dasharray="${edge.secondary ? "4 4" : "6 4"}" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${markerId})"${isBidirectional ? ` marker-start="url(#${markerId})"` : ""} />
+        ${
+          hasBadge
+            ? `
+        <circle cx="${midX}" cy="${midY}" r="10" fill="${edge.secondary ? "#F3F4F6" : "#FFFFFF"}" stroke="${edge.secondary ? "#9CA3AF" : strokeColor}" stroke-width="1.5" />
+        <text x="${midX}" y="${midY + 3.5}" class="mono" font-size="10.5" font-weight="700" fill="${edge.secondary ? "#6B7280" : strokeColor}" text-anchor="middle">${escapeXml(badgeLabel)}</text>
+        `
+            : ""
+        }
+      </g>`;
+        })
+        .join("")}
+    </g>
+
+    <!-- Compact Node Cards (200x96) -->
+    <g>
+      ${nodes
         .map((node) => {
-          const x = node.x + offsetX;
-          const y = node.y + offsetY;
+          const w = node.width || NODE_WIDTH;
+          const h = node.height || NODE_HEIGHT;
           const logo = resolveLogo(node.tech, node.provider);
           const logoUri = logo ? logoMap.get(logo.src) || "" : "";
 
           return `
-    <g transform="translate(${x}, ${y})">
-      <rect width="${NODE_WIDTH}" height="${NODE_HEIGHT}" rx="10" fill="#FFFFFF" stroke="#E2E0D8" stroke-width="1.2" />
-      <g transform="translate(10, 10)">
-        <!-- Logo Tile 32x32 -->
-        <rect width="32" height="32" rx="6" fill="#F8F8F6" stroke="#E5E5DF" stroke-width="1" />
-        ${logoUri ? `<image href="${logoUri}" x="3" y="3" width="26" height="26" preserveAspectRatio="xMidYMid meet" />` : ""}
+      <g transform="translate(${node.x}, ${node.y})">
+        <rect width="${w}" height="${h}" rx="10" fill="#FFFFFF" stroke="#E2E0D8" stroke-width="1.2" />
+        <g transform="translate(10, 10)">
+          <!-- Logo Tile 32x32 -->
+          <rect width="32" height="32" rx="6" fill="#F8F8F6" stroke="#E5E5DF" stroke-width="1" />
+          ${logoUri ? `<image href="${logoUri}" x="3" y="3" width="26" height="26" preserveAspectRatio="xMidYMid meet" />` : ""}
 
-        <!-- Title & Status -->
-        <g transform="translate(40, 2)">
-          <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#121316">${node.name.length > 20 ? node.name.slice(0, 19) + "…" : node.name}</text>
-          <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${node.tech.length > 22 ? node.tech.slice(0, 21) + "…" : node.tech}</text>
+          <!-- Title & Tech -->
+          <g transform="translate(40, 2)">
+            <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#121316">${escapeXml(node.name.length > 22 ? node.name.slice(0, 21) + "…" : node.name)}</text>
+            <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${escapeXml(node.tech.length > 24 ? node.tech.slice(0, 23) + "…" : node.tech)}</text>
+          </g>
+          <circle cx="${w - 24}" cy="8" r="3" fill="#10B981" />
         </g>
-        <circle cx="142" cy="8" r="3" fill="#10B981" />
-      </g>
-    </g>`;
+      </g>`;
         })
         .join("")}
+    </g>
   </g>
 
   <!-- Footer Block -->
-  <g transform="translate(${padding}, ${height - 20})">
-    <line x1="0" y1="-12" x2="${width - padding * 2}" y2="-12" stroke="#E5E5DF" stroke-width="0.8" />
+  <g transform="translate(${padding}, ${totalHeight - 18})">
+    <line x1="0" y1="-10" x2="${totalWidth - padding * 2}" y2="-10" stroke="#E5E5DF" stroke-width="0.8" />
     <text x="0" y="4" class="mono" font-size="9.5" font-weight="600" fill="#5A5C66">piyushprasad.in • Infrastructure &amp; Cloud DevOps Architecture • ${dateStr}</text>
-    <text x="${width - padding * 2}" y="4" class="mono" font-size="9" fill="#9CA3AF" text-anchor="end">Exported from Architecture Explorer</text>
+    <text x="${totalWidth - padding * 2}" y="4" class="mono" font-size="9" fill="#9CA3AF" text-anchor="end">Exported from Architecture Explorer</text>
   </g>
 </svg>`;
 
@@ -209,7 +301,9 @@ export async function buildFullDiagramSvg(
   const clonedSvg = svgElement.cloneNode(true) as SVGElement;
   clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   const serializer = new XMLSerializer();
-  return serializer.serializeToString(clonedSvg);
+  let rawSvg = serializer.serializeToString(clonedSvg);
+  rawSvg = rawSvg.replace(/&(?!(amp|lt|gt|quot|apos);)/g, "&amp;");
+  return rawSvg;
 }
 
 /**
@@ -220,9 +314,10 @@ export async function exportDiagramAsPng(
   fileName: string = "architecture-diagram",
   diagramData?: ArchitectureDiagramData,
   diagramTitle?: string,
-  diagramDescription?: string
+  diagramDescription?: string,
+  layout?: DiagramLayoutExportOptions
 ): Promise<void> {
-  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle, diagramDescription);
+  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle, diagramDescription, layout);
   const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const blobUrl = URL.createObjectURL(svgBlob);
 
@@ -263,8 +358,12 @@ export async function exportDiagramAsPng(
           link.download = `${fileName}.png`;
           document.body.appendChild(link);
           link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(pngUrl);
+          setTimeout(() => {
+            if (link.parentNode) {
+              document.body.removeChild(link);
+            }
+            URL.revokeObjectURL(pngUrl);
+          }, 10000);
           resolve();
         },
         "image/png",
@@ -272,7 +371,7 @@ export async function exportDiagramAsPng(
       );
     };
 
-    image.onerror = () => {
+    image.onerror = (e) => {
       URL.revokeObjectURL(blobUrl);
       reject(new Error("Failed to load SVG image for PNG rendering"));
     };
@@ -290,12 +389,13 @@ export async function exportDiagramAsPdf(
   diagramData?: ArchitectureDiagramData,
   diagramTitle: string = "Infrastructure Architecture",
   diagramDescription?: string,
-  flows?: FlowItem[]
+  flows?: FlowItem[],
+  layout?: DiagramLayoutExportOptions
 ): Promise<void> {
   const { jsPDF } = await import("jspdf");
 
   // Generate PNG canvas for high-quality embedding
-  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle, diagramDescription);
+  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle, diagramDescription, layout);
   const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const blobUrl = URL.createObjectURL(svgBlob);
 
@@ -397,7 +497,7 @@ export async function exportDiagramAsPdf(
   }
 
   // Footer
-  const dateStr = new Date().toLocaleDateString("en-US", {
+  const footerDateStr = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -405,7 +505,7 @@ export async function exportDiagramAsPdf(
   doc.setFont("courier", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
-  doc.text(`piyushprasad.in • Cloud DevOps Architecture • ${dateStr}`, margin, pageHeight - 6);
+  doc.text(`piyushprasad.in • Cloud DevOps Architecture • ${footerDateStr}`, margin, pageHeight - 6);
 
   doc.save(`${fileName}.pdf`);
 }
@@ -419,12 +519,13 @@ export async function exportDiagramAsGif(
   diagramData?: ArchitectureDiagramData,
   diagramTitle: string = "Infrastructure Architecture",
   onProgress?: (percent: number) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  layoutParam?: DiagramLayoutExportOptions
 ): Promise<void> {
   const { GIFEncoder, quantize, applyPalette } = await import("gifenc");
 
   // Build the base diagram SVG and load as image
-  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle);
+  const svgString = await buildFullDiagramSvg(containerElement, diagramData, diagramTitle, undefined, layoutParam);
   const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const blobUrl = URL.createObjectURL(svgBlob);
 
@@ -438,7 +539,8 @@ export async function exportDiagramAsGif(
   });
 
   const width = Math.min(baseImage.width || 1000, 1000);
-  const height = Math.min(baseImage.height || 600, 600);
+  const scale = width / (baseImage.width || 1000);
+  const height = Math.round((baseImage.height || 600) * scale);
 
   const offscreenCanvas = document.createElement("canvas");
   offscreenCanvas.width = width;
@@ -452,8 +554,25 @@ export async function exportDiagramAsGif(
   const delayMs = Math.round(1000 / fps);
 
   // Nodes and edges for deterministic animated packet rendering
-  const nodes = diagramData?.nodes || [];
-  const edges = diagramData?.edges || [];
+  let nodes = layoutParam?.nodes || [];
+  let edges = layoutParam?.edges || [];
+  let zones = layoutParam?.zones || [];
+
+  if (nodes.length === 0 && diagramData) {
+    const computed = layoutArchitectureCanvas(diagramData, { autoLayout: true });
+    nodes = computed.nodes;
+    edges = computed.edges;
+    zones = computed.zones || [];
+  }
+
+  const allX1 = [...nodes.map((n) => n.x), ...zones.map((z) => z.x)];
+  const allY1 = [...nodes.map((n) => n.y), ...zones.map((z) => z.y)];
+  const minX = allX1.length ? Math.min(...allX1) : 0;
+  const minY = allY1.length ? Math.min(...allY1) : 0;
+  const padding = 50;
+  const headerHeight = 90;
+  const offsetX = padding - minX;
+  const offsetY = padding + headerHeight - minY;
 
   for (let frame = 0; frame < totalFrames; frame++) {
     if (signal?.aborted) {
@@ -471,32 +590,50 @@ export async function exportDiagramAsGif(
     if (nodes.length > 0 && edges.length > 0) {
       for (const edge of edges) {
         const src = nodes.find((n) => n.id === edge.source);
-        const tgt = nodes.find((n) => n.id === edge.target);
+        const tgt = nodes.find((n) => n.id === edge.target) || zones.find((z) => z.id === edge.target);
         if (!src || !tgt) continue;
 
-        // Base coordinates scaled to offscreen canvas
-        const sx = src.x + 200;
-        const sy = src.y + 48;
-        const tx = tgt.x;
-        const ty = tgt.y + 48;
+        // Base coordinates in stage coordinate space
+        const sx = (src.x + offsetX + (src.width || NODE_WIDTH)) * scale;
+        const sy = (src.y + offsetY + (src.height || NODE_HEIGHT) / 2) * scale;
+        const tx = (tgt.x + offsetX) * scale;
+        const ty = (tgt.y + offsetY + (tgt.height || NODE_HEIGHT) / 2) * scale;
 
         // Packet progression along edge
         const duration = 2.4; // 2.4s per loop
         const progress = (t % duration) / duration;
-        const px = sx + (tx - sx) * progress;
-        const py = sy + (ty - sy) * progress;
+
+        let px: number;
+        let py: number;
+
+        if (edge.midX !== undefined && edge.midY !== undefined && edge.midX !== 0 && edge.midY !== 0) {
+          const mx = (edge.midX + offsetX) * scale;
+          const my = (edge.midY + offsetY) * scale;
+          if (progress < 0.5) {
+            const p = progress * 2;
+            px = sx + (mx - sx) * p;
+            py = sy + (my - sy) * p;
+          } else {
+            const p = (progress - 0.5) * 2;
+            px = mx + (tx - mx) * p;
+            py = my + (ty - my) * p;
+          }
+        } else {
+          px = sx + (tx - sx) * progress;
+          py = sy + (ty - sy) * progress;
+        }
 
         // Glowing packet dot
         ctx.save();
-        ctx.fillStyle = "#1A4BFF";
+        ctx.fillStyle = edge.secondary ? "#9CA3AF" : "#1A4BFF";
         ctx.beginPath();
-        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = "rgba(26, 75, 255, 0.4)";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = edge.secondary ? "rgba(156, 163, 175, 0.4)" : "rgba(26, 75, 255, 0.4)";
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.arc(px, py, 5.5, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
@@ -532,6 +669,10 @@ export async function exportDiagramAsGif(
   link.download = `${fileName}.gif`;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(downloadUrl);
+  setTimeout(() => {
+    if (link.parentNode) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(downloadUrl);
+  }, 10000);
 }

@@ -39,34 +39,6 @@ async function isServerReady(url) {
   }
 }
 
-// Line segment intersects box interior
-function lineIntersectsBoxInterior(p1, p2, box, margin = 2) {
-  const left = box.left + margin;
-  const right = box.right - margin;
-  const top = box.top + margin;
-  const bottom = box.bottom - margin;
-
-  if (left >= right || top >= bottom) return false;
-
-  const minX = Math.min(p1.x, p2.x);
-  const maxX = Math.max(p1.x, p2.x);
-  const minY = Math.min(p1.y, p2.y);
-  const maxY = Math.max(p1.y, p2.y);
-
-  if (maxX <= left || minX >= right || maxY <= top || minY >= bottom) return false;
-
-  // If horizontal line passes through vertical span of box
-  if (Math.abs(p1.y - p2.y) < 1) {
-    return p1.y > top && p1.y < bottom && minX < right && maxX > left;
-  }
-  // If vertical line passes through horizontal span of box
-  if (Math.abs(p1.x - p2.x) < 1) {
-    return p1.x > left && p1.x < right && minY < bottom && maxY > top;
-  }
-
-  return false;
-}
-
 async function run() {
   console.log('🚀 Starting Architecture DOM & Quality Gate Check across all 14 diagrams...\n');
 
@@ -131,7 +103,7 @@ async function run() {
         await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
         await page.waitForTimeout(600);
 
-        // Capture required screenshots for Telegram AI Agent
+        // Capture required screenshots for Telegram AI Agent & OnixMall
         if (slug === 'telegram-ai-agent') {
           if (mode === 'light') {
             await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'telegram-agent-desktop-light.png') });
@@ -139,14 +111,40 @@ async function run() {
           } else {
             await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'telegram-agent-desktop-dark.png') });
           }
+        } else if (slug === 'onixmall-devsecops') {
+          if (mode === 'light') {
+            await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'onixmall-desktop-light.png') });
+          } else {
+            await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'onixmall-desktop-dark.png') });
+          }
         }
 
         const metrics = await page.evaluate(() => {
           const cards = Array.from(document.querySelectorAll('.node-interactive'));
-          const cardRects = cards.map((c) => {
-            const r = c.getBoundingClientRect();
-            return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height };
+          const cardElements = cards.map((c) => {
+            const cardDiv = c.querySelector('[data-node-id]') || c;
+            const nodeId = cardDiv.getAttribute('data-node-id') || c.getAttribute('data-node-id');
+            const r = cardDiv.getBoundingClientRect();
+            return {
+              nodeId,
+              left: r.left,
+              top: r.top,
+              right: r.right,
+              bottom: r.bottom,
+              width: r.width,
+              height: r.height,
+            };
           });
+
+          const cardRects = cardElements.map((ce) => ({
+            nodeId: ce.nodeId,
+            left: ce.left,
+            top: ce.top,
+            right: ce.right,
+            bottom: ce.bottom,
+            width: ce.width,
+            height: ce.height,
+          }));
 
           // 1. Card vs Card Overlap (8px clearance margin)
           let cardCardOverlap = 0;
@@ -180,14 +178,84 @@ async function run() {
             }
           }
 
-          // 3. Numbered badges count (each primary edge has a numbered badge)
+          // 3. Status dots: exactly 1 per card
+          let cardsWithWrongStatusDots = 0;
+          for (const c of cards) {
+            const dots = c.querySelectorAll('.rounded-full.h-1\\.5.w-1\\.5, .rounded-full.w-1\\.5.h-1\\.5');
+            if (dots.length !== 1) {
+              cardsWithWrongStatusDots++;
+            }
+          }
+
+          // 4. Line Ends Attached: Each visible edge path start and end points must touch source and target card border within 2.5px
+          const edgePaths = Array.from(document.querySelectorAll('path[data-edge-id]'));
+          let linesDetached = 0;
+          const connectedNodes = new Set();
+
+          function distToBorder(px, py, r) {
+            const dx = px < r.left ? r.left - px : px > r.right ? px - r.right : 0;
+            const dy = py < r.top ? r.top - py : py > r.bottom ? py - r.bottom : 0;
+            if (dx === 0 && dy === 0) {
+              return Math.min(px - r.left, r.right - px, py - r.top, r.bottom - py);
+            }
+            return Math.hypot(dx, dy);
+          }
+
+          for (const pathEl of edgePaths) {
+            const srcId = pathEl.getAttribute('data-source');
+            const tgtId = pathEl.getAttribute('data-target');
+            if (srcId) connectedNodes.add(srcId);
+            if (tgtId) connectedNodes.add(tgtId);
+
+            const len = pathEl.getTotalLength ? pathEl.getTotalLength() : 0;
+            if (len > 0) {
+              const pStart = pathEl.getPointAtLength(0);
+              const pEnd = pathEl.getPointAtLength(len);
+
+              const srcRect = cardRects.find((cr) => cr.nodeId === srcId);
+              const tgtRect = cardRects.find((cr) => cr.nodeId === tgtId);
+
+              const ctm = pathEl.getScreenCTM();
+              if (ctm && srcRect && tgtRect && pathEl.ownerSVGElement) {
+                const svgStart = pathEl.ownerSVGElement.createSVGPoint();
+                svgStart.x = pStart.x;
+                svgStart.y = pStart.y;
+                const screenStart = svgStart.matrixTransform(ctm);
+
+                const svgEnd = pathEl.ownerSVGElement.createSVGPoint();
+                svgEnd.x = pEnd.x;
+                svgEnd.y = pEnd.y;
+                const screenEnd = svgEnd.matrixTransform(ctm);
+
+                const dSrc = distToBorder(screenStart.x, screenStart.y, srcRect);
+                const dTgt = distToBorder(screenEnd.x, screenEnd.y, tgtRect);
+
+                if (dSrc > 2.5 || dTgt > 2.5) {
+                  linesDetached++;
+                }
+              }
+            }
+          }
+
+          // 5. Orphan nodes: each card must have >= 1 visible edge attached to it
+          let orphanCount = 0;
+          for (const cr of cardRects) {
+            if (cr.nodeId && !connectedNodes.has(cr.nodeId)) {
+              orphanCount++;
+            }
+          }
+
+          // 6. Badges: offset <= 6px from its path, and 0 collisions
           const badges = Array.from(document.querySelectorAll('.edge-badge'));
           const visibleLines = badges.length;
-
-          // 4. Badges do not overlap cards or tier headers
+          let badgePathOffsetFailures = 0;
           let badgeOverlap = 0;
+
           for (const b of badges) {
             const br = b.getBoundingClientRect();
+            const bx = br.left + br.width / 2;
+            const by = br.top + br.height / 2;
+
             for (const cr of cardRects) {
               const overlaps = !(
                 br.right <= cr.left ||
@@ -197,6 +265,7 @@ async function run() {
               );
               if (overlaps) badgeOverlap++;
             }
+
             for (const tr of tierTitles) {
               const trBox = tr.getBoundingClientRect();
               const overlaps = !(
@@ -207,14 +276,62 @@ async function run() {
               );
               if (overlaps) badgeOverlap++;
             }
+
+            const edgeId = b.getAttribute('data-edge-id');
+            const pathEl = edgeId ? document.querySelector(`path[data-edge-id="${edgeId}"]`) : null;
+            if (pathEl && pathEl.getTotalLength) {
+              const ctm = pathEl.getScreenCTM();
+              if (ctm && pathEl.ownerSVGElement) {
+                const totalLen = pathEl.getTotalLength();
+                let minD = Infinity;
+                const samples = Math.max(10, Math.min(50, Math.floor(totalLen / 10)));
+                for (let s = 0; s <= samples; s++) {
+                  const pt = pathEl.getPointAtLength((s / samples) * totalLen);
+                  const svgPt = pathEl.ownerSVGElement.createSVGPoint();
+                  svgPt.x = pt.x;
+                  svgPt.y = pt.y;
+                  const scPt = svgPt.matrixTransform(ctm);
+                  const dist = Math.hypot(scPt.x - bx, scPt.y - by);
+                  if (dist < minD) minD = dist;
+                }
+                if (minD > 6.0) {
+                  badgePathOffsetFailures++;
+                }
+              }
+            }
           }
 
-          // 5. Text truncation / cut text
+          // Check badge vs badge collision (min center distance 18px)
+          for (let i = 0; i < badges.length; i++) {
+            const r1 = badges[i].getBoundingClientRect();
+            const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
+            for (let j = i + 1; j < badges.length; j++) {
+              const r2 = badges[j].getBoundingClientRect();
+              const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
+              if (Math.hypot(c1.x - c2.x, c1.y - c2.y) < 18) {
+                badgeOverlap++;
+              }
+            }
+          }
+
+          // 7. Text truncated / cut text (or ellipsis in titles/cards)
           let textTruncated = 0;
+          tierTitles.forEach((tt) => {
+            if (tt.textContent && tt.textContent.includes('…')) {
+              textTruncated++;
+            }
+            if (tt.scrollWidth > tt.clientWidth + 2) {
+              textTruncated++;
+            }
+          });
+
           cards.forEach((card) => {
             const textEls = card.querySelectorAll('h4, p, span');
             textEls.forEach((el) => {
               if (el.classList.contains('line-clamp-2') || el.classList.contains('line-clamp-3')) return;
+              if (el.textContent && el.textContent.includes('…')) {
+                textTruncated++;
+              }
               if (el.scrollWidth > el.clientWidth + 1) {
                 textTruncated++;
               }
@@ -227,6 +344,10 @@ async function run() {
             cardCardOverlap,
             cardTitleOverlap,
             badgeOverlap,
+            badgePathOffsetFailures,
+            linesDetached,
+            orphanCount,
+            cardsWithWrongStatusDots,
             textTruncated,
           };
         });
@@ -236,6 +357,10 @@ async function run() {
           metrics.cardCardOverlap === 0 &&
           metrics.cardTitleOverlap === 0 &&
           metrics.badgeOverlap === 0 &&
+          metrics.badgePathOffsetFailures === 0 &&
+          metrics.linesDetached === 0 &&
+          metrics.orphanCount === 0 &&
+          metrics.cardsWithWrongStatusDots === 0 &&
           metrics.textTruncated === 0;
 
         results.push({
@@ -250,26 +375,43 @@ async function run() {
         await page.close();
       }
 
-      // Mobile check at 390x844
-      const mobilePage = await browser.newPage({
-        viewport: { width: 390, height: 844 },
-      });
-      await mobilePage.goto(`${BASE_URL}/architecture?diagram=${slug}`, { waitUntil: 'networkidle' });
-      await mobilePage.waitForTimeout(500);
-
-      if (slug === 'telegram-ai-agent') {
-        await mobilePage.screenshot({
-          path: path.join(SCREENSHOT_DIR, 'telegram-agent-mobile.png'),
+      // Mobile check at 390x844 (light & dark)
+      for (const mMode of ['light', 'dark']) {
+        const mobilePage = await browser.newPage({
+          viewport: { width: 390, height: 844 },
+          colorScheme: mMode,
         });
+        await mobilePage.goto(`${BASE_URL}/architecture?diagram=${slug}`, { waitUntil: 'networkidle' });
+        await mobilePage.waitForTimeout(500);
+
+        if (slug === 'telegram-ai-agent') {
+          if (mMode === 'light') {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'telegram-agent-mobile.png'),
+            });
+          }
+        } else if (slug === 'onixmall-devsecops') {
+          if (mMode === 'light') {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile-light.png'),
+            });
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile.png'),
+            });
+          } else {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile-dark.png'),
+            });
+          }
+        }
+        await mobilePage.close();
       }
-      await mobilePage.close();
     }
 
     // Capture telegram secondary flows screenshot
     const secPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await secPage.goto(`${BASE_URL}/architecture?diagram=telegram-ai-agent`, { waitUntil: 'networkidle' });
     await secPage.waitForTimeout(500);
-    // Click "SECONDARY" toggle button
     const secButton = await secPage.$('button:has-text("SECONDARY")');
     if (secButton) {
       await secButton.click();
@@ -302,10 +444,28 @@ async function run() {
 
         const metrics = await page.evaluate(() => {
           const cards = Array.from(document.querySelectorAll('.node-interactive'));
-          const cardRects = cards.map((c) => {
-            const r = c.getBoundingClientRect();
-            return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+          const cardElements = cards.map((c) => {
+            const cardDiv = c.querySelector('[data-node-id]') || c;
+            const nodeId = cardDiv.getAttribute('data-node-id') || c.getAttribute('data-node-id');
+            const r = cardDiv.getBoundingClientRect();
+            return {
+              nodeId,
+              left: r.left,
+              top: r.top,
+              right: r.right,
+              bottom: r.bottom,
+              width: r.width,
+              height: r.height,
+            };
           });
+
+          const cardRects = cardElements.map((ce) => ({
+            nodeId: ce.nodeId,
+            left: ce.left,
+            top: ce.top,
+            right: ce.right,
+            bottom: ce.bottom,
+          }));
 
           let cardCardOverlap = 0;
           for (let i = 0; i < cardRects.length; i++) {
@@ -322,14 +482,122 @@ async function run() {
             }
           }
 
+          let cardsWithWrongStatusDots = 0;
+          for (const c of cards) {
+            const dots = c.querySelectorAll('.rounded-full.h-1\\.5.w-1\\.5, .rounded-full.w-1\\.5.h-1\\.5');
+            if (dots.length !== 1) {
+              cardsWithWrongStatusDots++;
+            }
+          }
+
+          const edgePaths = Array.from(document.querySelectorAll('path[data-edge-id]'));
+          let linesDetached = 0;
+          const connectedNodes = new Set();
+
+          function distToBorder(px, py, r) {
+            const dx = px < r.left ? r.left - px : px > r.right ? px - r.right : 0;
+            const dy = py < r.top ? r.top - py : py > r.bottom ? py - r.bottom : 0;
+            if (dx === 0 && dy === 0) {
+              return Math.min(px - r.left, r.right - px, py - r.top, r.bottom - py);
+            }
+            return Math.hypot(dx, dy);
+          }
+
+          for (const pathEl of edgePaths) {
+            const srcId = pathEl.getAttribute('data-source');
+            const tgtId = pathEl.getAttribute('data-target');
+            if (srcId) connectedNodes.add(srcId);
+            if (tgtId) connectedNodes.add(tgtId);
+
+            const len = pathEl.getTotalLength ? pathEl.getTotalLength() : 0;
+            if (len > 0) {
+              const pStart = pathEl.getPointAtLength(0);
+              const pEnd = pathEl.getPointAtLength(len);
+
+              const srcRect = cardRects.find((cr) => cr.nodeId === srcId);
+              const tgtRect = cardRects.find((cr) => cr.nodeId === tgtId);
+
+              const ctm = pathEl.getScreenCTM();
+              if (ctm && srcRect && tgtRect && pathEl.ownerSVGElement) {
+                const svgStart = pathEl.ownerSVGElement.createSVGPoint();
+                svgStart.x = pStart.x;
+                svgStart.y = pStart.y;
+                const screenStart = svgStart.matrixTransform(ctm);
+
+                const svgEnd = pathEl.ownerSVGElement.createSVGPoint();
+                svgEnd.x = pEnd.x;
+                svgEnd.y = pEnd.y;
+                const screenEnd = svgEnd.matrixTransform(ctm);
+
+                const dSrc = distToBorder(screenStart.x, screenStart.y, srcRect);
+                const dTgt = distToBorder(screenEnd.x, screenEnd.y, tgtRect);
+
+                if (dSrc > 2.5 || dTgt > 2.5) {
+                  linesDetached++;
+                }
+              }
+            }
+          }
+
+          let orphanCount = 0;
+          for (const cr of cardRects) {
+            if (cr.nodeId && !connectedNodes.has(cr.nodeId)) {
+              orphanCount++;
+            }
+          }
+
           const badges = Array.from(document.querySelectorAll('.edge-badge'));
           const visibleLines = badges.length;
+          let badgePathOffsetFailures = 0;
+          let badgeOverlap = 0;
+
+          for (const b of badges) {
+            const br = b.getBoundingClientRect();
+            const bx = br.left + br.width / 2;
+            const by = br.top + br.height / 2;
+
+            for (const cr of cardRects) {
+              const overlaps = !(
+                br.right <= cr.left ||
+                cr.right <= br.left ||
+                br.bottom <= cr.top ||
+                cr.bottom <= br.top
+              );
+              if (overlaps) badgeOverlap++;
+            }
+
+            const edgeId = b.getAttribute('data-edge-id');
+            const pathEl = edgeId ? document.querySelector(`path[data-edge-id="${edgeId}"]`) : null;
+            if (pathEl && pathEl.getTotalLength) {
+              const ctm = pathEl.getScreenCTM();
+              if (ctm && pathEl.ownerSVGElement) {
+                const totalLen = pathEl.getTotalLength();
+                let minD = Infinity;
+                const samples = Math.max(10, Math.min(50, Math.floor(totalLen / 10)));
+                for (let s = 0; s <= samples; s++) {
+                  const pt = pathEl.getPointAtLength((s / samples) * totalLen);
+                  const svgPt = pathEl.ownerSVGElement.createSVGPoint();
+                  svgPt.x = pt.x;
+                  svgPt.y = pt.y;
+                  const scPt = svgPt.matrixTransform(ctm);
+                  const dist = Math.hypot(scPt.x - bx, scPt.y - by);
+                  if (dist < minD) minD = dist;
+                }
+                if (minD > 6.0) {
+                  badgePathOffsetFailures++;
+                }
+              }
+            }
+          }
 
           let textTruncated = 0;
           cards.forEach((card) => {
             const textEls = card.querySelectorAll('h4, p, span');
             textEls.forEach((el) => {
               if (el.classList.contains('line-clamp-2') || el.classList.contains('line-clamp-3')) return;
+              if (el.textContent && el.textContent.includes('…')) {
+                textTruncated++;
+              }
               if (el.scrollWidth > el.clientWidth + 1) {
                 textTruncated++;
               }
@@ -341,7 +609,11 @@ async function run() {
             visibleLines,
             cardCardOverlap,
             cardTitleOverlap: 0,
-            badgeOverlap: 0,
+            badgeOverlap,
+            badgePathOffsetFailures,
+            linesDetached,
+            orphanCount,
+            cardsWithWrongStatusDots,
             textTruncated,
           };
         });
@@ -349,6 +621,11 @@ async function run() {
         const pass =
           metrics.visibleLines <= 10 &&
           metrics.cardCardOverlap === 0 &&
+          metrics.badgeOverlap === 0 &&
+          metrics.badgePathOffsetFailures === 0 &&
+          metrics.linesDetached === 0 &&
+          metrics.orphanCount === 0 &&
+          metrics.cardsWithWrongStatusDots === 0 &&
           metrics.textTruncated === 0;
 
         results.push({
@@ -371,11 +648,15 @@ async function run() {
         Diagram: r.name,
         Mode: r.mode,
         Cards: r.cardCount,
-        'Visible Lines (<=10)': r.visibleLines,
-        'C-C Overlap': r.cardCardOverlap,
-        'C-T Overlap': r.cardTitleOverlap,
-        'Badge Overlap': r.badgeOverlap,
-        'Text Cut': r.textTruncated,
+        Lines: r.visibleLines,
+        'C-C Ovlp': r.cardCardOverlap,
+        'C-T Ovlp': r.cardTitleOverlap,
+        'Bdg Ovlp': r.badgeOverlap,
+        'Bdg Off': r.badgePathOffsetFailures,
+        Detached: r.linesDetached,
+        Orphans: r.orphanCount,
+        'Dots Err': r.cardsWithWrongStatusDots,
+        'Txt Cut': r.textTruncated,
         Status: r.pass ? 'PASS' : 'FAIL',
       }))
     );
@@ -387,6 +668,10 @@ async function run() {
       console.log(`\n✅ ALL ${results.length} DIAGRAM VIEWS PASSED DOM QUALITY GATE!`);
       console.log(`✅ 0 SVG EXPORT REFERENCES IN USER UI!`);
       console.log(`✅ ALL DIAGRAMS HAVE <= 10 VISIBLE LINES IN DEFAULT VIEW!`);
+      console.log(`✅ ALL LINES ATTACHED TO CARD BORDERS (<= 2.5px gap)!`);
+      console.log(`✅ ALL BADGES ON-PATH (<= 6px offset) WITH 0 COLLISIONS!`);
+      console.log(`✅ 0 ORPHAN NODES ACROSS ALL 14 DIAGRAMS!`);
+      console.log(`✅ EXACTLY 1 STATUS DOT PER CARD!`);
       console.log(`Screenshots saved to: ${SCREENSHOT_DIR}\n`);
       process.exitCode = 0;
     } else {

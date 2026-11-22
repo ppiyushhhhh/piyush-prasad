@@ -26,6 +26,8 @@ export interface ArchitectureConnection {
   category?: "network" | "data" | "security" | "deployment" | "telemetry";
   direction?: "directional" | "bidirectional";
   secondary?: boolean;
+  description?: string;
+  step?: number;
 }
 
 export interface ArchitectureData {
@@ -332,25 +334,26 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
       components: [
         {
           id: "client",
-          name: "Client Web Browser",
+          name: "Client Public Visitor",
           type: "edge",
           description: "Visitors and tenants accessing the OnixMall web platform over HTTPS",
-          tech: "React 18 / Vite SPA",
+          tech: "Web Browser / HTTPS",
         },
         {
           id: "nginx",
-          name: "Nginx Hardened Proxy",
+          name: "Nginx Hardened Web Server",
           type: "network",
           description: "SSL termination with modern TLS suites and rate-limiting reverse proxy",
-          tech: "Nginx 1.24",
+          tech: "Nginx 1.24 / SSL",
           port: "80, 443",
         },
         {
-          id: "docker",
-          name: "Docker Compose Stack",
+          id: "vite",
+          name: "Frontend Web Application",
           type: "compute",
-          description: "Multi-container orchestration managing frontend, backend, and MongoDB services",
-          tech: "Docker Compose / Engine",
+          description: "Tenant directory and mall search portal running in Docker container",
+          tech: "React 18 / Vite SPA",
+          port: "80",
         },
         {
           id: "express",
@@ -362,11 +365,25 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
         },
         {
           id: "mongo",
-          name: "MongoDB Document Database",
+          name: "MongoDB Document Store",
           type: "database",
           description: "Transactional document datastore persisting store listings and tenant data",
-          tech: "MongoDB 7.0 Container",
+          tech: "MongoDB 7.0 Community",
           port: "27017",
+        },
+        {
+          id: "email",
+          name: "DevOps Alert & PDF Reporter",
+          type: "observability",
+          description: "Daily reporting daemon emailing health metrics and PDF summaries",
+          tech: "Nodemailer / Gmail SMTP",
+        },
+        {
+          id: "trivy",
+          name: "Trivy Security Scanner",
+          type: "security",
+          description: "Vulnerability scanning daemon auditing container images and gating CI",
+          tech: "Trivy Vulnerability Gate",
         },
         {
           id: "actions",
@@ -382,22 +399,17 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
           description: "Configuration management node executing playbooks for host provisioning",
           tech: "Ansible Playbooks",
         },
-        {
-          id: "trivy",
-          name: "Trivy Security Scanner",
-          type: "security",
-          description: "Nightly vulnerability scanning daemon auditing container images and mailing alerts",
-          tech: "Trivy CLI & Nodemailer",
-        },
       ],
       connections: [
-        { from: "client", to: "nginx", label: "HTTPS Web Ingress", protocol: "TLS 1.3" },
-        { from: "nginx", to: "docker", label: "Frontend Proxy Pass", protocol: "HTTP / Port 80" },
-        { from: "docker", to: "express", label: "Backend Container IPC", protocol: "Docker Bridge Network" },
-        { from: "express", to: "mongo", label: "Database CRUD Operations", protocol: "MongoDB Port 27017", direction: "bidirectional" },
-        { from: "actions", to: "docker", label: "Docker Automated Deploy", protocol: "SSH / Compose" },
-        { from: "ansible", to: "docker", label: "Configuration Rollout", protocol: "Ansible Playbook" },
-        { from: "trivy", to: "docker", label: "CVE Vulnerability Audit", protocol: "Cron / SMTP Alert", secondary: true },
+        { from: "client", to: "nginx", label: "HTTPS Web Ingress", protocol: "TLS 1.3", step: 1 },
+        { from: "nginx", to: "vite", label: "Frontend Proxy Pass", protocol: "HTTP / Port 80", step: 2 },
+        { from: "vite", to: "express", label: "REST API Requests", protocol: "HTTP /api/malls", step: 3 },
+        { from: "express", to: "mongo", label: "Database CRUD Operations", protocol: "MongoDB Port 27017", direction: "bidirectional", step: 4 },
+        { from: "actions", to: "trivy", label: "CI Vulnerability Gate", protocol: "Trivy Action / Exit 1", secondary: true, step: 5 },
+        { from: "actions", to: "sec-onix-docker", label: "SSH Compose Deploy", protocol: "docker-compose up -d --build", secondary: true, step: 6 },
+        { from: "actions", to: "ansible", label: "Trigger Ansible CI", protocol: "ansible-deploy.yml", secondary: true, step: 7 },
+        { from: "ansible", to: "sec-onix-docker", label: "Ansible Playbook Rollout", protocol: "ansible-playbook", secondary: true, step: 8 },
+        { from: "trivy", to: "email", label: "Email Daily PDF Report", protocol: "Nodemailer / SMTP 465", secondary: true, step: 9 },
       ],
     },
     implementation_details:
