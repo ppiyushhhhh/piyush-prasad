@@ -74,16 +74,31 @@
 
 | Service / Component | Technology / Tier | Used For | Evidence Files | Status |
 | :--- | :--- | :--- | :--- | :--- |
+| **Developer / Lovable Editor** | Local Workstation, Lovable Web Editor | Engineers code changes via local Git or Lovable interface | `README.md`, `package.json` | **Documented** |
+| **GitHub Repository** | Git, Multi-Branch (`feature`, `uat`, `main`) | Version control with feature branches, UAT promotion, and main release | `.github/workflows/ci.yml`, `docs/RELEASE_FLOW.md` | **Verified** |
+| **GitHub Actions CI Pipeline** | Bun Runtime, Node 20, Ubuntu Runner | Quality gate (typecheck + lint), security audit, and Vite SSR build verification | `.github/workflows/ci.yml`, `.github/workflows/codeql.yml` | **Verified** |
+| **UAT / Staging Environment** | Vercel Preview, TanStack Start | Pre-production testing at `test.piyushprasad.in` (`VITE_APP_ENV=staging`, noindex, simulated email) | `src/lib/staging.guard.ts`, `src/routes/__root.tsx` | **Verified (Code) / Documented (Vercel)** |
+| **Promotion Approval Gate** | GitHub Pull Request Review | Mandatory human review, QA verification, and status check sign-off before merge to main | `docs/RELEASE_FLOW.md`, `README.md` | **Documented** |
+| **Production Environment** | Vercel Serverless Edge | Live production site serving global traffic at `piyushprasad.in` upon approved merge | `src/lib/site.ts`, `.github/workflows/ci.yml` | **Verified** |
+| **Staging Data Isolation** | Staging Isolation Guard / Mock Layer | Blocks write mutations against production database when running in staging mode | `src/lib/staging.guard.ts:86-92` | **Documented / Needs Confirmation** |
 | **Vercel Edge Network** | Vercel Global Anycast Edge | Edge routing, global CDN caching, SSL termination, and static asset delivery | Stated by owner, `package.json` | **Verified** |
 | **TanStack Start & Nitro** | React 19, TanStack Start, Nitro SSR runtime | High-performance full-stack SSR runtime executing server functions and API handlers | `src/router.tsx`, `package.json`, `app.config.ts` | **Verified** |
 | **Supabase PostgreSQL** | PostgreSQL 15, PostgREST, RLS policies (AWS ap-south-1) | Database cluster storing projects, skills, certificates, experience, and contact entries | `src/integrations/supabase/types.ts` | **Verified** |
 | **Supabase Storage** | S3-compatible object storage (`project-media`, `database-backups`) | Cloud storage for portfolio media assets, architecture diagrams, and nightly backups | `scripts/run-database-backup.mjs` | **Verified** |
+| **Daily Report Job** | Node 20, Headless Google Chrome, PDFKit | Daily 13:30 UTC (19:00 IST) synthetic audit: HTTP, DNS, TLS expiry, assets, Lighthouse | `.github/workflows/daily-report.yml`, `scripts/generate-report.mjs` | **Verified** |
+| **Nightly Backup Job** | Node 20, Supabase Service Client, pure SQL | Nightly 02:00 UTC (07:30 IST) table dumps and 7-day rolling retention management | `.github/workflows/database-backup.yml`, `scripts/run-database-backup.mjs` | **Verified** |
 | **Google Gemini 3.6 Flash** | Gemini 3.6 Flash API | Primary conversational AI assistant powering `/api/chat` with deep context integration | `src/routes/api/chat.ts` | **Verified** |
 | **Resend Email Service** | Resend REST API | Primary transactional email dispatch for contact inquiries | `src/routes/api/contact.ts` | **Verified** |
 | **Nodemailer SMTP Fallback** | Nodemailer over TLS Port 465 (Gmail SMTP) | Secondary fallback email gateway if primary Resend API fails | `src/routes/api/contact.ts` | **Verified** |
 | **Web3Forms Emergency Alert** | Web3Forms HTTP API | Operational alert fallback for backup failure notifications | `scripts/run-database-backup.mjs` | **Verified** |
-| **GitHub Actions CI/CD & Crons** | GitHub Actions Ubuntu runners | Code validation, CodeQL analysis, daily health reports, and nightly database backups | `.github/workflows/*.yml` | **Verified** |
-| **Headless Chrome & Lighthouse** | Headless Chrome, Lighthouse CLI, PDFKit | Daily performance audit and PDF generation in GitHub Actions | `scripts/generate-report.mjs` | **Verified** |
+| **Credly API Ingestion** | Credly REST API / JSON | Automatic ingestion and verification of official digital badges | `src/lib/credly-badges.ts` | **Verified** |
+
+### Needs Confirmation Checklist (PP·OPS Portfolio)
+1. **Vercel Branch-Domain Mapping**: Confirm whether `test.piyushprasad.in` is mapped to branch `uat` (or `staging`) in Vercel project domain settings.
+2. **Staging Supabase Project**: Confirm whether a separate dedicated Supabase staging project exists or if staging relies strictly on the `assertStagingWriteAllowed` guard.
+3. **Lovable Branch Target**: Lovable currently syncs to `main`; confirm if Lovable will be pointed to branch `uat` to prevent direct unreviewed pushes to production.
+4. **Cloudflare vs Vercel Hosting Target**: Project overview mentions "Deployed on Cloudflare edge and AWS infrastructure", whereas CI and runtime target Vercel Serverless Edge.
+5. **UAT Probing for Daily Report**: Currently `scripts/generate-report.mjs` probes `SITE_DOMAIN` (default `piyushprasad.in`). Confirm if a second synthetic probe should also target `test.piyushprasad.in` after each UAT preview deployment.
 
 ---
 

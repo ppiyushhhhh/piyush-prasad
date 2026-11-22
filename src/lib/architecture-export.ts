@@ -208,7 +208,7 @@ export async function buildFullDiagramSvg(
     <g>
       ${edges
         .map((edge, idx) => {
-          const strokeColor = edge.secondary ? "#9CA3AF" : categoryColors[edge.category] || "#0F766E";
+          const strokeColor = edge.secondary ? "#9CA3AF" : categoryColors[edge.category] || "#1A4BFF";
           const markerId = edge.secondary ? "arrow-secondary" : `arrow-${edge.category || "network"}`;
           const isBidirectional = edge.direction === "bidirectional";
           const badgeLabel = edge.secondary
