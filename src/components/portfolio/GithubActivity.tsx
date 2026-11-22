@@ -199,7 +199,7 @@ function RepoCard({ repo }: { repo: Repo }) {
           : ["open-source", repo.language?.toLowerCase() ?? "devops"];
 
   return (
-    <div className="group flex flex-col justify-between border border-border bg-white p-6 transition-all duration-300 hover:border-cobalt hover:shadow-2xs">
+    <div className="group flex flex-col justify-between border border-border bg-surface p-6 transition-all duration-300 hover:border-cobalt hover:shadow-2xs">
       <div>
         {/* Header: Repo Name & External Link */}
         <div className="flex items-start justify-between gap-3">
@@ -453,7 +453,7 @@ export function GithubActivity() {
 
         {/* States: Loading, Error, Stale */}
         {isLoading && !data && (
-          <div className="mono flex items-center justify-center gap-3 border border-border bg-white p-12 text-xs text-carbon/70">
+          <div className="mono flex items-center justify-center gap-3 border border-border bg-surface p-12 text-xs text-carbon/70">
             <Loader2 className="h-5 w-5 animate-spin text-cobalt" />
             Querying GitHub API for latest repository commits…
           </div>
@@ -470,7 +470,7 @@ export function GithubActivity() {
         )}
 
         {showStaleNotice && (
-          <div className="mono mb-4 flex items-center gap-2 border border-border bg-white px-4 py-2 text-[10px] text-carbon/70">
+          <div className="mono mb-4 flex items-center gap-2 border border-border bg-surface px-4 py-2 text-[10px] text-carbon/70">
             <span className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
             Displaying cached activity snapshot — live GitHub API rate limited.
           </div>
@@ -490,7 +490,7 @@ export function GithubActivity() {
                 <button
                   type="button"
                   onClick={() => setShowAll((s) => !s)}
-                  className="mono inline-flex items-center gap-2 border border-carbon bg-white px-5 py-2.5 text-[11px] tracking-[0.14em] font-semibold text-carbon transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
+                  className="mono inline-flex items-center gap-2 border border-carbon bg-surface px-5 py-2.5 text-[11px] tracking-[0.14em] font-semibold text-carbon transition-all hover:border-cobalt hover:bg-cobalt hover:text-white"
                 >
                   {showAll ? (
                     <>
