@@ -353,11 +353,11 @@ function HealthPage() {
                       <Tooltip content={<HealthChartTooltip />} />
                       <ReferenceLine
                         y={150}
-                        stroke="#0F766E"
+                        stroke="#1A4BFF"
                         strokeDasharray="4 4"
                         label={{
                           value: "SLA 150MS",
-                          fill: "#0F766E",
+                          fill: "#1A4BFF",
                           fontSize: 9,
                           position: "insideTopRight",
                           fontFamily: "monospace",
@@ -366,10 +366,10 @@ function HealthPage() {
                       <Line
                         type="monotone"
                         dataKey="latency"
-                        stroke="#0F766E"
+                        stroke="#1A4BFF"
                         strokeWidth={2}
-                        dot={{ r: 3, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
-                        activeDot={{ r: 5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
+                        dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       />
                     </LineChart>
                   ) : (
@@ -403,7 +403,7 @@ function HealthPage() {
                               entry.latency < 130
                                 ? "#059669"
                                 : entry.latency < 180
-                                ? "#0F766E"
+                                ? "#1A4BFF"
                                 : "#D97706"
                             }
                           />

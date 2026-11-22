@@ -125,7 +125,7 @@ export async function buildFullDiagramSvg(
     }
 
     const categoryColors: Record<string, string> = {
-      network: "#0F766E",
+      network: "#1A4BFF",
       data: "#0284C7",
       security: "#D97706",
       deployment: "#7C3AED",
@@ -167,8 +167,8 @@ export async function buildFullDiagramSvg(
 
   <!-- Header Block -->
   <g transform="translate(${padding}, 40)">
-    <rect x="0" y="-18" width="5" height="22" fill="#0F766E" rx="2" />
-    <text x="14" y="-3" class="mono" font-size="10" font-weight="700" fill="#0F766E" letter-spacing="1.2">PIYUSH PRASAD • CLOUD ARCHITECTURE EXPLORER</text>
+    <rect x="0" y="-18" width="5" height="22" fill="#1A4BFF" rx="2" />
+    <text x="14" y="-3" class="mono" font-size="10" font-weight="700" fill="#1A4BFF" letter-spacing="1.2">PIYUSH PRASAD • CLOUD ARCHITECTURE EXPLORER</text>
     <text x="14" y="22" class="sans" font-size="18" font-weight="700" fill="#121316">${escapeXml(diagramTitle)}</text>
     ${
       diagramDescription
@@ -189,10 +189,10 @@ export async function buildFullDiagramSvg(
           if (isDocker) {
             return `
       <g>
-        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F3F3ED" stroke="#0F766E" stroke-width="1.5" />
-        <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#E4F2F0" />
+        <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="10" fill="#F3F3ED" stroke="#1A4BFF" stroke-width="1.5" />
+        <rect x="${zone.x + 8}" y="${zone.y + 6}" width="${zone.width - 16}" height="24" rx="6" fill="#EEF2FF" />
         ${dockerLogo ? `<image href="${dockerLogo}" x="${zone.x + 14}" y="${zone.y + 9}" width="18" height="18" preserveAspectRatio="xMidYMid meet" />` : ""}
-        <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#0F766E">${escapeXml(zone.title)}</text>
+        <text x="${zone.x + (dockerLogo ? 38 : 16)}" y="${zone.y + 22}" class="mono" font-size="10.5" font-weight="700" fill="#1A4BFF">${escapeXml(zone.title)}</text>
       </g>`;
           }
           return `
@@ -272,7 +272,7 @@ export async function buildFullDiagramSvg(
           <!-- Title & Tech -->
           <g transform="translate(40, 2)">
             <text x="0" y="11" class="sans" font-size="11" font-weight="700" fill="#121316">${escapeXml(node.name.length > 22 ? node.name.slice(0, 21) + "…" : node.name)}</text>
-            <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#0F766E">${escapeXml(node.tech.length > 24 ? node.tech.slice(0, 23) + "…" : node.tech)}</text>
+            <text x="0" y="24" class="mono" font-size="9" font-weight="600" fill="#1A4BFF">${escapeXml(node.tech.length > 24 ? node.tech.slice(0, 23) + "…" : node.tech)}</text>
           </g>
           <circle cx="${w - 24}" cy="8" r="3" fill="#16A34A" />
         </g>
@@ -625,7 +625,7 @@ export async function exportDiagramAsGif(
 
         // Glowing packet dot
         ctx.save();
-        ctx.fillStyle = edge.secondary ? "#9CA3AF" : "#0F766E";
+        ctx.fillStyle = edge.secondary ? "#9CA3AF" : "#1A4BFF";
         ctx.beginPath();
         ctx.arc(px, py, 3.5, 0, Math.PI * 2);
         ctx.fill();

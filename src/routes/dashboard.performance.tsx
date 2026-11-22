@@ -619,10 +619,10 @@ function PerformancePage() {
                     <Line
                       type="monotone"
                       dataKey="performance"
-                      stroke="#0F766E"
+                      stroke="#1A4BFF"
                       strokeWidth={2}
-                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
-                      activeDot={{ r: 5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
+                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="Performance"
                     />
                     <Line
@@ -674,11 +674,11 @@ function PerformancePage() {
                     <Tooltip content={<LatencyChartTooltip />} />
                     <ReferenceLine
                       y={600}
-                      stroke="#0F766E"
+                      stroke="#1A4BFF"
                       strokeDasharray="4 4"
                       label={{
                         value: "SLA 600MS TTFB",
-                        fill: "#0F766E",
+                        fill: "#1A4BFF",
                         fontSize: 9,
                         position: "insideTopRight",
                         fontFamily: "monospace",
@@ -687,10 +687,10 @@ function PerformancePage() {
                     <Line
                       type="monotone"
                       dataKey="ttfb"
-                      stroke="#0F766E"
+                      stroke="#1A4BFF"
                       strokeWidth={2}
-                      dot={{ r: 3.5, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
-                      activeDot={{ r: 5.5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
+                      dot={{ r: 3.5, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
+                      activeDot={{ r: 5.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="TTFB"
                     />
                   </LineChart>

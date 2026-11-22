@@ -4,7 +4,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF9F6",
-  "theme_color": "#0F766E",
+  "theme_color": "#1A4BFF",
   "icons": [
     {
       "src": "/pp-logo.png",

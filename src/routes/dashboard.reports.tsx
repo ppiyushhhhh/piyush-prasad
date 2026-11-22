@@ -39,7 +39,7 @@ function downloadReportFile(report: {
     .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
     .card { background: #F3F3ED; padding: 18px; border-radius: 4px; border: 1px solid #E5E5DF; text-align: center; }
-    .card-num { font-size: 30px; font-weight: bold; color: #0F766E; font-family: monospace; }
+    .card-num { font-size: 30px; font-weight: bold; color: #1A4BFF; font-family: monospace; }
     .card-label { font-size: 11px; text-transform: uppercase; color: #5A5C66; letter-spacing: 0.1em; font-family: monospace; margin-top: 4px; }
     table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E5DF; }
@@ -49,7 +49,7 @@ function downloadReportFile(report: {
       body { background: #fff; color: #000; padding: 0; }
       .container { border: none; box-shadow: none; padding: 0; background: #fff; }
       .card { border: 1px solid #E5E5DF; background: #F3F3ED; }
-      .card-num { color: #0F766E; }
+      .card-num { color: #1A4BFF; }
     }
   </style>
 </head>

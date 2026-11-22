@@ -76,7 +76,7 @@ export function ArchitectureLegend({ className = "" }: ArchitectureLegendProps) 
             Connection Layers:
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#0F766E]" />
+            <span className="h-2 w-2 rounded-full bg-[#1A4BFF]" />
             <span className="mono text-[10px] text-carbon/80 dark:text-neutral-200">Network Traffic</span>
           </div>
           <div className="flex items-center gap-1.5">

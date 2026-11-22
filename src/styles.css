@@ -64,7 +64,7 @@
   color-scheme: light;
   --radius: 0.25rem;
 
-  /* Restored Original Warm Off-White & Pure White Background Tokens */
+  /* Restored Original Warm Off-White & Cobalt Blue Tokens */
   --background: #FAF9F6;
   --foreground: #121316;
   --surface: #FFFFFF;
@@ -72,9 +72,9 @@
   --text: #121316;
   --text-muted: #5A5C66;
   --border: #E5E5DF;
-  --accent: #0F766E;
-  --accent-hover: #0D5F59;
-  --accent-soft: #E4F2F0;
+  --accent: #1A4BFF;
+  --accent-hover: #1439CC;
+  --accent-soft: #EEF2FF;
   --text-on-accent: #FFFFFF;
   --highlight: #F59E0B;
 
@@ -89,7 +89,7 @@
 .dark {
   color-scheme: dark;
 
-  /* Restored Original Dark Mode Background & Surface Tokens */
+  /* Restored Original Dark Mode Background & Vibrant Blue Tokens */
   --background: #0E0F12;
   --foreground: #EDEDED;
   --surface: #121316;
@@ -97,9 +97,9 @@
   --text: #EDEDED;
   --text-muted: #9E9E9E;
   --border: #262626;
-  --accent: #2DD4BF;
-  --accent-hover: #5EEAD4;
-  --accent-soft: #0F2A27;
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-soft: #1E293B;
   --text-on-accent: #0A0A0A;
   --highlight: #F59E0B;
 

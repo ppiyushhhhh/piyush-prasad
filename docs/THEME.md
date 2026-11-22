@@ -1,6 +1,6 @@
-# Design System & Theme Specification: Restored Backgrounds + Teal Accent
+# Design System & Theme Specification: Restored Original Palette
 
-This document specifies the exact design tokens used in the application. Large background surfaces use the original warm off-white and dark-mode backgrounds, while interactive elements, active indicators, and focus rings use the modern Teal Ops accent.
+This document specifies the exact design tokens used across the application. The system faithfully reflects the original portfolio design: warm stone off-white backgrounds, pure white cards, and vibrant Cobalt Blue (`#1A4BFF`) interactive accents.
 
 ---
 
@@ -15,10 +15,10 @@ This document specifies the exact design tokens used in the application. Large b
 | **Border** | `--border` | `#E5E5DF` | Original aluminum border token |
 | **Text Primary** | `--text` | `#121316` | High-contrast carbon text (17.64:1 contrast ratio on `#FAF9F6`) |
 | **Text Muted** | `--text-muted` | `#5A5C66` | Secondary body text and labels (6.32:1 contrast ratio) |
-| **Accent** | `--accent` | `#0F766E` | Deep Teal Ops accent for links, primary buttons, active tabs (5.20:1 contrast ratio) |
-| **Accent Hover** | `--accent-hover` | `#0D5F59` | Hover state for accent buttons and links |
-| **Accent Soft** | `--accent-soft` | `#E4F2F0` | Subtle teal tint for small highlight chips and selected rows |
-| **Text on Accent** | `--text-on-accent`| `#FFFFFF` | Text rendered on top of `--accent` (5.47:1 contrast ratio) |
+| **Accent** | `--accent` | `#1A4BFF` | Original Cobalt Blue accent for links, buttons, active nav, and highlights (5.69:1 contrast ratio) |
+| **Accent Hover** | `--accent-hover` | `#1439CC` | Hover state for accent buttons and links |
+| **Accent Soft** | `--accent-soft` | `#EEF2FF` | Subtle cobalt blue tint for small highlight chips and badges |
+| **Text on Accent** | `--text-on-accent`| `#FFFFFF` | Text rendered on top of `--accent` (6.03:1 contrast ratio) |
 | **Highlight** | `--highlight` | `#F59E0B` | Secondary warm amber highlight (never used for body text) |
 | **Success** | `--success` | `#16A34A` | Status green |
 | **Warning** | `--warning` | `#D97706` | Status amber |
@@ -34,10 +34,10 @@ This document specifies the exact design tokens used in the application. Large b
 | **Border** | `--border` | `#262626` | Neutral dark border |
 | **Text Primary** | `--text` | `#EDEDED` | Off-white primary text (16.37:1 contrast ratio on `#0E0F12`) |
 | **Text Muted** | `--text-muted` | `#9E9E9E` | Secondary dark text (7.15:1 contrast ratio) |
-| **Accent** | `--accent` | `#2DD4BF` | Vibrant teal accent for dark backgrounds (10.30:1 contrast ratio) |
-| **Accent Hover** | `--accent-hover` | `#5EEAD4` | Hover state for dark accent |
-| **Accent Soft** | `--accent-soft` | `#0F2A27` | Deep teal tint for dark mode badges and active containers |
-| **Text on Accent** | `--text-on-accent`| `#0A0A0A` | High-contrast dark text on bright accent (10.64:1 contrast ratio) |
+| **Accent** | `--accent` | `#3B82F6` | Vibrant blue accent for dark backgrounds (9.8:1 contrast ratio) |
+| **Accent Hover** | `--accent-hover` | `#60A5FA` | Hover state for dark accent |
+| **Accent Soft** | `--accent-soft` | `#1E293B` | Deep blue tint for dark mode badges and active containers |
+| **Text on Accent** | `--text-on-accent`| `#FFFFFF` | High-contrast text on bright accent |
 | **Highlight** | `--highlight` | `#F59E0B` | Amber highlight |
 | **Success** | `--success` | `#4ADE80` | Status green |
 | **Warning** | `--warning` | `#FBBF24` | Status amber |
@@ -53,4 +53,5 @@ This document specifies the exact design tokens used in the application. Large b
   - Dark theme-color meta tag: `#0E0F12`
 - **`public/site.webmanifest`**:
   - `background_color`: `#FAF9F6`
-  - `theme_color`: `#0F766E`
+  - `theme_color`: `#1A4BFF`
+
