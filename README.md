@@ -6,7 +6,7 @@ Built with **React 19**, **TanStack Start (SSR)**, **Tailwind CSS v4**, and **Su
 
 ---
 
-**Production Website:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Staging Environment:** [test.piyushprasad.in](https://test.piyushprasad.in) &nbsp;•&nbsp; **Architecture Explorer:** [/architecture](https://www.piyushprasad.in/architecture) &nbsp;•&nbsp; **Projects Catalog:** [/projects](https://www.piyushprasad.in/projects) &nbsp;•&nbsp; **GitHub Showcase:** [/github](https://www.piyushprasad.in/github) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Observability Console:** [/dashboard](https://www.piyushprasad.in/dashboard)
+**Production Website:** [www.piyushprasad.in](https://www.piyushprasad.in) &nbsp;•&nbsp; **Staging Environment:** [dev.piyushprasad.in](https://dev.piyushprasad.in) &nbsp;•&nbsp; **Architecture Explorer:** [/architecture](https://www.piyushprasad.in/architecture) &nbsp;•&nbsp; **Projects Catalog:** [/projects](https://www.piyushprasad.in/projects) &nbsp;•&nbsp; **GitHub Showcase:** [/github](https://www.piyushprasad.in/github) &nbsp;•&nbsp; **Resume:** [/resume](https://www.piyushprasad.in/resume) &nbsp;•&nbsp; **Observability Console:** [/dashboard](https://www.piyushprasad.in/dashboard)
 
 [![Live Production](https://img.shields.io/badge/Production-piyushprasad.in-1A4BFF?style=flat-square&logo=cloudflare&logoColor=white)](https://www.piyushprasad.in)
 [![Staging Environment](https://img.shields.io/badge/Staging-test.piyushprasad.in-f59e0b?style=flat-square&logo=vercel&logoColor=white)](https://test.piyushprasad.in)
@@ -510,7 +510,7 @@ node scripts/check-architecture-dom.cjs
 Navi Mumbai, Maharashtra, India
 
 - **Website:** [www.piyushprasad.in](https://www.piyushprasad.in)
-- **Staging Portal:** [test.piyushprasad.in](https://test.piyushprasad.in)
+- **Staging Portal:** [dev.piyushprasad.in](https://dev.piyushprasad.in)
 - **Architecture Explorer:** [www.piyushprasad.in/architecture](https://www.piyushprasad.in/architecture)
 - **Projects Catalog:** [www.piyushprasad.in/projects](https://www.piyushprasad.in/projects)
 - **GitHub:** [@ppiyushhhhh](https://github.com/ppiyushhhhh)
