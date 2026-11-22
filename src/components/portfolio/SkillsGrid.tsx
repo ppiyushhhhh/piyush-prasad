@@ -13,7 +13,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import { TechLogo } from "./TechLogos";
-import { MiniInfrastructureCard } from "./MiniInfrastructureCard";
+import HowItRuns from "./HowItRuns";
 
 import { PRIORITY_TECHS, SKILL_CATEGORIES_DATA } from "@/data/portfolio-data";
 
@@ -92,58 +92,51 @@ export function SkillsGrid() {
           </div>
         </div>
 
-        {/* Categories & Mini Infrastructure Layout */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-14 lg:items-stretch">
-          {/* Left Column: Categorized Detailed Skills */}
-          <div className="lg:col-span-8 flex flex-col justify-between">
-            <div>
-              <div className="mono mb-4 text-xs font-semibold text-text tracking-wider">
-                DETAILED DOMAIN CAPABILITIES
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                {SKILL_CATEGORIES.map((cat, i) => {
-                  const Icon = cat.icon;
-                  return (
-                    <motion.div
-                      key={cat.label}
-                      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 15 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-30px" }}
-                      transition={{ duration: 0.35, delay: i * 0.05 }}
-                      className="flex flex-col justify-between border border-border bg-surface p-5 transition-all hover:border-border"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2 text-accent mb-3">
-                          <Icon className="h-4 w-4" />
-                          <span className="mono text-[10px] font-bold tracking-wider text-text">
-                            {cat.label.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {cat.tags.map((t) => (
-                            <span
-                              key={t}
-                              className="mono border border-border bg-surface-muted px-2 py-0.5 text-[10px] text-text/80 hover:border-accent hover:text-accent transition-colors"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Categorized Detailed Skills */}
+        <div className="mb-14">
+          <div className="mono mb-4 text-xs font-semibold text-text tracking-wider">
+            DETAILED DOMAIN CAPABILITIES
           </div>
 
-          {/* Right Column: Reference Workflow Mini Infrastructure Card */}
-          <div className="lg:col-span-4 flex flex-col">
-            <div className="flex-1 flex flex-col">
-              <MiniInfrastructureCard />
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {SKILL_CATEGORIES.map((cat, i) => {
+              const Icon = cat.icon;
+              return (
+                <motion.div
+                  key={cat.label}
+                  initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-30px" }}
+                  transition={{ duration: 0.35, delay: i * 0.05 }}
+                  className="flex flex-col justify-between border border-border bg-surface p-5 transition-all hover:border-border"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 text-accent mb-3">
+                      <Icon className="h-4 w-4" />
+                      <span className="mono text-[10px] font-bold tracking-wider text-text">
+                        {cat.label.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cat.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="mono border border-border bg-surface-muted px-2 py-0.5 text-[10px] text-text/80 hover:border-accent hover:text-accent transition-colors"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
+        </div>
+
+        {/* Reference Workflow: How It Runs (Full Width) */}
+        <div className="w-full">
+          <HowItRuns />
         </div>
       </div>
     </section>
