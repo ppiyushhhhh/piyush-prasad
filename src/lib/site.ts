@@ -8,4 +8,5 @@ export const PHONE = "+91 9324236673";
 export const LINKEDIN = "https://linkedin.com/in/ppiyushhhh";
 export const GITHUB = "https://github.com/ppiyushhhhh";
 export const CREDLY_PROFILE = "https://www.credly.com/users/ppiyushhhh/badges/credly";
+export const PROJECTS_URL = "https://dev.piyushprasad.in/projects";
 

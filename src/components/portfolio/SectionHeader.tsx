@@ -20,14 +20,13 @@ export function SectionHeader({
   return (
     <div className={`mb-12 md:mb-16 ${className}`}>
       {/* Category Eyebrow / Number */}
-      <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-carbon/60">
-        <span className="inline-flex items-center gap-1.5 font-bold text-cobalt">
-          <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+      <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-carbon/60 dark:text-white/60">
+        <span className="font-bold text-cobalt">
           {n}
         </span>
-        <span className="text-carbon/30">/</span>
-        <span className="tracking-[0.16em] text-carbon/80">{label}</span>
-        <span className="ml-3 h-px flex-1 bg-border" />
+        <span className="text-carbon/30 dark:text-white/30">/</span>
+        <span className="tracking-[0.16em] text-carbon/80 dark:text-white/80">{label}</span>
+        <span className="ml-3 h-px flex-1 bg-border dark:bg-white/10" />
       </div>
 
       {/* Main Section Heading */}
