@@ -47,12 +47,14 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
   // Databases & Storage
   postgresql: { src: "/tech-logos/postgresql.svg", label: "PostgreSQL", brandColor: "#4169E1" },
   mysql: { src: "/tech-logos/mysql.svg", label: "MySQL", brandColor: "#4479A1" },
+  mongodb: { src: "/tech-logos/mongodb.svg", label: "MongoDB", brandColor: "#13AA52" },
   sqlite: { src: "/tech-logos/sqlite.svg", label: "SQLite", brandColor: "#003B57" },
   redis: { src: "/tech-logos/redis.svg", label: "Redis", brandColor: "#DC382D" },
   upstash: { src: "/tech-logos/upstash.svg", label: "Upstash Redis", brandColor: "#00E9A3" },
 
   // Web Servers & Runtimes
   nginx: { src: "/tech-logos/nginx.svg", label: "Nginx", brandColor: "#009639" },
+  express: { src: "/tech-logos/express.svg", label: "Express.js", brandColor: "#000000" },
   nodejs: { src: "/tech-logos/nodejs.svg", label: "Node.js", brandColor: "#5FA04E" },
   bun: { src: "/tech-logos/bun.svg", label: "Bun", brandColor: "#FBF0DF" },
   typescript: { src: "/tech-logos/typescript.svg", label: "TypeScript", brandColor: "#3178C6" },
@@ -60,6 +62,7 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
 
   // Containers & Orchestration
   docker: { src: "/tech-logos/docker.svg", label: "Docker", brandColor: "#2496ED" },
+  ansible: { src: "/tech-logos/ansible.svg", label: "Ansible", brandColor: "#000000" },
   kubernetes: { src: "/tech-logos/kubernetes.svg", label: "Kubernetes", brandColor: "#326CE5" },
   terraform: { src: "/tech-logos/terraform.svg", label: "Terraform", brandColor: "#844FBA" },
 
@@ -82,6 +85,8 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
 
   // Messaging, APIs & AI
   resend: { src: "/tech-logos/resend.svg", label: "Resend", brandColor: "#000000" },
+  gmail: { src: "/tech-logos/gmail.svg", label: "Gmail / SMTP", brandColor: "#EA4335" },
+  pdf: { src: "/tech-logos/pdf.svg", label: "PDFKit / PDF", brandColor: "#DC2626" },
   gemini: { src: "/tech-logos/gemini.svg", label: "Google Gemini", brandColor: "#8E75FF" },
   telegram: { src: "/tech-logos/telegram.svg", label: "Telegram", brandColor: "#26A5E4" },
 
@@ -214,6 +219,12 @@ export function resolveLogo(
   if (tech.includes("resend") || provider.includes("resend")) {
     return TECH_LOGO_REGISTRY.resend;
   }
+  if (tech.includes("gmail") || tech.includes("smtp") || tech.includes("nodemailer")) {
+    return TECH_LOGO_REGISTRY.gmail;
+  }
+  if (tech.includes("pdf") || tech.includes("pdfkit")) {
+    return TECH_LOGO_REGISTRY.pdf;
+  }
 
   // 4. Monitoring & Observability
   if (tech.includes("prometheus") || tech.includes("node exporter")) {
@@ -235,6 +246,9 @@ export function resolveLogo(
   }
 
   // 6. Databases
+  if (tech.includes("mongo") || tech.includes("mongoose")) {
+    return TECH_LOGO_REGISTRY.mongodb;
+  }
   if (tech.includes("sqlite")) {
     return TECH_LOGO_REGISTRY.sqlite;
   }
@@ -252,6 +266,9 @@ export function resolveLogo(
   }
 
   // 7. CI/CD & Automation
+  if (tech.includes("ansible")) {
+    return TECH_LOGO_REGISTRY.ansible;
+  }
   if (tech.includes("github action") || tech.includes("github actions")) {
     return TECH_LOGO_REGISTRY.githubactions;
   }
@@ -301,7 +318,10 @@ export function resolveLogo(
   if (tech.includes("react")) {
     return TECH_LOGO_REGISTRY.react;
   }
-  if (tech.includes("node") || tech.includes("express") || tech.includes("pm2")) {
+  if (tech.includes("express")) {
+    return TECH_LOGO_REGISTRY.express;
+  }
+  if (tech.includes("node") || tech.includes("pm2")) {
     return TECH_LOGO_REGISTRY.nodejs;
   }
   if (tech.includes("bun")) {

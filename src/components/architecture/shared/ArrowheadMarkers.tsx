@@ -11,8 +11,8 @@ export function ArrowheadMarkers() {
           viewBox="0 0 10 10"
           refX="8"
           refY="5"
-          markerWidth="6"
-          markerHeight="6"
+          markerWidth="7"
+          markerHeight="7"
           orient="auto-start-reverse"
         >
           <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill={colors.stroke} />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -13,6 +13,12 @@ import {
   Repeat,
   Scan,
   LayoutGrid,
+  Download,
+  FileText,
+  Image as ImageIcon,
+  Film,
+  GitFork,
+  ChevronDown,
 } from "lucide-react";
 import type { JourneyStepInfo } from "./useDiagramAnimation";
 
@@ -27,6 +33,10 @@ interface DiagramToolbarProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onOpenWorkspace?: () => void;
+  // Secondary flows state
+  showSecondary?: boolean;
+  onToggleSecondary?: () => void;
+  secondaryCount?: number;
   // Live State
   isLive: boolean;
   onToggleLive: () => void;
@@ -43,7 +53,14 @@ interface DiagramToolbarProps {
   onPrevJourneyStep: () => void;
   onSetJourneySpeed: (speed: 0.5 | 1 | 2) => void;
   onToggleJourneyLoop: () => void;
-  // Optional extra buttons (e.g. Export buttons on canvas)
+  // Export actions
+  onExportPng?: () => void;
+  onExportPdf?: () => void;
+  onExportGif?: () => void;
+  isExporting?: boolean;
+  gifProgress?: number | null;
+  onCancelGif?: () => void;
+  // Optional extra buttons
   extraActions?: React.ReactNode;
   className?: string;
 }
@@ -59,6 +76,9 @@ export function DiagramToolbar({
   isFullscreen,
   onToggleFullscreen,
   onOpenWorkspace,
+  showSecondary = false,
+  onToggleSecondary,
+  secondaryCount = 0,
   isLive,
   onToggleLive,
   isJourneyActive,
@@ -73,9 +93,28 @@ export function DiagramToolbar({
   onPrevJourneyStep,
   onSetJourneySpeed,
   onToggleJourneyLoop,
+  onExportPng,
+  onExportPdf,
+  onExportGif,
+  isExporting = false,
+  gifProgress = null,
+  onCancelGif,
   extraActions,
   className = "",
 }: DiagramToolbarProps) {
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const downloadRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (downloadRef.current && !downloadRef.current.contains(event.target as Node)) {
+        setDownloadMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className={`flex flex-col gap-2.5 w-full ${className}`}>
       {/* Top Toolbar Row */}
@@ -189,6 +228,32 @@ export function DiagramToolbar({
             </div>
           )}
 
+          {/* Secondary Flows Toggle Button */}
+          {onToggleSecondary && (
+            <button
+              type="button"
+              onClick={onToggleSecondary}
+              className={`mono inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-[10px] font-bold tracking-wider transition-colors cursor-pointer ${
+                showSecondary
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                  : "border-border bg-white dark:bg-neutral-900 text-muted-foreground hover:text-carbon"
+              }`}
+              title={
+                showSecondary
+                  ? "Secondary flows visible (telemetry, fallback, logging)"
+                  : "Show secondary flows (telemetry, fallback, logging)"
+              }
+              aria-label="Toggle secondary flows"
+            >
+              <GitFork className="h-3 w-3" />
+              <span>
+                {showSecondary
+                  ? `SECONDARY FLOWS (${secondaryCount})`
+                  : `SECONDARY (${secondaryCount})`}
+              </span>
+            </button>
+          )}
+
           {/* Optional Layout Mode Toggle */}
           {onToggleLayoutMode && (
             <button
@@ -213,7 +278,7 @@ export function DiagramToolbar({
           )}
         </div>
 
-        {/* Right Controls: Live/Paused + Zoom + Fit + Reset + Fullscreen */}
+        {/* Right Controls: Live/Paused + Zoom + Fit + Reset + Download Menu + Fullscreen */}
         <div className="flex items-center gap-1.5 p-1 rounded-md border border-border bg-white dark:bg-neutral-900 shadow-2xs">
           {/* Live / Paused Status Toggle */}
           <button
@@ -283,7 +348,99 @@ export function DiagramToolbar({
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
 
-          {/* Optional Extra Actions (e.g. Export buttons) */}
+          {/* Unified Download Menu (PNG, PDF, Animated GIF) */}
+          {(onExportPng || onExportPdf || onExportGif) && (
+            <>
+              <div className="h-3.5 w-px bg-border mx-0.5" />
+              <div className="relative" ref={downloadRef}>
+                {gifProgress !== null ? (
+                  <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-cobalt/10 border border-cobalt/30 text-cobalt text-[9.5px] font-bold">
+                    <span className="mono">Rendering GIF... {gifProgress}%</span>
+                    {onCancelGif && (
+                      <button
+                        type="button"
+                        onClick={onCancelGif}
+                        className="text-red-500 hover:text-red-700 ml-1 cursor-pointer font-bold"
+                        title="Cancel GIF export"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDownloadMenuOpen(!downloadMenuOpen)}
+                    disabled={isExporting}
+                    className="mono inline-flex items-center gap-1 px-2 py-1 rounded border border-border bg-white dark:bg-neutral-900 hover:border-cobalt/60 text-carbon dark:text-neutral-200 text-[10px] font-bold tracking-wider transition-colors cursor-pointer"
+                    title="Download Architecture Diagram"
+                    aria-label="Download Menu"
+                  >
+                    <Download className="h-3 w-3 text-cobalt" />
+                    <span>DOWNLOAD</span>
+                    <ChevronDown className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
+                )}
+
+                {downloadMenuOpen && (
+                  <div className="absolute right-0 mt-1 w-44 rounded-lg border border-border bg-white dark:bg-[#121316] p-1 shadow-lg z-50 text-[11px] animate-in fade-in-50 zoom-in-95">
+                    {onExportPng && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDownloadMenuOpen(false);
+                          onExportPng();
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-200 text-left transition-colors cursor-pointer"
+                      >
+                        <ImageIcon className="h-3.5 w-3.5 text-cobalt" />
+                        <div>
+                          <div className="font-semibold leading-tight">PNG Image</div>
+                          <div className="text-[9px] text-muted-foreground">High-res 2x retina (.png)</div>
+                        </div>
+                      </button>
+                    )}
+
+                    {onExportPdf && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDownloadMenuOpen(false);
+                          onExportPdf();
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-200 text-left transition-colors cursor-pointer"
+                      >
+                        <FileText className="h-3.5 w-3.5 text-rose-500" />
+                        <div>
+                          <div className="font-semibold leading-tight">PDF Document</div>
+                          <div className="text-[9px] text-muted-foreground">Landscape A4 + flow table</div>
+                        </div>
+                      </button>
+                    )}
+
+                    {onExportGif && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDownloadMenuOpen(false);
+                          onExportGif();
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-carbon dark:text-neutral-200 text-left transition-colors cursor-pointer"
+                      >
+                        <Film className="h-3.5 w-3.5 text-amber-500" />
+                        <div>
+                          <div className="font-semibold leading-tight">Animated GIF</div>
+                          <div className="text-[9px] text-muted-foreground">3s packet loop (.gif)</div>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Optional Extra Actions */}
           {extraActions && (
             <>
               <div className="h-3.5 w-px bg-border mx-0.5" />

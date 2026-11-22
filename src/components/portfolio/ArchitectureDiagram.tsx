@@ -35,6 +35,7 @@ export function ArchitectureDiagram({
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hoveredEdgeId, setHoveredEdgeId] = useState<string | null>(null);
   const [inspectedNode, setInspectedNode] = useState<UnifiedNode | null>(null);
   const [inspectedEdge, setInspectedEdge] = useState<UnifiedEdge | null>(null);
 
@@ -271,10 +272,10 @@ export function ArchitectureDiagram({
             {/* Render all animated edges */}
             <g className="pointer-events-auto">
               {layout.edges.map((edge) => {
-                const isEdgeFocused = connectedEdgeIds.has(edge.id);
+                const isEdgeFocused = connectedEdgeIds.has(edge.id) || hoveredEdgeId === edge.id;
                 const isJourneyEdge = currentJourneyEdgeId === edge.id;
                 const isEdgeSelected = selectedEdgeId === edge.id;
-                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
+                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive || hoveredEdgeId);
                 const isDimmed = hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected;
 
                 return (
@@ -287,6 +288,7 @@ export function ArchitectureDiagram({
                     isSelected={isEdgeSelected}
                     isDimmed={isDimmed}
                     onClick={() => handleEdgeClick(edge)}
+                    onHover={(id) => setHoveredEdgeId(id)}
                   />
                 );
               })}
@@ -334,6 +336,98 @@ export function ArchitectureDiagram({
           </div>
         </div>
       </div>
+
+      {/* Bottom Flow List Table: [ # | From -> To | Flow / Action | Protocol / Type ] */}
+      {layout.edges.length > 0 && (
+        <div className="mt-3 w-full border border-border/80 rounded-lg bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md px-3.5 py-2.5 shadow-2xs">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="mono text-[10.5px] font-bold uppercase tracking-wider text-carbon dark:text-neutral-200">
+                End-to-End Flows ({layout.edges.length})
+              </span>
+              <span className="mono text-[9px] px-1.5 py-0.5 rounded bg-cobalt/10 text-cobalt font-semibold">
+                Numbered Corridors
+              </span>
+            </div>
+            <span className="mono text-[9px] text-muted-foreground hidden sm:inline">
+              Hover row to highlight &bull; Click to inspect
+            </span>
+          </div>
+
+          <div className="overflow-x-auto max-h-32 overflow-y-auto pr-1">
+            <table className="w-full text-left border-collapse text-[11px]">
+              <thead>
+                <tr className="border-b border-border/60 text-muted-foreground mono text-[9.5px] uppercase tracking-wider">
+                  <th className="py-1 px-2 w-8">#</th>
+                  <th className="py-1 px-2 min-w-[160px]">From &rarr; To</th>
+                  <th className="py-1 px-2 min-w-[180px]">Flow / Action</th>
+                  <th className="py-1 px-2 min-w-[100px]">Protocol / Type</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {layout.edges.map((e) => {
+                  const srcNode = layout.nodes.find((n) => n.id === e.source);
+                  const tgtNode = layout.nodes.find((n) => n.id === e.target);
+                  const isHovered = hoveredEdgeId === e.id || hoveredNodeId === e.source || hoveredNodeId === e.target || selectedEdgeId === e.id;
+                  const isSec = Boolean(e.secondary);
+
+                  return (
+                    <tr
+                      key={e.id}
+                      onMouseEnter={() => {
+                        setHoveredEdgeId(e.id);
+                        setHoveredNodeId(e.source);
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredEdgeId(null);
+                        setHoveredNodeId(null);
+                      }}
+                      onClick={() => handleEdgeClick(e)}
+                      className={`transition-colors cursor-pointer select-none ${
+                        isHovered
+                          ? "bg-cobalt/10 text-carbon dark:text-white"
+                          : "hover:bg-neutral-100/70 dark:hover:bg-neutral-800/70 text-muted-foreground hover:text-carbon dark:hover:text-neutral-200"
+                      }`}
+                    >
+                      <td className="py-1 px-2 font-mono font-bold text-cobalt">
+                        {e.badgeIndex ? (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-cobalt/15 text-cobalt text-[9px]">
+                            {e.badgeIndex}
+                          </span>
+                        ) : e.badgeLetter ? (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-stone-200 dark:bg-neutral-700 text-stone-600 dark:text-stone-300 text-[9px]">
+                            {e.badgeLetter}
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-neutral-400">--</span>
+                        )}
+                      </td>
+                      <td className="py-1 px-2 font-semibold">
+                        <span className="text-carbon dark:text-neutral-100">{srcNode?.name || e.source}</span>
+                        <span className="text-muted-foreground mx-1.5">&rarr;</span>
+                        <span className="text-carbon dark:text-neutral-100">{tgtNode?.name || e.target}</span>
+                      </td>
+                      <td className="py-1 px-2 truncate max-w-xs">
+                        <span className="font-medium text-carbon dark:text-neutral-200">
+                          {e.label || "Data Transfer"}
+                        </span>
+                        {isSec && (
+                          <span className="ml-1.5 mono text-[8.5px] px-1 py-0.5 rounded bg-stone-100 dark:bg-neutral-800 text-stone-500">
+                            secondary
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-1 px-2 mono text-[9.5px] text-muted-foreground">
+                        {e.protocol || e.category}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Selected Node or Edge Inspector Drawer */}
       {inspectedNode && (
