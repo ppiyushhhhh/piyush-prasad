@@ -78,13 +78,13 @@ export function ArchitectureDiagram({
     () =>
       fullDiagram
         ? layoutArchitectureCanvas(fullDiagram.diagram_data, {
-            autoLayout: true,
-            cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
-          })
+          autoLayout: true,
+          cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
+        })
         : layoutProjectArchitecture(data, {
-            autoLayout: true,
-            cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
-          }),
+          autoLayout: true,
+          cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
+        }),
     [fullDiagram, data, measuredCards]
   );
 
@@ -206,11 +206,10 @@ export function ArchitectureDiagram({
     <div
       role="img"
       aria-label={`System Architecture Diagram: ${data.title || "Cloud Infrastructure"}`}
-      className={`relative overflow-hidden border border-border bg-surface-muted dark:bg-[#0E0F12] shadow-2xs transition-all ${
-        isFullscreen
-          ? "fixed inset-4 z-50 rounded-lg p-6 bg-white dark:bg-[#121316] shadow-2xl overflow-y-auto"
-          : "rounded-md p-4 md:p-6"
-      } ${className}`}
+      className={`relative overflow-hidden border border-border bg-surface-muted dark:bg-[#0E0F12] shadow-2xs transition-all ${isFullscreen
+        ? "fixed inset-4 z-50 rounded-lg p-6 bg-white dark:bg-[#121316] shadow-2xl overflow-y-auto"
+        : "rounded-md p-4 md:p-6"
+        } ${className}`}
     >
       {/* Header Info */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-4">
@@ -220,9 +219,8 @@ export function ArchitectureDiagram({
               Live System Architecture
             </span>
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isLive ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"
-              }`}
+              className={`h-1.5 w-1.5 rounded-full ${isLive ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"
+                }`}
             />
           </div>
           <h4 className="text-base font-bold text-carbon dark:text-white mt-0.5">
@@ -282,9 +280,8 @@ export function ArchitectureDiagram({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className={`relative mt-4 min-h-[380px] w-full overflow-hidden rounded-lg border border-border/60 bg-white/50 dark:bg-neutral-900/40 select-none ${
-          isPanning ? "cursor-grabbing" : "cursor-grab"
-        }`}
+        className={`relative mt-4 min-h-[380px] w-full overflow-hidden rounded-lg border border-border/60 bg-white/50 dark:bg-neutral-900/40 select-none ${isPanning ? "cursor-grabbing" : "cursor-grab"
+          }`}
         style={{
           height: isFullscreen ? "calc(100vh - 200px)" : `${Math.max(380, Math.round(layout.viewBox.height * zoom + 48))}px`,
           backgroundImage: `radial-gradient(circle, rgba(26, 75, 255, 0.08) 1px, transparent 1px)`,
@@ -311,13 +308,12 @@ export function ArchitectureDiagram({
                     width: `${zone.width}px`,
                     height: `${zone.height}px`,
                   }}
-                  className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
-                    zone.isAwsVpc
-                      ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
-                      : zone.isDocker
-                        ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
-                        : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
-                  }`}
+                  className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${zone.isAwsVpc
+                    ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
+                    : zone.isDocker
+                      ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
+                      : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                    }`}
                 >
                   <div className="tier-header-strip absolute top-0 left-0 right-0 min-h-[32px] py-1 px-3.5 flex items-center gap-2 border-b border-border/60 bg-stone-100/80 dark:bg-neutral-900/80 rounded-t-2xl pointer-events-none">
                     {(zone.isDocker || zone.title.toLowerCase().includes("docker")) && (
@@ -328,13 +324,12 @@ export function ArchitectureDiagram({
                       />
                     )}
                     <span
-                      className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${
-                        zone.isAwsVpc
-                          ? "text-amber-700 dark:text-amber-400"
-                          : zone.isDocker
-                            ? "text-sky-700 dark:text-sky-400"
-                            : "text-carbon dark:text-neutral-200"
-                      }`}
+                      className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${zone.isAwsVpc
+                        ? "text-amber-700 dark:text-amber-400"
+                        : zone.isDocker
+                          ? "text-sky-700 dark:text-sky-400"
+                          : "text-carbon dark:text-neutral-200"
+                        }`}
                     >
                       {zone.title}
                     </span>
@@ -525,11 +520,10 @@ export function ArchitectureDiagram({
                         setHoveredNodeId(null);
                       }}
                       onClick={() => handleEdgeClick(e)}
-                      className={`transition-colors cursor-pointer select-none ${
-                        isHovered
-                          ? "bg-cobalt/10 text-carbon dark:text-white"
-                          : "hover:bg-neutral-100/70 dark:hover:bg-neutral-800/70 text-muted-foreground hover:text-carbon dark:hover:text-neutral-200"
-                      }`}
+                      className={`transition-colors cursor-pointer select-none ${isHovered
+                        ? "bg-cobalt/10 text-carbon dark:text-white"
+                        : "hover:bg-neutral-100/70 dark:hover:bg-neutral-800/70 text-muted-foreground hover:text-carbon dark:hover:text-neutral-200"
+                        }`}
                     >
                       <td className="py-1 px-2 font-mono font-bold text-cobalt">
                         {e.badgeIndex ? (
