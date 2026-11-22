@@ -78,6 +78,7 @@ export function NodeCard({
 
   return (
     <div
+      data-node-id={node.id}
       role="button"
       tabIndex={0}
       aria-label={`${node.name} (${node.tech})`}
@@ -131,23 +132,15 @@ export function NodeCard({
             <h4 className="text-[11.5px] font-bold text-carbon dark:text-white leading-tight line-clamp-2 break-words group-hover:text-cobalt transition-colors">
               {node.name}
             </h4>
-            {/* Live Status Dot */}
-            <div className="flex items-center gap-1 shrink-0 mt-0.5">
-              {node.verification === "code" && (
-                <span
-                  className="h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30"
-                  title="Verified in code"
-                />
+            {/* Single Live Status Dot */}
+            <div className="relative flex items-center justify-center shrink-0 mt-0.5">
+              {shouldAnimate && (
+                <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-60 animate-ping" />
               )}
-              <div className="relative flex items-center justify-center">
-                {shouldAnimate && (
-                  <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-60 animate-ping" />
-                )}
-                <span
-                  className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30"
-                  title={`Status: ${node.status || "operational"}`}
-                />
-              </div>
+              <span
+                className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-emerald-500/30"
+                title={node.verification === "code" ? "Verified in code · Status: operational" : `Status: ${node.status || "operational"}`}
+              />
             </div>
           </div>
 

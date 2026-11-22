@@ -26,6 +26,8 @@ export interface ArchitectureConnection {
   category?: "network" | "data" | "security" | "deployment" | "telemetry";
   direction?: "directional" | "bidirectional";
   secondary?: boolean;
+  description?: string;
+  step?: number;
 }
 
 export interface ArchitectureData {
@@ -346,18 +348,19 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
           port: "80, 443",
         },
         {
-          id: "docker",
-          name: "Docker Compose Stack",
+          id: "vite",
+          name: "Frontend Web Application",
           type: "compute",
-          description: "Multi-container orchestration managing frontend, backend, and MongoDB services",
-          tech: "Docker Compose / Engine",
+          description: "Tenant directory and mall search portal running in Docker container",
+          tech: "React 18 / Vite (Docker Container)",
+          port: "80",
         },
         {
           id: "express",
           name: "Express REST API Backend",
           type: "compute",
           description: "RESTful API handling mall listings, tenant CRUD, and rate limiting",
-          tech: "Express 4.x / Node.js",
+          tech: "Express 4.x / Docker Node.js",
           port: "5000",
         },
         {
@@ -365,7 +368,7 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
           name: "MongoDB Document Database",
           type: "database",
           description: "Transactional document datastore persisting store listings and tenant data",
-          tech: "MongoDB 7.0 Container",
+          tech: "MongoDB 7.0 / Docker Container",
           port: "27017",
         },
         {
@@ -386,18 +389,27 @@ export const INITIAL_PORTFOLIO_PROJECTS: PortfolioProject[] = [
           id: "trivy",
           name: "Trivy Security Scanner",
           type: "security",
-          description: "Nightly vulnerability scanning daemon auditing container images and mailing alerts",
-          tech: "Trivy CLI & Nodemailer",
+          description: "Vulnerability scanning daemon auditing container images and gating CI",
+          tech: "Trivy CLI & Vulnerability Gate",
+        },
+        {
+          id: "email",
+          name: "DevOps Alert & PDF Reporter",
+          type: "observability",
+          description: "Daily reporting daemon emailing health metrics and PDF summaries",
+          tech: "Nodemailer & PDFKit / Gmail SMTP",
         },
       ],
       connections: [
         { from: "client", to: "nginx", label: "HTTPS Web Ingress", protocol: "TLS 1.3" },
-        { from: "nginx", to: "docker", label: "Frontend Proxy Pass", protocol: "HTTP / Port 80" },
-        { from: "docker", to: "express", label: "Backend Container IPC", protocol: "Docker Bridge Network" },
+        { from: "nginx", to: "vite", label: "Frontend Proxy Pass", protocol: "HTTP / Port 80" },
+        { from: "vite", to: "express", label: "REST API Requests", protocol: "HTTP /api/malls" },
         { from: "express", to: "mongo", label: "Database CRUD Operations", protocol: "MongoDB Port 27017", direction: "bidirectional" },
-        { from: "actions", to: "docker", label: "Docker Automated Deploy", protocol: "SSH / Compose" },
-        { from: "ansible", to: "docker", label: "Configuration Rollout", protocol: "Ansible Playbook" },
-        { from: "trivy", to: "docker", label: "CVE Vulnerability Audit", protocol: "Cron / SMTP Alert", secondary: true },
+        { from: "actions", to: "ansible", label: "Trigger Ansible CI", protocol: "GitHub Actions Dispatch" },
+        { from: "actions", to: "vite", label: "SSH Docker Deploy", protocol: "SSH / docker-compose up" },
+        { from: "ansible", to: "express", label: "Ansible Playbook Rollout", protocol: "Ansible SSH Playbook" },
+        { from: "actions", to: "trivy", label: "CI Vulnerability Gate", protocol: "Trivy Action / Exit 1" },
+        { from: "trivy", to: "email", label: "Email Daily PDF Report", protocol: "Nodemailer / SMTP 465", secondary: true },
       ],
     },
     implementation_details:

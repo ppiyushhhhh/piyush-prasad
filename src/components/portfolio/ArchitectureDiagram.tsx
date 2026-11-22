@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { Lock, X, Info, Maximize2 } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ArchitectureData, ArchitectureComponent } from "@/lib/portfolio-projects";
@@ -9,7 +9,7 @@ import {
   type UnifiedEdge,
 } from "@/components/architecture/shared/layout";
 import { useDiagramAnimation } from "@/components/architecture/shared/useDiagramAnimation";
-import { AnimatedEdge } from "@/components/architecture/shared/AnimatedEdge";
+import { AnimatedEdge, EdgeBadge } from "@/components/architecture/shared/AnimatedEdge";
 import { NodeCard } from "@/components/architecture/shared/NodeCard";
 import { ArrowheadMarkers } from "@/components/architecture/shared/ArrowheadMarkers";
 import { DiagramToolbar } from "@/components/architecture/shared/DiagramToolbar";
@@ -39,8 +39,42 @@ export function ArchitectureDiagram({
   const [inspectedNode, setInspectedNode] = useState<UnifiedNode | null>(null);
   const [inspectedEdge, setInspectedEdge] = useState<UnifiedEdge | null>(null);
 
-  // Compute unified DAG layout for components & connections
-  const layout = useMemo(() => layoutProjectArchitecture(data), [data]);
+  const isDebugGeometry = typeof window !== "undefined" && window.location.search.includes("debug=geometry");
+
+  // DOM Card Dimension Tracking for 100% attached lines
+  const cardElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [measuredCards, setMeasuredCards] = useState<Map<string, { width: number; height: number }>>(new Map());
+
+  // Observe and measure real rendered card dimensions
+  useEffect(() => {
+    let hasDiff = false;
+    const next = new Map(measuredCards);
+    cardElementsRef.current.forEach((el, id) => {
+      const rect = el.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      if (w > 0 && h > 0) {
+        const prev = next.get(id);
+        if (!prev || Math.abs(prev.width - w) > 2 || Math.abs(prev.height - h) > 2) {
+          next.set(id, { width: w, height: h });
+          hasDiff = true;
+        }
+      }
+    });
+    if (hasDiff) {
+      setMeasuredCards(next);
+    }
+  });
+
+  // Compute unified DAG layout for components & connections with measured cards
+  const layout = useMemo(
+    () =>
+      layoutProjectArchitecture(data, {
+        autoLayout: true,
+        cardDimensions: measuredCards.size > 0 ? measuredCards : undefined,
+      }),
+    [data, measuredCards]
+  );
 
   // Derive sequential request journey
   const journeyPath = useMemo(
@@ -238,7 +272,7 @@ export function ArchitectureDiagram({
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           }}
         >
-          {/* Visual Zones Layer */}
+          {/* Layer 1: Visual Zones Layer */}
           {layout.zones && layout.zones.length > 0 && (
             <div className="absolute inset-0 pointer-events-none">
               {layout.zones.map((zone) => (
@@ -251,8 +285,8 @@ export function ArchitectureDiagram({
                   }}
                   className="tier-container absolute rounded-2xl pointer-events-none transition-all border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 >
-                  <div className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none">
-                    <span className="mono text-[10px] font-bold tracking-wider uppercase text-carbon dark:text-neutral-200">
+                  <div className="tier-header-strip absolute top-0 left-0 right-0 min-h-[36px] py-1 px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/80 dark:bg-neutral-900/80 rounded-t-2xl pointer-events-none">
+                    <span className="mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-2 break-words text-carbon dark:text-neutral-200">
                       {zone.title}
                     </span>
                   </div>
@@ -261,7 +295,7 @@ export function ArchitectureDiagram({
             </div>
           )}
 
-          {/* SVG Vector Connections Layer */}
+          {/* Layer 2: SVG Vector Connections Layer (Lines only) */}
           <svg
             viewBox={viewBoxStr}
             className="w-full h-auto min-h-[380px] overflow-visible pointer-events-none"
@@ -282,6 +316,7 @@ export function ArchitectureDiagram({
                   <AnimatedEdge
                     key={edge.id}
                     edge={edge}
+                    renderBadge={false}
                     shouldAnimate={shouldAnimate}
                     isFocused={isEdgeFocused}
                     isJourneyActive={isJourneyEdge}
@@ -295,7 +330,7 @@ export function ArchitectureDiagram({
             </g>
           </svg>
 
-          {/* HTML Interactive Node Cards Layer (positioned over SVG) */}
+          {/* Layer 3: HTML Interactive Node Cards Layer (positioned over SVG) */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{ width: `${layout.viewBox.width}px`, height: `${layout.viewBox.height}px` }}
@@ -310,6 +345,10 @@ export function ArchitectureDiagram({
               return (
                 <div
                   key={node.id}
+                  ref={(el) => {
+                    if (el) cardElementsRef.current.set(node.id, el);
+                    else cardElementsRef.current.delete(node.id);
+                  }}
                   style={{
                     position: "absolute",
                     left: `${node.x}px`,
@@ -334,6 +373,60 @@ export function ArchitectureDiagram({
               );
             })}
           </div>
+
+          {/* Layer 4: SVG Badges Layer (Rendered ON TOP of Cards & Lines) */}
+          <svg
+            viewBox={viewBoxStr}
+            className="absolute inset-0 w-full h-auto min-h-[380px] overflow-visible pointer-events-none"
+            style={{ width: `${layout.viewBox.width}px`, height: `${layout.viewBox.height}px` }}
+          >
+            <g className="pointer-events-auto">
+              {layout.edges.map((edge) => {
+                const isEdgeFocused = connectedEdgeIds.has(edge.id) || hoveredEdgeId === edge.id;
+                const isJourneyEdge = currentJourneyEdgeId === edge.id;
+                const isEdgeSelected = selectedEdgeId === edge.id;
+                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive || hoveredEdgeId);
+                const isDimmed = hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected;
+
+                return (
+                  <EdgeBadge
+                    key={`badge-${edge.id}`}
+                    edge={edge}
+                    isHighlighted={isEdgeFocused || isJourneyEdge || isEdgeSelected}
+                    isDimmed={isDimmed}
+                    onClick={() => handleEdgeClick(edge)}
+                    onHover={(id) => setHoveredEdgeId(id)}
+                  />
+                );
+              })}
+
+              {/* Debug Geometry Mode (?debug=geometry) */}
+              {isDebugGeometry && (
+                <g className="debug-geometry-overlay pointer-events-none">
+                  {layout.ports?.map((p, idx) => (
+                    <circle
+                      key={`port-${idx}`}
+                      cx={p.x}
+                      cy={p.y}
+                      r={3}
+                      fill="#ef4444"
+                      stroke="#ffffff"
+                      strokeWidth={1}
+                    />
+                  ))}
+                  {layout.edges.map((e) => (
+                    <g key={`dbg-pts-${e.id}`}>
+                      <circle cx={e.startPoint.x} cy={e.startPoint.y} r={3.5} fill="#10b981" />
+                      <circle cx={e.endPoint.x} cy={e.endPoint.y} r={3.5} fill="#f59e0b" />
+                      {e.midX !== undefined && e.midY !== undefined && (
+                        <circle cx={e.midX} cy={e.midY} r={2} fill="#6366f1" />
+                      )}
+                    </g>
+                  ))}
+                </g>
+              )}
+            </g>
+          </svg>
         </div>
       </div>
 

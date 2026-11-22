@@ -30,7 +30,7 @@ import {
   type UnifiedEdge,
 } from "./shared/layout";
 import { useDiagramAnimation } from "./shared/useDiagramAnimation";
-import { AnimatedEdge } from "./shared/AnimatedEdge";
+import { AnimatedEdge, EdgeBadge } from "./shared/AnimatedEdge";
 import { NodeCard } from "./shared/NodeCard";
 import { ArrowheadMarkers } from "./shared/ArrowheadMarkers";
 import { DiagramToolbar } from "./shared/DiagramToolbar";
@@ -113,10 +113,40 @@ export function ArchitectureCanvas({
     return (data.edges || []).filter((e) => e.secondary || e.category === "telemetry").length;
   }, [data.edges]);
 
-  // Compute unified DAG layout for nodes & edges
+  const cardElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [measuredCards, setMeasuredCards] = useState<Map<string, { width: number; height: number }>>(new Map());
+
+  // Real rendered card geometry measurement (Fix 1.1)
+  useEffect(() => {
+    let changed = false;
+    const next = new Map(measuredCards);
+    cardElementsRef.current.forEach((el, id) => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      if (w > 0 && h > 0) {
+        const prev = next.get(id);
+        if (!prev || Math.abs(prev.width - w) > 1 || Math.abs(prev.height - h) > 1) {
+          next.set(id, { width: w, height: h });
+          changed = true;
+        }
+      }
+    });
+    if (changed) {
+      setMeasuredCards(next);
+    }
+  }, [data, layoutMode]);
+
+  const isDebugGeometry = typeof window !== "undefined" && window.location.search.includes("debug=geometry");
+
+  // Compute unified DAG layout for nodes & edges with real card geometry
   const layout = useMemo(
-    () => layoutArchitectureCanvas(data, { autoLayout: layoutMode === "auto", showSecondary }),
-    [data, layoutMode, showSecondary]
+    () =>
+      layoutArchitectureCanvas(data, {
+        autoLayout: layoutMode === "auto",
+        showSecondary,
+        cardDimensions: measuredCards,
+      }),
+    [data, layoutMode, showSecondary, measuredCards]
   );
 
   const [zoom, setZoom] = useState(1);
@@ -774,7 +804,7 @@ export function ArchitectureCanvas({
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           }}
         >
-          {/* Visual Zones & Boundaries Layer */}
+          {/* Layer 1: Visual Zones & Boundaries Layer (Background) */}
           <div className="absolute inset-0 pointer-events-none">
             {layout.zones.map((zone) => (
               <div
@@ -790,13 +820,13 @@ export function ArchitectureCanvas({
                     : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 }`}
               >
-                {/* 32px Dedicated Header Strip for Title (No subtitle on box face) */}
+                {/* Dedicated Header Strip for Title (no ellipsis, wraps cleanly to 2 lines) */}
                 <div
-                  className="tier-header-strip absolute top-0 left-0 right-0 h-[32px] px-3.5 flex items-center border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
+                  className="tier-header-strip absolute top-0 left-0 right-0 min-h-[36px] py-1 px-3.5 flex items-center border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
                   title={zone.description}
                 >
                   <span
-                    className={`mono text-[11px] font-bold tracking-wider uppercase truncate ${
+                    className={`mono text-[11px] font-bold tracking-wider uppercase leading-tight line-clamp-2 break-words ${
                       zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-carbon dark:text-neutral-200"
                     }`}
                   >
@@ -807,7 +837,7 @@ export function ArchitectureCanvas({
             ))}
           </div>
 
-          {/* SVG Vector Connections Layer */}
+          {/* Layer 2: SVG Vector Connections Layer (Lines only) */}
           <svg
             className="absolute inset-0 pointer-events-none"
             style={{ width: "4200px", height: "2800px", overflow: "visible" }}
@@ -829,6 +859,7 @@ export function ArchitectureCanvas({
                   <AnimatedEdge
                     key={edge.id}
                     edge={edge}
+                    renderBadge={false}
                     shouldAnimate={shouldAnimate && isActiveInView}
                     isFocused={isEdgeFocused}
                     isJourneyActive={isJourneyEdge}
@@ -842,7 +873,7 @@ export function ArchitectureCanvas({
             </g>
           </svg>
 
-          {/* HTML Interactive Node Cards */}
+          {/* Layer 3: HTML Interactive Node Cards */}
           <div className="absolute inset-0 pointer-events-auto">
             {layout.nodes.map((node, idx) => {
               const isNodeFocused = connectedNodeIds.has(node.id);
@@ -855,6 +886,10 @@ export function ArchitectureCanvas({
               return (
                 <div
                   key={node.id}
+                  ref={(el) => {
+                    if (el) cardElementsRef.current.set(node.id, el);
+                    else cardElementsRef.current.delete(node.id);
+                  }}
                   onMouseDown={(e) => handleNodeDragStart(e, node)}
                   style={{
                     transform: `translate(${node.x}px, ${node.y}px)`,
@@ -881,6 +916,67 @@ export function ArchitectureCanvas({
               );
             })}
           </div>
+
+          {/* Layer 4: SVG Badges Layer (Rendered ON TOP of Cards & Lines) */}
+          <svg
+            className="absolute inset-0 pointer-events-none"
+            style={{ width: "4200px", height: "2800px", overflow: "visible" }}
+          >
+            <g className="pointer-events-auto">
+              {layout.edges.map((edge) => {
+                const isEdgeFocused = connectedEdgeIds.has(edge.id) || hoveredEdgeId === edge.id;
+                const isJourneyEdge = currentJourneyEdgeId === edge.id;
+                const isEdgeSelected = selectedEdgeId === edge.id;
+                const hasActiveFocus = Boolean(hoveredNodeId || selectedNodeId || isJourneyActive);
+                const isActiveInView = isEdgeActiveInView(edge);
+                const isDimmed =
+                  !isActiveInView || (hasActiveFocus && !isEdgeFocused && !isJourneyEdge && !isEdgeSelected);
+
+                return (
+                  <EdgeBadge
+                    key={`badge-${edge.id}`}
+                    edge={edge}
+                    isHighlighted={isEdgeFocused || isJourneyEdge || isEdgeSelected}
+                    isDimmed={isDimmed}
+                    onClick={() => handleEdgeClick(edge)}
+                    onHover={(id) => setHoveredEdgeId(id)}
+                  />
+                );
+              })}
+
+              {/* Debug Geometry Mode (?debug=geometry) */}
+              {isDebugGeometry && (
+                <g className="debug-geometry-overlay pointer-events-none">
+                  {layout.ports?.map((p, idx) => (
+                    <circle
+                      key={`port-${idx}-${p.nodeId}-${p.edgeId}`}
+                      cx={p.x}
+                      cy={p.y}
+                      r="3.5"
+                      fill="#EF4444"
+                      stroke="#FFFFFF"
+                      strokeWidth="1"
+                    />
+                  ))}
+                  {layout.edges.map((e) => (
+                    <g key={`debug-${e.id}`}>
+                      <circle cx={e.startPoint.x} cy={e.startPoint.y} r="3" fill="#EF4444" />
+                      <circle cx={e.endPoint.x} cy={e.endPoint.y} r="3" fill="#EF4444" />
+                      <circle
+                        cx={e.midX}
+                        cy={e.midY}
+                        r="12"
+                        fill="none"
+                        stroke="#EF4444"
+                        strokeWidth="1.5"
+                        strokeDasharray="2 2"
+                      />
+                    </g>
+                  ))}
+                </g>
+              )}
+            </g>
+          </svg>
         </div>
       </div>
 

@@ -9,7 +9,7 @@ export function ArrowheadMarkers() {
           key={`arrow-${cat}`}
           id={`arrow-${cat}`}
           viewBox="0 0 10 10"
-          refX="8"
+          refX="8.5"
           refY="5"
           markerWidth="7"
           markerHeight="7"
@@ -25,13 +25,13 @@ export function ArrowheadMarkers() {
           key={`arrow-${cat}-active`}
           id={`arrow-${cat}-active`}
           viewBox="0 0 10 10"
-          refX="8"
+          refX="8.5"
           refY="5"
           markerWidth="7"
           markerHeight="7"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill={colors.activeStroke} />
+          <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill={colors.activeStroke} />
         </marker>
       ))}
     </defs>
