@@ -33,23 +33,23 @@ function downloadReportFile(report: {
   <meta charset="UTF-8">
   <title>Website Health Report - ${report.report_date} - piyushprasad.in</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; background: #FAF9F6; color: #121316; padding: 40px; line-height: 1.6; }
-    .container { max-width: 800px; margin: 0 auto; background: #FFFFFF; padding: 40px; border-radius: 4px; border: 1px solid #E5E5DF; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    h1 { margin-top: 0; color: #121316; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; background: #F6F8F6; color: #0F1B1A; padding: 40px; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: #FFFFFF; padding: 40px; border-radius: 4px; border: 1px solid #E2E8E4; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    h1 { margin-top: 0; color: #0F1B1A; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
     .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
-    .card { background: #FAF9F6; padding: 18px; border-radius: 4px; border: 1px solid #E5E5DF; text-align: center; }
-    .card-num { font-size: 30px; font-weight: bold; color: #1A4BFF; font-family: monospace; }
-    .card-label { font-size: 11px; text-transform: uppercase; color: #5A5C66; letter-spacing: 0.1em; font-family: monospace; margin-top: 4px; }
+    .card { background: #EEF2EF; padding: 18px; border-radius: 4px; border: 1px solid #E2E8E4; text-align: center; }
+    .card-num { font-size: 30px; font-weight: bold; color: #0F766E; font-family: monospace; }
+    .card-label { font-size: 11px; text-transform: uppercase; color: #5B6B68; letter-spacing: 0.1em; font-family: monospace; margin-top: 4px; }
     table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E5DF; }
-    th { color: #5A5C66; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace; }
-    .footer { margin-top: 40px; font-size: 12px; color: #5A5C66; text-align: center; border-top: 1px solid #E5E5DF; padding-top: 20px; font-family: monospace; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E2E8E4; }
+    th { color: #5B6B68; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace; }
+    .footer { margin-top: 40px; font-size: 12px; color: #5B6B68; text-align: center; border-top: 1px solid #E2E8E4; padding-top: 20px; font-family: monospace; }
     @media print {
       body { background: #fff; color: #000; padding: 0; }
       .container { border: none; box-shadow: none; padding: 0; background: #fff; }
-      .card { border: 1px solid #e2e8f0; background: #f8fafc; }
-      .card-num { color: #1A4BFF; }
+      .card { border: 1px solid #E2E8E4; background: #EEF2EF; }
+      .card-num { color: #0F766E; }
     }
   </style>
 </head>
@@ -240,7 +240,7 @@ function ReportsPage() {
               {data && data.length > 0 ? (
                 <DataTable headers={["Date", "Health Score", "Lighthouse", "Status", "Download / Export"]}>
                   {data.map((row) => (
-                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/60 transition-colors">
+                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/60 transition-colors">
                       <td className="py-2.5 pr-4 font-mono font-medium text-carbon">
                         {fmtDate(row.report_date)}
                       </td>

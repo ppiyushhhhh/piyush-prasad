@@ -353,11 +353,11 @@ function HealthPage() {
                       <Tooltip content={<HealthChartTooltip />} />
                       <ReferenceLine
                         y={150}
-                        stroke="#1A4BFF"
+                        stroke="#0F766E"
                         strokeDasharray="4 4"
                         label={{
                           value: "SLA 150MS",
-                          fill: "#1A4BFF",
+                          fill: "#0F766E",
                           fontSize: 9,
                           position: "insideTopRight",
                           fontFamily: "monospace",
@@ -366,10 +366,10 @@ function HealthPage() {
                       <Line
                         type="monotone"
                         dataKey="latency"
-                        stroke="#1A4BFF"
+                        stroke="#0F766E"
                         strokeWidth={2}
-                        dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
-                        activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
+                        dot={{ r: 3, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
                       />
                     </LineChart>
                   ) : (
@@ -403,7 +403,7 @@ function HealthPage() {
                               entry.latency < 130
                                 ? "#059669"
                                 : entry.latency < 180
-                                ? "#1A4BFF"
+                                ? "#0F766E"
                                 : "#D97706"
                             }
                           />
@@ -444,7 +444,7 @@ function HealthPage() {
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <Panel title="Monitored Endpoints & Web Asset Matrix">
               <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3">
                   <div className="flex items-center gap-3">
                     <Globe className="h-4 w-4 text-cobalt" />
                     <div>
@@ -463,7 +463,7 @@ function HealthPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3">
                   <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4 text-amber-600" />
                     <div>
@@ -483,7 +483,7 @@ function HealthPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3">
                   <div className="flex items-center gap-3">
                     <FileCode className="h-4 w-4 text-purple-600" />
                     <div>
@@ -503,7 +503,7 @@ function HealthPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3">
                   <div className="flex items-center gap-3">
                     <Image className="h-4 w-4 text-emerald-600" />
                     <div>
@@ -527,7 +527,7 @@ function HealthPage() {
 
             <Panel title="SSL / TLS Certificate & Network Security">
               <div className="space-y-4 text-xs">
-                <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-4">
+                <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-4">
                   <div className="flex items-center justify-between pb-3 border-b border-[#E5E5DF]">
                     <div className="flex items-center gap-2">
                       <Lock className="h-4 w-4 text-emerald-700" />
@@ -569,7 +569,7 @@ function HealthPage() {
                   </dl>
                 </div>
 
-                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3">
+                <div className="flex items-center justify-between rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3">
                   <div className="flex items-center gap-3">
                     <Server className="h-4 w-4 text-cobalt" />
                     <div>
@@ -599,7 +599,7 @@ function HealthPage() {
               {data && data.length > 0 ? (
                 <DataTable headers={["Checked At", "Target Host", "Status", "Response Time", "SSL / TLS", "Score"]}>
                   {data.map((row) => (
-                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/50 transition-colors">
+                    <tr key={row.id} className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/50 transition-colors">
                       <td className="py-2.5 pr-4 text-xs font-mono text-muted-foreground">
                         {fmtDateTime(row.checked_at)}
                       </td>

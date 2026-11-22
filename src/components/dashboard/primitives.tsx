@@ -18,7 +18,7 @@ export function StatusTag({
     warning: "border-amber-300 bg-amber-50 text-amber-800",
     critical: "border-rose-300 bg-rose-50 text-rose-800",
     cobalt: "border-cobalt/30 bg-cobalt/5 text-cobalt",
-    neutral: "border-[#E5E5DF] bg-[#FAF9F6] text-carbon",
+    neutral: "border-[#E5E5DF] bg-surface-muted text-carbon",
   }[status];
 
   const dot = {
@@ -110,7 +110,7 @@ export function TelemetryCell({
   }[resolvedStatus];
 
   return (
-    <div className="relative bg-white p-5 transition-colors hover:bg-[#FAF9F6]/50">
+    <div className="relative bg-white p-5 transition-colors hover:bg-surface-muted/50">
       <div className="flex items-start justify-between gap-2">
         <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
           {label}
@@ -174,7 +174,7 @@ export function Panel({
 }) {
   return (
     <section className="border border-[#E5E5DF] bg-white">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E5DF] bg-[#FAF9F6] px-5 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E5DF] bg-surface-muted px-5 py-3">
         <div className="flex items-center gap-2.5">
           {tag && (
             <span className="mono text-[9px] font-bold uppercase tracking-[0.2em] text-cobalt">
@@ -200,7 +200,7 @@ export function EmptyState({
   description?: string;
 }) {
   return (
-    <div className="border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/60 px-6 py-12 text-center">
+    <div className="border border-dashed border-[#E5E5DF] bg-surface-muted/60 px-6 py-12 text-center">
       <p className="mono text-xs font-bold uppercase tracking-wider text-carbon">
         // {title}
       </p>

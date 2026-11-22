@@ -22,12 +22,13 @@ import {
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { isStaging, logStagingDiagnostics } from "../lib/staging.guard";
+import { THEME_INIT_SCRIPT } from "../lib/theme";
 
 function NotFoundComponent() {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-carbon flex flex-col justify-between selection:bg-cobalt selection:text-white">
+    <div className="min-h-screen bg-background text-carbon flex flex-col justify-between selection:bg-cobalt selection:text-white">
       {/* Top Bar */}
-      <header className="border-b border-[#E5E5DF] bg-[#FAF9F6]/90 backdrop-blur-md px-6 py-4">
+      <header className="border-b border-[#E5E5DF] bg-surface-muted/90 backdrop-blur-md px-6 py-4">
         <div className="mx-auto max-w-5xl flex items-center justify-between">
           <Link
             to="/"
@@ -74,7 +75,7 @@ function NotFoundComponent() {
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               to="/"
-              className="group flex items-start justify-between border border-[#E5E5DF] bg-[#FAF9F6] p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
+              className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white text-cobalt group-hover:border-cobalt">
@@ -94,7 +95,7 @@ function NotFoundComponent() {
 
             <Link
               to="/resume"
-              className="group flex items-start justify-between border border-[#E5E5DF] bg-[#FAF9F6] p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
+              className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white text-cobalt group-hover:border-cobalt">
@@ -114,7 +115,7 @@ function NotFoundComponent() {
 
             <Link
               to="/guides/devsecops-pipeline"
-              className="group flex items-start justify-between border border-[#E5E5DF] bg-[#FAF9F6] p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
+              className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white text-cobalt group-hover:border-cobalt">
@@ -134,7 +135,7 @@ function NotFoundComponent() {
 
             <Link
               to="/guides/devsecops-tools"
-              className="group flex items-start justify-between border border-[#E5E5DF] bg-[#FAF9F6] p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
+              className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white text-cobalt group-hover:border-cobalt">
@@ -169,7 +170,7 @@ function NotFoundComponent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#E5E5DF] bg-[#FAF9F6] px-6 py-4">
+      <footer className="border-t border-[#E5E5DF] bg-surface-muted px-6 py-4">
         <div className="mx-auto max-w-5xl flex items-center justify-between text-xs text-muted-foreground mono">
           <span>&copy; {new Date().getFullYear()} Piyush Prasad</span>
           <span>Cloud &amp; DevOps Engineering</span>
@@ -220,6 +221,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
+      { name: "color-scheme", content: "light dark" },
+      { name: "theme-color", media: "(prefers-color-scheme: light)", content: "#F6F8F6" },
+      { name: "theme-color", media: "(prefers-color-scheme: dark)", content: "#0B1412" },
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: isStaging ? "[STAGING] Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" : "Piyush Prasad — Cloud & DevOps Engineer | AWS & CI/CD" },
@@ -246,6 +250,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
     ],
     links: [
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -318,6 +323,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>

@@ -113,7 +113,7 @@ export function BadgeArtwork({
   if (loadError || !safeSrc) {
     return (
       <div
-        className={`relative flex ${sizeClass} shrink-0 items-center justify-center border border-[#E5E5DF] bg-[#FAF9F6] shadow-2xs ${className}`}
+        className={`relative flex ${sizeClass} shrink-0 items-center justify-center border border-[#E5E5DF] bg-surface-muted shadow-2xs ${className}`}
         title={alt}
       >
         <Award className="h-1/2 w-1/2 text-cobalt/60" />
@@ -569,7 +569,7 @@ function CredlyBadgesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by badge name, issuer, or skills…"
-              className="w-full pl-9 pr-4 py-2 border border-[#E5E5DF] bg-[#FAF9F6] text-xs text-carbon placeholder:text-muted-foreground/60 focus:outline-none focus:border-cobalt focus:bg-white"
+              className="w-full pl-9 pr-4 py-2 border border-[#E5E5DF] bg-surface-muted text-xs text-carbon placeholder:text-muted-foreground/60 focus:outline-none focus:border-cobalt focus:bg-white"
             />
             {searchQuery && (
               <button
@@ -615,7 +615,7 @@ function CredlyBadgesPage() {
 
         {/* Empty State */}
         {!isLoading && !isError && filteredBadges.length === 0 && (
-          <div className="border border-dashed border-[#E5E5DF] bg-[#FAF9F6]/50 p-10 text-center">
+          <div className="border border-dashed border-[#E5E5DF] bg-surface-muted/50 p-10 text-center">
             <Award className="mx-auto h-8 w-8 text-muted-foreground/50 mb-3" />
             <h3 className="mono text-xs font-bold text-carbon uppercase tracking-wider">
               {searchQuery ? "No matching badges found" : "No Credly Badges Registered"}
@@ -644,7 +644,7 @@ function CredlyBadgesPage() {
             {filteredBadges.map((badge, idx) => (
               <div
                 key={badge.id}
-                className="group flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-5 transition-colors hover:bg-[#FAF9F6]/80"
+                className="group flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-5 transition-colors hover:bg-surface-muted/80"
               >
                 {/* Left: Thumbnail & Badge Metadata */}
                 <div className="flex items-start gap-4 min-w-0 flex-1">
@@ -694,7 +694,7 @@ function CredlyBadgesPage() {
                         {badge.skills.map((skill) => (
                           <span
                             key={skill}
-                            className="mono inline-flex items-center gap-1 border border-[#E5E5DF] bg-[#FAF9F6] px-2 py-0.5 text-[9px] font-semibold text-carbon"
+                            className="mono inline-flex items-center gap-1 border border-[#E5E5DF] bg-surface-muted px-2 py-0.5 text-[9px] font-semibold text-carbon"
                           >
                             <Tag className="h-2.5 w-2.5 text-cobalt/70" />
                             {skill}
@@ -713,7 +713,7 @@ function CredlyBadgesPage() {
                       type="button"
                       disabled={idx === 0 || reorderMutation.isPending}
                       onClick={() => moveBadge(idx, "up")}
-                      className="p-1.5 text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-30 disabled:pointer-events-none"
+                      className="p-1.5 text-muted-foreground hover:text-carbon hover:bg-surface-muted disabled:opacity-30 disabled:pointer-events-none"
                       title="Move Up"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
@@ -723,7 +723,7 @@ function CredlyBadgesPage() {
                       type="button"
                       disabled={idx === filteredBadges.length - 1 || reorderMutation.isPending}
                       onClick={() => moveBadge(idx, "down")}
-                      className="p-1.5 text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-30 disabled:pointer-events-none"
+                      className="p-1.5 text-muted-foreground hover:text-carbon hover:bg-surface-muted disabled:opacity-30 disabled:pointer-events-none"
                       title="Move Down"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
@@ -831,7 +831,7 @@ function CredlyBadgesPage() {
                   placeholder="e.g. AWS Knowledge: Cloud Essentials"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
 
@@ -845,7 +845,7 @@ function CredlyBadgesPage() {
                   placeholder="e.g. Amazon Web Services"
                   value={formData.issuer}
                   onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
-                  className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
             </div>
@@ -863,7 +863,7 @@ function CredlyBadgesPage() {
                   placeholder="https://www.credly.com/badges/..."
                   value={formData.credly_url}
                   onChange={(e) => setFormData({ ...formData, credly_url: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 border border-[#E5E5DF] bg-[#FAF9F6] text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full pl-9 pr-3 py-2 border border-[#E5E5DF] bg-surface-muted text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
               <p className="mt-1 mono text-[9px] text-muted-foreground">
@@ -873,7 +873,7 @@ function CredlyBadgesPage() {
             </div>
 
             {/* Row 3: Badge Image (Upload or URL) */}
-            <div className="border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+            <div className="border border-[#E5E5DF] bg-surface-muted p-4">
               <label className="mono text-[10px] font-bold uppercase tracking-wider text-carbon block mb-2">
                 Badge Image / Artwork <span className="text-rose-500">*</span>
               </label>
@@ -978,7 +978,7 @@ function CredlyBadgesPage() {
                   required
                   value={formData.issue_date}
                   onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
-                  className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
 
@@ -990,7 +990,7 @@ function CredlyBadgesPage() {
                   type="date"
                   value={formData.expiry_date}
                   onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
-                  className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
             </div>
@@ -1006,7 +1006,7 @@ function CredlyBadgesPage() {
                 placeholder="Brief summary of skills or requirements demonstrated to earn this badge…"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none resize-none"
+                className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none resize-none"
               />
             </div>
 
@@ -1027,7 +1027,7 @@ function CredlyBadgesPage() {
                       addSkillTag();
                     }
                   }}
-                  className="flex-1 border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-1.5 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="flex-1 border border-[#E5E5DF] bg-surface-muted px-3 py-1.5 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
                 <button
                   type="button"
@@ -1044,7 +1044,7 @@ function CredlyBadgesPage() {
                   {formData.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="mono inline-flex items-center gap-1.5 bg-[#FAF9F6] border border-[#E5E5DF] px-2 py-0.5 text-[10px] text-carbon font-semibold"
+                      className="mono inline-flex items-center gap-1.5 bg-surface-muted border border-[#E5E5DF] px-2 py-0.5 text-[10px] text-carbon font-semibold"
                     >
                       <span>{skill}</span>
                       <button
@@ -1073,7 +1073,7 @@ function CredlyBadgesPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, display_order: Number(e.target.value) || 1 })
                   }
-                  className="w-full border border-[#E5E5DF] bg-[#FAF9F6] px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
+                  className="w-full border border-[#E5E5DF] bg-surface-muted px-3 py-2 text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none"
                 />
               </div>
 

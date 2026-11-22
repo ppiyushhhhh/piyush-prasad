@@ -38,11 +38,11 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
 
   return (
     <article
-      className={`group relative flex flex-col justify-between h-full overflow-hidden rounded-xl border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xs hover:border-cobalt/60 hover:shadow-md transition-all duration-200 ${className}`}
+      className={`group relative flex flex-col justify-between h-full overflow-hidden rounded-xl border border-border bg-surface shadow-2xs hover:border-accent/60 hover:shadow-md transition-all duration-200 ${className}`}
     >
       <div className="flex flex-col flex-1">
         {/* Top Media / Logo Area (Fixed 120px height) */}
-        <div className="relative h-[120px] w-full overflow-hidden border-b border-[#E5E5DF] dark:border-white/10 bg-[#FAF9F6] dark:bg-neutral-950 shrink-0 flex flex-col justify-between p-3.5">
+        <div className="relative h-[120px] w-full overflow-hidden border-b border-border bg-surface-muted shrink-0 flex flex-col justify-between p-3.5">
           {project.cover_image_url ? (
             <>
               <img
@@ -82,7 +82,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
                   bannerLogos.map(({ tech, logo }) => (
                     <div
                       key={tech}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 p-1.5 shadow-2xs transition-transform group-hover:scale-105"
+                      className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface p-1.5 shadow-2xs transition-transform group-hover:scale-105"
                       title={logo.label}
                     >
                       <img
@@ -94,7 +94,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
                     </div>
                   ))
                 ) : (
-                  <div className="mono text-xs font-bold text-cobalt uppercase tracking-widest">
+                  <div className="mono text-xs font-bold text-accent uppercase tracking-widest">
                     {project.category}
                   </div>
                 )}
@@ -107,12 +107,12 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
         <div className="p-5 flex-1 flex flex-col justify-between">
           <div>
             {/* Category Subtitle */}
-            <span className="mono text-[10px] font-bold uppercase tracking-wider text-cobalt block mb-1">
+            <span className="mono text-[10px] font-bold uppercase tracking-wider text-accent block mb-1">
               {project.category}
             </span>
 
             {/* Title (2 lines allowed, wrapped cleanly, line-clamp-2 prevents overflowing 3 lines) */}
-            <h3 className="text-base font-bold text-carbon dark:text-white line-clamp-2 leading-snug group-hover:text-cobalt transition-colors min-h-[2.5rem]">
+            <h3 className="text-base font-bold text-text line-clamp-2 leading-snug group-hover:text-accent transition-colors min-h-[2.5rem]">
               <Link to="/projects/$slug" params={{ slug: project.slug }}>
                 {project.title}
               </Link>
@@ -131,7 +131,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
               return (
                 <span
                   key={tech}
-                  className="mono inline-flex items-center gap-1.5 rounded-md border border-[#E5E5DF] dark:border-white/10 bg-[#FAF9F6] dark:bg-neutral-950 px-2 h-[26px] text-[10px] font-medium text-carbon/80 dark:text-neutral-300 shrink-0"
+                  className="mono inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-2 h-[26px] text-[10px] font-medium text-text/80 shrink-0"
                 >
                   {logo && (
                     <img
@@ -151,7 +151,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      className="mono inline-flex items-center justify-center rounded-md border border-[#E5E5DF] dark:border-white/10 bg-neutral-100 dark:bg-neutral-800 px-2 h-[26px] text-[10px] font-semibold text-muted-foreground hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer transition-colors shrink-0"
+                      className="mono inline-flex items-center justify-center rounded-md border border-border bg-surface-muted px-2 h-[26px] text-[10px] font-semibold text-muted-foreground hover:bg-surface cursor-pointer transition-colors shrink-0"
                       aria-label={`View ${remainingTechs.length} more technologies`}
                     >
                       +{remainingTechs.length}
@@ -159,7 +159,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
                   </TooltipTrigger>
                   <TooltipContent
                     side="top"
-                    className="p-3 bg-white dark:bg-neutral-900 text-carbon dark:text-white border border-[#E5E5DF] dark:border-white/10 shadow-lg rounded-lg max-w-[280px]"
+                    className="p-3 bg-surface text-text border border-border shadow-lg rounded-lg max-w-[280px]"
                   >
                     <div className="mono text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
                       Additional Technologies ({remainingTechs.length})
@@ -170,7 +170,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
                         return (
                           <span
                             key={tech}
-                            className="mono inline-flex items-center gap-1 rounded border border-[#E5E5DF] dark:border-white/10 bg-[#FAF9F6] dark:bg-neutral-950 px-1.5 py-0.5 text-[9px] font-medium text-carbon/80 dark:text-neutral-300"
+                            className="mono inline-flex items-center gap-1 rounded border border-border bg-surface-muted px-1.5 py-0.5 text-[9px] font-medium text-text/80"
                           >
                             {logo && (
                               <img
@@ -194,14 +194,14 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
       </div>
 
       {/* Card Footer - Anchored to bottom */}
-      <div className="flex items-center justify-between border-t border-[#E5E5DF]/80 dark:border-white/10 bg-[#FAF9F6]/50 dark:bg-neutral-950/40 px-5 py-3 text-xs mt-auto">
+      <div className="flex items-center justify-between border-t border-border bg-surface-muted/50 px-5 py-3 text-xs mt-auto">
         {/* GitHub Link */}
         {project.repository_url ? (
           <a
             href={project.repository_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-[#E5E5DF] dark:border-white/10 bg-white dark:bg-neutral-900 text-carbon/70 dark:text-neutral-300 hover:text-cobalt hover:border-cobalt transition-colors shadow-2xs"
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-border bg-surface text-text-muted hover:text-accent hover:border-accent transition-colors shadow-2xs"
             title={`View ${project.title} on GitHub`}
             aria-label={`View ${project.title} on GitHub`}
           >
@@ -215,7 +215,7 @@ export function ProjectCard({ project, className = "" }: ProjectCardProps) {
         <Link
           to="/projects/$slug"
           params={{ slug: project.slug }}
-          className="mono inline-flex items-center gap-1.5 text-[11px] font-bold text-cobalt hover:text-blue-700 transition-colors uppercase tracking-wider group/link"
+          className="mono inline-flex items-center gap-1.5 text-[11px] font-bold text-accent hover:text-accent-hover transition-colors uppercase tracking-wider group/link"
         >
           <span>VIEW CASE STUDY</span>
           <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />

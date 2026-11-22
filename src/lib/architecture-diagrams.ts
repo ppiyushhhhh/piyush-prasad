@@ -129,11 +129,11 @@ export const CATEGORY_COLORS: Record<
     dot: "bg-slate-500",
   },
   dns: {
-    bg: "bg-blue-50 dark:bg-blue-950/40",
-    text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-300 dark:border-blue-800",
-    badge: "bg-blue-100 text-blue-800 border-blue-200",
-    dot: "bg-blue-600",
+    bg: "bg-accent-soft dark:bg-accent-soft",
+    text: "text-accent dark:text-accent",
+    border: "border-accent/40 dark:border-accent/40",
+    badge: "bg-accent-soft text-accent border-accent/30",
+    dot: "bg-accent",
   },
   cdn: {
     bg: "bg-cyan-50 dark:bg-cyan-950/40",
@@ -150,11 +150,11 @@ export const CATEGORY_COLORS: Record<
     dot: "bg-sky-600",
   },
   compute: {
-    bg: "bg-indigo-50 dark:bg-indigo-950/40",
-    text: "text-indigo-700 dark:text-indigo-300",
-    border: "border-indigo-300 dark:border-indigo-800",
-    badge: "bg-indigo-100 text-indigo-800 border-indigo-200",
-    dot: "bg-indigo-600",
+    bg: "bg-accent-soft dark:bg-accent-soft",
+    text: "text-accent dark:text-accent",
+    border: "border-accent/40 dark:border-accent/40",
+    badge: "bg-accent-soft text-accent border-accent/30",
+    dot: "bg-accent",
   },
   application: {
     bg: "bg-violet-50 dark:bg-violet-950/40",

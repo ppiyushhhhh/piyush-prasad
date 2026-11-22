@@ -89,8 +89,8 @@ export function CustomCursor() {
           y: ringY,
           width: isHovered ? 42 : 26,
           height: isHovered ? 42 : 26,
-          borderColor: isHovered ? "rgba(18, 19, 22, 0.45)" : "rgba(18, 19, 22, 0.22)",
-          backgroundColor: isHovered ? "rgba(18, 19, 22, 0.05)" : "rgba(18, 19, 22, 0.02)",
+          borderColor: isHovered ? "var(--color-accent)" : "color-mix(in srgb, var(--color-accent) 40%, transparent)",
+          backgroundColor: isHovered ? "var(--color-accent-soft)" : "transparent",
         }}
         animate={{
           scale: isClicked ? 0.85 : 1,
@@ -98,9 +98,9 @@ export function CustomCursor() {
         transition={{ duration: 0.15 }}
       />
 
-      {/* Center Deep Carbon (#121316) Precision Dot */}
+      {/* Center Teal Ops Accent Precision Dot */}
       <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#121316] shadow-[0_0_4px_rgba(18,19,22,0.3)]"
+        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_6px_var(--color-accent)]"
         style={{
           x: cursorX,
           y: cursorY,

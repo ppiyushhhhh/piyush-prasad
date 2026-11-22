@@ -206,7 +206,7 @@ export function ArchitectureDiagram({
     <div
       role="img"
       aria-label={`System Architecture Diagram: ${data.title || "Cloud Infrastructure"}`}
-      className={`relative overflow-hidden border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] shadow-2xs transition-all ${
+      className={`relative overflow-hidden border border-border bg-surface-muted dark:bg-[#0E0F12] shadow-2xs transition-all ${
         isFullscreen
           ? "fixed inset-4 z-50 rounded-lg p-6 bg-white dark:bg-[#121316] shadow-2xl overflow-y-auto"
           : "rounded-md p-4 md:p-6"
@@ -574,7 +574,7 @@ export function ArchitectureDiagram({
       {/* Selected Node or Edge Inspector Drawer */}
       {inspectedNode && (
         <div className="mt-4 border-t border-border/80 pt-4 animate-fadeIn">
-          <div className="rounded-xl border border-cobalt/30 bg-blue-50/40 dark:bg-blue-950/20 p-4 relative">
+          <div className="rounded-xl border border-cobalt/30 bg-accent-soft/40 dark:bg-blue-950/20 p-4 relative">
             <button
               type="button"
               onClick={() => {
@@ -595,7 +595,7 @@ export function ArchitectureDiagram({
               />
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-200 bg-white text-cobalt">
+                  <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-accent/30 bg-white text-cobalt">
                     {inspectedNode.category}
                   </span>
                   <span className="text-sm font-bold text-carbon dark:text-white">
@@ -633,7 +633,7 @@ export function ArchitectureDiagram({
 
       {inspectedEdge && (
         <div className="mt-4 border-t border-border/80 pt-4 animate-fadeIn">
-          <div className="rounded-xl border border-cobalt/30 bg-blue-50/40 dark:bg-blue-950/20 p-4 relative">
+          <div className="rounded-xl border border-cobalt/30 bg-accent-soft/40 dark:bg-blue-950/20 p-4 relative">
             <button
               type="button"
               onClick={() => {
@@ -647,7 +647,7 @@ export function ArchitectureDiagram({
             </button>
 
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-blue-200 bg-white text-cobalt">
+              <span className="mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-accent/30 bg-white text-cobalt">
                 Connection Layer &bull; {inspectedEdge.category}
               </span>
               <span className="text-xs font-bold text-carbon dark:text-white">

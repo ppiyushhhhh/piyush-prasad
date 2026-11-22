@@ -45,22 +45,22 @@ export function ProjectProblemSolution({ project }: ProjectProblemSolutionProps)
         {project.solution && (
           <div
             id="solution"
-            className="h-full rounded-xl border border-blue-200/80 bg-blue-50/40 dark:border-blue-900/40 dark:bg-blue-950/20 p-6 shadow-2xs flex flex-col justify-start"
+            className="h-full rounded-xl border border-accent/30 bg-accent-soft/40 dark:border-accent/40 dark:bg-accent-soft p-6 shadow-2xs flex flex-col justify-start"
           >
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-500/10 text-cobalt">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent-soft text-accent">
                 <Lightbulb className="h-4 w-4" />
               </div>
               <div>
-                <span className="mono text-[10px] font-bold uppercase tracking-widest text-cobalt block">
+                <span className="mono text-[10px] font-bold uppercase tracking-widest text-accent block">
                   The Solution
                 </span>
-                <h3 className="text-base font-bold text-carbon dark:text-white">
+                <h3 className="text-base font-bold text-text">
                   Engineered Implementation
                 </h3>
               </div>
             </div>
-            <p className="text-xs md:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-line flex-1">
+            <p className="text-xs md:text-sm text-text-muted leading-relaxed whitespace-pre-line flex-1">
               {project.solution}
             </p>
           </div>

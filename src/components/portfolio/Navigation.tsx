@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, Search } from "lucide-react";
+import { Github, FileText, Menu, X, Search, Sun, Moon } from "lucide-react";
 import { isStaging } from "@/lib/staging.guard";
+import { getResolvedTheme, toggleTheme } from "@/lib/theme";
 
 interface NavItem {
   id: string;
@@ -26,6 +27,21 @@ export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    setResolvedTheme(getResolvedTheme());
+    const onThemeChanged = (e: Event) => {
+      const customEvent = e as CustomEvent<{ theme: string; resolved: "light" | "dark" }>;
+      if (customEvent.detail?.resolved) {
+        setResolvedTheme(customEvent.detail.resolved);
+      } else {
+        setResolvedTheme(getResolvedTheme());
+      }
+    };
+    window.addEventListener("theme-changed", onThemeChanged);
+    return () => window.removeEventListener("theme-changed", onThemeChanged);
+  }, []);
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/" || pathname === "";
@@ -191,7 +207,7 @@ export function Navigation() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
           scrolled || mobileMenuOpen
-            ? "border-b border-border bg-[#FAF9F6]/95 backdrop-blur-md"
+            ? "border-b border-border bg-background/95 backdrop-blur-md"
             : "border-b border-transparent bg-transparent"
         }`}
       >
@@ -203,7 +219,7 @@ export function Navigation() {
               className="group flex items-center gap-3 transition-opacity hover:opacity-90"
               aria-label="Piyush Prasad — Cloud & DevOps Engineer home"
             >
-              <div className="flex h-9 w-9 items-center justify-center border border-carbon/15 bg-white shadow-xs transition-colors group-hover:border-cobalt">
+              <div className="flex h-9 w-9 items-center justify-center border border-border bg-surface shadow-xs transition-colors group-hover:border-accent">
                 <img
                   src="/pp-logo.png"
                   alt="PP"
@@ -213,16 +229,16 @@ export function Navigation() {
                     target.style.display = "none";
                     if (target.parentElement) {
                       target.parentElement.innerHTML =
-                        '<span class="mono font-bold text-cobalt text-[12px]">PP</span>';
+                        '<span class="mono font-bold text-accent text-[12px]">PP</span>';
                     }
                   }}
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-[14px] font-bold tracking-tight text-carbon">
+                <span className="text-[14px] font-bold tracking-tight text-text">
                   Piyush Prasad
                 </span>
-                <span className="mono text-[9px] text-muted-foreground tracking-widest">
+                <span className="mono text-[9px] text-text-muted tracking-widest">
                   Cloud & DevOps
                 </span>
               </div>
@@ -257,13 +273,13 @@ export function Navigation() {
                   onClick={(e) => handleNavClick(e, item)}
                   aria-current={isActive ? "page" : undefined}
                   className={`mono relative py-1 text-[11px] font-medium tracking-wider transition-colors ${
-                    isActive ? "text-cobalt font-semibold" : "text-carbon/75 hover:text-cobalt"
+                    isActive ? "text-accent font-semibold" : "text-text-muted hover:text-accent"
                   }`}
                 >
                   {item.label}
                   <span
                     aria-hidden="true"
-                    className={`absolute -bottom-1 left-0 h-[2px] bg-cobalt transition-all duration-200 ${
+                    className={`absolute -bottom-1 left-0 h-[2px] bg-accent transition-all duration-200 ${
                       isActive ? "w-full" : "w-0"
                     }`}
                   />
@@ -275,11 +291,11 @@ export function Navigation() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-              className="mono inline-flex items-center gap-1.5 border border-border bg-white px-2.5 py-1 text-[11px] font-medium text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt shadow-2xs cursor-pointer"
+              className="mono inline-flex items-center gap-1.5 border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text/80 transition-all hover:border-accent hover:text-accent shadow-2xs cursor-pointer"
               title="Search"
               aria-label="Search"
             >
-              <Search className="h-3.5 w-3.5 text-cobalt" />
+              <Search className="h-3.5 w-3.5 text-accent" />
               <span className="text-[10px] tracking-wider uppercase font-semibold">SEARCH</span>
             </button>
 
@@ -288,17 +304,32 @@ export function Navigation() {
               href="https://github.com/ppiyushhhhh?tab=repositories"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-8 w-8 items-center justify-center border border-border bg-white text-carbon/80 transition-all hover:border-cobalt hover:text-cobalt"
+              className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text/80 transition-all hover:border-accent hover:text-accent"
               aria-label="Explore All Projects on GitHub"
               title="Explore All Projects on GitHub"
             >
               <Github className="h-4 w-4" />
             </a>
 
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text/80 transition-all hover:border-accent hover:text-accent cursor-pointer"
+              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-4 w-4 text-highlight" />
+              ) : (
+                <Moon className="h-4 w-4 text-accent" />
+              )}
+            </button>
+
             {/* Resume Button */}
             <a
               href="/resume"
-              className="mono inline-flex items-center gap-1.5 border border-carbon bg-carbon px-3.5 py-1.5 text-[10px] font-semibold tracking-wider text-white transition-all hover:border-cobalt hover:bg-cobalt"
+              className="mono inline-flex items-center gap-1.5 border border-accent bg-accent px-3.5 py-1.5 text-[10px] font-semibold tracking-wider text-text-on-accent transition-all hover:bg-accent-hover hover:border-accent-hover"
             >
               <FileText className="h-3 w-3" />
               RESUME
@@ -310,16 +341,31 @@ export function Navigation() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
-              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-white text-carbon transition-colors hover:border-cobalt hover:text-cobalt cursor-pointer"
+              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-surface text-text transition-colors hover:border-accent hover:text-accent cursor-pointer"
               title="Quick Search (⌘K)"
               aria-label="Open search palette"
             >
-              <Search className="h-4 w-4 text-cobalt" />
+              <Search className="h-4 w-4 text-accent" />
+            </button>
+
+            {/* Mobile Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-surface text-text transition-colors hover:border-accent hover:text-accent cursor-pointer"
+              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-4 w-4 text-highlight" />
+              ) : (
+                <Moon className="h-4 w-4 text-accent" />
+              )}
             </button>
 
             <a
               href="/resume"
-              className="mono inline-flex items-center gap-1 border border-carbon/20 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-carbon hover:border-cobalt hover:text-cobalt"
+              className="mono inline-flex items-center gap-1 border border-border bg-surface px-2.5 py-1.5 text-[10px] font-semibold text-text hover:border-accent hover:text-accent"
             >
               RESUME
             </a>
@@ -327,7 +373,7 @@ export function Navigation() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-white text-carbon transition-colors hover:border-cobalt hover:text-cobalt"
+              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-surface text-text transition-colors hover:border-accent hover:text-accent"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -340,7 +386,7 @@ export function Navigation() {
       {/* Full-width Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 top-[65px] z-40 flex flex-col bg-[#FAF9F6] px-6 py-8 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200"
+          className="fixed inset-0 top-[65px] z-40 flex flex-col bg-background px-6 py-8 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200"
           style={{ height: "calc(100dvh - 65px)" }}
         >
           <div className="flex flex-col gap-2">
@@ -352,7 +398,7 @@ export function Navigation() {
                 <span className="mono text-[9px] text-amber-600">TEST BUILD</span>
               </div>
             )}
-            <span className="mono mb-2 text-[10px] text-muted-foreground tracking-widest">
+            <span className="mono mb-2 text-[10px] text-text-muted tracking-widest">
               NAVIGATION
             </span>
 
@@ -369,11 +415,11 @@ export function Navigation() {
                   href={getItemHref(item)}
                   onClick={(e) => handleNavClick(e, item)}
                   className={`flex items-center justify-between border-b border-border py-3.5 text-base font-medium transition-colors ${
-                    isActive ? "text-cobalt font-semibold" : "text-carbon hover:text-cobalt"
+                    isActive ? "text-accent font-semibold" : "text-text hover:text-accent"
                   }`}
                 >
                   <span>{item.label}</span>
-                  <span className="mono text-[10px] text-muted-foreground">
+                  <span className="mono text-[10px] text-text-muted">
                     {isActive ? "ACTIVE" : `→`}
                   </span>
                 </a>
@@ -387,7 +433,7 @@ export function Navigation() {
                 href={GITHUB}
                 target="_blank"
                 rel="noreferrer"
-                className="mono flex items-center justify-center gap-2 border border-border bg-white py-3 text-[11px] text-carbon font-semibold"
+                className="mono flex items-center justify-center gap-2 border border-border bg-surface py-3 text-[11px] text-text font-semibold hover:border-accent hover:text-accent"
               >
                 <Github className="h-4 w-4" />
                 GITHUB
@@ -395,7 +441,7 @@ export function Navigation() {
               <a
                 href="/resume"
                 onClick={() => setMobileMenuOpen(false)}
-                className="mono flex items-center justify-center gap-2 bg-cobalt py-3 text-[11px] text-white font-semibold transition-opacity hover:opacity-95"
+                className="mono flex items-center justify-center gap-2 bg-accent py-3 text-[11px] text-text-on-accent font-semibold transition-opacity hover:bg-accent-hover"
               >
                 <FileText className="h-4 w-4" />
                 RESUME

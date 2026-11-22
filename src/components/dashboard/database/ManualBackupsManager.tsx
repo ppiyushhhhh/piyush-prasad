@@ -257,7 +257,7 @@ export function ManualBackupsManager({
 
             <button
               onClick={() => setShowDiagnosticsDetail(!showDiagnosticsDetail)}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-2 text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-2 text-xs font-semibold text-carbon hover:bg-surface-muted transition-colors cursor-pointer"
             >
               <span>{showDiagnosticsDetail ? "Hide Details" : "View Pipeline Checks"}</span>
             </button>
@@ -270,7 +270,7 @@ export function ManualBackupsManager({
             {automationStatus.diagnostics.map((diag, idx) => (
               <div
                 key={idx}
-                className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3 flex items-start gap-2.5"
+                className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3 flex items-start gap-2.5"
               >
                 <div className="p-1 rounded-sm bg-emerald-50 border border-emerald-200 text-emerald-700 shrink-0 mt-0.5">
                   <Check className="h-3 w-3" />
@@ -348,7 +348,7 @@ export function ManualBackupsManager({
           <button
             onClick={onRefresh}
             disabled={isLoading}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] transition-colors cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-surface-muted transition-colors cursor-pointer shadow-2xs"
             title="Refresh list"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
@@ -359,7 +359,7 @@ export function ManualBackupsManager({
 
       {/* 4. Dedicated Manual Database Backups Table */}
       <div className="rounded-sm border border-[#E5E5DF] bg-white overflow-hidden shadow-2xs">
-        <div className="border-b border-[#E5E5DF] px-5 py-3.5 flex items-center justify-between bg-[#FAF9F6]">
+        <div className="border-b border-[#E5E5DF] px-5 py-3.5 flex items-center justify-between bg-surface-muted">
           <div className="flex items-center gap-2">
             <DatabaseIcon className="h-4 w-4 text-cobalt" />
             <h3 className="mono text-xs font-semibold uppercase tracking-wider text-carbon">
@@ -381,7 +381,7 @@ export function ManualBackupsManager({
           </div>
         ) : filteredBackups.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="h-12 w-12 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] flex items-center justify-center text-muted-foreground mb-3">
+            <div className="h-12 w-12 rounded-sm bg-surface-muted border border-[#E5E5DF] flex items-center justify-center text-muted-foreground mb-3">
               <DatabaseIcon className="h-6 w-6" />
             </div>
             <h4 className="text-sm font-semibold text-carbon">No Manual Backups Found</h4>
@@ -404,7 +404,7 @@ export function ManualBackupsManager({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#FAF9F6] text-[10px] uppercase tracking-wider text-muted-foreground border-b border-[#E5E5DF] mono">
+              <thead className="bg-surface-muted text-[10px] uppercase tracking-wider text-muted-foreground border-b border-[#E5E5DF] mono">
                 <tr>
                   <th className="py-3 px-4 font-semibold">Date &amp; Time</th>
                   <th className="py-3 px-4 font-semibold">Filename</th>
@@ -420,7 +420,7 @@ export function ManualBackupsManager({
                 {filteredBackups.map((bk) => (
                   <tr
                     key={bk.id || bk.filename}
-                    className="hover:bg-[#FAF9F6]/80 transition-colors"
+                    className="hover:bg-surface-muted/80 transition-colors"
                   >
                     {/* Date & Time */}
                     <td className="py-3 px-4 whitespace-nowrap">
@@ -491,7 +491,7 @@ export function ManualBackupsManager({
                           Email Dispatched
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground mono">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-surface-muted border border-[#E5E5DF] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground mono">
                           Pending Dispatch
                         </span>
                       )}
@@ -524,7 +524,7 @@ export function ManualBackupsManager({
 
                         <button
                           onClick={() => setSelectedBackup(bk)}
-                          className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2 py-1 text-[11px] font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2 py-1 text-[11px] font-semibold text-carbon hover:bg-surface-muted transition-colors cursor-pointer"
                           title="View metadata and SQL preview"
                         >
                           <Eye className="h-3 w-3" />
@@ -560,26 +560,26 @@ export function ManualBackupsManager({
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-sm bg-[#FAF9F6] p-3 border border-[#E5E5DF]">
+              <div className="rounded-sm bg-surface-muted p-3 border border-[#E5E5DF]">
                 <p className="mono text-[10px] uppercase text-muted-foreground font-semibold">Filename</p>
                 <p className="mono text-carbon font-bold mt-0.5 truncate">
                   {selectedBackup.filename}
                 </p>
               </div>
 
-              <div className="rounded-sm bg-[#FAF9F6] p-3 border border-[#E5E5DF]">
+              <div className="rounded-sm bg-surface-muted p-3 border border-[#E5E5DF]">
                 <p className="mono text-[10px] uppercase text-muted-foreground font-semibold">Created At</p>
                 <p className="text-carbon mono mt-0.5">
                   {selectedBackup.backup_date} {selectedBackup.backup_time}
                 </p>
               </div>
 
-              <div className="rounded-sm bg-[#FAF9F6] p-3 border border-[#E5E5DF]">
+              <div className="rounded-sm bg-surface-muted p-3 border border-[#E5E5DF]">
                 <p className="mono text-[10px] uppercase text-muted-foreground font-semibold">Admin Account</p>
                 <p className="text-carbon mono mt-0.5 truncate">{selectedBackup.admin_email}</p>
               </div>
 
-              <div className="rounded-sm bg-[#FAF9F6] p-3 border border-[#E5E5DF]">
+              <div className="rounded-sm bg-surface-muted p-3 border border-[#E5E5DF]">
                 <p className="mono text-[10px] uppercase text-muted-foreground font-semibold">Archive Size</p>
                 <p className="text-emerald-700 mono font-bold mt-0.5">
                   {selectedBackup.file_size_pretty} ({selectedBackup.total_records} records)
@@ -596,7 +596,7 @@ export function ManualBackupsManager({
                 {(selectedBackup.tables_included || []).map((t) => (
                   <span
                     key={t}
-                    className="rounded-sm bg-[#FAF9F6] px-2 py-0.5 text-[11px] mono text-carbon border border-[#E5E5DF]"
+                    className="rounded-sm bg-surface-muted px-2 py-0.5 text-[11px] mono text-carbon border border-[#E5E5DF]"
                   >
                     {t}
                   </span>
@@ -619,7 +619,7 @@ export function ManualBackupsManager({
                     <span>Copy SQL</span>
                   </button>
                 </div>
-                <pre className="max-h-48 overflow-y-auto rounded-sm bg-[#FAF9F6] p-3 mono text-[11px] text-carbon border border-[#E5E5DF]">
+                <pre className="max-h-48 overflow-y-auto rounded-sm bg-surface-muted p-3 mono text-[11px] text-carbon border border-[#E5E5DF]">
                   {selectedBackup.backup_data.sql.slice(0, 1500)}
                   {selectedBackup.backup_data.sql.length > 1500 && "\n\n-- [Truncated preview...]"}
                 </pre>

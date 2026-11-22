@@ -95,7 +95,7 @@ function RepoCardItem({ repo }: { repo: GitHubRepo }) {
               <GitBranch className="h-3 w-3" />
               {repo.default_branch || "main"}
             </span>
-            <span className="border border-border bg-[#FAF9F6] px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
+            <span className="border border-border bg-surface-muted px-1.5 py-0.5 text-[9px] font-mono text-carbon/60 uppercase">
               Public
             </span>
           </div>
@@ -141,7 +141,7 @@ function RepoCardItem({ repo }: { repo: GitHubRepo }) {
             {repo.topics.slice(0, 4).map((topic) => (
               <span
                 key={topic}
-                className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-carbon/70 group-hover:border-cobalt/30 transition-colors"
+                className="mono border border-border bg-surface-muted px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-carbon/70 group-hover:border-cobalt/30 transition-colors"
               >
                 #{topic}
               </span>
@@ -174,7 +174,7 @@ function RepoCardItem({ repo }: { repo: GitHubRepo }) {
 
         {/* Latest Commit Snippet */}
         {commit ? (
-          <div className="border border-border bg-[#FAF9F6] p-2.5 mb-4">
+          <div className="border border-border bg-surface-muted p-2.5 mb-4">
             <div className="flex items-center justify-between text-[9px] uppercase tracking-wider text-muted-foreground font-mono font-semibold mb-1">
               <span className="flex items-center gap-1 text-cobalt">
                 <Activity className="h-2.5 w-2.5" />
@@ -222,7 +222,7 @@ function RepoCardItem({ repo }: { repo: GitHubRepo }) {
               href={repo.homepage}
               target="_blank"
               rel="noreferrer"
-              className="mono inline-flex items-center justify-center border border-border bg-[#FAF9F6] p-2 text-carbon/75 transition-all hover:border-cobalt hover:bg-white hover:text-cobalt"
+              className="mono inline-flex items-center justify-center border border-border bg-surface-muted p-2 text-carbon/75 transition-all hover:border-cobalt hover:bg-white hover:text-cobalt"
               title={`Visit live URL: ${repo.homepage}`}
             >
               <ExternalLink className="h-3.5 w-3.5" />
@@ -325,7 +325,7 @@ function DedicatedGithubPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white">
+    <div className="relative min-h-screen bg-background text-carbon selection:bg-cobalt selection:text-white">
       <CustomCursor />
       <Navigation />
 
@@ -347,7 +347,7 @@ function DedicatedGithubPage() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
               {/* User Bio & Avatar */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden border border-border bg-[#FAF9F6]">
+                <div className="relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden border border-border bg-surface-muted">
                   <img
                     src={profile?.avatar_url || `https://github.com/${GH_USER}.png`}
                     alt={profile?.name || "Piyush Prasad"}
@@ -364,7 +364,7 @@ function DedicatedGithubPage() {
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-carbon">
                       {profile?.name || "Piyush Prasad"}
                     </h1>
-                    <span className="mono border border-border bg-[#FAF9F6] px-2.5 py-0.5 text-xs font-semibold text-cobalt">
+                    <span className="mono border border-border bg-surface-muted px-2.5 py-0.5 text-xs font-semibold text-cobalt">
                       @{profile?.login || GH_USER}
                     </span>
                   </div>
@@ -399,13 +399,13 @@ function DedicatedGithubPage() {
               {/* Stats Counters & CTAs */}
               <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4 border-t lg:border-t-0 lg:border-l border-border pt-6 lg:pt-0 lg:pl-8 shrink-0">
                 <div className="grid grid-cols-3 gap-4 w-full sm:w-auto">
-                  <div className="border border-border bg-[#FAF9F6] p-3 text-center min-w-[90px]">
+                  <div className="border border-border bg-surface-muted p-3 text-center min-w-[90px]">
                     <div className="mono text-[10px] text-muted-foreground uppercase">Repos</div>
                     <div className="text-xl sm:text-2xl font-bold text-carbon">
                       {profile?.public_repos ?? repos?.length ?? 6}
                     </div>
                   </div>
-                  <div className="border border-border bg-[#FAF9F6] p-3 text-center min-w-[90px]">
+                  <div className="border border-border bg-surface-muted p-3 text-center min-w-[90px]">
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Followers
                     </div>
@@ -413,7 +413,7 @@ function DedicatedGithubPage() {
                       {profile?.followers ?? 12}
                     </div>
                   </div>
-                  <div className="border border-border bg-[#FAF9F6] p-3 text-center min-w-[90px]">
+                  <div className="border border-border bg-surface-muted p-3 text-center min-w-[90px]">
                     <div className="mono text-[10px] text-muted-foreground uppercase">
                       Following
                     </div>
@@ -462,7 +462,7 @@ function DedicatedGithubPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search repositories by name, description, or topic..."
-                  className="w-full border border-border bg-[#FAF9F6] pl-10 pr-4 py-2.5 text-xs sm:text-sm text-carbon placeholder:text-carbon/40 focus:border-cobalt focus:bg-white focus:outline-hidden transition-all"
+                  className="w-full border border-border bg-surface-muted pl-10 pr-4 py-2.5 text-xs sm:text-sm text-carbon placeholder:text-carbon/40 focus:border-cobalt focus:bg-white focus:outline-hidden transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -483,7 +483,7 @@ function DedicatedGithubPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="border border-border bg-[#FAF9F6] px-3 py-2 text-xs font-mono font-medium text-carbon focus:border-cobalt focus:outline-hidden cursor-pointer"
+                  className="border border-border bg-surface-muted px-3 py-2 text-xs font-mono font-medium text-carbon focus:border-cobalt focus:outline-hidden cursor-pointer"
                 >
                   <option value="updated">Recently Updated</option>
                   <option value="stars">Most Stars</option>
@@ -506,7 +506,7 @@ function DedicatedGithubPage() {
                 className={`mono px-2.5 py-1 text-[11px] font-semibold transition-all ${
                   selectedLanguage === "all"
                     ? "bg-cobalt text-white shadow-2xs"
-                    : "bg-[#FAF9F6] border border-border text-carbon/75 hover:border-cobalt hover:text-cobalt"
+                    : "bg-surface-muted border border-border text-carbon/75 hover:border-cobalt hover:text-cobalt"
                 }`}
               >
                 All ({repos?.length ?? 0})
@@ -523,7 +523,7 @@ function DedicatedGithubPage() {
                     className={`mono inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold transition-all ${
                       selectedLanguage === lang
                         ? "bg-cobalt text-white shadow-2xs"
-                        : "bg-[#FAF9F6] border border-border text-carbon/75 hover:border-cobalt hover:text-cobalt"
+                        : "bg-surface-muted border border-border text-carbon/75 hover:border-cobalt hover:text-cobalt"
                     }`}
                   >
                     <span
@@ -599,7 +599,7 @@ function DedicatedGithubPage() {
           ) : (
             !isReposLoading && (
               <div className="border border-border bg-white p-12 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-border bg-[#FAF9F6] text-cobalt mb-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface-muted text-cobalt mb-4">
                   <Search className="h-5 w-5" />
                 </div>
                 <h3 className="text-lg font-bold text-carbon">No matching repositories found</h3>

@@ -145,7 +145,7 @@ function ProjectsIndexPage() {
   const featuredProjects = useMemo(() => projects.filter((p) => p.is_featured), [projects]);
 
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white dark:bg-neutral-950 dark:text-neutral-100">
+    <div className="relative min-h-screen bg-background text-text selection:bg-accent selection:text-text-on-accent">
       <CustomCursor />
       <Navigation />
 
@@ -154,16 +154,16 @@ function ProjectsIndexPage() {
           {/* Header Introduction */}
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 mb-3">
-              <span className="mono text-[11px] font-bold uppercase tracking-widest text-cobalt">
+              <span className="mono text-[11px] font-bold uppercase tracking-widest text-accent">
                 Engineering Showcase
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               <span className="mono text-[11px] text-muted-foreground">
                 Verified Architectures & Deployments
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-carbon dark:text-white">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-text">
               Engineering Projects & Case Studies
             </h1>
 
@@ -175,21 +175,21 @@ function ProjectsIndexPage() {
 
             {/* Quick Metrics Bar */}
             <div className="mt-6 flex flex-wrap items-center gap-4 text-xs">
-              <div className="flex items-center gap-2 rounded-md border border-border bg-white dark:bg-neutral-900 px-3 py-1.5 shadow-2xs">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span className="font-semibold text-carbon dark:text-white">
+              <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 shadow-2xs">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                <span className="font-semibold text-text">
                   {projects.filter((p) => p.status === "Production").length} Production Deployments
                 </span>
               </div>
-              <div className="flex items-center gap-2 rounded-md border border-border bg-white dark:bg-neutral-900 px-3 py-1.5 shadow-2xs">
-                <FolderGit2 className="h-4 w-4 text-cobalt" />
-                <span className="font-semibold text-carbon dark:text-white">
+              <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 shadow-2xs">
+                <FolderGit2 className="h-4 w-4 text-accent" />
+                <span className="font-semibold text-text">
                   {projects.length} Documented Systems
                 </span>
               </div>
-              <div className="flex items-center gap-2 rounded-md border border-border bg-white dark:bg-neutral-900 px-3 py-1.5 shadow-2xs">
-                <Shield className="h-4 w-4 text-amber-500" />
-                <span className="font-semibold text-carbon dark:text-white">
+              <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 shadow-2xs">
+                <Shield className="h-4 w-4 text-warning" />
+                <span className="font-semibold text-text">
                   100% Real Repositories
                 </span>
               </div>
@@ -197,7 +197,7 @@ function ProjectsIndexPage() {
           </div>
 
           {/* Search, Filter & Controls Bar */}
-          <div className="mt-10 rounded-xl border border-border bg-white dark:bg-neutral-900 p-5 shadow-xs">
+          <div className="mt-10 rounded-xl border border-border bg-surface p-5 shadow-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3.5">
               {/* Search Bar */}
               <div className="relative sm:col-span-2 md:col-span-5">
@@ -207,13 +207,13 @@ function ProjectsIndexPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by title, technology, or keywords..."
-                  className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 pl-10 pr-9 py-2 text-xs focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded-md border border-border bg-surface-muted pl-10 pr-9 py-2 text-xs focus:border-accent focus:outline-hidden"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-carbon"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-text"
                     aria-label="Clear search"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -227,7 +227,7 @@ function ProjectsIndexPage() {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   aria-label="Filter by project category"
-                  className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-3 py-2 text-xs focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded-md border border-border bg-surface-muted px-3 py-2 text-xs focus:border-accent focus:outline-hidden"
                 >
                   <option value="all">All Categories ({projects.length})</option>
                   {PROJECT_CATEGORIES.map((cat) => (
@@ -244,7 +244,7 @@ function ProjectsIndexPage() {
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                   aria-label="Filter by project status"
-                  className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-3 py-2 text-xs focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded-md border border-border bg-surface-muted px-3 py-2 text-xs focus:border-accent focus:outline-hidden"
                 >
                   <option value="all">All Statuses</option>
                   <option value="Production">Production</option>
@@ -261,7 +261,7 @@ function ProjectsIndexPage() {
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "featured" | "order" | "title")}
                   aria-label="Sort projects"
-                  className="w-full rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-3 py-2 text-xs focus:border-cobalt focus:outline-hidden"
+                  className="w-full rounded-md border border-border bg-surface-muted px-3 py-2 text-xs focus:border-accent focus:outline-hidden"
                 >
                   <option value="featured">Featured First</option>
                   <option value="order">Curated Order</option>
@@ -278,10 +278,10 @@ function ProjectsIndexPage() {
               <button
                 type="button"
                 onClick={() => setSelectedCategory("all")}
-                className={`mono rounded-full px-3 py-1 text-[10px] font-medium transition-colors ${
+                className={`mono rounded-full px-3 py-1 text-[10px] font-medium transition-colors cursor-pointer ${
                   selectedCategory === "all"
-                    ? "bg-cobalt text-white font-bold"
-                    : "border border-border bg-[#FAF9F6] dark:bg-neutral-950 text-carbon/80 hover:border-cobalt"
+                    ? "bg-accent text-text-on-accent font-bold"
+                    : "border border-border bg-surface-muted text-text/80 hover:border-accent"
                 }`}
               >
                 All ({projects.length})
@@ -295,10 +295,10 @@ function ProjectsIndexPage() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(isSelected ? "all" : cat)}
-                    className={`mono rounded-full px-3 py-1 text-[10px] font-medium transition-colors ${
+                    className={`mono rounded-full px-3 py-1 text-[10px] font-medium transition-colors cursor-pointer ${
                       isSelected
-                        ? "bg-cobalt text-white font-bold"
-                        : "border border-border bg-[#FAF9F6] dark:bg-neutral-950 text-carbon/80 hover:border-cobalt"
+                        ? "bg-accent text-text-on-accent font-bold"
+                        : "border border-border bg-surface-muted text-text/80 hover:border-accent"
                     }`}
                   >
                     {cat} ({count})
@@ -312,14 +312,14 @@ function ProjectsIndexPage() {
           <div className="mt-8 flex items-center justify-between text-xs text-muted-foreground">
             <span>
               Showing{" "}
-              <strong className="text-carbon dark:text-white">{filteredProjects.length}</strong> of{" "}
+              <strong className="text-text">{filteredProjects.length}</strong> of{" "}
               {projects.length} projects
             </span>
             <button
               type="button"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="mono inline-flex items-center gap-1.5 text-xs text-cobalt hover:underline disabled:opacity-50"
+              className="mono inline-flex items-center gap-1.5 text-xs text-accent hover:underline disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
               <span>Refresh Projects</span>
@@ -334,9 +334,9 @@ function ProjectsIndexPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-12 rounded-xl border border-dashed border-border bg-white dark:bg-neutral-900 p-12 text-center">
+            <div className="mt-12 rounded-xl border border-dashed border-border bg-surface p-12 text-center">
               <FolderGit2 className="mx-auto h-10 w-10 text-muted-foreground/60 mb-3" />
-              <h3 className="text-base font-bold text-carbon dark:text-white">
+              <h3 className="text-base font-bold text-text">
                 No matching engineering projects
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -350,7 +350,7 @@ function ProjectsIndexPage() {
                   setSelectedTech("all");
                   setSelectedStatus("all");
                 }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-950 px-3 py-1.5 text-xs font-semibold text-carbon hover:border-cobalt hover:text-cobalt transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-muted px-3 py-1.5 text-xs font-semibold text-text hover:border-accent hover:text-accent transition-colors cursor-pointer"
               >
                 Reset All Filters
               </button>

@@ -201,7 +201,7 @@ function ArchitectureExplorerPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-carbon selection:bg-cobalt selection:text-white dark:bg-[#0E0F12] dark:text-neutral-100">
+    <div className="relative min-h-screen bg-background text-text selection:bg-accent selection:text-text-on-accent">
       <CustomCursor />
       <Navigation />
 
@@ -212,15 +212,15 @@ function ArchitectureExplorerPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="mono text-[10px] font-bold uppercase tracking-[0.2em] text-cobalt">
+                  <span className="mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
                     SYSTEM.03 // INFRASTRUCTURE EXPLORER
                   </span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="mono text-[9px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                  <span className="mono text-[9px] font-semibold text-success uppercase">
                     [ PRODUCTION VERIFIED ]
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-carbon dark:text-white">
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-text">
                   Interactive Infrastructure Architecture Explorer
                 </h1>
                 <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed">
@@ -236,16 +236,16 @@ function ArchitectureExplorerPage() {
                 <button
                   type="button"
                   onClick={() => openWorkspace()}
-                  className="mono inline-flex items-center gap-1.5 border border-cobalt bg-cobalt px-4 py-2 text-xs font-bold text-white transition-all hover:bg-cobalt/90 shadow-xs cursor-pointer rounded-md"
+                  className="mono inline-flex items-center gap-1.5 border border-accent bg-accent px-4 py-2 text-xs font-bold text-text-on-accent transition-all hover:bg-accent-hover shadow-xs cursor-pointer rounded-md"
                 >
                   <Maximize2 className="h-3.5 w-3.5" />
                   <span>OPEN FULL SCREEN</span>
                 </button>
                 <Link
                   to="/projects"
-                  className="mono inline-flex items-center gap-1.5 border border-border bg-white dark:bg-neutral-900 px-3.5 py-2 text-xs font-semibold text-carbon dark:text-neutral-200 transition-colors hover:border-cobalt hover:text-cobalt shadow-2xs rounded-md"
+                  className="mono inline-flex items-center gap-1.5 border border-border bg-surface px-3.5 py-2 text-xs font-semibold text-text transition-colors hover:border-accent hover:text-accent shadow-2xs rounded-md"
                 >
-                  <FolderGit2 className="h-3.5 w-3.5 text-cobalt" />
+                  <FolderGit2 className="h-3.5 w-3.5 text-accent" />
                   <span>ALL CASE STUDIES</span>
                 </Link>
               </div>
@@ -265,8 +265,8 @@ function ArchitectureExplorerPage() {
                     onClick={() => handleSelectArchitecture(arch.slug)}
                     className={`mono text-xs px-3.5 py-1.5 rounded-md border transition-all cursor-pointer ${
                       isSelected
-                        ? "border-cobalt bg-cobalt text-white font-bold shadow-xs"
-                        : "border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-300 hover:border-cobalt/60 hover:text-cobalt"
+                        ? "border-accent bg-accent text-text-on-accent font-bold shadow-xs"
+                        : "border-border bg-surface text-text hover:border-accent/60 hover:text-accent"
                     }`}
                   >
                     {arch.title}
@@ -278,9 +278,9 @@ function ArchitectureExplorerPage() {
 
           {/* Active Architecture Overview Strip */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-            <div className="lg:col-span-3 p-4 rounded-lg border border-border bg-white dark:bg-[#121316] shadow-2xs">
+            <div className="lg:col-span-3 p-4 rounded-lg border border-border bg-surface shadow-2xs">
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="mono text-[10px] font-bold uppercase tracking-wider text-cobalt">
+                <span className="mono text-[10px] font-bold uppercase tracking-wider text-accent">
                   {currentArchitecture.architecture_type}
                 </span>
                 <span className="mono text-[10px] text-muted-foreground">&bull;</span>
@@ -292,7 +292,7 @@ function ArchitectureExplorerPage() {
                   {currentArchitecture.diagram_data.edges.length} Data Connections
                 </span>
               </div>
-              <h2 className="text-lg md:text-xl font-bold text-carbon dark:text-white">
+              <h2 className="text-lg md:text-xl font-bold text-text">
                 {currentArchitecture.title}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
@@ -301,7 +301,7 @@ function ArchitectureExplorerPage() {
             </div>
 
             {/* View Mode Switcher */}
-            <div className="p-4 rounded-lg border border-border bg-white dark:bg-[#121316] shadow-2xs flex flex-col justify-between">
+            <div className="p-4 rounded-lg border border-border bg-surface shadow-2xs flex flex-col justify-between">
               <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
                 LAYER VIEW MODES:
               </span>
@@ -316,8 +316,8 @@ function ArchitectureExplorerPage() {
                       onClick={() => setViewMode(mode.id)}
                       className={`flex items-center justify-between px-2.5 py-1.5 rounded text-left transition-all cursor-pointer ${
                         isActive
-                          ? "bg-cobalt text-white font-semibold"
-                          : "text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-carbon"
+                          ? "bg-accent text-text-on-accent font-semibold"
+                          : "text-muted-foreground hover:bg-surface-muted hover:text-text"
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -391,12 +391,12 @@ function ArchitectureExplorerPage() {
           {/* Infrastructure Layer Deep-Dive Cards */}
           <div className="mt-12 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="mono text-[10px] font-bold uppercase tracking-widest text-cobalt">
+              <span className="mono text-[10px] font-bold uppercase tracking-widest text-accent">
                 VERIFIED TECHNICAL SPECIFICATIONS
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-carbon dark:text-white">
+            <h3 className="text-xl md:text-2xl font-bold text-text">
               Component Inventory &amp; Node Specifications
             </h3>
 
@@ -411,14 +411,14 @@ function ArchitectureExplorerPage() {
                       setSelectedNode(node);
                       window.scrollTo({ top: 320, behavior: "smooth" });
                     }}
-                    className={`p-4 rounded-lg border text-left bg-white dark:bg-[#121316] transition-all cursor-pointer ${
+                    className={`p-4 rounded-lg border text-left bg-surface transition-all cursor-pointer ${
                       isSelected
-                        ? "border-cobalt ring-2 ring-cobalt/20 shadow-md"
-                        : "border-border hover:border-cobalt/60 hover:shadow-2xs"
+                        ? "border-accent ring-2 ring-accent/20 shadow-md"
+                        : "border-border hover:border-accent/60 hover:shadow-2xs"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="mono text-[9px] uppercase font-bold text-cobalt">
+                      <span className="mono text-[9px] uppercase font-bold text-accent">
                         {node.category}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -426,8 +426,8 @@ function ArchitectureExplorerPage() {
                           <span
                             className={`mono text-[8.5px] font-bold px-1.5 py-0.5 rounded border ${
                               node.verification === "code"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
-                                : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                                ? "bg-success/10 text-success border-success/30"
+                                : "bg-warning/10 text-warning border-warning/30"
                             }`}
                           >
                             {node.verification === "code" ? "Code" : "Docs"}
@@ -438,14 +438,14 @@ function ArchitectureExplorerPage() {
                         )}
                       </div>
                     </div>
-                    <h4 className="text-sm font-bold text-carbon dark:text-white">{node.name}</h4>
-                    <p className="mono text-[11px] text-cobalt font-semibold mt-0.5">{node.tech}</p>
+                    <h4 className="text-sm font-bold text-text">{node.name}</h4>
+                    <p className="mono text-[11px] text-accent font-semibold mt-0.5">{node.tech}</p>
                     <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
                       {node.description}
                     </p>
                     <div className="mt-3 pt-2 border-t border-border/70 flex items-center justify-between text-[10px] text-muted-foreground">
                       <span className="mono truncate max-w-[150px]">{node.provider}</span>
-                      <span className="text-cobalt font-semibold">Inspect &rarr;</span>
+                      <span className="text-accent font-semibold">Inspect &rarr;</span>
                     </div>
                   </button>
                 );
@@ -456,19 +456,19 @@ function ArchitectureExplorerPage() {
           {/* Verified Data Flow & Connection Matrix Table */}
           <div className="mt-12 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="mono text-[10px] font-bold uppercase tracking-widest text-cobalt">
+              <span className="mono text-[10px] font-bold uppercase tracking-widest text-accent">
                 VERIFIED INTERACTION MATRIX
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-carbon dark:text-white">
+            <h3 className="text-xl md:text-2xl font-bold text-text">
               Data Flow Connections &amp; Protocols
             </h3>
 
-            <div className="overflow-x-auto rounded-lg border border-border bg-white dark:bg-[#121316] shadow-2xs">
+            <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-2xs">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-border bg-[#FAF9F6] dark:bg-neutral-900/60 mono text-[10px] uppercase text-muted-foreground">
+                  <tr className="border-b border-border bg-surface-muted mono text-[10px] uppercase text-muted-foreground">
                     <th className="p-3.5 font-bold">Source Node</th>
                     <th className="p-3.5 font-bold">Target Node</th>
                     <th className="p-3.5 font-bold">Connection Label</th>
@@ -490,12 +490,12 @@ function ArchitectureExplorerPage() {
                     return (
                       <tr
                         key={edge.id}
-                        className={`transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/40 ${
-                          isSelected ? "bg-blue-50/60 dark:bg-blue-950/20 font-semibold" : ""
+                        className={`transition-colors hover:bg-surface-muted/50 ${
+                          isSelected ? "bg-accent-soft font-semibold" : ""
                         }`}
                       >
                         <td className="p-3.5">
-                          <span className="font-bold text-carbon dark:text-white block">
+                          <span className="font-bold text-text block">
                             {sourceNode?.name || edge.source}
                           </span>
                           <span className="mono text-[10px] text-muted-foreground">
@@ -503,7 +503,7 @@ function ArchitectureExplorerPage() {
                           </span>
                         </td>
                         <td className="p-3.5">
-                          <span className="font-bold text-carbon dark:text-white block">
+                          <span className="font-bold text-text block">
                             {targetNode?.name || edge.target}
                           </span>
                           <span className="mono text-[10px] text-muted-foreground">
@@ -511,7 +511,7 @@ function ArchitectureExplorerPage() {
                           </span>
                         </td>
                         <td className="p-3.5">
-                          <span className="text-carbon dark:text-neutral-200">
+                          <span className="text-text">
                             {edge.label || edge.protocol}
                           </span>
                           {edge.description && (
@@ -520,11 +520,11 @@ function ArchitectureExplorerPage() {
                             </span>
                           )}
                         </td>
-                        <td className="p-3.5 mono text-[11px] text-cobalt font-semibold">
+                        <td className="p-3.5 mono text-[11px] text-accent font-semibold">
                           {edge.protocol || "TCP/IP"}
                         </td>
                         <td className="p-3.5">
-                          <span className="mono text-[9px] uppercase px-2 py-0.5 rounded font-bold border border-border/80 bg-[#FAF9F6] dark:bg-neutral-900 text-carbon dark:text-neutral-300">
+                          <span className="mono text-[9px] uppercase px-2 py-0.5 rounded font-bold border border-border/80 bg-surface-muted text-text">
                             {edge.category}
                           </span>
                         </td>
@@ -536,7 +536,7 @@ function ArchitectureExplorerPage() {
                               setSelectedNode(null);
                               window.scrollTo({ top: 320, behavior: "smooth" });
                             }}
-                            className="mono text-xs text-cobalt font-bold hover:underline cursor-pointer"
+                            className="mono text-xs text-accent font-bold hover:underline cursor-pointer"
                           >
                             Inspect &rarr;
                           </button>
@@ -554,21 +554,21 @@ function ArchitectureExplorerPage() {
       {/* Dedicated Full-Screen Architecture Workspace Overlay */}
       {isWorkspaceOpen && (
         <div
-          className="fixed inset-0 z-50 flex flex-col h-screen w-screen bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex flex-col h-screen w-screen bg-background overflow-hidden animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
           aria-label="Dedicated Full-Screen Architecture Workspace"
         >
           {/* Top Workspace Navigation Bar */}
-          <header className="shrink-0 border-b border-border bg-white dark:bg-[#121316] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 z-30 shadow-xs">
+          <header className="shrink-0 border-b border-border bg-surface px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 z-30 shadow-xs">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 type="button"
                 onClick={closeWorkspace}
-                className="mono inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-[#FAF9F6] dark:bg-neutral-900 text-xs font-bold text-carbon dark:text-white hover:border-cobalt hover:text-cobalt cursor-pointer transition-colors shadow-2xs shrink-0"
+                className="mono inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-surface-muted text-xs font-bold text-text hover:border-accent hover:text-accent cursor-pointer transition-colors shadow-2xs shrink-0"
                 title="Close Workspace (Escape)"
               >
-                <X className="h-4 w-4 text-cobalt" />
+                <X className="h-4 w-4 text-accent" />
                 <span className="hidden sm:inline">CLOSE WORKSPACE (ESC)</span>
                 <span className="sm:hidden">EXIT</span>
               </button>
@@ -578,14 +578,14 @@ function ArchitectureExplorerPage() {
               {/* Project Header Info */}
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="mono text-[9px] font-bold text-cobalt uppercase tracking-wider">
+                  <span className="mono text-[9px] font-bold text-accent uppercase tracking-wider">
                     {currentArchitecture.architecture_type}
                   </span>
                   <span className="mono text-[9px] text-muted-foreground hidden lg:inline">
                     &bull; {currentArchitecture.diagram_data.nodes.length} Components &bull; {currentArchitecture.diagram_data.edges.length} Connections
                   </span>
                 </div>
-                <h2 className="text-xs md:text-sm font-bold text-carbon dark:text-white truncate">
+                <h2 className="text-xs md:text-sm font-bold text-text truncate">
                   {currentArchitecture.title}
                 </h2>
               </div>
@@ -604,8 +604,8 @@ function ArchitectureExplorerPage() {
                       onClick={() => handleSelectArchitecture(arch.slug)}
                       className={`mono text-[11px] px-2.5 py-1 rounded whitespace-nowrap border transition-all cursor-pointer ${
                         isSelected
-                          ? "border-cobalt bg-cobalt text-white font-bold"
-                          : "border-border bg-white dark:bg-neutral-900 text-carbon dark:text-neutral-300 hover:border-cobalt/60 hover:text-cobalt"
+                          ? "border-accent bg-accent text-text-on-accent font-bold"
+                          : "border-border bg-surface text-text hover:border-accent/60 hover:text-accent"
                       }`}
                     >
                       {arch.title.split("—")[0].trim()}
@@ -625,8 +625,8 @@ function ArchitectureExplorerPage() {
                       onClick={() => setViewMode(mode.id)}
                       className={`mono text-[10px] px-2 py-1 rounded border transition-colors cursor-pointer ${
                         isActive
-                          ? "border-cobalt bg-cobalt/10 text-cobalt font-bold"
-                          : "border-transparent text-muted-foreground hover:text-carbon"
+                          ? "border-accent bg-accent-soft text-accent font-bold"
+                          : "border-transparent text-muted-foreground hover:text-text"
                       }`}
                     >
                       {mode.label.replace(" View", "")}

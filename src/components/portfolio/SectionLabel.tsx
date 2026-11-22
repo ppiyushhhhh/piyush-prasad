@@ -9,11 +9,11 @@ export function SectionLabel({
 }) {
   return (
     <div
-      className={`mono mb-16 flex items-center gap-4 text-[11px] ${dark ? "text-white/80" : "text-carbon/70"}`}
+      className={`mono mb-16 flex items-center gap-4 text-[11px] ${dark ? "text-text-muted" : "text-text-muted"}`}
     >
-      <span className="text-cobalt">{n}</span>
+      <span className="text-accent">{n}</span>
       <span>/ {label}</span>
-      <span className={`ml-4 h-px flex-1 ${dark ? "bg-white/20" : "bg-[#D1D1CB]"}`} />
+      <span className={`ml-4 h-px flex-1 ${dark ? "bg-border" : "bg-border"}`} />
     </div>
   );
 }

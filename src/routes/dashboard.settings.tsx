@@ -187,7 +187,7 @@ function SettingsPage() {
       )}
 
       {actionMessage && (
-        <div className="mb-6 rounded-sm border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs text-cobalt flex items-center gap-2">
+        <div className="mb-6 rounded-sm border border-accent/30 bg-accent-soft px-4 py-2.5 text-xs text-cobalt flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-cobalt" />
           <span>{actionMessage}</span>
         </div>
@@ -206,7 +206,7 @@ function SettingsPage() {
                 type="url"
                 value={config.siteUrl}
                 onChange={(e) => setConfig({ ...config, siteUrl: e.target.value })}
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
               />
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Primary production domain probed every 10 minutes by server-side workers.
@@ -223,7 +223,7 @@ function SettingsPage() {
                 onChange={(e) =>
                   setConfig({ ...config, autoRefreshIntervalSec: Number(e.target.value) })
                 }
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
               >
                 <option value={30}>30 seconds (Live mode)</option>
                 <option value={60}>60 seconds (Standard)</option>
@@ -239,10 +239,10 @@ function SettingsPage() {
           <div className="mt-5 border-t border-[#E5E5DF] pt-4">
             <p className="mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Automated Probe Paths:</p>
             <div className="flex flex-wrap gap-2 text-[11px] font-mono">
-              <span className="rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/ (Root Landing)</span>
-              <span className="rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/robots.txt (Crawl Rules)</span>
-              <span className="rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/sitemap.xml (SEO Index)</span>
-              <span className="rounded-sm bg-[#FAF9F6] border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/favicon.ico (Asset Status)</span>
+              <span className="rounded-sm bg-surface-muted border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/ (Root Landing)</span>
+              <span className="rounded-sm bg-surface-muted border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/robots.txt (Crawl Rules)</span>
+              <span className="rounded-sm bg-surface-muted border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/sitemap.xml (SEO Index)</span>
+              <span className="rounded-sm bg-surface-muted border border-[#E5E5DF] px-2.5 py-1 text-carbon shadow-2xs">/favicon.ico (Asset Status)</span>
             </div>
           </div>
         </Panel>
@@ -262,7 +262,7 @@ function SettingsPage() {
                   step={50}
                   value={config.maxLatencyMs}
                   onChange={(e) => setConfig({ ...config, maxLatencyMs: Number(e.target.value) })}
-                  className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                  className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                 />
                 <span className="text-xs text-muted-foreground font-mono">ms</span>
               </div>
@@ -282,7 +282,7 @@ function SettingsPage() {
                   max={90}
                   value={config.sslWarningDays}
                   onChange={(e) => setConfig({ ...config, sslWarningDays: Number(e.target.value) })}
-                  className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                  className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                 />
                 <span className="text-xs text-muted-foreground font-mono">days</span>
               </div>
@@ -302,7 +302,7 @@ function SettingsPage() {
                   max={100}
                   value={config.minHealthScore}
                   onChange={(e) => setConfig({ ...config, minHealthScore: Number(e.target.value) })}
-                  className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                  className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
                 />
                 <span className="text-xs text-muted-foreground font-mono">%</span>
               </div>
@@ -325,7 +325,7 @@ function SettingsPage() {
                 type="email"
                 value={config.alertEmail}
                 onChange={(e) => setConfig({ ...config, alertEmail: e.target.value })}
-                className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
+                className="w-full rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-2 font-mono text-xs text-carbon focus:border-cobalt focus:bg-white focus:outline-none transition-colors"
               />
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Email address destination for daily PDF digests & downtime notices.
@@ -371,7 +371,7 @@ function SettingsPage() {
         >
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+              <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5 text-cobalt" />
@@ -390,7 +390,7 @@ function SettingsPage() {
                 </p>
               </div>
 
-              <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+              <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <ShieldCheck className="h-3.5 w-3.5 text-cobalt" />
@@ -436,7 +436,7 @@ function SettingsPage() {
               type="button"
               onClick={handleTriggerHealthCheck}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-surface-muted hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Zap className={`h-4 w-4 text-emerald-600 ${actionLoading === "health" ? "animate-spin" : ""}`} />
               {actionLoading === "health" ? "PROBING SITE..." : "RUN LIVE PROBE"}
@@ -446,7 +446,7 @@ function SettingsPage() {
               type="button"
               onClick={handleTriggerReport}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-surface-muted hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
               <ShieldCheck className={`h-4 w-4 text-cobalt ${actionLoading === "report" ? "animate-spin" : ""}`} />
               {actionLoading === "report" ? "COMPILING AUDIT..." : "GENERATE AUDIT REPORT"}
@@ -456,9 +456,9 @@ function SettingsPage() {
               type="button"
               onClick={handleTestChat}
               disabled={Boolean(actionLoading)}
-              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-[#FAF9F6] hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center justify-center gap-2.5 p-4 text-xs font-mono font-semibold text-carbon hover:bg-surface-muted hover:text-cobalt transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <Bot className={`h-4 w-4 text-indigo-600 ${actionLoading === "chat" ? "animate-spin" : ""}`} />
+              <Bot className={`h-4 w-4 text-accent ${actionLoading === "chat" ? "animate-spin" : ""}`} />
               {actionLoading === "chat" ? "TESTING API..." : "TEST GEMINI BOT"}
             </button>
           </div>

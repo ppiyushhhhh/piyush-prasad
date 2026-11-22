@@ -150,7 +150,7 @@ export function UserFormDialog({ isOpen, onClose, onSubmit }: UserFormDialogProp
                 className={`flex items-start gap-2.5 p-3 rounded-sm border cursor-pointer transition-colors ${
                   role === "user"
                     ? "border-cobalt bg-cobalt/5 text-carbon shadow-2xs"
-                    : "border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:border-[#D5D5CF]"
+                    : "border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:border-[#D5D5CF]"
                 }`}
               >
                 <input
@@ -173,7 +173,7 @@ export function UserFormDialog({ isOpen, onClose, onSubmit }: UserFormDialogProp
                 className={`flex items-start gap-2.5 p-3 rounded-sm border cursor-pointer transition-colors ${
                   role === "admin"
                     ? "border-purple-600 bg-purple-50 text-carbon shadow-2xs"
-                    : "border-[#E5E5DF] bg-[#FAF9F6] text-muted-foreground hover:border-[#D5D5CF]"
+                    : "border-[#E5E5DF] bg-surface-muted text-muted-foreground hover:border-[#D5D5CF]"
                 }`}
               >
                 <input
@@ -199,7 +199,7 @@ export function UserFormDialog({ isOpen, onClose, onSubmit }: UserFormDialogProp
               type="button"
               disabled={isSubmitting}
               onClick={handleClose}
-              className="rounded-sm border border-[#E5E5DF] bg-white px-4 py-2 text-xs font-mono font-medium text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs"
+              className="rounded-sm border border-[#E5E5DF] bg-white px-4 py-2 text-xs font-mono font-medium text-carbon hover:bg-surface-muted disabled:opacity-50 transition-colors shadow-2xs"
             >
               Cancel
             </button>

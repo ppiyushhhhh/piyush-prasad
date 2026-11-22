@@ -164,7 +164,7 @@ function CicdPage() {
                   {pipelineStages.map((stage, idx) => (
                     <div
                       key={stage.num}
-                      className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6]/60 p-3 relative group hover:border-cobalt/40 transition-colors"
+                      className="rounded-sm border border-[#E5E5DF] bg-surface-muted/60 p-3 relative group hover:border-cobalt/40 transition-colors"
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="mono text-[10px] text-muted-foreground font-bold">
@@ -205,7 +205,7 @@ function CicdPage() {
               action={
                 <div className="flex flex-wrap items-center gap-3 text-xs">
                   {/* Workflow Type Filters */}
-                  <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-0.5 text-[11px]">
+                  <div className="flex items-center rounded-sm border border-[#E5E5DF] bg-surface-muted p-0.5 text-[11px]">
                     <button
                       onClick={() => setWorkflowTypeFilter("all")}
                       className={`rounded-sm px-2.5 py-1 font-medium transition cursor-pointer ${
@@ -305,7 +305,7 @@ function CicdPage() {
                     return (
                       <tr
                         key={row.id}
-                        className="border-b border-[#E5E5DF]/60 hover:bg-[#FAF9F6]/50 transition-colors"
+                        className="border-b border-[#E5E5DF]/60 hover:bg-surface-muted/50 transition-colors"
                       >
                         <td className="py-3 pr-4">
                           {isSuccess ? (
@@ -356,7 +356,7 @@ function CicdPage() {
                               href={`https://github.com/ppiyushhhhh/piyush-prasad/commit/${row.commit_sha}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 rounded-sm bg-[#FAF9F6] px-1.5 py-0.5 text-[11px] text-cobalt hover:border-cobalt transition-colors border border-[#E5E5DF] font-semibold"
+                              className="inline-flex items-center gap-1 rounded-sm bg-surface-muted px-1.5 py-0.5 text-[11px] text-cobalt hover:border-cobalt transition-colors border border-[#E5E5DF] font-semibold"
                             >
                               <GitCommit className="h-3 w-3 text-muted-foreground" />
                               {row.commit_sha.slice(0, 7)}

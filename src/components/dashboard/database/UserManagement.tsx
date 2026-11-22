@@ -201,7 +201,7 @@ export function UserManagement({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-semibold mono">
+              <tr className="border-b border-[#E5E5DF] bg-surface-muted text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-semibold mono">
                 <th className="py-3 px-4">User</th>
                 <th className="py-3 px-4">Role</th>
                 <th className="py-3 px-4">Status</th>
@@ -228,7 +228,7 @@ export function UserManagement({
                 filteredUsers.map((u) => {
                   const isBanned = u.status === "disabled";
                   return (
-                    <tr key={u.id} className="hover:bg-[#FAF9F6]/80 transition-colors">
+                    <tr key={u.id} className="hover:bg-surface-muted/80 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-sans font-medium text-carbon">
                           {u.email}
@@ -256,7 +256,7 @@ export function UserManagement({
                             Admin
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-[11px] font-sans font-medium bg-[#FAF9F6] border border-[#E5E5DF] text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-[11px] font-sans font-medium bg-surface-muted border border-[#E5E5DF] text-muted-foreground">
                             User
                           </span>
                         )}
@@ -292,7 +292,7 @@ export function UserManagement({
 
                       <td className="py-3 px-4 text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger className="p-1.5 rounded-sm hover:bg-[#FAF9F6] text-muted-foreground hover:text-carbon transition-colors">
+                          <DropdownMenuTrigger className="p-1.5 rounded-sm hover:bg-surface-muted text-muted-foreground hover:text-carbon transition-colors">
                             <MoreVertical className="h-4 w-4" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
@@ -306,7 +306,7 @@ export function UserManagement({
 
                             <DropdownMenuItem
                               onClick={() => setSelectedUserForPassword(u)}
-                              className="gap-2 cursor-pointer hover:bg-[#FAF9F6] text-carbon"
+                              className="gap-2 cursor-pointer hover:bg-surface-muted text-carbon"
                             >
                               <KeyRound className="h-3.5 w-3.5 text-amber-600" />
                               Change Password
@@ -314,7 +314,7 @@ export function UserManagement({
 
                             <DropdownMenuItem
                               onClick={() => setSelectedUserForRole(u)}
-                              className="gap-2 cursor-pointer hover:bg-[#FAF9F6] text-carbon"
+                              className="gap-2 cursor-pointer hover:bg-surface-muted text-carbon"
                             >
                               <Shield className="h-3.5 w-3.5 text-cobalt" />
                               Change Role
@@ -322,7 +322,7 @@ export function UserManagement({
 
                             <DropdownMenuItem
                               onClick={() => setUserToToggleStatus(u)}
-                              className="gap-2 cursor-pointer hover:bg-[#FAF9F6] text-carbon"
+                              className="gap-2 cursor-pointer hover:bg-surface-muted text-carbon"
                             >
                               {isBanned ? (
                                 <>
@@ -358,7 +358,7 @@ export function UserManagement({
         </div>
 
         {/* Footer info */}
-        <div className="border-t border-[#E5E5DF] px-4 py-2.5 text-[11px] text-muted-foreground flex items-center justify-between mono bg-[#FAF9F6]">
+        <div className="border-t border-[#E5E5DF] px-4 py-2.5 text-[11px] text-muted-foreground flex items-center justify-between mono bg-surface-muted">
           <span>Showing {filteredUsers.length} of {users.length} users</span>
           <span>Role updates take effect immediately</span>
         </div>
@@ -415,7 +415,7 @@ export function UserManagement({
           <AlertDialogFooter className="mt-4 gap-2">
             <AlertDialogCancel
               disabled={actionLoading}
-              className="border border-[#E5E5DF] bg-white text-carbon hover:bg-[#FAF9F6] text-xs rounded-sm"
+              className="border border-[#E5E5DF] bg-white text-carbon hover:bg-surface-muted text-xs rounded-sm"
             >
               Cancel
             </AlertDialogCancel>
@@ -460,7 +460,7 @@ export function UserManagement({
           <AlertDialogFooter className="mt-4 gap-2">
             <AlertDialogCancel
               disabled={actionLoading}
-              className="border border-[#E5E5DF] bg-white text-carbon hover:bg-[#FAF9F6] text-xs rounded-sm"
+              className="border border-[#E5E5DF] bg-white text-carbon hover:bg-surface-muted text-xs rounded-sm"
             >
               Cancel
             </AlertDialogCancel>

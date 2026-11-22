@@ -98,7 +98,7 @@ export function ResetStatsDialog({
             type="button"
             disabled={isSubmitting}
             onClick={onClose}
-            className="mono rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] px-3.5 py-1.5 text-xs font-semibold text-carbon hover:bg-white transition-colors"
+            className="mono rounded-sm border border-[#E5E5DF] bg-surface-muted px-3.5 py-1.5 text-xs font-semibold text-carbon hover:bg-white transition-colors"
           >
             Cancel
           </button>

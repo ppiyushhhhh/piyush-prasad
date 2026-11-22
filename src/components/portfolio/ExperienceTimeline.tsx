@@ -9,7 +9,7 @@ export function ExperienceTimeline() {
   return (
     <section
       id="experience"
-      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28 scroll-mt-20"
+      className="relative border-b border-border bg-background py-20 md:py-28 scroll-mt-20"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
@@ -37,7 +37,7 @@ export function ExperienceTimeline() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.45, delay: companyIndex * 0.15 }}
-                className="border border-border bg-white p-6 sm:p-8 md:p-10 shadow-2xs transition-all duration-300 hover:border-carbon/30 hover:shadow-xs"
+                className="border border-border bg-surface p-6 sm:p-8 md:p-10 shadow-2xs transition-all duration-300 hover:border-border hover:shadow-xs"
               >
                 {/* Company Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
@@ -49,7 +49,7 @@ export function ExperienceTimeline() {
                         rel="noreferrer"
                         title={`Visit ${companyExp.company}`}
                         aria-label={`Visit ${companyExp.company} website`}
-                        className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-white p-2 shadow-2xs transition-all duration-300 hover:border-cobalt hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                        className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-surface p-2 shadow-2xs transition-all duration-300 hover:border-accent hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                       >
                         <img
                           src={
@@ -68,7 +68,7 @@ export function ExperienceTimeline() {
                         rel="noreferrer"
                         title={`Visit ${companyExp.company}`}
                         aria-label={`Visit ${companyExp.company} website`}
-                        className="group/logo flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-[#FAF9F6] text-cobalt font-mono font-bold transition-all duration-300 hover:border-cobalt hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt cursor-pointer"
+                        className="group/logo flex h-14 w-14 shrink-0 items-center justify-center border border-border bg-surface-muted text-accent font-mono font-bold transition-all duration-300 hover:border-accent hover:bg-surface hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                       >
                         <span className="text-sm transition-transform duration-300 group-hover/logo:scale-110">
                           {companyExp.company.slice(0, 2).toUpperCase()}
@@ -82,18 +82,18 @@ export function ExperienceTimeline() {
                           href={companyExp.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="group/name inline-flex items-center gap-1.5 text-carbon hover:text-cobalt transition-colors"
+                          className="group/name inline-flex items-center gap-1.5 text-text hover:text-accent transition-colors"
                           title={`Visit ${companyExp.company}`}
                         >
                           <h3 className="text-xl sm:text-2xl font-bold transition-colors">
                             {companyExp.company}
                           </h3>
-                          <ArrowUpRight className="h-4 w-4 opacity-40 transition-all duration-200 group-hover/name:opacity-100 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 text-cobalt" />
+                          <ArrowUpRight className="h-4 w-4 opacity-40 transition-all duration-200 group-hover/name:opacity-100 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 text-accent" />
                         </a>
 
                         {/* Prominent LinkedIn-style company tenure badge next to company name */}
                         {totalExp && (
-                          <span className="mono inline-flex items-center border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[11px] font-bold text-cobalt">
+                          <span className="mono inline-flex items-center border border-accent/30 bg-accent/10 px-2 py-0.5 text-[11px] font-bold text-accent">
                             {totalExp}
                           </span>
                         )}
@@ -113,7 +113,7 @@ export function ExperienceTimeline() {
 
                   {/* Role Count on the right */}
                   <div className="mono text-[11px] text-muted-foreground uppercase font-semibold shrink-0 sm:text-right">
-                    <span className="text-cobalt font-bold">{companyExp.positions.length}</span>{" "}
+                    <span className="text-accent font-bold">{companyExp.positions.length}</span>{" "}
                     {companyExp.positions.length === 1 ? "ROLE" : "PROGRESSIVE ROLES"}
                   </div>
                 </div>
@@ -131,32 +131,32 @@ export function ExperienceTimeline() {
                       <div key={pos.role} className="relative group/role">
                         {/* Timeline Node Bullet */}
                         <div
-                          className={`absolute -left-[31px] sm:-left-[39px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white ring-2 transition-all duration-200 ${
+                          className={`absolute -left-[31px] sm:-left-[39px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-surface ring-2 transition-all duration-200 ${
                             pos.isCurrent
-                              ? "ring-cobalt shadow-xs"
-                              : "ring-border group-hover/role:ring-carbon/40"
+                              ? "ring-accent shadow-xs"
+                              : "ring-border group-hover/role:ring-border"
                           }`}
                         >
                           <div
                             className={`h-2 w-2 rounded-full transition-transform duration-200 ${
                               pos.isCurrent
-                                ? "bg-cobalt animate-pulse"
-                                : "bg-carbon/40 group-hover/role:scale-125"
+                                ? "bg-accent animate-pulse"
+                                : "bg-text/40 group-hover/role:scale-125"
                             }`}
                           />
                         </div>
 
                         {/* Role Header */}
                         <div className="flex flex-wrap items-center gap-2.5">
-                          <h4 className="text-lg sm:text-xl font-bold text-carbon">{pos.role}</h4>
+                          <h4 className="text-lg sm:text-xl font-bold text-text">{pos.role}</h4>
 
-                          <span className="mono border border-border bg-[#FAF9F6] px-2.5 py-0.5 text-[10px] text-carbon/80 font-semibold uppercase">
+                          <span className="mono border border-border bg-surface-muted px-2.5 py-0.5 text-[10px] text-text/80 font-semibold uppercase">
                             {pos.type}
                           </span>
 
                           {pos.isCurrent && (
-                            <span className="mono inline-flex items-center gap-1.5 border border-cobalt/30 bg-cobalt/10 px-2 py-0.5 text-[9px] font-bold text-cobalt">
-                              <span className="h-1.5 w-1.5 rounded-full bg-cobalt" />
+                            <span className="mono inline-flex items-center gap-1.5 border border-accent/30 bg-accent/10 px-2 py-0.5 text-[9px] font-bold text-accent">
+                              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                               CURRENT
                             </span>
                           )}
@@ -170,7 +170,7 @@ export function ExperienceTimeline() {
                           {roleDuration && (
                             <>
                               <span className="text-border select-none">•</span>
-                              <span className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-semibold text-carbon/85">
+                              <span className="mono border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold text-text/85">
                                 {roleDuration}
                               </span>
                             </>
@@ -182,9 +182,9 @@ export function ExperienceTimeline() {
                           {pos.bullets.map((bullet, bIndex) => (
                             <li
                               key={bIndex}
-                              className="flex items-start gap-3 text-sm sm:text-base leading-relaxed text-carbon/85"
+                              className="flex items-start gap-3 text-sm sm:text-base leading-relaxed text-text/85"
                             >
-                              <span className="mono mt-1 text-cobalt text-xs font-bold select-none shrink-0">
+                              <span className="mono mt-1 text-accent text-xs font-bold select-none shrink-0">
                                 →
                               </span>
                               <span>{bullet}</span>
@@ -201,7 +201,7 @@ export function ExperienceTimeline() {
                             {pos.skills.map((skill) => (
                               <span
                                 key={skill}
-                                className="mono border border-border bg-[#FAF9F6] px-2 py-0.5 text-[10px] font-semibold text-carbon/80"
+                                className="mono border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold text-text/80"
                               >
                                 {skill}
                               </span>

@@ -584,7 +584,7 @@ function DashboardArchitecturesPage() {
           <button
             type="button"
             onClick={() => handleOpenDiagramModal()}
-            className="mono inline-flex items-center gap-1.5 border border-cobalt bg-cobalt px-3.5 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors shadow-2xs"
+            className="mono inline-flex items-center gap-1.5 border border-accent bg-accent px-3.5 py-1.5 text-xs font-bold text-text-on-accent hover:bg-accent-hover transition-colors shadow-2xs"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>NEW ARCHITECTURE</span>
@@ -639,7 +639,7 @@ function DashboardArchitecturesPage() {
                 className={`mono text-xs px-3 py-1.5 rounded border transition-all cursor-pointer ${
                   isSelected
                     ? "border-cobalt bg-cobalt text-white font-bold"
-                    : "border-border bg-[#FAF9F6] text-carbon hover:border-cobalt/60 hover:text-cobalt"
+                    : "border-border bg-surface-muted text-carbon hover:border-cobalt/60 hover:text-cobalt"
                 }`}
               >
                 {arch.title}
@@ -687,7 +687,7 @@ function DashboardArchitecturesPage() {
           <button
             type="button"
             onClick={handlePersistLayout}
-            className="mono inline-flex items-center gap-1 px-3 py-1 text-xs border border-cobalt bg-cobalt text-white rounded font-semibold hover:bg-blue-700"
+            className="mono inline-flex items-center gap-1 px-3 py-1 text-xs border border-accent bg-accent text-text-on-accent rounded font-semibold hover:bg-accent-hover"
           >
             <Check className="h-3 w-3" />
             <span>SAVE POSITIONS</span>
@@ -707,7 +707,7 @@ function DashboardArchitecturesPage() {
               <button
                 type="button"
                 onClick={() => handleOpenNodeModal()}
-                className="mono inline-flex items-center gap-1 text-xs px-2.5 py-1 border border-cobalt text-cobalt rounded hover:bg-blue-50 font-semibold"
+                className="mono inline-flex items-center gap-1 text-xs px-2.5 py-1 border border-cobalt text-cobalt rounded hover:bg-accent-soft font-semibold"
               >
                 <Plus className="h-3 w-3" />
                 <span>ADD NODE</span>
@@ -715,7 +715,7 @@ function DashboardArchitecturesPage() {
               <button
                 type="button"
                 onClick={() => handleOpenEdgeModal()}
-                className="mono inline-flex items-center gap-1 text-xs px-2.5 py-1 border border-cobalt text-cobalt rounded hover:bg-blue-50 font-semibold"
+                className="mono inline-flex items-center gap-1 text-xs px-2.5 py-1 border border-cobalt text-cobalt rounded hover:bg-accent-soft font-semibold"
               >
                 <Plus className="h-3 w-3" />
                 <span>ADD CONNECTION</span>
@@ -757,7 +757,7 @@ function DashboardArchitecturesPage() {
             {activeArchitecture.diagram_data.nodes.map((node) => (
               <div
                 key={node.id}
-                className="p-3 flex items-center justify-between hover:bg-[#FAF9F6] transition-colors"
+                className="p-3 flex items-center justify-between hover:bg-surface-muted transition-colors"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
@@ -804,7 +804,7 @@ function DashboardArchitecturesPage() {
               return (
                 <div
                   key={edge.id}
-                  className="p-3 flex items-center justify-between hover:bg-[#FAF9F6] transition-colors"
+                  className="p-3 flex items-center justify-between hover:bg-surface-muted transition-colors"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1 font-mono text-[11px] text-carbon font-semibold">

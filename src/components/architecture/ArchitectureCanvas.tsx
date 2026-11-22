@@ -653,7 +653,7 @@ export function ArchitectureCanvas({
     <div
       role="img"
       aria-label="Interactive Architecture Explorer"
-      className={`relative flex flex-col select-none rounded-xl border border-border bg-[#FAF9F6] dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
+      className={`relative flex flex-col select-none rounded-xl border border-border bg-surface-muted dark:bg-[#0E0F12] overflow-hidden transition-all shadow-xs ${
         isFullscreen ? "fixed inset-0 z-50 rounded-none bg-white dark:bg-[#121316] h-full w-full" : className
       }`}
     >
@@ -697,7 +697,7 @@ export function ArchitectureCanvas({
       </div>
 
       {/* Search & Filter Strip */}
-      <div className="w-full border-b border-border/70 bg-[#FAF9F6]/90 dark:bg-[#121316]/90 backdrop-blur-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 z-10 shrink-0 text-xs">
+      <div className="w-full border-b border-border/70 bg-surface-muted/90 dark:bg-[#121316]/90 backdrop-blur-xs px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 z-10 shrink-0 text-xs">
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[160px] max-w-xs">

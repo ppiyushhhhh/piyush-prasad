@@ -684,7 +684,7 @@ function DatabaseAdminPage() {
 
           <Link
             to="/dashboard/manual-backups"
-            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-carbon hover:bg-[#FAF9F6] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-semibold text-carbon hover:bg-surface-muted transition-colors shadow-2xs cursor-pointer"
           >
             <Archive className="h-3.5 w-3.5 text-muted-foreground" />
             <span>Vault</span>
@@ -693,7 +693,7 @@ function DatabaseAdminPage() {
           <button
             onClick={handleManualRefresh}
             disabled={isOverviewLoading || isTableLoading}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white p-2 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white p-2 text-xs font-semibold text-muted-foreground hover:text-carbon hover:bg-surface-muted disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
             title="Refresh database telemetry"
           >
             <RefreshCw
@@ -730,7 +730,7 @@ function DatabaseAdminPage() {
           <Layers className="h-3.5 w-3.5" />
           <span>Tables</span>
           {overview?.totalTables ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-surface-muted border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.totalTables}
             </span>
           ) : null}
@@ -747,7 +747,7 @@ function DatabaseAdminPage() {
           <Users className="h-3.5 w-3.5" />
           <span>Users &amp; RBAC</span>
           {overview?.totalUsers ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-surface-muted border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.totalUsers}
             </span>
           ) : null}
@@ -781,7 +781,7 @@ function DatabaseAdminPage() {
           <Activity className="h-3.5 w-3.5" />
           <span>Audit Trail</span>
           {overview?.recentActivityCount ? (
-            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-[#FAF9F6] border border-[#E5E5DF] text-carbon mono font-semibold">
+            <span className="ml-1 px-1.5 py-0.5 rounded-sm text-[10px] bg-surface-muted border border-[#E5E5DF] text-carbon mono font-semibold">
               {overview.recentActivityCount}
             </span>
           ) : null}

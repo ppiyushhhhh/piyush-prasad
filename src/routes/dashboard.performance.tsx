@@ -69,7 +69,7 @@ function PerformanceChartTooltip({ active, payload, label }: any) {
             <span>Accessibility:</span>
             <span className="font-bold">{data.accessibility ?? "—"} / 100</span>
           </div>
-          <div className="flex items-center justify-between gap-4 text-indigo-700">
+          <div className="flex items-center justify-between gap-4 text-accent">
             <span>Best Practices:</span>
             <span className="font-bold">{data.best_practices ?? "—"} / 100</span>
           </div>
@@ -140,7 +140,7 @@ function AuditModal({
           </div>
           <button
             onClick={onClose}
-            className="rounded-sm p-1.5 text-muted-foreground hover:text-carbon hover:bg-[#FAF9F6] border border-transparent hover:border-[#E5E5DF] transition-colors"
+            className="rounded-sm p-1.5 text-muted-foreground hover:text-carbon hover:bg-surface-muted border border-transparent hover:border-[#E5E5DF] transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -153,12 +153,12 @@ function AuditModal({
             {[
               { label: "Performance", val: row.performance, color: "text-cobalt" },
               { label: "Accessibility", val: row.accessibility, color: "text-emerald-700" },
-              { label: "Best Practices", val: row.best_practices, color: "text-indigo-700" },
+              { label: "Best Practices", val: row.best_practices, color: "text-accent" },
               { label: "SEO", val: row.seo, color: "text-amber-700" },
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3 text-center"
+                className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3 text-center"
               >
                 <div className={`mono text-2xl font-bold ${s.color}`}>
                   {s.val ?? "—"}
@@ -172,7 +172,7 @@ function AuditModal({
 
           {/* Vitals Summary */}
           {details.vitals && (
-            <div className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-4">
+            <div className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-4">
               <h4 className="text-xs uppercase tracking-wider font-semibold text-carbon mb-3 flex items-center gap-1.5 mono">
                 <Gauge className="h-3.5 w-3.5 text-cobalt" />
                 Live Core Web Vitals &amp; Server Handshake
@@ -238,7 +238,7 @@ function AuditModal({
           )}
 
           {/* Raw JSON viewer */}
-          <details className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3 text-xs mono">
+          <details className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3 text-xs mono">
             <summary className="cursor-pointer text-muted-foreground hover:text-carbon font-semibold">
               View Raw JSON Payload
             </summary>
@@ -316,7 +316,7 @@ function PerformancePage() {
       badge: "Grade A",
       badgeColor: "emerald",
       subtext: "HSTS • TLS 1.3 • HTTP/3",
-      barColor: "bg-indigo-600",
+      barColor: "bg-accent",
     },
     {
       label: "SEO",
@@ -391,7 +391,7 @@ function PerformancePage() {
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={`border px-3 py-1.5 text-xs mono transition-colors flex items-center gap-1.5 cursor-pointer ${
               autoRefresh
-                ? "border-cobalt bg-blue-50/50 text-cobalt font-semibold"
+                ? "border-cobalt bg-accent-soft/50 text-cobalt font-semibold"
                 : "border-[#E5E5DF] bg-white text-muted-foreground hover:text-carbon"
             }`}
             title="Auto-refresh telemetry every 30 seconds"
@@ -461,7 +461,7 @@ function PerformancePage() {
                 </div>
 
                 {/* Score Progress Bar (Sharp rectilinear hairline bar) */}
-                <div className="h-1 w-full bg-[#FAF9F6] border border-[#E5E5DF] overflow-hidden">
+                <div className="h-1 w-full bg-surface-muted border border-[#E5E5DF] overflow-hidden">
                   <div
                     className={`h-full ${s.barColor}`}
                     style={{ width: `${s.value}%` }}
@@ -475,7 +475,7 @@ function PerformancePage() {
 
           {/* Core Web Vitals & Edge Network Timing Matrix */}
           <div className="mt-8 border border-[#E5E5DF] bg-white">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-3 border-b border-[#E5E5DF] bg-[#FAF9F6]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 py-3 border-b border-[#E5E5DF] bg-surface-muted">
               <div className="flex items-center gap-2">
                 <span className="mono text-[10px] font-bold uppercase tracking-[0.2em] text-cobalt">VITALS //</span>
                 <h3 className="mono text-xs font-bold uppercase tracking-wider text-carbon">
@@ -619,10 +619,10 @@ function PerformancePage() {
                     <Line
                       type="monotone"
                       dataKey="performance"
-                      stroke="#1A4BFF"
+                      stroke="#0F766E"
                       strokeWidth={2}
-                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
-                      activeDot={{ r: 5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
+                      dot={{ r: 3, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
+                      activeDot={{ r: 5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="Performance"
                     />
                     <Line
@@ -674,11 +674,11 @@ function PerformancePage() {
                     <Tooltip content={<LatencyChartTooltip />} />
                     <ReferenceLine
                       y={600}
-                      stroke="#1A4BFF"
+                      stroke="#0F766E"
                       strokeDasharray="4 4"
                       label={{
                         value: "SLA 600MS TTFB",
-                        fill: "#1A4BFF",
+                        fill: "#0F766E",
                         fontSize: 9,
                         position: "insideTopRight",
                         fontFamily: "monospace",
@@ -687,10 +687,10 @@ function PerformancePage() {
                     <Line
                       type="monotone"
                       dataKey="ttfb"
-                      stroke="#1A4BFF"
+                      stroke="#0F766E"
                       strokeWidth={2}
-                      dot={{ r: 3.5, fill: "#FFFFFF", stroke: "#1A4BFF", strokeWidth: 2 }}
-                      activeDot={{ r: 5.5, fill: "#1A4BFF", stroke: "#FFFFFF", strokeWidth: 2 }}
+                      dot={{ r: 3.5, fill: "#FFFFFF", stroke: "#0F766E", strokeWidth: 2 }}
+                      activeDot={{ r: 5.5, fill: "#0F766E", stroke: "#FFFFFF", strokeWidth: 2 }}
                       name="TTFB"
                     />
                   </LineChart>
@@ -709,7 +709,7 @@ function PerformancePage() {
                 <span className="text-carbon uppercase text-[10px] tracking-wider">Accessibility</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 bg-indigo-600" />
+                <span className="h-1.5 w-1.5 bg-accent" />
                 <span className="text-carbon uppercase text-[10px] tracking-wider">Best Practices</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -738,7 +738,7 @@ function PerformancePage() {
                 {latestDetails.audits.map((a: any) => (
                   <div
                     key={a.id}
-                    className="rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] p-3.5 flex flex-col justify-between space-y-2"
+                    className="rounded-sm border border-[#E5E5DF] bg-surface-muted p-3.5 flex flex-col justify-between space-y-2"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2">
@@ -784,7 +784,7 @@ function PerformancePage() {
                 ]}
               >
                 {historyList.map((row) => (
-                  <tr key={row.id} className="border-b border-[#E5E5DF] hover:bg-[#FAF9F6]/80 transition-colors">
+                  <tr key={row.id} className="border-b border-[#E5E5DF] hover:bg-surface-muted/80 transition-colors">
                     <td className="py-2.5 pr-4 text-carbon mono text-xs">
                       {fmtDateTime(row.measured_at)}
                     </td>
@@ -802,7 +802,7 @@ function PerformancePage() {
                       </span>
                     </td>
                     <td className="py-2.5 pr-4">
-                      <span className="px-2 py-0.5 rounded-sm text-xs mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      <span className="px-2 py-0.5 rounded-sm text-xs mono font-bold bg-indigo-50 text-accent border border-accent/30">
                         {row.best_practices ?? "—"}
                       </span>
                     </td>

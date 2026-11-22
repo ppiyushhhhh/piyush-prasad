@@ -85,7 +85,7 @@ export function ActivityLog({
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-[11px] font-sans font-medium bg-[#FAF9F6] border border-[#E5E5DF] text-carbon">
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-[11px] font-sans font-medium bg-surface-muted border border-[#E5E5DF] text-carbon">
         <Activity className="h-3 w-3 text-cobalt" />
         {action}
       </span>
@@ -109,7 +109,7 @@ export function ActivityLog({
         <button
           onClick={onRefresh}
           disabled={isLoading}
-          className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono font-medium text-carbon hover:bg-[#FAF9F6] transition-colors disabled:opacity-50 shadow-2xs"
+          className="inline-flex items-center gap-1.5 rounded-sm border border-[#E5E5DF] bg-white px-3 py-1.5 text-xs font-mono font-medium text-carbon hover:bg-surface-muted transition-colors disabled:opacity-50 shadow-2xs"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin text-cobalt" : ""}`} />
           Refresh Activity
@@ -152,7 +152,7 @@ export function ActivityLog({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E5DF] bg-[#FAF9F6] text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-mono font-semibold">
+              <tr className="border-b border-[#E5E5DF] bg-surface-muted text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-mono font-semibold">
                 <th className="py-3 px-4">Action</th>
                 <th className="py-3 px-4">Administrator</th>
                 <th className="py-3 px-4">Target Identity / Table</th>
@@ -181,7 +181,7 @@ export function ActivityLog({
               ) : (
                 logs.map((log) => {
                   return (
-                    <tr key={log.id} className="hover:bg-[#FAF9F6]/80 transition-colors">
+                    <tr key={log.id} className="hover:bg-surface-muted/80 transition-colors">
                       <td className="py-3 px-4 whitespace-nowrap">
                         {getActionBadge(log.action)}
                       </td>
@@ -228,7 +228,7 @@ export function ActivityLog({
                       <td className="py-3 px-4 text-right whitespace-nowrap">
                         <button
                           onClick={() => setSelectedLogForDetails(log)}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-sm hover:bg-[#FAF9F6] text-muted-foreground hover:text-cobalt transition-colors font-sans text-[11px]"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-sm hover:bg-surface-muted text-muted-foreground hover:text-cobalt transition-colors font-sans text-[11px]"
                           title="Inspect audit event"
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -244,7 +244,7 @@ export function ActivityLog({
         </div>
 
         {/* Pagination Footer */}
-        <div className="border-t border-[#E5E5DF] px-4 py-3 bg-[#FAF9F6] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+        <div className="border-t border-[#E5E5DF] px-4 py-3 bg-surface-muted flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <div className="font-mono text-[11px]">
             Page <span className="text-carbon font-semibold">{page}</span> of{" "}
             <span className="text-carbon font-semibold">{totalPages}</span> ({totalCount} logged events)
@@ -254,7 +254,7 @@ export function ActivityLog({
             <button
               disabled={page <= 1 || isLoading}
               onClick={() => onPageChange(page - 1)}
-              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs font-mono"
+              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-surface-muted disabled:opacity-40 transition-colors shadow-2xs font-mono"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               Previous
@@ -263,7 +263,7 @@ export function ActivityLog({
             <button
               disabled={page >= totalPages || isLoading}
               onClick={() => onPageChange(page + 1)}
-              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-[#FAF9F6] disabled:opacity-40 transition-colors shadow-2xs font-mono"
+              className="inline-flex items-center gap-1 rounded-sm border border-[#E5E5DF] bg-white px-2.5 py-1 text-xs text-carbon hover:bg-surface-muted disabled:opacity-40 transition-colors shadow-2xs font-mono"
             >
               Next
               <ChevronRight className="h-3.5 w-3.5" />

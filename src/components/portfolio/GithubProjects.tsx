@@ -37,7 +37,7 @@ export function GithubProjects() {
   return (
     <section
       id="projects"
-      className="relative border-b border-border bg-[#FAF9F6] py-20 md:py-28 scroll-mt-20 dark:bg-[#121316] dark:border-white/10"
+      className="relative border-b border-border bg-surface-muted py-20 md:py-28 scroll-mt-20 dark:bg-[#121316] dark:border-white/10"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         {/* Section Header - 12-Column Grid */}

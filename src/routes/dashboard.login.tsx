@@ -76,12 +76,12 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-4 text-carbon selection:bg-cobalt selection:text-white">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-text selection:bg-accent selection:text-text-on-accent">
       {/* Background subtle grid pattern */}
       <div 
-        className="fixed inset-0 pointer-events-none opacity-[0.03]"
+        className="fixed inset-0 pointer-events-none opacity-[0.03] text-text"
         style={{
-          backgroundImage: `radial-gradient(#121316 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(currentColor 1px, transparent 1px)`,
           backgroundSize: '24px 24px'
         }}
       />
@@ -94,7 +94,7 @@ function LoginPage() {
             className="group inline-flex flex-col items-center gap-3 transition-opacity hover:opacity-90"
             title="Return to public portfolio"
           >
-            <div className="flex h-14 w-14 items-center justify-center border border-carbon/15 bg-white shadow-xs transition-colors group-hover:border-cobalt">
+            <div className="flex h-14 w-14 items-center justify-center border border-border bg-surface shadow-xs transition-colors group-hover:border-accent">
               <img
                 src="/pp-logo.png"
                 alt="Piyush Prasad"
@@ -104,13 +104,13 @@ function LoginPage() {
                   target.style.display = "none";
                   if (target.parentElement) {
                     target.parentElement.innerHTML =
-                      '<span class="mono font-bold text-cobalt text-base">PP</span>';
+                      '<span class="mono font-bold text-accent text-base">PP</span>';
                   }
                 }}
               />
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-base font-bold tracking-tight text-carbon">
+              <span className="text-base font-bold tracking-tight text-text">
                 Piyush Prasad
               </span>
               <span className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mt-0.5">
@@ -121,14 +121,14 @@ function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-sm border border-[#E5E5DF] bg-white shadow-xs overflow-hidden">
-          {/* Top Cobalt Hairline */}
-          <div className="h-0.5 w-full bg-cobalt" />
+        <div className="rounded-sm border border-border bg-surface shadow-xs overflow-hidden">
+          {/* Top Accent Hairline */}
+          <div className="h-0.5 w-full bg-accent" />
 
           <div className="p-6 sm:p-8">
-            <div className="flex items-center justify-between border-b border-[#E5E5DF] pb-4 mb-6">
+            <div className="flex items-center justify-between border-b border-border pb-4 mb-6">
               <div>
-                <h1 className="mono text-xs font-bold uppercase tracking-wider text-carbon">
+                <h1 className="mono text-xs font-bold uppercase tracking-wider text-text">
                   Admin Gateway
                 </h1>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -139,8 +139,8 @@ function LoginPage() {
             </div>
 
             {errorMessage && (
-              <div className="mb-5 rounded-sm border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-start gap-2.5">
-                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <div className="mb-5 rounded-sm border border-danger/30 bg-danger/10 p-3 text-xs text-danger flex items-start gap-2.5">
+                <AlertCircle className="h-4 w-4 shrink-0 text-danger mt-0.5" />
                 <div className="flex-1 leading-relaxed">{errorMessage}</div>
               </div>
             )}
@@ -162,7 +162,7 @@ function LoginPage() {
                     autoCorrect="off"
                     autoComplete="email"
                     spellCheck={false}
-                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-3.5 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors normal-case font-mono"
+                    className="w-full rounded-sm border border-border bg-surface-muted pl-10 pr-3.5 py-2 text-xs text-text placeholder:text-muted-foreground/60 focus:border-accent focus:bg-surface focus:outline-none transition-colors normal-case font-mono"
                   />
                 </div>
               </div>
@@ -183,12 +183,12 @@ function LoginPage() {
                     autoCorrect="off"
                     autoComplete="current-password"
                     spellCheck={false}
-                    className="w-full rounded-sm border border-[#E5E5DF] bg-[#FAF9F6] pl-10 pr-10 py-2 text-xs text-carbon placeholder:text-muted-foreground/60 focus:border-cobalt focus:bg-white focus:outline-none transition-colors normal-case font-mono"
+                    className="w-full rounded-sm border border-border bg-surface-muted pl-10 pr-10 py-2 text-xs text-text placeholder:text-muted-foreground/60 focus:border-accent focus:bg-surface focus:outline-none transition-colors normal-case font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-carbon transition-colors cursor-pointer"
+                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-text transition-colors cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -198,7 +198,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-3 inline-flex items-center justify-center gap-2 rounded-sm bg-cobalt py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-cobalt/90 disabled:opacity-50 transition-colors cursor-pointer"
+                className="w-full mt-3 inline-flex items-center justify-center gap-2 rounded-sm bg-accent py-2.5 text-xs font-semibold text-text-on-accent shadow-2xs hover:bg-accent-hover disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -216,7 +216,7 @@ function LoginPage() {
           </div>
 
           {/* Security Notice Bar */}
-          <div className="border-t border-[#E5E5DF] bg-[#FAF9F6] px-6 py-3 text-[10px] text-muted-foreground mono flex items-center justify-between">
+          <div className="border-t border-border bg-surface-muted px-6 py-3 text-[10px] text-muted-foreground mono flex items-center justify-between">
             <span>TLS 1.3 • Supabase RBAC</span>
             <span>Region: ap-south-1</span>
           </div>

@@ -1,0 +1,15 @@
+{
+  "name": "Piyush Prasad — Cloud & DevOps Portfolio",
+  "short_name": "PP·OPS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F8F6",
+  "theme_color": "#0F766E",
+  "icons": [
+    {
+      "src": "/pp-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
