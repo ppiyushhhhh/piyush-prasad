@@ -2,33 +2,41 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 /**
- * Minimalist Deep Carbon (#121316) Custom Pointer
- * High-performance GPU-accelerated cursor with spring trailing halo,
- * interactive target expansion, and automatic touch-screen deactivation.
+ * Theme-Aware High-Precision Custom Pointer
+ * - Theme-reactive: Uses contrast text tokens with a crisp contrast outline
+ *   so it stays distinct on dark surfaces, light surfaces, badge tiles, and teal buttons.
+ * - Interactive target expansion: Expands to 36px ring with accent border over links, buttons, cards.
+ * - Text inputs: Hides over text fields to reveal native text selection I-beam.
+ * - Touch & Accessibility: Automatically disabled on touch screens; respects prefers-reduced-motion.
  */
 export function CustomCursor() {
   const shouldReduceMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTextInput, setIsTextInput] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-  // Exact coordinates for direct dot (instant response, zero lag)
+  // Direct pointer coordinates
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
 
-  // Spring-damped coordinates for smooth trailing ring
-  const springConfig = { damping: 28, stiffness: 320, mass: 0.4 };
-  const ringX = useSpring(cursorX, springConfig);
-  const ringY = useSpring(cursorY, springConfig);
+  // Spring physics for trailing halo ring (bypassed if reduced motion is requested)
+  const springConfig = { damping: 28, stiffness: 320, mass: 0.35 };
+  const ringSpringX = useSpring(cursorX, springConfig);
+  const ringSpringY = useSpring(cursorY, springConfig);
+
+  const ringX = shouldReduceMotion ? cursorX : ringSpringX;
+  const ringY = shouldReduceMotion ? cursorY : ringSpringY;
 
   const visibleRef = useRef(false);
 
   useEffect(() => {
-    // Check if the device uses touch/coarse pointer
     if (typeof window === "undefined") return;
-    const isCoarse = window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
-    if (isCoarse) {
+
+    // Only render on devices with a fine pointer and real hover support
+    const mediaHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+    if (!mediaHover.matches || "ontouchstart" in window) {
       setIsTouchDevice(true);
       return;
     }
@@ -36,6 +44,7 @@ export function CustomCursor() {
     const handleMouseMove = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
+
       if (!visibleRef.current) {
         visibleRef.current = true;
         setIsVisible(true);
@@ -43,10 +52,19 @@ export function CustomCursor() {
 
       const target = e.target as HTMLElement | null;
       if (target) {
-        const interactive = target.closest(
-          'a, button, input, textarea, select, [role="button"], label, summary, [data-cursor="pointer"], .cursor-pointer'
+        // Detect text inputs where native I-beam cursor must be shown
+        const isInput = Boolean(
+          target.closest('input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]')
         );
-        setIsHovered(Boolean(interactive));
+        setIsTextInput(isInput);
+
+        // Detect clickable / interactive elements for ring expansion
+        const interactive = Boolean(
+          target.closest(
+            'a, button, [role="button"], label, summary, [data-cursor="pointer"], .cursor-pointer, [role="tab"]'
+          )
+        );
+        setIsHovered(interactive && !isInput);
       }
     };
 
@@ -57,6 +75,7 @@ export function CustomCursor() {
       visibleRef.current = false;
       setIsVisible(false);
     };
+
     const handleMouseEnter = () => {
       visibleRef.current = true;
       setIsVisible(true);
@@ -77,47 +96,52 @@ export function CustomCursor() {
     };
   }, [cursorX, cursorY]);
 
-  // Disable on touch screens or when user prefers reduced motion
-  if (isTouchDevice || shouldReduceMotion) {
+  // Disable completely on touch devices
+  if (isTouchDevice) {
     return null;
   }
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden transition-opacity duration-300"
-      style={{ opacity: isVisible ? 1 : 0 }}
+      className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden transition-opacity duration-150"
+      style={{ opacity: isVisible && !isTextInput ? 1 : 0 }}
       aria-hidden="true"
     >
-      {/* Outer Spring Trailing Ring */}
+      {/* Outer Halo Ring (1.5px border, expands to 36px on hover with accent tint) */}
       <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full border transition-[width,height,background-color,border-color] duration-200 ease-out"
+        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full transition-[width,height,background-color,border-color] duration-150 ease-out"
         style={{
           x: ringX,
           y: ringY,
-          width: isHovered ? 42 : 26,
-          height: isHovered ? 42 : 26,
-          borderColor: isHovered ? "var(--color-accent)" : "color-mix(in srgb, var(--color-accent) 40%, transparent)",
+          width: isHovered ? 36 : 24,
+          height: isHovered ? 36 : 24,
+          borderWidth: "1.5px",
+          borderStyle: "solid",
+          borderColor: isHovered ? "var(--color-accent)" : "var(--color-text)",
           backgroundColor: isHovered ? "var(--color-accent-soft)" : "transparent",
+          boxShadow: "0 0 0 1px color-mix(in srgb, var(--color-background) 80%, transparent)",
         }}
         animate={{
           scale: isClicked ? 0.85 : 1,
         }}
-        transition={{ duration: 0.15 }}
+        transition={{ duration: 0.1 }}
       />
 
-      {/* Center Teal Ops Accent Precision Dot */}
+      {/* Center Precision Dot (6px, text contrast color with thin boundary outline) */}
       <motion.div
-        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_6px_var(--color-accent)]"
+        className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           x: cursorX,
           y: cursorY,
+          width: 6,
+          height: 6,
+          backgroundColor: isHovered ? "var(--color-accent)" : "var(--color-text)",
+          boxShadow: "0 0 0 1px color-mix(in srgb, var(--color-background) 90%, transparent)",
         }}
         animate={{
-          width: isHovered ? 8 : 6,
-          height: isHovered ? 8 : 6,
           scale: isClicked ? 0.75 : 1,
         }}
-        transition={{ duration: 0.12 }}
+        transition={{ duration: 0.1 }}
       />
     </div>
   );
