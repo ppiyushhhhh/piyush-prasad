@@ -564,7 +564,8 @@ export function ArchitectureCanvas({
         slug,
         data,
         title,
-        description
+        description,
+        layout
       );
       toast.success("High-resolution PNG exported successfully");
     } catch (err) {
@@ -579,14 +580,15 @@ export function ArchitectureCanvas({
     try {
       setIsExporting(true);
       const flows: FlowItem[] = layout.edges
-        .filter((e) => e.badgeIndex !== undefined)
+        .filter((e) => e.badgeIndex !== undefined || (e as any).badgeLetter !== undefined)
         .map((e) => {
           const srcNode = layout.nodes.find((n) => n.id === e.source);
-          const tgtNode = layout.nodes.find((n) => n.id === e.target);
+          const tgtNode = layout.nodes.find((n) => n.id === e.target) || layout.zones.find((z) => z.id === e.target);
+          const tgtTitle = tgtNode ? ("name" in tgtNode ? tgtNode.name : tgtNode.title) : e.target;
           return {
-            badgeIndex: e.badgeIndex!,
+            badgeIndex: (e as any).badgeLetter || e.badgeIndex || "",
             from: srcNode?.name || e.source,
-            to: tgtNode?.name || e.target,
+            to: tgtTitle || e.target,
             label: e.label || "",
             protocol: e.protocol,
             category: e.category,
@@ -599,7 +601,8 @@ export function ArchitectureCanvas({
         data,
         title,
         description,
-        flows
+        flows,
+        layout
       );
       toast.success("Vector PDF document exported successfully");
     } catch (err) {
@@ -623,7 +626,8 @@ export function ArchitectureCanvas({
         data,
         title,
         (percent) => setGifProgress(percent),
-        controller.signal
+        controller.signal,
+        layout
       );
       toast.success("Animated GIF exported successfully (3s loop)");
     } catch (err) {
@@ -809,6 +813,8 @@ export function ArchitectureCanvas({
             {layout.zones.map((zone) => (
               <div
                 key={zone.id}
+                data-node-id={zone.id}
+                data-group-id={zone.id}
                 style={{
                   transform: `translate(${zone.x}px, ${zone.y}px)`,
                   width: `${zone.width}px`,
@@ -817,17 +823,30 @@ export function ArchitectureCanvas({
                 className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
                   zone.isAwsVpc
                     ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
-                    : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                    : zone.isDocker
+                      ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
+                      : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
                 }`}
               >
-                {/* Dedicated Header Strip for Title (no ellipsis, wraps cleanly to 2 lines) */}
+                {/* Dedicated Header Strip for Title (no ellipsis, single line) */}
                 <div
-                  className="tier-header-strip absolute top-0 left-0 right-0 min-h-[36px] py-1 px-3.5 flex items-center border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
+                  className="tier-header-strip absolute top-0 left-0 right-0 min-h-[32px] py-1 px-3.5 flex items-center gap-2 border-b border-border/60 bg-stone-100/70 dark:bg-neutral-900/70 rounded-t-2xl pointer-events-none"
                   title={zone.description}
                 >
+                  {(zone.isDocker || zone.title.toLowerCase().includes("docker")) && (
+                    <img
+                      src="/tech-logos/docker.svg"
+                      alt="Docker Logo"
+                      className="w-4 h-4 object-contain inline-block shrink-0"
+                    />
+                  )}
                   <span
-                    className={`mono text-[11px] font-bold tracking-wider uppercase leading-tight line-clamp-2 break-words ${
-                      zone.isAwsVpc ? "text-amber-700 dark:text-amber-400" : "text-carbon dark:text-neutral-200"
+                    className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${
+                      zone.isAwsVpc
+                        ? "text-amber-700 dark:text-amber-400"
+                        : zone.isDocker
+                          ? "text-sky-700 dark:text-sky-400"
+                          : "text-carbon dark:text-neutral-200"
                     }`}
                   >
                     {zone.title}

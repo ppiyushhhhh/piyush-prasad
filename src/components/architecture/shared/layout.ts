@@ -96,6 +96,7 @@ export interface LayoutZone {
   height: number;
   nodeIds: string[];
   isAwsVpc?: boolean;
+  isDocker?: boolean;
 }
 
 export interface LayoutResult {
@@ -797,12 +798,402 @@ const CANONICAL_SECTIONS = [
 /**
  * Layout engine for full architecture diagram canvas data.
  */
+
+/**
+ * Dedicated 2-Lane Layout for OnixMall DevSecOps Architecture:
+ * - Lane 1 "Runtime" (top): Client -> Nginx -> Docker Compose (Frontend -> Express <-> MongoDB)
+ * - Lane 2 "Delivery & Security" (below): [Gmail ->] Trivy <- Actions -> Ansible, plus Actions/Ansible -> Docker Compose
+ * - Exactly 8 straight lines (or 9 with Gmail), 0 crossings, cards on 48px grid, 64px between lanes.
+ */
+export function layoutOnixMallArchitecture(
+  rawInput: ArchitectureDiagramData | ArchitectureData,
+  options: LayoutOptions = {}
+): LayoutResult {
+  const isCanvas = "nodes" in rawInput;
+  const rawNodes: any[] = isCanvas
+    ? (rawInput as ArchitectureDiagramData).nodes || []
+    : ((rawInput as ArchitectureData).components || []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        category: (c.type === "edge" ? "client" : c.type) as ArchitectureCategory,
+        tech: c.tech,
+        provider: c.details || "Managed Service",
+        description: c.description,
+        port: c.port,
+        status: "operational" as const,
+      }));
+
+  const findNode = (alias: string): any => {
+    return rawNodes.find(
+      (n: any) =>
+        n.id === alias ||
+        n.id === `node-onix-${alias}` ||
+        n.id.includes(alias) ||
+        n.name.toLowerCase().includes(alias)
+    );
+  };
+
+  const clientNode = findNode("client");
+  const nginxNode = findNode("nginx");
+  const viteNode = findNode("vite") || findNode("frontend");
+  const expressNode = findNode("express") || findNode("backend");
+  const mongoNode = findNode("mongo");
+  const trivyNode = findNode("trivy");
+  const actionsNode = findNode("actions") || findNode("github");
+  const ansibleNode = findNode("ansible");
+  const emailNode = findNode("email") || findNode("smtp") || findNode("gmail");
+
+  const clientId = clientNode?.id || (isCanvas ? "node-onix-client" : "client");
+  const nginxId = nginxNode?.id || (isCanvas ? "node-onix-nginx" : "nginx");
+  const viteId = viteNode?.id || (isCanvas ? "node-onix-vite" : "vite");
+  const expressId = expressNode?.id || (isCanvas ? "node-onix-express" : "express");
+  const mongoId = mongoNode?.id || (isCanvas ? "node-onix-mongo" : "mongo");
+  const trivyId = trivyNode?.id || (isCanvas ? "node-onix-trivy" : "trivy");
+  const actionsId = actionsNode?.id || (isCanvas ? "node-onix-actions" : "actions");
+  const ansibleId = ansibleNode?.id || (isCanvas ? "node-onix-ansible" : "ansible");
+  const emailId = emailNode ? emailNode.id : undefined;
+
+  const cardW = NODE_WIDTH; // 200
+  const cardH = NODE_HEIGHT; // 96
+  const lane1CardsY = 84;
+  const lane2CardsY = 312;
+  const center1Y = 132;
+  const center2Y = 360;
+
+  const nodeMap = new Map<string, UnifiedNode>();
+
+  const addUnifiedNode = (
+    node: any,
+    id: string,
+    fallbackName: string,
+    fallbackCategory: ArchitectureCategory,
+    fallbackTech: string,
+    x: number,
+    y: number,
+    col: number,
+    row: number,
+    sectionId: string
+  ) => {
+    const uNode: UnifiedNode = {
+      id,
+      name: node?.name || fallbackName,
+      category: node?.category || fallbackCategory,
+      tech: node?.tech || fallbackTech,
+      provider: node?.provider || "AWS EC2 Host",
+      description: node?.description || "",
+      port: node?.port,
+      status: node?.status || "operational",
+      x,
+      y,
+      width: cardW,
+      height: cardH,
+      responsibilities: node?.responsibilities,
+      configuration: node?.configuration,
+      security_controls: node?.security_controls,
+      verification: node?.verification || "code",
+      evidence: node?.evidence,
+      raw: node,
+      col,
+      row,
+      sectionId,
+    };
+    nodeMap.set(id, uNode);
+  };
+
+  // Lane 1 Cards (Runtime)
+  addUnifiedNode(clientNode, clientId, "Client Public Visitor", "client", "Web Browser / HTTPS", 70, lane1CardsY, 0, 0, "sec-onix-runtime");
+  addUnifiedNode(nginxNode, nginxId, "Nginx Hardened Web Server", "networking", "Nginx 1.24 / Certbot SSL", 318, lane1CardsY, 1, 0, "sec-onix-runtime");
+  addUnifiedNode(viteNode, viteId, "Frontend Web Application", "application", "React 18 / Vite SPA", 566, lane1CardsY, 2, 0, "sec-onix-docker");
+  addUnifiedNode(expressNode, expressId, "Express REST API Backend", "compute", "Express 4.x / Node.js", 814, lane1CardsY, 3, 0, "sec-onix-docker");
+  addUnifiedNode(mongoNode, mongoId, "MongoDB Document Store", "database", "MongoDB 7.0 Community", 1062, lane1CardsY, 4, 0, "sec-onix-docker");
+
+  // Lane 2 Cards (Delivery & Security)
+  if (emailId && emailNode) {
+    addUnifiedNode(emailNode, emailId, "DevOps Alert & PDF Reporter", "monitoring", "Nodemailer / Gmail SMTP", 70, lane2CardsY, 0, 1, "sec-onix-delivery");
+  }
+  addUnifiedNode(trivyNode, trivyId, "Trivy Security Scanner", "security", "Trivy Vulnerability Gate", 318, lane2CardsY, 1, 1, "sec-onix-delivery");
+  addUnifiedNode(actionsNode, actionsId, "GitHub Actions CI/CD", "cicd", "GitHub Actions Runner", 566, lane2CardsY, 2, 1, "sec-onix-delivery");
+  addUnifiedNode(ansibleNode, ansibleId, "Ansible Control Host", "cicd", "Ansible Playbooks", 814, lane2CardsY, 3, 1, "sec-onix-delivery");
+
+  const nodesList = Array.from(nodeMap.values());
+
+  const dockerNodeIds = [viteId, expressId, mongoId];
+  const runtimeNodeIds = [clientId, nginxId, ...dockerNodeIds];
+  const deliveryNodeIds = [trivyId, actionsId, ansibleId];
+  if (emailId) deliveryNodeIds.unshift(emailId);
+
+  const computedZones: LayoutZone[] = [
+    {
+      id: "sec-onix-runtime",
+      title: "Runtime",
+      description: "End-to-end client traffic flow through Nginx and containerized application stack.",
+      x: 40,
+      y: 24,
+      width: 1252,
+      height: 180,
+      nodeIds: runtimeNodeIds,
+    },
+    {
+      id: "sec-onix-docker",
+      title: "Docker Compose",
+      description: "Multi-container application runtime managing Frontend, Backend, and Database.",
+      x: 550,
+      y: 44,
+      width: 728,
+      height: 148,
+      isDocker: true,
+      nodeIds: dockerNodeIds,
+    },
+    {
+      id: "sec-onix-delivery",
+      title: "Delivery & Security",
+      description: "Automated delivery pipeline, vulnerability scanning, and host configuration management.",
+      x: 40,
+      y: 268,
+      width: 1252,
+      height: 160,
+      nodeIds: deliveryNodeIds,
+    },
+  ];
+
+  const edges: UnifiedEdge[] = [
+    // 1. Client -> Nginx
+    {
+      id: "e-onix-client-nginx",
+      source: clientId,
+      target: nginxId,
+      label: "HTTPS Web Ingress",
+      protocol: "HTTPS / TLS 1.3",
+      category: "network",
+      direction: "directional",
+      description: "Client traffic terminates on hardened Nginx reverse proxy.",
+      animated: true,
+      step: 1,
+      badgeIndex: 1,
+      points: [{ x: 270, y: center1Y }, { x: 318, y: center1Y }],
+      startPoint: { x: 270, y: center1Y },
+      endPoint: { x: 318, y: center1Y },
+      pathData: `M 270 ${center1Y} L 318 ${center1Y}`,
+      midX: 294,
+      midY: center1Y,
+    },
+    // 2. Nginx -> Frontend
+    {
+      id: "e-onix-nginx-vite",
+      source: nginxId,
+      target: viteId,
+      label: "Frontend Proxy Pass",
+      protocol: "HTTP / Port 80",
+      category: "network",
+      direction: "directional",
+      description: "Nginx routes static web requests to React Vite frontend container.",
+      animated: true,
+      step: 2,
+      badgeIndex: 2,
+      points: [{ x: 518, y: center1Y }, { x: 566, y: center1Y }],
+      startPoint: { x: 518, y: center1Y },
+      endPoint: { x: 566, y: center1Y },
+      pathData: `M 518 ${center1Y} L 566 ${center1Y}`,
+      midX: 542,
+      midY: center1Y,
+    },
+    // 3. Frontend -> Express
+    {
+      id: "e-onix-vite-express",
+      source: viteId,
+      target: expressId,
+      label: "REST API Requests",
+      protocol: "HTTP /api/malls",
+      category: "network",
+      direction: "directional",
+      description: "Frontend SPA dispatches mall queries and tenant actions to Express API.",
+      animated: true,
+      step: 3,
+      badgeIndex: 3,
+      points: [{ x: 766, y: center1Y }, { x: 814, y: center1Y }],
+      startPoint: { x: 766, y: center1Y },
+      endPoint: { x: 814, y: center1Y },
+      pathData: `M 766 ${center1Y} L 814 ${center1Y}`,
+      midX: 790,
+      midY: center1Y,
+    },
+    // 4. Express <-> MongoDB
+    {
+      id: "e-onix-express-mongo",
+      source: expressId,
+      target: mongoId,
+      label: "Database CRUD Operations",
+      protocol: "Mongoose / Port 27017",
+      category: "data",
+      direction: "bidirectional",
+      description: "Express backend executes Mongoose document queries and persistence.",
+      animated: true,
+      step: 4,
+      badgeIndex: 4,
+      points: [{ x: 1014, y: center1Y }, { x: 1062, y: center1Y }],
+      startPoint: { x: 1014, y: center1Y },
+      endPoint: { x: 1062, y: center1Y },
+      pathData: `M 1014 ${center1Y} L 1062 ${center1Y}`,
+      midX: 1038,
+      midY: center1Y,
+    },
+    // A. GitHub Actions -> Trivy
+    {
+      id: "e-onix-actions-trivy",
+      source: actionsId,
+      target: trivyId,
+      label: "CI Vulnerability Gate",
+      protocol: "Trivy Action / Exit 1",
+      category: "security",
+      direction: "directional",
+      description: "GitHub Actions pipeline gates build on High/Critical CVE security scan.",
+      animated: true,
+      secondary: true,
+      badgeLetter: "A",
+      points: [{ x: 566, y: center2Y }, { x: 518, y: center2Y }],
+      startPoint: { x: 566, y: center2Y },
+      endPoint: { x: 518, y: center2Y },
+      pathData: `M 566 ${center2Y} L 518 ${center2Y}`,
+      midX: 542,
+      midY: center2Y,
+    },
+    // B. GitHub Actions -> Docker Compose group
+    {
+      id: "e-onix-actions-compose",
+      source: actionsId,
+      target: "sec-onix-docker",
+      label: "SSH Compose Deploy",
+      protocol: "docker-compose up -d --build",
+      category: "deployment",
+      direction: "directional",
+      description: "GitHub Actions deploys latest containers via docker-compose up -d --build.",
+      animated: true,
+      secondary: true,
+      badgeLetter: "B",
+      points: [{ x: 666, y: 312 }, { x: 666, y: 192 }],
+      startPoint: { x: 666, y: 312 },
+      endPoint: { x: 666, y: 192 },
+      pathData: "M 666 312 L 666 192",
+      midX: 666,
+      midY: 230,
+    },
+    // C. GitHub Actions -> Ansible Control Host
+    {
+      id: "e-onix-actions-ansible",
+      source: actionsId,
+      target: ansibleId,
+      label: "Trigger Ansible CI",
+      protocol: "ansible-deploy.yml",
+      category: "deployment",
+      direction: "directional",
+      description: "GitHub Actions pipeline triggers Ansible configuration management.",
+      animated: true,
+      secondary: true,
+      badgeLetter: "C",
+      points: [{ x: 766, y: center2Y }, { x: 814, y: center2Y }],
+      startPoint: { x: 766, y: center2Y },
+      endPoint: { x: 814, y: center2Y },
+      pathData: `M 766 ${center2Y} L 814 ${center2Y}`,
+      midX: 790,
+      midY: center2Y,
+    },
+    // D. Ansible Control Host -> Docker Compose group
+    {
+      id: "e-onix-ansible-compose",
+      source: ansibleId,
+      target: "sec-onix-docker",
+      label: "Ansible Playbook Rollout",
+      protocol: "ansible-playbook",
+      category: "deployment",
+      direction: "directional",
+      description: "Ansible control host executes deployment playbooks on EC2 app host.",
+      animated: true,
+      secondary: true,
+      badgeLetter: "D",
+      points: [{ x: 914, y: 312 }, { x: 914, y: 192 }],
+      startPoint: { x: 914, y: 312 },
+      endPoint: { x: 914, y: 192 },
+      pathData: "M 914 312 L 914 192",
+      midX: 914,
+      midY: 230,
+    },
+  ];
+
+  if (emailId) {
+    edges.push({
+      id: "e-onix-trivy-email",
+      source: trivyId,
+      target: emailId,
+      label: "Email Daily PDF Report",
+      protocol: "Nodemailer / SMTP 465",
+      category: "telemetry",
+      direction: "directional",
+      description: "Trivy scanner forwards daily audit report to Nodemailer dispatch service.",
+      animated: false,
+      secondary: true,
+      badgeLetter: "E",
+      points: [{ x: 318, y: center2Y }, { x: 270, y: center2Y }],
+      startPoint: { x: 318, y: center2Y },
+      endPoint: { x: 270, y: center2Y },
+      pathData: `M 318 ${center2Y} L 270 ${center2Y}`,
+      midX: 294,
+      midY: center2Y,
+    });
+  }
+
+  const allPorts: CardPort[] = [
+    { x: 270, y: center1Y, nodeId: clientId, side: "right", edgeId: "e-onix-client-nginx", isSource: true },
+    { x: 318, y: center1Y, nodeId: nginxId, side: "left", edgeId: "e-onix-client-nginx", isSource: false },
+    { x: 518, y: center1Y, nodeId: nginxId, side: "right", edgeId: "e-onix-nginx-vite", isSource: true },
+    { x: 566, y: center1Y, nodeId: viteId, side: "left", edgeId: "e-onix-nginx-vite", isSource: false },
+    { x: 766, y: center1Y, nodeId: viteId, side: "right", edgeId: "e-onix-vite-express", isSource: true },
+    { x: 814, y: center1Y, nodeId: expressId, side: "left", edgeId: "e-onix-vite-express", isSource: false },
+    { x: 1014, y: center1Y, nodeId: expressId, side: "right", edgeId: "e-onix-express-mongo", isSource: true },
+    { x: 1062, y: center1Y, nodeId: mongoId, side: "left", edgeId: "e-onix-express-mongo", isSource: false },
+    { x: 566, y: center2Y, nodeId: actionsId, side: "left", edgeId: "e-onix-actions-trivy", isSource: true },
+    { x: 518, y: center2Y, nodeId: trivyId, side: "right", edgeId: "e-onix-actions-trivy", isSource: false },
+    { x: 666, y: 312, nodeId: actionsId, side: "top", edgeId: "e-onix-actions-compose", isSource: true },
+    { x: 666, y: 192, nodeId: "sec-onix-docker", side: "bottom", edgeId: "e-onix-actions-compose", isSource: false },
+    { x: 766, y: center2Y, nodeId: actionsId, side: "right", edgeId: "e-onix-actions-ansible", isSource: true },
+    { x: 814, y: center2Y, nodeId: ansibleId, side: "left", edgeId: "e-onix-actions-ansible", isSource: false },
+    { x: 914, y: 312, nodeId: ansibleId, side: "top", edgeId: "e-onix-ansible-compose", isSource: true },
+    { x: 914, y: 192, nodeId: "sec-onix-docker", side: "bottom", edgeId: "e-onix-ansible-compose", isSource: false },
+  ];
+
+  if (emailId) {
+    allPorts.push(
+      { x: 318, y: center2Y, nodeId: trivyId, side: "left", edgeId: "e-onix-trivy-email", isSource: true },
+      { x: 270, y: center2Y, nodeId: emailId, side: "right", edgeId: "e-onix-trivy-email", isSource: false }
+    );
+  }
+
+  return {
+    nodes: nodesList,
+    edges,
+    zones: computedZones,
+    ports: allPorts,
+    viewBox: {
+      minX: 0,
+      minY: 0,
+      width: 1332,
+      height: 480,
+    },
+    direction: "RIGHT",
+  };
+}
+
 export function layoutArchitectureCanvas(
   data: ArchitectureDiagramData,
   options: LayoutOptions = { autoLayout: true }
 ): LayoutResult {
   const nodes = data.nodes || [];
   const rawEdges = data.edges || [];
+
+  if (
+    nodes.some((n) => n.id === "node-onix-nginx")
+  ) {
+    return layoutOnixMallArchitecture(data, options);
+  }
 
   const nodeIds = new Set(nodes.map((n) => n.id));
   const validEdges = validateConnections(rawEdges, nodeIds, "ArchitectureCanvas");
@@ -1118,6 +1509,12 @@ export function layoutProjectArchitecture(
 ): LayoutResult {
   const components = data.components || [];
   const connections = data.connections || [];
+
+  if (
+    components.some((c) => c.id === "vite" && components.some((c) => c.id === "nginx"))
+  ) {
+    return layoutOnixMallArchitecture(data, options);
+  }
 
   const validCompIds = new Set(components.map((c) => c.id));
   const validConns = validateConnections(connections, validCompIds, "ProjectArchitecture");

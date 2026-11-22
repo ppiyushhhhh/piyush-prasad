@@ -375,23 +375,37 @@ async function run() {
         await page.close();
       }
 
-      // Mobile check at 390x844
-      const mobilePage = await browser.newPage({
-        viewport: { width: 390, height: 844 },
-      });
-      await mobilePage.goto(`${BASE_URL}/architecture?diagram=${slug}`, { waitUntil: 'networkidle' });
-      await mobilePage.waitForTimeout(500);
+      // Mobile check at 390x844 (light & dark)
+      for (const mMode of ['light', 'dark']) {
+        const mobilePage = await browser.newPage({
+          viewport: { width: 390, height: 844 },
+          colorScheme: mMode,
+        });
+        await mobilePage.goto(`${BASE_URL}/architecture?diagram=${slug}`, { waitUntil: 'networkidle' });
+        await mobilePage.waitForTimeout(500);
 
-      if (slug === 'telegram-ai-agent') {
-        await mobilePage.screenshot({
-          path: path.join(SCREENSHOT_DIR, 'telegram-agent-mobile.png'),
-        });
-      } else if (slug === 'onixmall-devsecops') {
-        await mobilePage.screenshot({
-          path: path.join(SCREENSHOT_DIR, 'onixmall-mobile.png'),
-        });
+        if (slug === 'telegram-ai-agent') {
+          if (mMode === 'light') {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'telegram-agent-mobile.png'),
+            });
+          }
+        } else if (slug === 'onixmall-devsecops') {
+          if (mMode === 'light') {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile-light.png'),
+            });
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile.png'),
+            });
+          } else {
+            await mobilePage.screenshot({
+              path: path.join(SCREENSHOT_DIR, 'onixmall-mobile-dark.png'),
+            });
+          }
+        }
+        await mobilePage.close();
       }
-      await mobilePage.close();
     }
 
     // Capture telegram secondary flows screenshot

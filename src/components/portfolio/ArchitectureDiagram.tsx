@@ -278,15 +278,38 @@ export function ArchitectureDiagram({
               {layout.zones.map((zone) => (
                 <div
                   key={zone.id}
+                  data-node-id={zone.id}
+                  data-group-id={zone.id}
                   style={{
                     transform: `translate(${zone.x}px, ${zone.y}px)`,
                     width: `${zone.width}px`,
                     height: `${zone.height}px`,
                   }}
-                  className="tier-container absolute rounded-2xl pointer-events-none transition-all border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                  className={`tier-container absolute rounded-2xl pointer-events-none transition-all ${
+                    zone.isAwsVpc
+                      ? "border-2 border-dashed border-amber-500/40 bg-amber-500/[0.025] dark:border-amber-400/30 dark:bg-amber-400/[0.015]"
+                      : zone.isDocker
+                        ? "border-2 border-dashed border-sky-500/50 bg-sky-500/[0.03] dark:border-sky-400/40 dark:bg-sky-400/[0.02] shadow-sm"
+                        : "border border-dashed border-border/80 bg-white/40 dark:border-white/10 dark:bg-white/[0.015] shadow-2xs"
+                  }`}
                 >
-                  <div className="tier-header-strip absolute top-0 left-0 right-0 min-h-[36px] py-1 px-3.5 flex items-center justify-between border-b border-border/60 bg-stone-100/80 dark:bg-neutral-900/80 rounded-t-2xl pointer-events-none">
-                    <span className="mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-2 break-words text-carbon dark:text-neutral-200">
+                  <div className="tier-header-strip absolute top-0 left-0 right-0 min-h-[32px] py-1 px-3.5 flex items-center gap-2 border-b border-border/60 bg-stone-100/80 dark:bg-neutral-900/80 rounded-t-2xl pointer-events-none">
+                    {(zone.isDocker || zone.title.toLowerCase().includes("docker")) && (
+                      <img
+                        src="/tech-logos/docker.svg"
+                        alt="Docker Logo"
+                        className="w-4 h-4 object-contain inline-block shrink-0"
+                      />
+                    )}
+                    <span
+                      className={`mono text-[10.5px] font-bold tracking-wider uppercase leading-tight line-clamp-1 break-words ${
+                        zone.isAwsVpc
+                          ? "text-amber-700 dark:text-amber-400"
+                          : zone.isDocker
+                            ? "text-sky-700 dark:text-sky-400"
+                            : "text-carbon dark:text-neutral-200"
+                      }`}
+                    >
                       {zone.title}
                     </span>
                   </div>
