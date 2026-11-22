@@ -66,7 +66,9 @@ async function getEffectiveServerSupabase() {
     if (supabaseAdmin && typeof supabaseAdmin.from === "function") {
       return supabaseAdmin;
     }
-  } catch {}
+  } catch {
+    // Fall back to direct createClient
+  }
 
   const { createClient } = await import("@supabase/supabase-js");
   const url =

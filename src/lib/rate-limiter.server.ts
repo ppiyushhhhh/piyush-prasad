@@ -249,6 +249,12 @@ export async function getRateLimitConfigs(): Promise<Record<string, RateLimitCon
     return cachedConfigs;
   }
 
+  if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
+    cachedConfigs = { ...DEFAULT_CONFIGS };
+    configCacheExpiresAt = now + 60_000;
+    return cachedConfigs;
+  }
+
   try {
     const { data, error } = await supabaseAdmin
       .from("rate_limit_configs")
@@ -351,6 +357,9 @@ async function consumePostgres(
   maxRequests: number,
   windowSeconds: number
 ): Promise<{ allowed: boolean; count: number; retryAfter: number; resetAt: number } | null> {
+  if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
+    return null;
+  }
   try {
     const { data, error } = await supabaseAdmin.rpc("consume_rate_limit", {
       p_key: key,
@@ -430,6 +439,9 @@ async function recordRateLimitEvent(event: {
   windowSeconds: number;
   userAgent?: string | null;
 }) {
+  if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
+    return;
+  }
   try {
     await supabaseAdmin.from("rate_limit_events").insert({
       client_identifier: event.clientIdentifier,

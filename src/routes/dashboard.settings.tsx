@@ -70,7 +70,7 @@ function SettingsPage() {
     fetchEmailSummary()
       .then((res) => setEmailStatus(res))
       .catch((err) => console.warn("Failed to fetch email config status:", err));
-  }, []);
+  }, [fetchEmailSummary]);
 
   // Load from localStorage on mount
   useEffect(() => {

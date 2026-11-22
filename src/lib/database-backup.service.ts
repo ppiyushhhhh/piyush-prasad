@@ -25,7 +25,9 @@ export function getBackupStorageDir(): string {
   if (!fs.existsSync(dir)) {
     try {
       fs.mkdirSync(dir, { recursive: true });
-    } catch {}
+    } catch {
+      // Ignore directory creation errors if read-only filesystem
+    }
   }
   return dir;
 }
@@ -145,7 +147,9 @@ export function rotateLocalBackupHistory(retentionDays = RETENTION_DAYS): number
         if (fs.existsSync(filePath)) {
           try {
             fs.unlinkSync(filePath);
-          } catch {}
+          } catch {
+            // Ignore failure if file already removed
+          }
         }
         pruned++;
         changed = true;

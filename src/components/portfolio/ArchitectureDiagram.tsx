@@ -49,24 +49,24 @@ export function ArchitectureDiagram({
 
   // Observe and measure real rendered card dimensions
   useEffect(() => {
-    let hasDiff = false;
-    const next = new Map(measuredCards);
-    cardElementsRef.current.forEach((el, id) => {
-      const rect = el.getBoundingClientRect();
-      const w = Math.round(rect.width);
-      const h = Math.round(rect.height);
-      if (w > 0 && h > 0) {
-        const prev = next.get(id);
-        if (!prev || Math.abs(prev.width - w) > 2 || Math.abs(prev.height - h) > 2) {
-          next.set(id, { width: w, height: h });
-          hasDiff = true;
+    setMeasuredCards((prevCards) => {
+      let hasDiff = false;
+      const next = new Map(prevCards);
+      cardElementsRef.current.forEach((el, id) => {
+        const rect = el.getBoundingClientRect();
+        const w = Math.round(rect.width);
+        const h = Math.round(rect.height);
+        if (w > 0 && h > 0) {
+          const prev = next.get(id);
+          if (!prev || Math.abs(prev.width - w) > 2 || Math.abs(prev.height - h) > 2) {
+            next.set(id, { width: w, height: h });
+            hasDiff = true;
+          }
         }
-      }
+      });
+      return hasDiff ? next : prevCards;
     });
-    if (hasDiff) {
-      setMeasuredCards(next);
-    }
-  });
+  }, [data, diagramSlug]);
 
   const fullDiagram = useMemo(() => {
     if (!diagramSlug) return null;

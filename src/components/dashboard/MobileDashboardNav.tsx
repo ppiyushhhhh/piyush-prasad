@@ -29,7 +29,7 @@ import {
   Home,
 } from "lucide-react";
 
-export interface NavModule {
+interface NavModule {
   to: string;
   label: string;
   icon: typeof Gauge;
@@ -39,7 +39,7 @@ export interface NavModule {
   keywords: string[];
 }
 
-export const DASHBOARD_NAV_MODULES: NavModule[] = [
+const DASHBOARD_NAV_MODULES: NavModule[] = [
   {
     to: "/dashboard",
     label: "Overview",

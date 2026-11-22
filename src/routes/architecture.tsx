@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -148,13 +148,13 @@ function ArchitectureExplorerPage() {
     });
   };
 
-  const closeWorkspace = () => {
+  const closeWorkspace = useCallback(() => {
     setIsWorkspaceOpen(false);
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
     navigate({ search: { diagram: selectedSlug }, replace: true });
-  };
+  }, [selectedSlug, navigate]);
 
   const toggleBrowserFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -184,7 +184,7 @@ function ArchitectureExplorerPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isWorkspaceOpen, selectedSlug]);
+  }, [isWorkspaceOpen, closeWorkspace]);
 
   // Handle switching architecture tab
   const handleSelectArchitecture = (slug: string) => {

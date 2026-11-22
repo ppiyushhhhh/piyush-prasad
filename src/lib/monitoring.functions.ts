@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Read-only monitoring data for the internal dashboard.
@@ -67,11 +68,13 @@ export type ReportRow = {
 };
 
 async function admin() {
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (supabaseAdmin) return supabaseAdmin;
-  } catch (err) {
-    console.warn("[monitoring] Service role client not available, using fallback client:", err);
+  if (process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (supabaseAdmin) return supabaseAdmin;
+    } catch {
+      // Fall back to public client if service role initialization fails
+    }
   }
   const { supabase } = await import("@/integrations/supabase/client");
   return supabase as any;
@@ -84,7 +87,6 @@ async function admin() {
  * views don't hammer the site. Everything happens server-side.
  */
 const FRESH_MS = 10 * 60 * 1000;
-const SITE_URL = "https://www.piyushprasad.in";
 
 async function probe(url: string): Promise<{ ok: boolean; status: number | null; ms: number }> {
   const started = Date.now();
@@ -92,6 +94,7 @@ async function probe(url: string): Promise<{ ok: boolean; status: number | null;
     const res = await fetch(url, { redirect: "follow", headers: { "user-agent": "piyush-monitor" } });
     return { ok: res.ok, status: res.status, ms: Date.now() - started };
   } catch {
+    // Network probe failure (e.g. offline or DNS timeout)
     return { ok: false, status: null, ms: Date.now() - started };
   }
 }

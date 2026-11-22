@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2, AlertCircle, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusTag } from "@/components/dashboard/primitives";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/dashboard/login")({
   head: () => ({
@@ -12,12 +13,12 @@ export const Route = createFileRoute("/dashboard/login")({
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Admin Login — PP · OPS Monitoring" },
       { property: "og:description", content: "Administrator sign-in gateway for Piyush Prasad Operations Console." },
-      { property: "og:url", content: "https://www.piyushprasad.in/dashboard/login" },
-      { property: "og:image", content: "https://www.piyushprasad.in/og-image.png" },
+      { property: "og:url", content: `${SITE_URL}/dashboard/login` },
+      { property: "og:image", content: `${SITE_URL}/og-image.png` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Admin Login — PP · OPS Monitoring" },
       { name: "twitter:description", content: "Administrator sign-in gateway for Piyush Prasad Operations Console." },
-      { name: "twitter:image", content: "https://www.piyushprasad.in/og-image.png" },
+      { name: "twitter:image", content: `${SITE_URL}/og-image.png` },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

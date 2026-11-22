@@ -1,20 +1,10 @@
 import React from "react";
-import {
-  Server,
-  Shield,
-  Layers,
-  Database,
-  Globe,
-  Activity,
-  Cpu,
-  HardDrive,
-  Terminal,
-  Bot,
-} from "lucide-react";
 import type { UnifiedNode } from "./layout";
 import { NODE_WIDTH, NODE_HEIGHT } from "./layout";
-import type { ArchitectureCategory } from "@/lib/architecture-diagrams";
 import { NodeLogo } from "../NodeLogo";
+import { getNodeCategoryIcon } from "./category-icons";
+
+export { getNodeCategoryIcon };
 
 interface NodeCardProps {
   node: UnifiedNode;
@@ -29,34 +19,6 @@ interface NodeCardProps {
   onMouseLeave?: () => void;
   actionLabel?: string;
   className?: string;
-}
-
-export function getNodeCategoryIcon(category: ArchitectureCategory) {
-  switch (category) {
-    case "client":
-    case "dns":
-    case "cdn":
-    case "networking":
-      return Globe;
-    case "security":
-      return Shield;
-    case "compute":
-      return Server;
-    case "application":
-      return Cpu;
-    case "database":
-      return Database;
-    case "storage":
-      return HardDrive;
-    case "monitoring":
-      return Activity;
-    case "cicd":
-      return Terminal;
-    case "ai":
-      return Bot;
-    default:
-      return Layers;
-  }
 }
 
 export function NodeCard({

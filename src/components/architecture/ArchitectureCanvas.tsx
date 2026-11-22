@@ -35,7 +35,7 @@ import { NodeCard } from "./shared/NodeCard";
 import { ArrowheadMarkers } from "./shared/ArrowheadMarkers";
 import { DiagramToolbar } from "./shared/DiagramToolbar";
 import { NodeLogo } from "./NodeLogo";
-import { getNodeCategoryIcon } from "./shared/NodeCard";
+import { getNodeCategoryIcon } from "./shared/category-icons";
 import { toast } from "sonner";
 
 interface ArchitectureCanvasProps {
@@ -118,22 +118,22 @@ export function ArchitectureCanvas({
 
   // Real rendered card geometry measurement (Fix 1.1)
   useEffect(() => {
-    let changed = false;
-    const next = new Map(measuredCards);
-    cardElementsRef.current.forEach((el, id) => {
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-      if (w > 0 && h > 0) {
-        const prev = next.get(id);
-        if (!prev || Math.abs(prev.width - w) > 1 || Math.abs(prev.height - h) > 1) {
-          next.set(id, { width: w, height: h });
-          changed = true;
+    setMeasuredCards((prevCards) => {
+      let changed = false;
+      const next = new Map(prevCards);
+      cardElementsRef.current.forEach((el, id) => {
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        if (w > 0 && h > 0) {
+          const prev = next.get(id);
+          if (!prev || Math.abs(prev.width - w) > 1 || Math.abs(prev.height - h) > 1) {
+            next.set(id, { width: w, height: h });
+            changed = true;
+          }
         }
-      }
+      });
+      return changed ? next : prevCards;
     });
-    if (changed) {
-      setMeasuredCards(next);
-    }
   }, [data, layoutMode]);
 
   const isDebugGeometry = typeof window !== "undefined" && window.location.search.includes("debug=geometry");

@@ -132,7 +132,7 @@ export async function buildFullDiagramSvg(
       telemetry: "#64748B",
     };
 
-    let svg = `<?xml version="1.0" encoding="UTF-8"?>
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}" height="${totalHeight}">
   <defs>
     <style>
