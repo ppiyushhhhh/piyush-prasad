@@ -1564,16 +1564,16 @@ export function layoutProjectArchitecture(
 
     const tierH = TIER_HEADER_H + TIER_PADDING * 2 + totalColumnCardH;
 
-    const zoneTitle =
-      colKey === 0
-        ? "01. Edge & Client Access"
-        : colKey === 1
-          ? "02. Network & Ingress"
-          : colKey === 2
-            ? "03. Application Workloads"
-            : colKey === 3
-              ? "04. Persistence Tier"
-              : "05. DevOps & Observability";
+    const tierNames: Record<number, string> = {
+      0: "Edge & Client Access",
+      1: "Network & Ingress",
+      2: "Application Workloads",
+      3: "Persistence Tier",
+      4: "DevOps & Observability",
+    };
+    const tierName = tierNames[colKey] ?? "System Tier";
+    const tierNumber = String(colIdx + 1).padStart(2, "0");
+    const zoneTitle = `${tierNumber}. ${tierName}`;
 
     computedZones.push({
       id: `zone-col-${colKey}`,

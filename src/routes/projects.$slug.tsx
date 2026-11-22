@@ -241,7 +241,7 @@ function ProjectDetailPage() {
       )}
 
       <main className="relative z-10 pt-28 pb-24">
-        <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div className="mx-auto max-w-[1280px] px-6">
           {/* Breadcrumb Navigation */}
           <nav
             className="flex items-center gap-2 text-xs text-muted-foreground mb-6"
@@ -267,10 +267,30 @@ function ProjectDetailPage() {
             onCopyLink={handleCopyLink}
           />
 
+          {/* Mobile / Tablet Horizontal Scroll-Spy Bar (< 1024px) */}
+          <div className="lg:hidden sticky top-[64px] z-20 -mx-6 px-6 py-2.5 bg-[#FAF9F6]/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-[#E5E5DF] dark:border-white/10 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+            {tocSections.map((section) => {
+              const isActive = activeSection === section.id;
+              return (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  className={`mono text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors shrink-0 ${
+                    isActive
+                      ? "bg-cobalt text-white font-bold shadow-2xs"
+                      : "text-muted-foreground hover:text-carbon dark:hover:text-white bg-white dark:bg-neutral-900 border border-[#E5E5DF] dark:border-white/10"
+                  }`}
+                >
+                  {section.label}
+                </a>
+              );
+            })}
+          </div>
+
           {/* Main Case Study Body with Desktop Sticky Sidebar */}
-          <div className="mt-12 flex flex-col lg:flex-row gap-12 items-start">
+          <div className="mt-10 flex flex-col lg:flex-row gap-10 items-start">
             {/* Main Content Column */}
-            <div className="flex-1 min-w-0 space-y-16">
+            <div className="w-full flex-1 min-w-0 space-y-12">
               {/* 1. Overview */}
               <ProjectOverview project={project} />
 
