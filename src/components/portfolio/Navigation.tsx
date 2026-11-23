@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, Search, Sun, Moon } from "lucide-react";
+import { Github, FileText, Menu, X, Search, BookOpen } from "lucide-react";
 import { isStaging } from "@/lib/staging.guard";
-import { getResolvedTheme, toggleTheme } from "@/lib/theme";
 
 interface NavItem {
   id: string;
@@ -12,13 +11,14 @@ interface NavItem {
   isExternalPage?: boolean;
 }
 
-const SECTION_IDS = ["hero", "projects", "skills", "experience", "certifications", "contact"];
+const SECTION_IDS = ["hero", "skills", "experience", "projects", "blog", "certifications", "contact"];
 
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
-  { id: "projects", label: "Projects", href: "/#projects" },
   { id: "skills", label: "Skills", href: "/#skills" },
   { id: "experience", label: "Experience", href: "/#experience" },
+  { id: "projects", label: "Engineering Projects", href: "/#projects" },
+  { id: "blog", label: "Blog", href: "/blog", isExternalPage: true },
   { id: "certifications", label: "Certifications", href: "/#certifications" },
   { id: "contact", label: "Contact", href: "/#contact" },
 ];
@@ -27,21 +27,6 @@ export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    setResolvedTheme(getResolvedTheme());
-    const onThemeChanged = (e: Event) => {
-      const customEvent = e as CustomEvent<{ theme: string; resolved: "light" | "dark" }>;
-      if (customEvent.detail?.resolved) {
-        setResolvedTheme(customEvent.detail.resolved);
-      } else {
-        setResolvedTheme(getResolvedTheme());
-      }
-    };
-    window.addEventListener("theme-changed", onThemeChanged);
-    return () => window.removeEventListener("theme-changed", onThemeChanged);
-  }, []);
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/" || pathname === "";
@@ -311,21 +296,6 @@ export function Navigation() {
               <Github className="h-4 w-4" />
             </a>
 
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text/80 transition-all hover:border-accent hover:text-accent cursor-pointer"
-              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-4 w-4 text-highlight" />
-              ) : (
-                <Moon className="h-4 w-4 text-accent" />
-              )}
-            </button>
-
             {/* Resume Button */}
             <a
               href="/resume"
@@ -346,21 +316,6 @@ export function Navigation() {
               aria-label="Open search palette"
             >
               <Search className="h-4 w-4 text-accent" />
-            </button>
-
-            {/* Mobile Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-surface text-text transition-colors hover:border-accent hover:text-accent cursor-pointer"
-              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-4 w-4 text-highlight" />
-              ) : (
-                <Moon className="h-4 w-4 text-accent" />
-              )}
             </button>
 
             <a

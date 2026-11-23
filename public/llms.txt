@@ -9,6 +9,9 @@ Piyush's site is a single-page portfolio covering experience, projects, certific
 - [Portfolio](/): Experience, projects, skills, certifications, and education for Piyush Prasad.
 - [Resume](/resume): View-only PDF resume.
 
-## Guides
+## Technical Blog & Learning Center
 
-- [Building a Secure CI/CD Pipeline with GitHub Actions and Trivy](/guides/devsecops-pipeline): Practical DevSecOps walkthrough covering Trivy scans, OIDC, SBOMs, container hardening, and secrets management.
+- [Technical Blog](/blog): Practical tutorials, infrastructure guides, and engineering knowledge.
+- [DNS Explained: How Domain Names Connect to Websites](/blog/dns-explained): Domain names, DNS records, resolution process, and connecting custom domains.
+- [AWS Cloud Infrastructure Explained](/blog/aws-cloud-infrastructure-guide): EC2, S3, RDS, VPC & Load Balancers beginner guide.
+- [Linux Server Administration](/blog/linux-server-administration): From SSH to hosting a website on Ubuntu with Nginx.

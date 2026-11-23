@@ -1,48 +1,31 @@
 /**
- * Theme Management Utility for Teal Ops
- * Supports system default, manual light/dark toggle, and local storage persistence.
+ * Theme Management Utility — Light Mode Only
+ * The portfolio is locked to a clean, professional light theme across all pages.
  */
 
-export type Theme = "light" | "dark" | "system";
+export type Theme = "light";
 
-export function getResolvedTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem("theme");
-  if (stored === "dark" || stored === "light") {
-    return stored;
-  }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+export function getResolvedTheme(): "light" {
+  return "light";
 }
 
-export function setTheme(theme: Theme): void {
+export function setTheme(_theme?: string): void {
   if (typeof window === "undefined") return;
-
-  if (theme === "system") {
+  try {
     localStorage.removeItem("theme");
-    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    document.documentElement.classList.toggle("dark", isDark);
-  } else {
-    localStorage.setItem("theme", theme);
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }
-
-  window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
+    document.documentElement.classList.remove("dark");
+  } catch (e) {}
 }
 
 export function toggleTheme(): void {
-  const current = getResolvedTheme();
-  setTheme(current === "dark" ? "light" : "dark");
+  // Theme is locked to light mode; no-op.
+  setTheme("light");
 }
 
 export const THEME_INIT_SCRIPT = `(function() {
   try {
-    var stored = localStorage.getItem('theme');
-    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var shouldBeDark = stored === 'dark' || (!stored && prefersDark);
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    localStorage.removeItem('theme');
+    document.documentElement.classList.remove('dark');
   } catch (e) {}
 })();`;
+

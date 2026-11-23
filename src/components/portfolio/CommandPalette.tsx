@@ -171,6 +171,15 @@ export function CommandPalette() {
           </CommandItem>
 
           <CommandItem
+            onSelect={() => runCommand(() => navigateTo("/blog"))}
+            className="cursor-pointer"
+          >
+            <FileText className="mr-2 h-4 w-4 text-accent" />
+            <span>Technical Blog & Learning Center</span>
+            <CommandShortcut className="font-mono text-[10px]">/blog</CommandShortcut>
+          </CommandItem>
+
+          <CommandItem
             onSelect={() => runCommand(() => navigateTo("/#contact"))}
             className="cursor-pointer"
           >
