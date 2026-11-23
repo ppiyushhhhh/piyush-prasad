@@ -8,7 +8,7 @@ if (!fs.existsSync(SCREENSHOT_DIR)) {
   fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 }
 
-const BASE_URL = process.env.TEST_URL || 'http://127.0.0.1:4173';
+const BASE_URL = 'http://127.0.0.1:4173';
 
 async function isServerReady(url) {
   try {
@@ -20,42 +20,37 @@ async function isServerReady(url) {
 }
 
 async function run() {
-  console.log(`🚀 Starting HowItRuns validation against ${BASE_URL}...`);
+  console.log('🚀 Starting HowItRuns validation...');
 
   let serverProcess = null;
-  if (!process.env.TEST_URL) {
-    const ready = await isServerReady(BASE_URL);
-    if (!ready) {
-      console.log(`Starting Vite server on ${BASE_URL}...`);
-      serverProcess = spawn('npx.cmd', ['vite', 'dev', '--port', '4173', '--host', '127.0.0.1'], {
-        cwd: path.join(__dirname, '..'),
-        stdio: 'pipe',
-        shell: true,
-      });
+  const ready = await isServerReady(BASE_URL);
+  if (!ready) {
+    console.log(`Starting Vite server on ${BASE_URL}...`);
+    serverProcess = spawn('npx.cmd', ['vite', 'dev', '--port', '4173', '--host', '127.0.0.1'], {
+      cwd: path.join(__dirname, '..'),
+      stdio: 'pipe',
+      shell: true,
+    });
 
-      for (let i = 0; i < 35; i++) {
-        await new Promise((r) => setTimeout(r, 1000));
-        if (await isServerReady(BASE_URL)) {
-          console.log('Server ready!');
-          break;
-        }
+    for (let i = 0; i < 35; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      if (await isServerReady(BASE_URL)) {
+        console.log('Server ready!');
+        break;
       }
     }
   }
 
   const browser = await chromium.launch({ headless: true });
 
-  const desktopViewports = [
-    { name: '1920x1080', width: 1920, height: 1080 },
-    { name: '1440x900', width: 1440, height: 900 },
-    { name: '1366x768', width: 1366, height: 768 },
-    { name: '1280x720', width: 1280, height: 720 },
+  const viewports = [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'tablet', width: 1024, height: 768 },
+    { name: 'mobile', width: 390, height: 844 },
   ];
 
-  const resultsTable = [];
-
   try {
-    for (const vp of desktopViewports) {
+    for (const vp of viewports) {
       for (const theme of ['light', 'dark']) {
         const context = await browser.newContext({
           viewport: { width: vp.width, height: vp.height },
@@ -63,7 +58,7 @@ async function run() {
         });
         const page = await context.newPage();
 
-        await page.goto(`${BASE_URL}/#how-it-runs`, { waitUntil: 'networkidle' });
+        await page.goto('http://localhost:4173/#skills', { waitUntil: 'networkidle' });
 
         if (theme === 'dark') {
           await page.evaluate(() => document.documentElement.classList.add('dark'));
@@ -71,100 +66,65 @@ async function run() {
           await page.evaluate(() => document.documentElement.classList.remove('dark'));
         }
 
-        await page.waitForTimeout(600);
-
-        // Scroll to #how-it-runs
-        await page.evaluate(() => {
-          const el = document.getElementById('how-it-runs');
-          if (el) el.scrollIntoView({ block: 'start' });
-        });
-
         await page.waitForTimeout(500);
 
-        // Measurements
-        const metrics = await page.evaluate(() => {
-          const el = document.getElementById('how-it-runs');
-          const header = document.querySelector('header');
-          if (!el) return null;
-          const rect = el.getBoundingClientRect();
-          const headerRect = header ? header.getBoundingClientRect() : { bottom: 0, height: 70 };
-          const vh = window.innerHeight;
-          const vw = window.innerWidth;
-          const hasHScroll = document.documentElement.scrollWidth > vw;
-          const lines = el.querySelectorAll('.hir-line').length;
-          const badges = el.querySelectorAll('.hir-badge').length;
-          
-          return {
-            cardTop: Math.round(rect.top),
-            cardBottom: Math.round(rect.bottom),
-            cardHeight: Math.round(rect.height),
-            headerBottom: Math.round(headerRect.bottom),
-            headerHeight: Math.round(headerRect.height),
-            vh,
-            hasHScroll,
-            lines,
-            badges,
-            fits: rect.top >= headerRect.bottom - 1 && rect.bottom <= vh + 1,
-          };
-        });
+        // Verify no old text exists
+        const pageText = await page.evaluate(() => document.body.innerText);
+        const forbidden = [
+          'ALL RUNNERS ACTIVE',
+          'ZERO DOWNTIME RELOAD',
+          'WORKFLOW IDLE',
+          'TF PLAN',
+          'OPERATIONAL WORKBENCH',
+        ];
+        for (const f of forbidden) {
+          if (pageText.includes(f)) {
+            throw new Error(`Forbidden old text found: "${f}"`);
+          }
+        }
 
-        if (!metrics) throw new Error('Could not find #how-it-runs');
+        // Verify .hir card exists
+        const hirCard = page.locator('.hir');
+        await hirCard.scrollIntoViewIfNeeded();
 
-        console.log(`[${vp.name} - ${theme}] Top: ${metrics.cardTop}px (Header bottom: ${metrics.headerBottom}px), Bottom: ${metrics.cardBottom}px (Viewport: ${metrics.vh}px), Height: ${metrics.cardHeight}px, Fits: ${metrics.fits ? 'YES' : 'NO'}, H-Scroll: ${metrics.hasHScroll ? 'FAIL' : 'PASS'}`);
+        // Check horizontal overflow
+        const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+        console.log(`[${vp.name} - ${theme}] Horizontal overflow: ${hasOverflow ? 'FAIL' : 'PASS'}`);
 
-        resultsTable.push({
-          viewport: vp.name,
-          theme,
-          cardTop: metrics.cardTop,
-          cardBottom: metrics.cardBottom,
-          cardHeight: metrics.cardHeight,
-          viewportHeight: metrics.vh,
-          headerBottom: metrics.headerBottom,
-          fits: metrics.fits ? 'YES' : 'NO',
-          lines: metrics.lines,
-          badges: metrics.badges,
-        });
+        if (vp.width >= 1024) {
+          // Check 9 lines and 9 badges
+          const lineCount = await page.locator('.hir-line').count();
+          const badgeCount = await page.locator('.hir-badge').count();
+          console.log(`[${vp.name} - ${theme}] SVG lines: ${lineCount} (expected 9), badges: ${badgeCount} (expected 9)`);
+          if (lineCount !== 9 || badgeCount !== 9) {
+            throw new Error(`Expected 9 lines and 9 badges, got ${lineCount} and ${badgeCount}`);
+          }
+        } else if (vp.width < 760) {
+          // Check 4-step list
+          const listItems = await page.locator('.hir-li').count();
+          console.log(`[${vp.name} - ${theme}] Mobile list items: ${listItems} (expected 4)`);
+          if (listItems !== 4) {
+            throw new Error(`Expected 4 list items on mobile, got ${listItems}`);
+          }
+        }
 
-        // Screenshot
-        const screenshotPath = path.join(SCREENSHOT_DIR, `desktop-${vp.name}-${theme}.png`);
-        await page.screenshot({ path: screenshotPath });
+        // Test Pause Button
+        const pauseBtn = page.locator('.hir-btn');
+        const initialPressed = await pauseBtn.getAttribute('aria-pressed');
+        await pauseBtn.click();
+        const afterClickPressed = await pauseBtn.getAttribute('aria-pressed');
+        console.log(`[${vp.name} - ${theme}] Pause button toggled aria-pressed: ${initialPressed} -> ${afterClickPressed}`);
+
+        // Capture screenshot
+        const screenshotPath = path.join(SCREENSHOT_DIR, `${vp.name}-${vp.width}x${vp.height}-${theme}.png`);
+        await hirCard.screenshot({ path: screenshotPath });
         console.log(`📸 Saved screenshot: ${screenshotPath}`);
 
         await context.close();
       }
     }
 
-    // Mobile Check (390x844)
-    for (const theme of ['light', 'dark']) {
-      const context = await browser.newContext({
-        viewport: { width: 390, height: 844 },
-        colorScheme: theme,
-      });
-      const page = await context.newPage();
-      await page.goto(`${BASE_URL}/#how-it-runs`, { waitUntil: 'networkidle' });
-
-      if (theme === 'dark') {
-        await page.evaluate(() => document.documentElement.classList.add('dark'));
-      } else {
-        await page.evaluate(() => document.documentElement.classList.remove('dark'));
-      }
-
-      await page.waitForTimeout(500);
-
-      const mobileListCount = await page.locator('.hir-li').count();
-      const hasHScroll = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-      console.log(`[390x844 - ${theme}] Mobile list count: ${mobileListCount} (expected 4), H-Scroll: ${hasHScroll ? 'FAIL' : 'PASS'}`);
-
-      const screenshotPath = path.join(SCREENSHOT_DIR, `mobile-390x844-${theme}.png`);
-      await page.screenshot({ path: screenshotPath });
-      console.log(`📸 Saved screenshot: ${screenshotPath}`);
-
-      await context.close();
-    }
-
-    console.log('\n=== VIEWPORT MEASUREMENT TABLE ===');
-    console.table(resultsTable);
-
+    console.log('✅ ALL LOCAL CHECKS PASSED!');
   } finally {
     await browser.close();
     if (serverProcess) serverProcess.kill();

@@ -41,8 +41,8 @@ type Node = {
 const W = 190;
 const H = 64;
 const COL = [24, 278, 532, 786]; // node lefts, 64px gaps
-const ROW1 = 16;
-const ROW2 = 128;
+const ROW1 = 24;
+const ROW2 = 152;
 
 const NODES: Node[] = [
   { id: "dev", x: COL[0], y: ROW1, w: W, h: H, name: "Developer", sub: "git push", fb: "DEV", steps: [0], tip: "Pushes code to the repository" },
@@ -51,22 +51,22 @@ const NODES: Node[] = [
   { id: "trivy", x: COL[3], y: ROW1, w: W, h: H, name: "Trivy", sub: "vulnerability scan", logo: "trivy", fb: "TR", steps: [0], tip: "Scans the code and images for known vulnerabilities" },
   { id: "ans", x: COL[1], y: ROW2, w: W, h: H, name: "Ansible", sub: "configure + deploy", logo: "ansible", fb: "AN", steps: [2], tip: "ansible-playbook configures the server and deploys the app over SSH" },
   { id: "tf", x: COL[2], y: ROW2, w: W, h: H, name: "Terraform", sub: "reference · IaC", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "plan / apply creates the AWS resources as code (reference step)" },
-  { id: "users", x: 71, y: 500, w: W, h: H, name: "Users", sub: "browser · HTTPS", fb: "WEB", steps: [3], tip: "Visitors reach the app over HTTPS" },
-  { id: "mail", x: COL[3], y: 500, w: W, h: H, name: "Email", sub: "SMTP · Nodemailer", logo: "mail", fb: "@", steps: [3], tip: "Daily PDF report and alert emails" },
+  { id: "users", x: 71, y: 584, w: W, h: H, name: "Users", sub: "browser · HTTPS", fb: "WEB", steps: [3], tip: "Visitors reach the app over HTTPS" },
+  { id: "mail", x: COL[3], y: 584, w: W, h: H, name: "Email", sub: "SMTP · Nodemailer", logo: "mail", fb: "@", steps: [3], tip: "Daily PDF report and alert emails" },
 ];
 
 type Edge = { n: number; step: number; d: string; len: number; bx: number; by: number; tip: string; label?: { x: number; y: number; t: string } };
 
 const EDGES: Edge[] = [
-  { n: 1, step: 0, d: "M214 48 H278", len: 64, bx: 246, by: 48, tip: "git push to the repository" },
-  { n: 2, step: 0, d: "M468 48 H532", len: 64, bx: 500, by: 48, tip: "A push or pull request triggers the workflow" },
-  { n: 3, step: 0, d: "M722 48 H786", len: 64, bx: 754, by: 48, tip: "Security scan of the code and images" },
-  { n: 4, step: 1, d: "M627 80 V128", len: 48, bx: 627, by: 104, tip: "Pipeline runs terraform plan and apply", label: { x: 643, y: 108, t: "plan · apply" } },
-  { n: 5, step: 1, d: "M627 192 V240", len: 48, bx: 627, by: 216, tip: "Terraform creates the AWS environment", label: { x: 643, y: 220, t: "provision" } },
-  { n: 6, step: 2, d: "M577 80 V104 H373 V128", len: 252, bx: 475, by: 104, tip: "Pipeline connects to the Ansible server over SSH" },
-  { n: 7, step: 2, d: "M373 192 V240", len: 48, bx: 373, by: 216, tip: "ansible-playbook deploys to the EC2 host", label: { x: 389, y: 220, t: "deploy" } },
-  { n: 8, step: 3, d: "M166 500 V416", len: 84, bx: 166, by: 476, tip: "Users reach Nginx over HTTPS", label: { x: 182, y: 480, t: "HTTPS" } },
-  { n: 9, step: 3, d: "M881 440 V500", len: 60, bx: 881, by: 476, tip: "Cron jobs email the PDF report and alerts", label: { x: 897, y: 480, t: "SMTP" } },
+  { n: 1, step: 0, d: "M214 56 H278", len: 64, bx: 246, by: 56, tip: "git push to the repository" },
+  { n: 2, step: 0, d: "M468 56 H532", len: 64, bx: 500, by: 56, tip: "A push or pull request triggers the workflow" },
+  { n: 3, step: 0, d: "M722 56 H786", len: 64, bx: 754, by: 56, tip: "Security scan of the code and images" },
+  { n: 4, step: 1, d: "M627 88 V152", len: 64, bx: 627, by: 120, tip: "Pipeline runs terraform plan and apply", label: { x: 643, y: 124, t: "plan · apply" } },
+  { n: 5, step: 1, d: "M627 216 V280", len: 64, bx: 627, by: 248, tip: "Terraform creates the AWS environment", label: { x: 643, y: 252, t: "provision" } },
+  { n: 6, step: 2, d: "M577 88 V120 H373 V152", len: 268, bx: 475, by: 120, tip: "Pipeline connects to the Ansible server over SSH" },
+  { n: 7, step: 2, d: "M373 216 V280", len: 64, bx: 373, by: 248, tip: "ansible-playbook deploys to the EC2 host", label: { x: 389, y: 252, t: "deploy" } },
+  { n: 8, step: 3, d: "M166 584 V456", len: 128, bx: 166, by: 550, tip: "Users reach Nginx over HTTPS", label: { x: 182, y: 554, t: "HTTPS" } },
+  { n: 9, step: 3, d: "M881 500 V584", len: 84, bx: 881, by: 550, tip: "Cron jobs email the PDF report and alerts", label: { x: 897, y: 554, t: "SMTP" } },
 ];
 
 const STEPS = [
@@ -95,7 +95,7 @@ function Tile({ x, y, size = 28, href, fb }: { x: number; y: number; size?: numb
       {href ? (
         <image href={href} x={x + 5} y={y + 5} width={size - 10} height={size - 10} preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <text x={x + size / 2} y={y + size / 2 + 3} textAnchor="middle" className="hir-mono hir-ink" fontSize={fb.length > 2 ? 8.5 : 10} fontWeight={700}>
+        <text x={x + size / 2} y={y + size / 2 + 3} textAnchor="middle" className="hir-mono hir-ink" fontSize={fb.length > 2 ? 8 : 9.5} fontWeight={700}>
           {fb}
         </text>
       )}
@@ -168,21 +168,6 @@ export default function HowItRuns() {
     };
   }, []);
 
-  useEffect(() => {
-    const updateHeaderChrome = () => {
-      const header = document.querySelector("header");
-      const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 70;
-      const el = rootRef.current;
-      if (el) {
-        el.style.setProperty("--hir-chrome", `${headerHeight + 178 + 12}px`);
-        el.style.scrollMarginTop = `${headerHeight + 12}px`;
-      }
-    };
-    updateHeaderChrome();
-    window.addEventListener("resize", updateHeaderChrome);
-    return () => window.removeEventListener("resize", updateHeaderChrome);
-  }, []);
-
   const running = playing && visible && !hover && !tabHidden && !reduced;
 
   useEffect(() => {
@@ -209,7 +194,6 @@ export default function HowItRuns() {
   const isOn = (steps: number[]) => reduced || steps.includes(s);
   const dim = (steps: number[]) => (isOn(steps) ? "" : "hir-dim");
   const animate = !reduced && visible && playing;
-  const groupActive = isOn([1, 2, 3]);
 
   // packets for the active step, one after another
   const packets: { path: string; begin: number; dur: number; key: string }[] = [];
@@ -224,14 +208,7 @@ export default function HowItRuns() {
     "Reference workflow: a developer pushes to GitHub, GitHub Actions runs Trivy and Terraform, Ansible deploys Docker containers to an AWS EC2 server, users reach it over HTTPS, and cron jobs email a daily PDF report.";
 
   return (
-    <section
-      id="how-it-runs"
-      ref={rootRef}
-      className="hir"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      aria-label="How it runs"
-    >
+    <section ref={rootRef} className="hir" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} aria-label="How it runs">
       <style>{CSS}</style>
 
       <header className="hir-head">
@@ -309,7 +286,7 @@ export default function HowItRuns() {
           ))}
         </ol>
       ) : (
-        <svg className="hir-svg" viewBox="0 0 1000 580" role="img" aria-label={ariaLabel} preserveAspectRatio="xMidYMin meet">
+        <svg className="hir-svg" viewBox="0 0 1000 664" role="img" aria-label={ariaLabel} preserveAspectRatio="xMidYMin meet">
           <defs>
             <marker id="hir-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" className="hir-arrow" />
@@ -321,24 +298,24 @@ export default function HowItRuns() {
 
           {/* AWS group (real containment: EC2 host runs Docker + cron jobs) */}
           <g className={dim([1, 2, 3])}>
-            <rect x="24" y="240" width="952" height="212" rx="14" className={`hir-group ${s === 1 || s === 2 ? "hir-group-on" : ""}`}>
+            <rect x="24" y="280" width="952" height="240" rx="14" className={`hir-group ${s === 1 || s === 2 ? "hir-group-on" : ""}`}>
               <title>AWS environment (EC2 host)</title>
             </rect>
-            <Tile x={40} y={250} size={26} href={logo("aws")} fb="AWS" />
-            <text x="74" y="268" className="hir-name">
+            <Tile x={40} y={290} size={26} href={logo("aws")} fb="AWS" />
+            <text x="74" y="308" className="hir-name">
               AWS · EC2 host
             </text>
-            <text x="960" y="268" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+            <text x="960" y="308" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
               Ubuntu · ap-south-1
             </text>
 
             {/* Docker Compose block */}
-            <rect x="64" y="290" width="560" height="150" rx="10" className="hir-block" />
-            <image href={logo("docker")} x="80" y="301" width="20" height="20" preserveAspectRatio="xMidYMid meet" />
-            <text x="108" y="316" className="hir-name" fontSize={12}>
+            <rect x="64" y="330" width="560" height="170" rx="10" className="hir-block" />
+            <image href={logo("docker")} x="80" y="341" width="20" height="20" preserveAspectRatio="xMidYMid meet" />
+            <text x="108" y="356" className="hir-name" fontSize={12}>
               Docker Compose
             </text>
-            <text x="608" y="316" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+            <text x="608" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
               3 containers
             </text>
             {[
@@ -346,36 +323,36 @@ export default function HowItRuns() {
               { x: 268, name: "App", sub: "React + Node API", logo: "nodejs", fb: "APP" },
               { x: 452, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
             ].map((c, i) => (
-              <g key={c.name} className={isOn([2, 3]) ? "hir-in" : groupActive ? "hir-off" : ""} style={{ animationDelay: `${i * 150}ms` }}>
-                <rect x={c.x} y={352} width={164} height={64} rx={9} className="hir-chip" />
-                <circle cx={c.x + 152} cy={364} r={3} className="hir-dot" />
-                <Tile x={c.x + 10} y={364} size={28} href={logo(c.logo)} fb={c.fb} />
-                <text x={c.x + 46} y={385} className="hir-name" fontSize={12}>
+              <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 150}ms` }}>
+                <rect x={c.x} y={392} width={164} height={64} rx={9} className="hir-chip" />
+                <circle cx={c.x + 152} cy={404} r={3} className="hir-dot" />
+                <Tile x={c.x + 10} y={404} size={28} href={logo(c.logo)} fb={c.fb} />
+                <text x={c.x + 46} y={425} className="hir-name" fontSize={12}>
                   {c.name}
                 </text>
-                <text x={c.x + 46} y={400} className="hir-mono hir-muted" fontSize={9.5}>
+                <text x={c.x + 46} y={440} className="hir-mono hir-muted" fontSize={8.5}>
                   {c.sub}
                 </text>
               </g>
             ))}
 
             {/* Cron automation block */}
-            <rect x="648" y="290" width="288" height="150" rx="10" className="hir-block" />
-            <text x="664" y="316" className="hir-name" fontSize={12}>
+            <rect x="648" y="330" width="288" height="170" rx="10" className="hir-block" />
+            <text x="664" y="356" className="hir-name" fontSize={12}>
               Cron automation
             </text>
-            <text x="920" y="316" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+            <text x="920" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
               scheduled
             </text>
             {[
-              { y: 330, t: "Trivy scan → report", logo: "trivy", fb: "TR" },
-              { y: 364, t: "Daily PDF report (PDFKit)", logo: "pdf", fb: "PDF" },
-              { y: 398, t: "Alert mail on failure", logo: "mail", fb: "@" },
+              { y: 372, t: "Trivy scan → report", logo: "trivy", fb: "TR" },
+              { y: 410, t: "Daily PDF report (PDFKit)", logo: "pdf", fb: "PDF" },
+              { y: 448, t: "Alert mail on failure", logo: "mail", fb: "@" },
             ].map((r, i) => (
-              <g key={r.t} className={s === 3 || reduced ? "hir-in" : groupActive ? "hir-off" : ""} style={{ animationDelay: `${i * 150}ms` }}>
-                <rect x={664} y={r.y} width={256} height={30} rx={8} className="hir-chip" />
-                <Tile x={670} y={r.y + 4} size={22} href={logo(r.logo)} fb={r.fb} />
-                <text x={702} y={r.y + 19} className="hir-mono hir-ink" fontSize={10.5}>
+              <g key={r.t} className={s === 3 || reduced ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 150}ms` }}>
+                <rect x={664} y={r.y} width={256} height={32} rx={8} className="hir-chip" />
+                <Tile x={670} y={r.y + 4} size={24} href={logo(r.logo)} fb={r.fb} />
+                <text x={702} y={r.y + 20} className="hir-mono hir-ink" fontSize={10}>
                   {r.t}
                 </text>
               </g>
@@ -389,7 +366,7 @@ export default function HowItRuns() {
                 <title>{e.tip}</title>
               </path>
               {e.label && (
-                <text x={e.label.x} y={e.label.y} className="hir-mono hir-muted" fontSize={10.5}>
+                <text x={e.label.x} y={e.label.y} className="hir-mono hir-muted" fontSize={9.5}>
                   {e.label.t}
                 </text>
               )}
@@ -406,7 +383,7 @@ export default function HowItRuns() {
               <text x={n.x + 50} y={n.y + 30} className="hir-name">
                 {n.name}
               </text>
-              <text x={n.x + 50} y={n.y + 45} className="hir-mono hir-muted" fontSize={10.5}>
+              <text x={n.x + 50} y={n.y + 45} className="hir-mono hir-muted" fontSize={9.5}>
                 {n.sub}
               </text>
             </g>
@@ -432,9 +409,7 @@ const CSS = `
   --hir-text:var(--foreground,#121316); --hir-muted:var(--muted-foreground,#5A5C66);
   --hir-border:var(--border,#E5E5DF); --hir-acc:var(--accent-teal,#0F766E); --hir-acc-soft:#E4F2F0;
   --hir-ok:#16A34A; --hir-on:#FFFFFF;
-  --hir-chrome:260px;
-  scroll-margin-top:calc(70px + 12px);
-  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:18px 24px 12px;
+  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:24px 24px 16px;
   color:var(--hir-text); width:100%; box-sizing:border-box;
 }
 .dark .hir,[data-theme="dark"] .hir{
@@ -452,7 +427,7 @@ const CSS = `
 .hir-key-ref{border-style:dashed;border-color:var(--hir-muted)}
 .hir-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--hir-border);background:var(--hir-surf);color:var(--hir-text);cursor:pointer}
 .hir-btn:focus-visible,.hir-seg:focus-visible{outline:2px solid var(--hir-acc);outline-offset:2px}
-.hir-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 8px}
+.hir-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 12px}
 .hir-seg{border:0;padding:0;background:none;cursor:pointer;text-align:left;color:var(--hir-muted)}
 .hir-seg::before{content:"";display:block;height:5px;border-radius:3px;background:var(--hir-border);margin-bottom:8px}
 .hir-seg-done::before{background:var(--hir-acc);opacity:.45}
@@ -460,10 +435,8 @@ const CSS = `
 .hir-seg-label{font:500 11.5px system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .hir-seg-label b{font:600 10.5px ui-monospace,Menlo,monospace;color:var(--hir-acc);margin-right:4px}
 .hir-seg-on .hir-seg-label{color:var(--hir-text);font-weight:600}
-.hir-caption{margin:0 0 6px;min-height:20px;font-size:12.5px;line-height:1.45;color:var(--hir-muted)}
-/* The whole card must fit on one screen: the diagram is limited by the viewport height.
-   --hir-chrome = sticky site header + card header/steps/caption + breathing room. */
-.hir-svg{display:block;width:100%;height:auto;max-height:calc(100dvh - var(--hir-chrome,250px));min-height:380px}
+.hir-caption{margin:0 0 8px;min-height:22px;font-size:13px;line-height:1.5;color:var(--hir-muted)}
+.hir-svg{display:block;width:100%;height:auto}
 .hir-mono{font-family:ui-monospace,Menlo,monospace}
 .hir-name{font:600 12.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
 .hir-muted{fill:var(--hir-muted)}
@@ -484,13 +457,13 @@ const CSS = `
 .hir-badge text{font:700 11px system-ui,sans-serif;fill:var(--hir-acc)}
 .hir-badge-on circle{fill:var(--hir-acc)}
 .hir-badge-on text{fill:var(--hir-on)}
-.hir-dim{opacity:.6}
+.hir-dim{opacity:.55}
 .hir g{transition:opacity .35s}
 .hir-packet-glow{fill:var(--hir-acc)}
 .hir-packet-dot{fill:var(--hir-acc)}
 .hir-flow{animation:hir-dash 12s linear infinite}
 @keyframes hir-dash{to{stroke-dashoffset:-120}}
-.hir-off{opacity:.5}
+.hir-off{opacity:.3}
 .hir-in{animation:hir-in .45s both}
 @keyframes hir-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .hir-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
