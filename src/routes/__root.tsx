@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import {
   ArrowLeft,
   ArrowUpRight,
+  BookOpen,
   FileText,
   Home,
   ShieldCheck,
@@ -114,19 +115,19 @@ function NotFoundComponent() {
             </Link>
 
             <Link
-              to="/guides/devsecops-pipeline"
+              to="/blog"
               className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-[#E5E5DF] bg-white text-cobalt group-hover:border-cobalt">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <BookOpen className="h-3.5 w-3.5" />
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-carbon group-hover:text-cobalt transition-colors">
-                    DevSecOps Pipeline Guide
+                    Technical Blog &amp; Learning Center
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">
-                    GitHub Actions, Trivy vulnerability scanning &amp; SBOMs.
+                    DNS, AWS Cloud infrastructure, and Linux administration tutorials.
                   </div>
                 </div>
               </div>
@@ -134,7 +135,8 @@ function NotFoundComponent() {
             </Link>
 
             <Link
-              to="/guides/devsecops-tools"
+              to="/blog/$slug"
+              params={{ slug: "dns-explained" }}
               className="group flex items-start justify-between border border-[#E5E5DF] bg-surface-muted p-4 transition-all hover:border-cobalt hover:bg-white hover:shadow-2xs"
             >
               <div className="flex items-start gap-3">
@@ -143,10 +145,10 @@ function NotFoundComponent() {
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-carbon group-hover:text-cobalt transition-colors">
-                    DevSecOps Tools Ecosystem
+                    DNS Explained: Domains to Websites
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">
-                    SAST, SCA, container scanning &amp; security stack.
+                    DNS records, resolution process &amp; interactive architecture.
                   </div>
                 </div>
               </div>

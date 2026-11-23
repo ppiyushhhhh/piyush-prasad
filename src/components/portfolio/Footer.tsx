@@ -32,7 +32,8 @@ const SECTION_LINKS: SectionLink[] = [
   { num: "03", label: "Technical Skills", href: "/#skills" },
   { num: "04", label: "Experience Journey", href: "/#experience" },
   { num: "05", label: "Credentials & Education", href: "/#certifications" },
-  { num: "06", label: "Get In Touch", href: "/#contact" },
+  { num: "06", label: "Technical Blog", href: "/blog" },
+  { num: "07", label: "Get In Touch", href: "/#contact" },
 ];
 
 export function Footer() {
@@ -328,42 +329,42 @@ export function Footer() {
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
                 </a>
 
-                {/* Pipeline Guide Card */}
+                {/* Technical Blog & Learning Center Card */}
                 <a
-                  href="/guides/devsecops-pipeline"
+                  href="/blog"
                   className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <BookOpen className="h-3.5 w-3.5" />
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        DevSecOps Pipeline Guide
+                        Technical Blog &amp; Learning Center
                       </div>
                       <div className="mono text-[10px] text-muted-foreground">
-                        Trivy, Docker &amp; CI/CD security
+                        DNS, AWS Cloud &amp; Linux tutorials
                       </div>
                     </div>
                   </div>
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
                 </a>
 
-                {/* Tools Ecosystem Card */}
+                {/* DNS Architecture Article Card */}
                 <a
-                  href="/guides/devsecops-tools"
+                  href="/blog/dns-explained"
                   className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <Terminal className="h-3.5 w-3.5" />
+                      <Server className="h-3.5 w-3.5" />
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        DevSecOps Tools Ecosystem
+                        DNS Explained: Domains to Websites
                       </div>
                       <div className="mono text-[10px] text-muted-foreground">
-                        Tooling stack &amp; architectures
+                        Interactive resolution architecture
                       </div>
                     </div>
                   </div>

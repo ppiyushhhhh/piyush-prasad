@@ -176,7 +176,7 @@ This document maintains a chronological record of major technical and architectu
 * **Why it appears to have been made:**
   * Eliminates dependency on external form aggregators for primary communication.
   * Preserves an authoritative database record in Supabase with admin management and deletion features.
-  * Delivers immediate dual transactional emails: an admin notification to `support@piyushprasad.in` and an instant professional confirmation email to the visitor.
+  * Delivers immediate dual transactional emails: an admin notification to `piyush@piyushprasad.in` and an instant professional confirmation email to the visitor.
 * **Current Implementation:**
   * Route handler `src/routes/api/contact.ts` validates with Zod, checks honeypots, checks rate limits, and persists to `contact_submissions`.
   * `src/lib/email.server.ts` renders Google Workspace-styled HTML/text emails and dispatches via Resend REST API or Nodemailer SMTP.

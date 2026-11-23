@@ -18,9 +18,12 @@ import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as ThankYouRouteImport } from './routes/thank-you'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiContactRouteImport } from './routes/api/contact'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAiChatRouteImport } from './routes/dashboard.ai-chat'
 import { Route as DashboardArchitecturesRouteImport } from './routes/dashboard.architectures'
+import { Route as DashboardBlogRouteImport } from './routes/dashboard.blog'
 import { Route as DashboardCicdRouteImport } from './routes/dashboard.cicd'
 import { Route as DashboardCredlyBadgesRouteImport } from './routes/dashboard.credly-badges'
 import { Route as DashboardDatabaseRouteImport } from './routes/dashboard.database'
@@ -86,6 +89,16 @@ const ApiContactRoute = ApiContactRouteImport.update({
   path: '/api/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -99,6 +112,11 @@ const DashboardAiChatRoute = DashboardAiChatRouteImport.update({
 const DashboardArchitecturesRoute = DashboardArchitecturesRouteImport.update({
   id: '/architectures',
   path: '/architectures',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBlogRoute = DashboardBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardCicdRoute = DashboardCicdRouteImport.update({
@@ -207,8 +225,10 @@ export interface FileRoutesByFullPath {
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/architectures': typeof DashboardArchitecturesRoute
+  '/dashboard/blog': typeof DashboardBlogRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -225,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
@@ -239,8 +260,10 @@ export interface FileRoutesByTo {
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/architectures': typeof DashboardArchitecturesRoute
+  '/dashboard/blog': typeof DashboardBlogRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -257,6 +280,7 @@ export interface FileRoutesByTo {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
@@ -273,8 +297,10 @@ export interface FileRoutesById {
   '/thank-you': typeof ThankYouRoute
   '/api/chat': typeof ApiChatRoute
   '/api/contact': typeof ApiContactRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/ai-chat': typeof DashboardAiChatRoute
   '/dashboard/architectures': typeof DashboardArchitecturesRoute
+  '/dashboard/blog': typeof DashboardBlogRoute
   '/dashboard/cicd': typeof DashboardCicdRoute
   '/dashboard/credly-badges': typeof DashboardCredlyBadgesRoute
   '/dashboard/database': typeof DashboardDatabaseRoute
@@ -291,6 +317,7 @@ export interface FileRoutesById {
   '/guides/devsecops-pipeline': typeof GuidesDevsecopsPipelineRoute
   '/guides/devsecops-tools': typeof GuidesDevsecopsToolsRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/api/public/database-backup': typeof ApiPublicDatabaseBackupRoute
@@ -308,8 +335,10 @@ export interface FileRouteTypes {
     | '/thank-you'
     | '/api/chat'
     | '/api/contact'
+    | '/blog/$slug'
     | '/dashboard/ai-chat'
     | '/dashboard/architectures'
+    | '/dashboard/blog'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -326,6 +355,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/projects/$slug'
+    | '/blog/'
     | '/dashboard/'
     | '/projects/'
     | '/api/public/database-backup'
@@ -340,8 +370,10 @@ export interface FileRouteTypes {
     | '/thank-you'
     | '/api/chat'
     | '/api/contact'
+    | '/blog/$slug'
     | '/dashboard/ai-chat'
     | '/dashboard/architectures'
+    | '/dashboard/blog'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -358,6 +390,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/projects/$slug'
+    | '/blog'
     | '/dashboard'
     | '/projects'
     | '/api/public/database-backup'
@@ -373,8 +406,10 @@ export interface FileRouteTypes {
     | '/thank-you'
     | '/api/chat'
     | '/api/contact'
+    | '/blog/$slug'
     | '/dashboard/ai-chat'
     | '/dashboard/architectures'
+    | '/dashboard/blog'
     | '/dashboard/cicd'
     | '/dashboard/credly-badges'
     | '/dashboard/database'
@@ -391,6 +426,7 @@ export interface FileRouteTypes {
     | '/guides/devsecops-pipeline'
     | '/guides/devsecops-tools'
     | '/projects/$slug'
+    | '/blog/'
     | '/dashboard/'
     | '/projects/'
     | '/api/public/database-backup'
@@ -407,9 +443,11 @@ export interface RootRouteChildren {
   ThankYouRoute: typeof ThankYouRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiContactRoute: typeof ApiContactRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   GuidesDevsecopsPipelineRoute: typeof GuidesDevsecopsPipelineRoute
   GuidesDevsecopsToolsRoute: typeof GuidesDevsecopsToolsRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   ApiPublicDatabaseBackupRoute: typeof ApiPublicDatabaseBackupRoute
   ApiPublicMonitoringRoute: typeof ApiPublicMonitoringRoute
@@ -480,6 +518,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/'
@@ -499,6 +551,13 @@ declare module '@tanstack/react-router' {
       path: '/architectures'
       fullPath: '/dashboard/architectures'
       preLoaderRoute: typeof DashboardArchitecturesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/blog': {
+      id: '/dashboard/blog'
+      path: '/blog'
+      fullPath: '/dashboard/blog'
+      preLoaderRoute: typeof DashboardBlogRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/cicd': {
@@ -640,6 +699,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardAiChatRoute: typeof DashboardAiChatRoute
   DashboardArchitecturesRoute: typeof DashboardArchitecturesRoute
+  DashboardBlogRoute: typeof DashboardBlogRoute
   DashboardCicdRoute: typeof DashboardCicdRoute
   DashboardCredlyBadgesRoute: typeof DashboardCredlyBadgesRoute
   DashboardDatabaseRoute: typeof DashboardDatabaseRoute
@@ -659,6 +719,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAiChatRoute: DashboardAiChatRoute,
   DashboardArchitecturesRoute: DashboardArchitecturesRoute,
+  DashboardBlogRoute: DashboardBlogRoute,
   DashboardCicdRoute: DashboardCicdRoute,
   DashboardCredlyBadgesRoute: DashboardCredlyBadgesRoute,
   DashboardDatabaseRoute: DashboardDatabaseRoute,
@@ -689,9 +750,11 @@ const rootRouteChildren: RootRouteChildren = {
   ThankYouRoute: ThankYouRoute,
   ApiChatRoute: ApiChatRoute,
   ApiContactRoute: ApiContactRoute,
+  BlogSlugRoute: BlogSlugRoute,
   GuidesDevsecopsPipelineRoute: GuidesDevsecopsPipelineRoute,
   GuidesDevsecopsToolsRoute: GuidesDevsecopsToolsRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   ApiPublicDatabaseBackupRoute: ApiPublicDatabaseBackupRoute,
   ApiPublicMonitoringRoute: ApiPublicMonitoringRoute,

@@ -86,28 +86,7 @@
   --stack-base-top: 4.5rem;
 }
 
-.dark {
-  color-scheme: dark;
-
-  /* Restored Original Dark Mode Background & Vibrant Blue Tokens */
-  --background: #0E0F12;
-  --foreground: #EDEDED;
-  --surface: #121316;
-  --surface-muted: #1A1B20;
-  --text: #EDEDED;
-  --text-muted: #9E9E9E;
-  --border: #262626;
-  --accent: #3B82F6;
-  --accent-hover: #60A5FA;
-  --accent-soft: #1E293B;
-  --text-on-accent: #0A0A0A;
-  --highlight: #F59E0B;
-
-  --success: #4ADE80;
-  --warning: #FBBF24;
-  --danger: #F87171;
-  --info: #38BDF8;
-}
+/* Dark mode removed: locked to consistent professional light theme */
 
 @media (min-width: 768px) {
   :root {

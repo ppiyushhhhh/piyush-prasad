@@ -227,7 +227,7 @@ Browser Visitor
                                   ├─► Zod Validation & Honeypot Check
                                   ├─► INSERT INTO contact_submissions [Supabase]
                                   └─► sendEmail() [Resend API / SMTP]
-                                       ├─► Admin notification -> support@piyushprasad.in
+                                       ├─► Admin notification -> piyush@piyushprasad.in
                                        └─► Visitor confirmation -> sender email
 ```
 
@@ -331,8 +331,8 @@ Documented in `.env.example`:
 | `VITE_SUPABASE_URL` | Client Only | Required | Browser Supabase URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Client Only | Required | Browser Supabase anonymous API key |
 | `RESEND_API_KEY` | Server Only | Optional | Primary email delivery key |
-| `CONTACT_FROM_EMAIL` | Server Only | Optional | Verified sender address (`support@piyushprasad.in`) |
-| `CONTACT_NOTIFICATION_EMAIL` | Server Only | Optional | Alert destination (`support@piyushprasad.in`) |
+| `CONTACT_FROM_EMAIL` | Server Only | Optional | Verified sender address (`piyush@piyushprasad.in`) |
+| `CONTACT_NOTIFICATION_EMAIL` | Server Only | Optional | Alert destination (`piyush@piyushprasad.in`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Server Only | Optional | Secondary SMTP delivery credentials |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Server Only | Optional | Distributed Redis tier credentials |
 | `MONITORING_INGEST_TOKEN` | Server Only | **Secret** | Shared bearer token for CI ingestion |
