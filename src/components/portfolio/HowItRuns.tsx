@@ -2,36 +2,35 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TECH_LOGO_REGISTRY } from "@/lib/tech-logo-registry";
 
 /**
- * "How it runs": Full-height single-page architecture diagram.
+ * "How it runs": Full-height, single-page professional architecture diagram.
  *
- * Sequence:
- * 1. Push & Security Scan:
- *    Developer pushes code to GitHub repository → triggers GitHub Actions pipeline →
- *    GitHub Actions runs Trivy security scanning for CVE vulnerabilities in source and container images.
- * 2. AWS Provisioning:
- *    Terraform provisions the AWS environment: isolated VPC, subnets, Security Groups
- *    (firewall: Ingress 443 HTTPS, Ingress 22 SSH), and assigns the AWS IAM EC2 instance role.
- * 3. Application Deployment:
- *    Ansible configures the host via SSH (port 22) and deploys the Docker Compose stack to
- *    the Ubuntu Linux EC2 server named ubuntu-app-01: Nginx, App, Database, Node Exporter, Prometheus, Grafana.
- * 4. Traffic, Monitoring & Alerts:
- *    Users connect over HTTPS (port 443) via Security Group into Nginx reverse proxy.
- *    Node Exporter streams system metrics to Prometheus, which feeds Grafana visual dashboards.
- *    Amazon CloudWatch receives host performance logs and metrics.
- *    Host cron tasks archive daily PDF reports in Amazon S3 and dispatch email alerts to hello@piyushprasad.in.
+ * Architecture Sequence:
+ * 1. Developer pushes code to GitHub repository
+ * 2. Push/PR triggers GitHub Actions CI/CD workflow pipeline
+ * 3. GitHub Actions executes Trivy security scan on code and container images
+ * 4. Pipeline triggers Terraform plan & apply
+ * 5. Terraform attaches AWS IAM instance role & security policies
+ * 6. Terraform provisions isolated AWS VPC, subnets, and Security Groups
+ * 7. Pipeline triggers Ansible deployment playbook
+ * 8. Ansible configures the server via SSH (port 22) and boots Docker Compose on ubuntu-app-01
+ * 9. EC2 host streams performance logs and system metrics to Amazon CloudWatch
+ * 10. Users connect over HTTPS via Security Group port 443 into Nginx reverse proxy
+ * 11. Node Exporter streams system metrics to Prometheus, which displays visual dashboards in Grafana
+ * 12. Host cron job encrypts and archives daily PDF compliance reports in Amazon S3
+ * 13. Automated PDF reports and workflow failure alerts dispatched to hello@piyushprasad.in
  */
 
 export const HOW_IT_RUNS_TIMING = {
-  edgeDurationMs: 1900, // Calm, steady pace along each active connector
+  edgeDurationMs: 1900, // Calm, steady traversal along each connector
   stepPauseMs: 1200, // Brief pause between phases
-  loopPauseMs: 1600, // Pause before looping from end back to beginning
+  loopPauseMs: 1800, // Pause before looping back from end to start
   resumeAfterClickMs: 8000, // Auto-advance pause after user clicks
 } as const;
 
 const NARROW_PX = 760;
 
 // ---------------------------------------------------------------------------
-// Topology Data: Spacious 1040 x 920 Canvas
+// Desktop Topology Data (Spacious 1040 x 920 Canvas with zero overlaps)
 // ---------------------------------------------------------------------------
 type Node = {
   id: string;
@@ -50,20 +49,20 @@ type Node = {
 
 const NODES: Node[] = [
   // Tier 1: Source & CI/CD Pipeline (y: 24)
-  { id: "dev", x: 30, y: 24, w: 200, h: 56, name: "Developer", sub: "git push feature/infra", fb: "DEV", step: 0, tip: "Pushes verified code and configuration to GitHub" },
-  { id: "gh", x: 290, y: 24, w: 200, h: 56, name: "GitHub", sub: "repository · PR branch", logo: "github", fb: "GH", step: 0, tip: "Source repository and pull request automation" },
-  { id: "ci", x: 550, y: 24, w: 210, h: 56, name: "GitHub Actions", sub: "CI/CD workflow runner", logo: "githubactions", fb: "CI", step: 0, tip: "Executes automated build, test, security audit, and deployment stages" },
-  { id: "trivy", x: 820, y: 24, w: 190, h: 56, name: "Trivy", sub: "security & CVE scan", logo: "trivy", fb: "TR", step: 0, tip: "Scans repository dependencies and container images for vulnerabilities" },
+  { id: "dev", x: 30, y: 24, w: 190, h: 56, name: "Developer", sub: "git push feature/infra", fb: "DEV", step: 0, tip: "Pushes verified code and configuration to GitHub" },
+  { id: "gh", x: 280, y: 24, w: 190, h: 56, name: "GitHub", sub: "repository · PR branch", logo: "github", fb: "GH", step: 0, tip: "Source repository and pull request automation" },
+  { id: "ci", x: 540, y: 24, w: 200, h: 56, name: "GitHub Actions", sub: "CI/CD workflow runner", logo: "githubactions", fb: "CI", step: 0, tip: "Executes automated build, test, security audit, and deployment stages" },
+  { id: "trivy", x: 810, y: 24, w: 180, h: 56, name: "Trivy", sub: "security & CVE scan", logo: "trivy", fb: "TR", step: 0, tip: "Scans repository dependencies and container images for vulnerabilities" },
 
-  // Tier 2: AWS Infrastructure Provisioning & IAM (y: 160)
-  { id: "tf", x: 420, y: 160, w: 200, h: 56, name: "Terraform", sub: "IaC · AWS provisioner", logo: "terraform", fb: "TF", step: 1, ref: true, tip: "Provisions isolated VPC, subnets, and security groups (Reference only)" },
-  { id: "iam", x: 740, y: 160, w: 200, h: 56, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", step: 1, ref: true, tip: "Attaches IAM instance profile and access policies to the EC2 host (Reference only)" },
+  // Tier 2: AWS Infrastructure Provisioning & IAM (y: 156)
+  { id: "tf", x: 430, y: 156, w: 200, h: 56, name: "Terraform", sub: "IaC · AWS provisioner", logo: "terraform", fb: "TF", step: 1, ref: true, tip: "Provisions isolated VPC, subnets, and security groups (Reference only)" },
+  { id: "iam", x: 730, y: 156, w: 200, h: 56, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", step: 1, ref: true, tip: "Attaches IAM instance profile and access policies to the EC2 host (Reference only)" },
 
-  // Tier 3: Deployment Automation (y: 280)
-  { id: "ans", x: 140, y: 280, w: 210, h: 56, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", step: 2, tip: "Executes server configuration and Docker Compose deployment via SSH" },
+  // Tier 3: Deployment Automation (y: 276)
+  { id: "ans", x: 140, y: 276, w: 210, h: 56, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", step: 2, tip: "Executes server configuration and Docker Compose deployment via SSH" },
 
   // Tier 5: External Consumers, Cloud Telemetry Storage & Alerts (y: 770)
-  { id: "users", x: 34, y: 770, w: 200, h: 56, name: "Users", sub: "browser · HTTPS 443", fb: "WEB", step: 3, tip: "Visitors reach the application securely over HTTPS via the Security Group and Nginx" },
+  { id: "users", x: 30, y: 770, w: 190, h: 56, name: "Users", sub: "browser · HTTPS 443", fb: "WEB", step: 3, tip: "Visitors reach the application securely over HTTPS via the Security Group and Nginx" },
   { id: "cw", x: 275, y: 770, w: 220, h: 56, name: "Amazon CloudWatch", sub: "host logs & telemetry", logo: "aws-cloudwatch", fb: "CW", step: 2, ref: true, tip: "Amazon CloudWatch captures EC2 system metrics and host telemetry (Reference only)" },
   { id: "s3", x: 535, y: 770, w: 210, h: 56, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", step: 3, ref: true, tip: "Amazon S3 archives encrypted daily compliance and audit PDF reports (Reference only)" },
   { id: "mail", x: 785, y: 770, w: 225, h: 56, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", step: 3, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in" },
@@ -82,25 +81,26 @@ type Edge = {
 
 const EDGES: Edge[] = [
   // Phase 1: Push & CI Scan
-  { n: 1, step: 0, d: "M 230 52 H 290", len: 60, bx: 260, by: 52, tip: "Developer pushes code to GitHub" },
-  { n: 2, step: 0, d: "M 490 52 H 550", len: 60, bx: 520, by: 52, tip: "Push triggers GitHub Actions workflow pipeline" },
-  { n: 3, step: 0, d: "M 760 52 H 820", len: 60, bx: 790, by: 52, tip: "GitHub Actions executes Trivy security scan", label: { x: 790, y: 38, t: "security scan" } },
+  { n: 1, step: 0, d: "M 220 52 H 280", len: 60, bx: 250, by: 52, tip: "Developer pushes code to GitHub" },
+  { n: 2, step: 0, d: "M 470 52 H 540", len: 70, bx: 505, by: 52, tip: "Push triggers GitHub Actions workflow pipeline" },
+  { n: 3, step: 0, d: "M 740 52 H 810", len: 70, bx: 775, by: 52, tip: "GitHub Actions executes Trivy security scan", label: { x: 775, y: 34, t: "security scan" } },
 
   // Phase 2: AWS Provisioning
-  { n: 4, step: 1, d: "M 655 80 V 120 H 520 V 160", len: 215, bx: 587, by: 120, tip: "Pipeline triggers Terraform plan and apply", label: { x: 587, y: 108, t: "plan · apply" } },
-  { n: 5, step: 1, d: "M 620 188 H 740", len: 120, bx: 680, by: 188, tip: "Terraform attaches AWS IAM instance profile", label: { x: 680, y: 174, t: "instance role" } },
-  { n: 6, step: 1, d: "M 520 216 V 390", len: 174, bx: 520, by: 250, tip: "Terraform provisions AWS VPC and Security Group firewall", label: { x: 558, y: 254, t: "provision VPC & SG" } },
+  { n: 4, step: 1, d: "M 640 80 V 124 H 530 V 156", len: 186, bx: 615, by: 124, tip: "Pipeline triggers Terraform plan and apply", label: { x: 565, y: 114, t: "plan · apply" } },
+  { n: 5, step: 1, d: "M 630 184 H 730", len: 100, bx: 655, by: 184, tip: "Terraform attaches AWS IAM instance profile", label: { x: 700, y: 172, t: "instance role" } },
+  { n: 6, step: 1, d: "M 530 212 V 390", len: 178, bx: 530, by: 240, tip: "Terraform provisions AWS VPC and Security Group firewall", label: { x: 595, y: 275, t: "provision VPC & SG" } },
 
   // Phase 3: Application Deployment
-  { n: 7, step: 2, d: "M 575 80 V 120 H 245 V 280", len: 530, bx: 410, by: 120, tip: "Pipeline executes Ansible deployment playbook", label: { x: 410, y: 108, t: "trigger deploy" } },
-  { n: 8, step: 2, d: "M 245 336 V 390", len: 54, bx: 245, by: 363, tip: "Ansible configures ubuntu-app-01 via SSH port 22 and starts Docker Compose", label: { x: 282, y: 367, t: "SSH port 22" } },
-  { n: 9, step: 2, d: "M 385 690 V 770", len: 80, bx: 385, by: 730, tip: "CloudWatch continuously captures host logs and system telemetry", label: { x: 422, y: 734, t: "logs · metrics" } },
+  { n: 7, step: 2, d: "M 570 80 V 106 H 245 V 276", len: 503, bx: 430, by: 106, tip: "Pipeline executes Ansible deployment playbook", label: { x: 350, y: 94, t: "trigger deploy" } },
+  { n: 8, step: 2, d: "M 245 332 V 390", len: 58, bx: 245, by: 361, tip: "Ansible configures ubuntu-app-01 via SSH port 22 and starts Docker Compose", label: { x: 300, y: 365, t: "SSH port 22" } },
+  { n: 9, step: 2, d: "M 385 690 V 770", len: 80, bx: 385, by: 730, tip: "CloudWatch continuously captures host logs and system telemetry", label: { x: 435, y: 734, t: "logs · metrics" } },
 
   // Phase 4: Traffic, Monitoring & Alerts
-  { n: 10, step: 3, d: "M 134 770 V 542", len: 228, bx: 134, by: 730, tip: "Users connect over HTTPS via Security Group port 443 into Nginx", label: { x: 172, y: 734, t: "HTTPS 443" } },
-  { n: 11, step: 3, d: "M 219 614 H 245 M 410 614 H 436", len: 52, bx: 327, by: 614, tip: "Node Exporter streams metrics to Prometheus, which displays visual dashboards in Grafana", label: { x: 327, y: 601, t: "telemetry stream" } },
-  { n: 12, step: 3, d: "M 640 690 V 770", len: 80, bx: 640, by: 730, tip: "Host cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 678, y: 734, t: "archive PDF" } },
-  { n: 13, step: 3, d: "M 897 690 V 770", len: 80, bx: 897, by: 730, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in", label: { x: 938, y: 734, t: "dispatch alert" } },
+  // Connection 10: Rerouted through outer corridor so it never crosses or obscures container cards
+  { n: 10, step: 3, d: "M 125 770 V 730 H 48 V 517 H 74", len: 356, bx: 86, by: 730, tip: "Users connect over HTTPS via Security Group port 443 into Nginx", label: { x: 86, y: 716, t: "HTTPS 443" } },
+  { n: 11, step: 3, d: "M 239 617 H 274 M 439 617 H 474", len: 70, bx: 256, by: 617, tip: "Node Exporter streams metrics to Prometheus, which displays visual dashboards in Grafana", label: { x: 356, y: 568, t: "telemetry stream" } },
+  { n: 12, step: 3, d: "M 640 690 V 770", len: 80, bx: 640, by: 730, tip: "Host cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 690, y: 734, t: "archive PDF" } },
+  { n: 13, step: 3, d: "M 898 690 V 770", len: 80, bx: 898, by: 730, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in", label: { x: 948, y: 734, t: "dispatch alert" } },
 ];
 
 /**
@@ -111,42 +111,48 @@ function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
   const f = Math.max(0, Math.min(1, frac));
   switch (edge.n) {
     case 1:
-      return { x: 230 + f * 60, y: 52 };
+      return { x: 220 + f * 60, y: 52 };
     case 2:
-      return { x: 490 + f * 60, y: 52 };
+      return { x: 470 + f * 70, y: 52 };
     case 3:
-      return { x: 760 + f * 60, y: 52 };
+      return { x: 740 + f * 70, y: 52 };
     case 4: {
-      const dist = f * 215;
-      if (dist <= 40) return { x: 655, y: 80 + dist };
-      if (dist <= 175) return { x: 655 - (dist - 40), y: 120 };
-      return { x: 520, y: 120 + (dist - 175) };
+      const dist = f * 186;
+      if (dist <= 44) return { x: 640, y: 80 + dist };
+      if (dist <= 154) return { x: 640 - (dist - 44), y: 124 };
+      return { x: 530, y: 124 + (dist - 154) };
     }
     case 5:
-      return { x: 620 + f * 120, y: 188 };
+      return { x: 630 + f * 100, y: 184 };
     case 6:
-      return { x: 520, y: 216 + f * 174 };
+      return { x: 530, y: 212 + f * 178 };
     case 7: {
-      const dist = f * 530;
-      if (dist <= 40) return { x: 575, y: 80 + dist };
-      if (dist <= 370) return { x: 575 - (dist - 40), y: 120 };
-      return { x: 245, y: 120 + (dist - 370) };
+      const dist = f * 503;
+      if (dist <= 26) return { x: 570, y: 80 + dist };
+      if (dist <= 351) return { x: 570 - (dist - 26), y: 106 };
+      return { x: 245, y: 106 + (dist - 351) };
     }
     case 8:
-      return { x: 245, y: 336 + f * 54 };
+      return { x: 245, y: 332 + f * 58 };
     case 9:
       return { x: 385, y: 690 + f * 80 };
-    case 10:
-      return { x: 134, y: 770 - f * 228 };
+    case 10: {
+      // M 125 770 V 730 H 48 V 517 H 74 (40 + 77 + 213 + 26 = 356)
+      const dist = f * 356;
+      if (dist <= 40) return { x: 125, y: 770 - dist };
+      if (dist <= 117) return { x: 125 - (dist - 40), y: 730 };
+      if (dist <= 330) return { x: 48, y: 730 - (dist - 117) };
+      return { x: 48 + (dist - 330), y: 517 };
+    }
     case 11: {
-      const dist = f * 52;
-      if (dist <= 26) return { x: 219 + (dist / 26) * 26, y: 614 };
-      return { x: 410 + ((dist - 26) / 26) * 26, y: 614 };
+      const dist = f * 70;
+      if (dist <= 35) return { x: 239 + (dist / 35) * 35, y: 617 };
+      return { x: 439 + ((dist - 35) / 35) * 35, y: 617 };
     }
     case 12:
       return { x: 640, y: 690 + f * 80 };
     case 13:
-      return { x: 897, y: 690 + f * 80 };
+      return { x: 898, y: 690 + f * 80 };
     default:
       return { x: edge.bx, y: edge.by };
   }
@@ -155,7 +161,7 @@ function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
 const STEPS = [
   {
     title: "Push & CI Scan",
-    text: "Developer pushes code to GitHub. GitHub Actions starts the workflow and runs Trivy to scan source and container images for CVE vulnerabilities.",
+    text: "Developer pushes code to GitHub. GitHub Actions starts the pipeline and executes Trivy security scanning for CVE vulnerabilities in source and container images.",
   },
   {
     title: "AWS Provisioning",
@@ -163,11 +169,11 @@ const STEPS = [
   },
   {
     title: "Application Deployment",
-    text: "Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and boots Docker Compose: Nginx, App, Database, Node Exporter, Prometheus, Grafana.",
+    text: "Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and boots Docker Compose: Nginx, App, Database, Node Exporter, Prometheus, and Grafana.",
   },
   {
     title: "Traffic, Monitoring & Alerts",
-    text: "Users connect over HTTPS via Security Group port 443 into Nginx. Node Exporter streams metrics to Prometheus and Grafana. CloudWatch collects logs. S3 archives daily reports, and alerts are sent to hello@piyushprasad.in.",
+    text: "Users connect over HTTPS via Security Group port 443 into Nginx. Node Exporter streams metrics to Prometheus and Grafana. CloudWatch collects logs. S3 archives reports and alerts go to hello@piyushprasad.in.",
   },
 ];
 
@@ -569,7 +575,7 @@ export default function HowItRuns() {
           </ol>
         </div>
       ) : (
-        /* Full-Height Desktop SVG Architecture Canvas: Spacious 1040 x 920 */
+        /* Full-Height Desktop SVG Architecture Canvas: Spacious 1040 x 920 with zero overlaps */
         <div className="hir-svg-container">
           <svg
             className="hir-svg"
@@ -644,20 +650,20 @@ export default function HowItRuns() {
               </text>
 
               {/* Sub-container A: Docker Compose Stack */}
-              <rect x="44" y="452" width="576" height="224" rx="10" className="hir-block" />
-              <image href={logo("docker")} x="58" y="464" width="18" height="18" preserveAspectRatio="xMidYMid meet" />
-              <text x="82" y="478" className="hir-name" fontSize={12} fontWeight={700}>
+              <rect x="58" y="452" width="590" height="224" rx="10" className="hir-block" />
+              <image href={logo("docker")} x="72" y="464" width="18" height="18" preserveAspectRatio="xMidYMid meet" />
+              <text x="96" y="478" className="hir-name" fontSize={12} fontWeight={700}>
                 Docker Compose Stack
               </text>
-              <text x="606" y="478" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
+              <text x="634" y="478" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
                 6 containers protected by Security Group
               </text>
 
               {/* Row 1: Core Web & App Containers */}
               {[
-                { x: 54, name: "Nginx", sub: "reverse proxy · TLS :443", logo: "nginx", fb: "NG" },
-                { x: 245, name: "App", sub: "React + Node.js API", logo: "nodejs", fb: "APP" },
-                { x: 436, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
+                { x: 74, name: "Nginx", sub: "reverse proxy · TLS :443", logo: "nginx", fb: "NG" },
+                { x: 274, name: "App", sub: "React + Node.js API", logo: "nodejs", fb: "APP" },
+                { x: 474, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
               ].map((c) => (
                 <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
                   <rect x={c.x} y={490} width={165} height={54} rx={8} className="hir-chip" />
@@ -672,51 +678,55 @@ export default function HowItRuns() {
                 </g>
               ))}
 
+              {/* Internal connector arrows between app containers */}
+              <path d="M 239 517 H 274" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
+              <path d="M 439 517 H 474" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
+
               {/* Row 2: Observability Pipeline (Node Exporter -> Prometheus -> Grafana) */}
               <g className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
                 {/* Node Exporter */}
-                <rect x="54" y="590" width="165" height="54" rx={8} className="hir-chip" />
-                <circle cx={207} cy={602} r={2.5} className="hir-dot" />
-                <Tile x={62} y={600} size={26} href={logo("linux")} fb="NODE" />
-                <text x={94} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="74" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={227} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={82} y={600} size={26} href={logo("linux")} fb="NODE" />
+                <text x={114} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Node Exporter
                 </text>
-                <text x={94} y={631} className="hir-mono hir-muted" fontSize={8}>
+                <text x={114} y={631} className="hir-mono hir-muted" fontSize={8}>
                   host kernel metrics :9100
                 </text>
 
                 {/* Direct Stream arrow from Node Exporter to Prometheus */}
-                <path d="M 219 617 H 245" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
+                <path d="M 239 617 H 274" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
 
                 {/* Prometheus */}
-                <rect x="245" y="590" width="165" height="54" rx={8} className="hir-chip" />
-                <circle cx={398} cy={602} r={2.5} className="hir-dot" />
-                <Tile x={253} y={600} size={26} href={logo("prometheus")} fb="PROM" />
-                <text x={285} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="274" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={427} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={282} y={600} size={26} href={logo("prometheus")} fb="PROM" />
+                <text x={314} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Prometheus
                 </text>
-                <text x={285} y={631} className="hir-mono hir-muted" fontSize={8}>
+                <text x={314} y={631} className="hir-mono hir-muted" fontSize={8}>
                   metrics collector :9090
                 </text>
 
                 {/* Direct Stream arrow from Prometheus to Grafana */}
-                <path d="M 410 617 H 436" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
+                <path d="M 439 617 H 474" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
 
                 {/* Grafana */}
-                <rect x="436" y="590" width="165" height="54" rx={8} className="hir-chip" />
-                <circle cx={589} cy={602} r={2.5} className="hir-dot" />
-                <Tile x={444} y={600} size={26} href={logo("grafana")} fb="GRAF" />
-                <text x={476} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="474" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={627} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={482} y={600} size={26} href={logo("grafana")} fb="GRAF" />
+                <text x={514} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Grafana
                 </text>
-                <text x={476} y={631} className="hir-mono hir-muted" fontSize={8}>
+                <text x={514} y={631} className="hir-mono hir-muted" fontSize={8}>
                   visual dashboards :3001
                 </text>
               </g>
 
               {/* Sub-container B: Host Cron Automation Tasks */}
-              <rect x="636" y="452" width="360" height="224" rx="10" className="hir-block" />
-              <text x="652" y="478" className="hir-name" fontSize={12} fontWeight={700}>
+              <rect x="664" y="452" width="332" height="224" rx="10" className="hir-block" />
+              <text x="680" y="478" className="hir-name" fontSize={12} fontWeight={700}>
                 Host Scheduled Tasks
               </text>
               <text x="982" y="478" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
@@ -729,9 +739,9 @@ export default function HowItRuns() {
                 { y: 610, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
               ].map((r) => (
                 <g key={r.t} className={isOn([3]) ? "hir-in" : "hir-off"}>
-                  <rect x={648} y={r.y} width={334} height={42} rx={7} className="hir-chip" />
-                  <Tile x={654} y={r.y + 8} size={26} href={logo(r.logo)} fb={r.fb} />
-                  <text x={688} y={r.y + 25} className="hir-mono hir-ink" fontSize={9.5}>
+                  <rect x={676} y={r.y} width={308} height={42} rx={7} className="hir-chip" />
+                  <Tile x={682} y={r.y + 8} size={26} href={logo(r.logo)} fb={r.fb} />
+                  <text x={716} y={r.y + 25} className="hir-mono hir-ink" fontSize={9.5}>
                     {r.t}
                   </text>
                 </g>
@@ -796,16 +806,16 @@ export default function HowItRuns() {
                 {n.ref && (
                   <g>
                     <rect
-                      x={n.x + n.w - 74}
-                      y={n.y + 8}
-                      width={66}
+                      x={n.x + n.w - 78}
+                      y={n.y + 6}
+                      width={70}
                       height={16}
-                      rx={3}
+                      rx={4}
                       className="hir-ref-pill"
                     />
                     <text
-                      x={n.x + n.w - 41}
-                      y={n.y + 19}
+                      x={n.x + n.w - 43}
+                      y={n.y + 17}
                       textAnchor="middle"
                       className="hir-mono hir-muted"
                       fontSize={7.5}
@@ -828,7 +838,7 @@ export default function HowItRuns() {
             {/* ============================================================= */}
             {/* SEQUENTIAL ANIMATED PACKET DOT                                */}
             {/* ============================================================= */}
-            {animate && (
+            {animate && packetPos.x > 0 && (
               <g className="hir-packet">
                 <circle
                   cx={packetPos.x}
@@ -888,7 +898,7 @@ const CSS = `
 .hir-seg-on .hir-seg-label{color:var(--hir-text);font-weight:600}
 .hir-caption{margin:0 0 14px;min-height:22px;font-size:12.5px;line-height:1.5;color:var(--hir-muted)}
 
-/* SVG Container: Spacious & Natural Vertical Scroll */
+/* SVG Container: Full-height and naturally scrollable */
 .hir-svg-container{width:100%;overflow-x:auto}
 .hir-svg{display:block;width:100%;height:auto;min-width:760px}
 .hir-mono{font-family:ui-monospace,Menlo,monospace}
