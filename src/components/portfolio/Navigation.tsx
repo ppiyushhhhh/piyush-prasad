@@ -109,27 +109,18 @@ export function Navigation() {
         }
       }
 
-      // 2. Secondary check / rapid scroll / transition fallback: Find section with maximum visible height in viewport
-      let candidate = "hero";
-      let maxOverlap = -1;
-
+      // 2. Interstitial / reading zone fallback (e.g. browsing blog cards or rapid scrolling):
+      // Highlight the section whose header most recently crossed the reading focal point
+      let lastPassed = SECTION_IDS[0];
       for (const id of SECTION_IDS) {
         const el = document.getElementById(id);
         if (!el) continue;
         const rect = el.getBoundingClientRect();
-        const visibleTop = Math.max(rect.top, 80);
-        const visibleBottom = Math.min(rect.bottom, window.innerHeight);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-
-        if (visibleHeight > maxOverlap) {
-          maxOverlap = visibleHeight;
-          candidate = id;
+        if (rect.top <= focalPoint) {
+          lastPassed = id;
         }
       }
-
-      if (maxOverlap > 0) {
-        setActiveSection(candidate);
-      }
+      setActiveSection(lastPassed);
     };
 
     handleScrollSpy();
