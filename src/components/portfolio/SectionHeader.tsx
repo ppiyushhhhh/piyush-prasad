@@ -18,7 +18,7 @@ export function SectionHeader({
   className = "",
 }: SectionHeaderProps) {
   return (
-    <div className={`mb-12 md:mb-16 ${className}`}>
+    <div className={`mb-8 md:mb-10 ${className}`}>
       {/* Category Eyebrow / Number */}
       <div className="mono mb-4 flex items-center gap-3 text-[11px] font-medium text-text-muted">
         <span className="font-bold text-accent">

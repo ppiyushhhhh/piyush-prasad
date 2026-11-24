@@ -211,7 +211,7 @@ export function Certifications() {
   return (
     <section
       id="certifications"
-      className="relative border-b border-border bg-surface-muted py-20 md:py-28 scroll-mt-24"
+      className="relative border-b border-border bg-surface-muted py-12 md:py-16 scroll-mt-24"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
@@ -222,7 +222,7 @@ export function Certifications() {
         />
 
         {/* 2-Column Editorial Grid on Desktop */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-14">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
           {/* Column 1: Certifications */}
           <div className="lg:col-span-7">
             <div className="flex items-center justify-between border-b border-border pb-4 mb-6">
@@ -352,10 +352,10 @@ export function Certifications() {
         <div
           ref={credlySectionRef}
           id="credly-badges"
-          className="mt-16 md:mt-24 border-t border-border pt-12 md:pt-16 scroll-mt-24"
+          className="mt-10 md:mt-12 border-t border-border pt-8 md:pt-10 scroll-mt-24"
         >
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6 md:mb-8">
             <div>
               <div className="flex items-center gap-2 mb-2.5">
                 <Award className="h-4 w-4 text-cobalt" />
@@ -475,7 +475,7 @@ export function Certifications() {
 
           {/* 4. Year-Wise Grouped Badges Showcase */}
           {sortedBadges.length > 0 && (
-            <div className="space-y-14">
+            <div className="space-y-8 md:space-y-10">
               <AnimatePresence mode="sync">
                 {yearGroups.map((group) => (
                   <motion.div

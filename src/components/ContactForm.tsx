@@ -262,7 +262,7 @@ export function ContactForm() {
           <div className="flex items-start gap-2.5 text-emerald-900 bg-emerald-50 border border-emerald-300 p-3.5 text-xs rounded-xs shadow-2xs">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
             <div className="leading-relaxed">
-              <strong>Thank you for reaching out!</strong> Your message has been delivered directly to Piyush&apos;s primary inbox (piyush@piyushprasad.in). I will review it and reply shortly.
+              <strong>Thank you for reaching out!</strong> Your message has been delivered directly to Piyush&apos;s primary inbox (hello@piyushprasad.in). I will review it and reply shortly.
             </div>
           </div>
         )}
@@ -271,7 +271,7 @@ export function ContactForm() {
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
             <div className="leading-relaxed">
               {errorMessage ||
-                "Sorry, we couldn't deliver your message right now. Please try again or email directly at piyush@piyushprasad.in."}
+                "Sorry, we couldn't deliver your message right now. Please try again or email directly at hello@piyushprasad.in."}
             </div>
           </div>
         )}

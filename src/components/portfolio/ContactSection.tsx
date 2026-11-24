@@ -27,10 +27,10 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative border-b border-border bg-background py-16 sm:py-20 md:py-24 scroll-mt-20">
+    <section id="contact" className="relative border-b border-border bg-background py-12 md:py-16 scroll-mt-20">
       <div className="mx-auto max-w-[1240px] px-6 md:px-10">
         {/* Section Heading Bar */}
-        <div className="mb-10 md:mb-12 border-b border-border pb-8">
+        <div className="mb-8 md:mb-10 border-b border-border pb-6">
           <div className="mono mb-3 flex items-center gap-3 text-[11px] font-medium text-text-muted">
             <span className="font-bold text-accent">05</span>
             <span className="text-text-muted/40">/</span>
@@ -51,9 +51,9 @@ export function ContactSection() {
         </div>
 
         {/* Balanced Two-Column Layout: Left (55%) Form, Right (45%) Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-[55%_1fr] gap-8 lg:gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[55%_1fr] gap-6 lg:gap-8 items-start">
           {/* Left Column (55%): Contact Form Card */}
-          <div className="border border-border bg-surface p-6 sm:p-8 shadow-2xs rounded-xs">
+          <div className="border border-border bg-surface p-5 sm:p-6 shadow-2xs rounded-xs">
             <div className="border-b border-border pb-4">
               <h3 className="text-xl sm:text-2xl font-bold text-text tracking-tight">
                 Start a Conversation

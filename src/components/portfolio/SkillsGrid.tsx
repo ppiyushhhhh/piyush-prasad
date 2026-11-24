@@ -38,7 +38,7 @@ export function SkillsGrid() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section id="skills" className="relative border-b border-border bg-background py-20 md:py-28 scroll-mt-20">
+    <section id="skills" className="relative border-b border-border bg-background py-12 md:py-16 scroll-mt-20">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
           n="02"
@@ -48,7 +48,7 @@ export function SkillsGrid() {
         />
 
         {/* Prioritized Technology Showcase Grid */}
-        <div className="mb-14">
+        <div className="mb-8 md:mb-10">
           <div className="mono mb-4 flex items-center justify-between text-xs text-text-muted">
             <span className="font-semibold text-text tracking-wider">
               PRIORITY INFRASTRUCTURE STACK
@@ -93,7 +93,7 @@ export function SkillsGrid() {
         </div>
 
         {/* Categorized Detailed Skills */}
-        <div className="mb-14">
+        <div className="mb-8 md:mb-10">
           <div className="mono mb-4 text-xs font-semibold text-text tracking-wider">
             DETAILED DOMAIN CAPABILITIES
           </div>
