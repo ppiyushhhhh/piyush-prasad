@@ -604,7 +604,7 @@ function DnsExplainedContent() {
             <p className="text-xs text-text-muted mt-1">
               Tells email services where to deliver incoming emails sent to your domain.
               <br />
-              <em>Example:</em> <code>piyush@piyushprasad.in → mail.google.com</code>
+              <em>Example:</em> <code>hello@piyushprasad.in → mail.google.com</code>
             </p>
           </div>
           <div className="border border-border bg-surface p-3.5 rounded-xs">

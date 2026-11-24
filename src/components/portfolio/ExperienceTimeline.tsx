@@ -9,7 +9,7 @@ export function ExperienceTimeline() {
   return (
     <section
       id="experience"
-      className="relative border-b border-border bg-background py-20 md:py-28 scroll-mt-20"
+      className="relative border-b border-border bg-background py-12 md:py-16 scroll-mt-20"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <SectionHeader
@@ -20,7 +20,7 @@ export function ExperienceTimeline() {
         />
 
         {/* Editorial Vertical Timeline */}
-        <div className="space-y-16">
+        <div className="space-y-8 md:space-y-10">
           {EXPERIENCE_DATA.map((companyExp, companyIndex) => {
             const totalExp = companyExp.showTotalExperience
               ? calculateExperienceDuration(
@@ -37,7 +37,7 @@ export function ExperienceTimeline() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.45, delay: companyIndex * 0.15 }}
-                className="border border-border bg-surface p-6 sm:p-8 md:p-10 shadow-2xs transition-all duration-300 hover:border-border hover:shadow-xs"
+                className="border border-border bg-surface p-5 sm:p-6 md:p-8 shadow-2xs transition-all duration-300 hover:border-border hover:shadow-xs"
               >
                 {/* Company Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">

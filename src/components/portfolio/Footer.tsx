@@ -85,7 +85,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative border-t border-border bg-surface-muted/90 pt-16 pb-12 text-text">
+    <footer className="relative border-t border-border bg-surface-muted/90 pt-12 pb-8 text-text">
       {/* Subtle blueprint grid pattern */}
       <div
         aria-hidden="true"
@@ -99,7 +99,7 @@ export function Footer() {
 
       <div className="relative mx-auto max-w-[1400px] px-6 md:px-10">
         {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10 pb-14 border-b border-border/80">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8 pb-10 border-b border-border/80">
           {/* Identity & Bio Column */}
           <div className="flex flex-col justify-between space-y-6 lg:col-span-5">
             <div>
