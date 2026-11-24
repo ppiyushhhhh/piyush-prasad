@@ -29,9 +29,9 @@ export type SendEmailResult = {
  * Centralized Primary Notification Email.
  * All incoming contact form submissions are routed directly to this address.
  */
-export const DEFAULT_NOTIFICATION_EMAIL = "hello@piyushprasad.in";
+export const DEFAULT_NOTIFICATION_EMAIL = "piyush@piyushprasad.in";
 export const DEFAULT_SENDER_EMAIL = "notification@piyushprasad.in";
-export const DEFAULT_SUPPORT_EMAIL = "hello@piyushprasad.in";
+export const DEFAULT_SUPPORT_EMAIL = "piyush@piyushprasad.in";
 const DEFAULT_SITE_URL = "https://piyushprasad.in";
 
 /**
