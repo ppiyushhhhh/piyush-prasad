@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Clock,
@@ -8,17 +8,18 @@ import {
   ArrowRight,
   Copy,
   Check,
-  Share2,
-  BookOpen,
   Terminal,
   Shield,
-  Layers,
-  ChevronRight,
-  ExternalLink,
-  CheckCircle2,
   AlertCircle,
-  HelpCircle,
   Hash,
+  ChevronDown,
+  ChevronUp,
+  Server,
+  Globe,
+  HardDrive,
+  Cloud,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,7 +28,7 @@ import { Footer } from "@/components/portfolio/Footer";
 import { CustomCursor } from "@/components/portfolio/CustomCursor";
 import { CommandPalette } from "@/components/portfolio/CommandPalette";
 import { AskPiyushAI } from "@/components/portfolio/AskPiyushAI";
-import { fetchBlogPostBySlug, fetchPublishedBlogPosts, type BlogPost } from "@/lib/blog";
+import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
 import { DnsArchitectureDiagram } from "@/components/blog/DnsArchitectureDiagram";
 import { AwsArchitectureDiagram } from "@/components/blog/AwsArchitectureDiagram";
 import { LinuxArchitectureDiagram } from "@/components/blog/LinuxArchitectureDiagram";
@@ -41,13 +42,13 @@ export const Route = createFileRoute("/blog/$slug")({
 
     if (slug === "dns-explained") {
       title = "DNS Explained: How Domain Names Connect to Websites — Piyush Prasad";
-      desc = "Understand DNS records, hierarchical resolution, troubleshooting, and custom domain setup with an interactive architecture diagram.";
+      desc = "Understand DNS, records, domain resolution, and how domain names connect to web hosting in simple terms.";
     } else if (slug === "aws-cloud-infrastructure-guide") {
-      title = "AWS Cloud Infrastructure Explained: EC2, S3, RDS, VPC & ALB — Piyush Prasad";
-      desc = "Learn how AWS services interconnect to host scalable web apps with an interactive reference cloud architecture.";
+      title = "AWS Explained: How EC2, S3, RDS, VPC and Load Balancers Work Together — Piyush Prasad";
+      desc = "Beginner guide to AWS cloud computing: how EC2, S3, RDS, VPC, and load balancers collaborate to host applications.";
     } else if (slug === "linux-server-administration") {
-      title = "Linux Server Administration: From SSH to Hosting a Website — Piyush Prasad";
-      desc = "Ubuntu server management, essential commands, Nginx reverse proxy, Certbot SSL, and deployment architecture.";
+      title = "Linux Server Basics: How to Manage and Host a Website — Piyush Prasad";
+      desc = "Beginner tutorial for Ubuntu servers: SSH access, essential terminal commands, Nginx web hosting, and SSL certificates.";
     }
 
     return {
@@ -78,7 +79,7 @@ function CodeSnippet({ code, lang = "bash" }: { code: string; lang?: string }) {
       setCopied(true);
       toast.success("Command copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
+    } catch {
       toast.error("Failed to copy code");
     }
   };
@@ -123,19 +124,19 @@ function Callout({
   children: React.ReactNode;
 }) {
   const styles = {
-    note: "border-accent bg-accent-soft text-text",
-    tip: "border-success bg-emerald-50 text-emerald-950",
-    security: "border-indigo-600 bg-indigo-50 text-indigo-950",
-    warning: "border-amber-500 bg-amber-50 text-amber-950",
+    note: "border-accent bg-accent/5 text-text",
+    tip: "border-emerald-600 bg-emerald-50/50 text-emerald-950",
+    security: "border-indigo-600 bg-indigo-50/50 text-indigo-950",
+    warning: "border-amber-500 bg-amber-50/50 text-amber-950",
   }[type];
 
   return (
     <div className={`my-5 border-l-4 p-4 ${styles} shadow-2xs`}>
       <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide">
         {type === "security" ? (
-          <Shield className="h-3.5 w-3.5" />
+          <Shield className="h-3.5 w-3.5 text-indigo-600" />
         ) : (
-          <AlertCircle className="h-3.5 w-3.5" />
+          <AlertCircle className="h-3.5 w-3.5 text-accent" />
         )}
         <span>{title}</span>
       </div>
@@ -144,25 +145,57 @@ function Callout({
   );
 }
 
+function TechnicalDetails({
+  title = "Technical Details (Deep Dive)",
+  children,
+}: {
+  title?: string;
+  children: React.ReactNode;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="my-6 border border-border bg-surface-muted/30 rounded-xs overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-3.5 text-left font-mono text-xs font-bold text-text hover:bg-surface-muted transition-colors cursor-pointer"
+        aria-expanded={isOpen}
+      >
+        <span className="flex items-center gap-2">
+          <Terminal className="h-4 w-4 text-accent" />
+          <span>{title}</span>
+        </span>
+        <span className="mono text-[10px] text-accent border border-accent/30 px-2 py-0.5 rounded-xs flex items-center gap-1">
+          <span>{isOpen ? "Hide Details" : "Show Details"}</span>
+          {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        </span>
+      </button>
+      {isOpen && (
+        <div className="p-4 border-t border-border bg-surface text-xs text-text-muted space-y-3 leading-relaxed">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BlogArticlePage() {
   const { slug } = Route.useParams();
   const [readingProgress, setReadingProgress] = useState(0);
 
-  // Fetch article
   const { data: post, isLoading } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: () => fetchBlogPostBySlug(slug),
     staleTime: 60_000,
   });
 
-  // Fetch all for prev/next
   const { data: allPosts = [] } = useQuery({
     queryKey: ["published-blog-posts"],
     queryFn: fetchPublishedBlogPosts,
     staleTime: 60_000,
   });
 
-  // Scroll reading progress indicator
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -269,7 +302,7 @@ function BlogArticlePage() {
             </div>
           </header>
 
-          {/* Two-Column Editorial Layout: Article Content + Sticky Sidebar */}
+          {/* Two-Column Editorial Layout */}
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Main Article Prose */}
             <article className="lg:col-span-8 prose-custom space-y-8">
@@ -315,10 +348,9 @@ function BlogArticlePage() {
               </div>
             </article>
 
-            {/* Sticky Table of Contents & Resources Sidebar */}
+            {/* Sticky Table of Contents Sidebar */}
             <aside className="lg:col-span-4 space-y-6">
               <div className="sticky top-28 space-y-6">
-                {/* Table of Contents */}
                 <div className="border border-border bg-surface p-5 shadow-2xs">
                   <div className="flex items-center gap-2 border-b border-border pb-3 mb-3">
                     <Hash className="h-4 w-4 text-accent" />
@@ -326,12 +358,12 @@ function BlogArticlePage() {
                       Table of Contents
                     </h4>
                   </div>
-                  {slug === "dns-explained" && <DnsToc />}
-                  {slug === "aws-cloud-infrastructure-guide" && <AwsToc />}
-                  {slug === "linux-server-administration" && <LinuxToc />}
+                  {slug === "dns-explained" && <ArticleToc prefix="dns" />}
+                  {slug === "aws-cloud-infrastructure-guide" && <ArticleToc prefix="aws" />}
+                  {slug === "linux-server-administration" && <ArticleToc prefix="linux" />}
                 </div>
 
-                {/* About the Author Card */}
+                {/* About Author */}
                 <div className="border border-border bg-surface p-5 shadow-2xs space-y-3">
                   <span className="mono text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     About the Author
@@ -342,16 +374,15 @@ function BlogArticlePage() {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-text">Piyush Prasad</div>
-                      <div className="mono text-[10px] text-accent">AWS &amp; DevOps Engineer</div>
+                      <div className="mono text-[10px] text-accent">Cloud &amp; DevOps Engineer</div>
                     </div>
                   </div>
                   <p className="text-xs text-text-muted leading-relaxed">
-                    Specializing in AWS cloud infrastructure, Linux server hardening, automated CI/CD pipelines,
-                    and production observability.
+                    Building resilient cloud architectures, CI/CD automation, and practical engineering guides for developers.
                   </p>
                   <a
                     href="/#contact"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline pt-2"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline pt-1"
                   >
                     <span>Get in touch</span>
                     <ArrowRight className="h-3 w-3" />
@@ -364,7 +395,7 @@ function BlogArticlePage() {
                   className="inline-flex items-center gap-2 w-full justify-center border border-border bg-surface py-2.5 text-xs font-semibold text-text hover:border-accent hover:text-accent transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Explore All Technical Articles</span>
+                  <span>Explore All Learning Guides</span>
                 </Link>
               </div>
             </aside>
@@ -379,26 +410,26 @@ function BlogArticlePage() {
   );
 }
 
-/* =========================================================================
-   ARTICLE 1: DNS EXPLAINED CONTENT & TOC
-========================================================================= */
-
-function DnsToc() {
+function ArticleToc({ prefix }: { prefix: string }) {
   const links = [
-    { href: "#section-1", title: "1. What is DNS?" },
-    { href: "#section-2", title: "2. How DNS Works (Interactive Flow)" },
-    { href: "#section-3", title: "3. Types of DNS Records" },
-    { href: "#section-4", title: "4. How to Configure DNS" },
-    { href: "#section-5", title: "5. Real-World Example: piyushprasad.in" },
-    { href: "#section-6", title: "6. DNS Troubleshooting" },
-    { href: "#section-7", title: "7. Key Takeaways" },
+    { href: `#${prefix}-1`, title: "1. What is it?" },
+    { href: `#${prefix}-2`, title: "2. Why do we need it?" },
+    { href: `#${prefix}-3`, title: "3. How does it work?" },
+    { href: `#${prefix}-4`, title: "4. Real-world example" },
+    { href: `#${prefix}-5`, title: "5. Simple architecture diagram" },
+    { href: `#${prefix}-6`, title: "6. Practical implementation" },
+    { href: `#${prefix}-7`, title: "7. Common mistakes" },
+    { href: `#${prefix}-8`, title: "8. Key takeaways" },
   ];
 
   return (
-    <ul className="space-y-2 text-xs">
+    <ul className="space-y-1.5 text-xs">
       {links.map((l) => (
         <li key={l.href}>
-          <a href={l.href} className="text-text-muted hover:text-accent transition-colors block py-0.5">
+          <a
+            href={l.href}
+            className="text-text-muted hover:text-accent transition-colors block py-0.5"
+          >
             {l.title}
           </a>
         </li>
@@ -407,297 +438,261 @@ function DnsToc() {
   );
 }
 
+/* =========================================================================
+   ARTICLE 1: DNS EXPLAINED
+========================================================================= */
+
 function DnsExplainedContent() {
   return (
     <div className="space-y-8 text-sm text-text leading-relaxed">
-      {/* Section 1 */}
-      <section id="section-1" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 1 — What is DNS?
+      {/* 1. What is it? */}
+      <section id="dns-1" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          1. What is it?
         </h2>
         <p>
-          The <strong>Domain Name System (DNS)</strong> is the foundational address book of the modern
-          internet. Computers, servers, routers, and edge nodes do not communicate using human-readable
-          names like <code>piyushprasad.in</code>; they communicate strictly across IPv4 (e.g.{" "}
-          <code>76.76.21.21</code>) and IPv6 (e.g. <code>2600:1901:0:9d36::</code>) numerical addresses.
+          <strong>DNS</strong> stands for <strong>Domain Name System</strong>. In simple terms, it is the phonebook of the entire internet.
         </p>
         <p>
-          Without DNS, browsing the web would require memorizing long strings of numbers for every
-          application, API endpoint, and cloud service. DNS translates human-friendly domain names into
-          machine-routable IP addresses in milliseconds.
+          Every computer, server, and phone connected to the internet has a unique numerical address called an <strong>IP address</strong> (such as <code>76.76.21.21</code>). Computers need these numbers to route data to the right place.
         </p>
-        <Callout type="note" title="Practical Mental Model">
-          <code>piyushprasad.in</code> → DNS resolution (hierarchical lookup) → Hosting server IP (
-          <code>76.76.21.21</code>) → Web page rendered.
+        <p>
+          However, humans find words much easier to remember than long strings of random numbers. DNS bridges this gap: it translates human-friendly names like <code>piyushprasad.in</code> into computer-friendly IP addresses.
+        </p>
+      </section>
+
+      {/* 2. Why do we need it? */}
+      <section id="dns-2" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          2. Why do we need it?
+        </h2>
+        <p>
+          Imagine if you had to memorize 10-digit phone numbers for every single friend, store, and website you visit every day. You would quickly run out of memory!
+        </p>
+        <p>
+          DNS allows website owners to change their hosting providers or move to different servers at any time. Even if your server moves to a new IP address, visitors continue typing the exact same domain name seamlessly.
+        </p>
+        <Callout type="note" title="Core Purpose">
+          DNS solves one major problem: it lets humans browse the internet using friendly names while computers communicate using precise numerical addresses.
         </Callout>
       </section>
 
-      {/* Section 2 */}
-      <section id="section-2" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 2 — How DNS Works
+      {/* 3. How does it work? */}
+      <section id="dns-3" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          3. How does it work?
         </h2>
         <p>
-          When you enter a URL like <code>https://piyushprasad.in</code> in your browser, an intricate,
-          multi-tier resolution process takes place behind the scenes:
+          When you enter <code>piyushprasad.in</code> in your browser and press Enter, your computer needs to discover where the website lives.
         </p>
-        <ol className="list-decimal pl-6 space-y-2 text-xs md:text-sm">
-          <li>
-            <strong>Browser DNS Cache:</strong> The browser first inspects its internal memory cache to
-            see if it has recently resolved this domain.
-          </li>
-          <li>
-            <strong>Operating System Resolver:</strong> If not in browser cache, the OS checks its local
-            DNS cache (Windows DNS Client or macOS mDNSResponder) and the local <code>/etc/hosts</code>{" "}
-            file.
-          </li>
-          <li>
-            <strong>Recursive DNS Resolver:</strong> If a local cache miss occurs, the query travels
-            over UDP port 53 to a recursive resolver (typically your ISP resolver or Anycast public
-            resolvers like Cloudflare <code>1.1.1.1</code> or Google <code>8.8.8.8</code>).
-          </li>
-          <li>
-            <strong>Root DNS Server (.):</strong> If the resolver has no cached entry, it queries one of
-            the 13 global Root Server IP clusters. The root server returns a referral to the nameservers
-            handling the <code>.in</code> Top-Level Domain (TLD).
-          </li>
-          <li>
-            <strong>TLD Nameserver:</strong> The resolver asks the <code>.in</code> TLD nameserver,
-            which replies with the authoritative nameservers configured at the domain registrar (e.g.{" "}
-            <code>ns1.vercel-dns.com</code>).
-          </li>
-          <li>
-            <strong>Authoritative Nameserver:</strong> The resolver queries the authoritative server,
-            which holds the official zone file and replies with the A Record: <code>76.76.21.21</code>.
-          </li>
-          <li>
-            <strong>Direct Web Connection:</strong> With the IP in hand, DNS resolution is finished.
-            The browser initiates a direct TCP connection on port 443 with the hosting server to
-            complete the TLS handshake and download website assets.
-          </li>
-        </ol>
-
-        {/* Embedded Interactive DNS Architecture Diagram */}
-        <div className="my-6">
-          <DnsArchitectureDiagram />
+        <p>
+          It is essential to understand that loading a website consists of two completely separate stages:
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
+          <div className="border border-sky-500/30 bg-sky-500/5 p-4 rounded-xs">
+            <span className="mono text-[10px] font-bold text-sky-700 uppercase block mb-1">
+              Stage 1: DNS Resolution
+            </span>
+            <p className="text-xs text-text">
+              Your browser asks DNS: <em>&ldquo;What is the IP address for piyushprasad.in?&rdquo;</em> DNS responds with <code>76.76.21.21</code>.
+            </p>
+          </div>
+          <div className="border border-emerald-500/30 bg-emerald-500/5 p-4 rounded-xs">
+            <span className="mono text-[10px] font-bold text-emerald-700 uppercase block mb-1">
+              Stage 2: Web Request (HTTPS)
+            </span>
+            <p className="text-xs text-text">
+              Now that the browser has the address, it connects directly to the server at <code>76.76.21.21</code> and downloads the website files.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Section 3 */}
-      <section id="section-3" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 3 — Types of DNS Records
+      {/* 4. Real-world example */}
+      <section id="dns-4" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          4. Real-World Example: piyushprasad.in
         </h2>
         <p>
-          A domain zone file contains various record types, each designated for specific networking
-          and application purposes:
+          Let&apos;s see how this portfolio website is set up in real life:
         </p>
+        <ul className="list-disc pl-6 space-y-1 text-xs sm:text-sm">
+          <li>
+            <strong>Root Domain (@):</strong> <code>piyushprasad.in</code> is connected to the hosting server IP using an <strong>A Record</strong>.
+          </li>
+          <li>
+            <strong>Subdomain (www):</strong> <code>www.piyushprasad.in</code> is pointed to the primary domain using a <strong>CNAME Record</strong> so both addresses open the exact same portfolio.
+          </li>
+        </ul>
 
-        {/* Responsive DNS Table */}
+        {/* Illustrative DNS table */}
         <div className="overflow-x-auto border border-border bg-surface my-4">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-border bg-surface-muted mono font-semibold">
-                <th className="p-3">Record Type</th>
-                <th className="p-3">Purpose</th>
-                <th className="p-3">Common Use Case</th>
-                <th className="p-3">Concrete Example</th>
+                <th className="p-3">Host / Name</th>
+                <th className="p-3">Type</th>
+                <th className="p-3">Target Value</th>
+                <th className="p-3">What It Does</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               <tr>
-                <td className="p-3 font-mono font-bold text-accent">A</td>
-                <td className="p-3">Maps hostname to IPv4 address</td>
-                <td className="p-3">Pointing root domain to hosting server</td>
-                <td className="p-3 font-mono">piyushprasad.in → 76.76.21.21</td>
+                <td className="p-3 font-mono font-bold text-accent">@ (root)</td>
+                <td className="p-3 font-mono font-bold">A</td>
+                <td className="p-3 font-mono">76.76.21.21</td>
+                <td className="p-3">Directs visitors typing piyushprasad.in to the web server</td>
               </tr>
               <tr>
-                <td className="p-3 font-mono font-bold text-accent">AAAA</td>
-                <td className="p-3">Maps hostname to IPv6 address</td>
-                <td className="p-3">Modern dual-stack IPv6 hosting</td>
-                <td className="p-3 font-mono">piyushprasad.in → 2600:1901:0:9d36::</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">CNAME</td>
-                <td className="p-3">Aliases one hostname to another</td>
-                <td className="p-3">Mapping www or subdomains to cloud targets</td>
-                <td className="p-3 font-mono">www → cname.vercel-dns.com</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">MX</td>
-                <td className="p-3">Specifies mail exchange servers</td>
-                <td className="p-3">Routing incoming emails to Google Workspace or Zoho</td>
-                <td className="p-3 font-mono">10 aspmx.l.google.com</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">TXT</td>
-                <td className="p-3">Stores arbitrary text verification</td>
-                <td className="p-3">SPF email security, DKIM, domain ownership</td>
-                <td className="p-3 font-mono">v=spf1 include:_spf.google.com ~all</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">NS</td>
-                <td className="p-3">Delegates zone to authoritative servers</td>
-                <td className="p-3">Pointing domain to Cloudflare or Route 53</td>
-                <td className="p-3 font-mono">ns1.vercel-dns.com</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">SRV</td>
-                <td className="p-3">Defines host and port for services</td>
-                <td className="p-3">SIP, LDAP, XMPP, Minecraft servers</td>
-                <td className="p-3 font-mono">_sip._tcp.example.com 5060</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">CAA</td>
-                <td className="p-3">Restricts Certificate Authorities</td>
-                <td className="p-3">Allowing only Let&apos;s Encrypt to issue SSL</td>
-                <td className="p-3 font-mono">0 issue &ldquo;letsencrypt.org&rdquo;</td>
+                <td className="p-3 font-mono font-bold text-accent">www</td>
+                <td className="p-3 font-mono font-bold">CNAME</td>
+                <td className="p-3 font-mono">cname.vercel-dns.com</td>
+                <td className="p-3">Aliases www.piyushprasad.in to the edge hosting network</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* Section 4 */}
-      <section id="section-4" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 4 — How to Configure DNS
+      {/* 5. Simple architecture diagram */}
+      <section id="dns-5" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          5. Simple Architecture Diagram
         </h2>
         <p>
-          When you configure DNS in a management portal (such as Cloudflare, GoDaddy, Namecheap, or
-          AWS Route 53), each entry requires four standard attributes:
+          Press <strong>Play</strong> below to watch step-by-step how a visitor connects to the website:
         </p>
-        <ul className="list-disc pl-6 space-y-1 text-xs md:text-sm">
-          <li>
-            <strong>Host / Name:</strong> The subdomain or prefix (use <code>@</code> for root domain,
-            or <code>www</code>, <code>api</code>, <code>blog</code>).
-          </li>
-          <li>
-            <strong>Type:</strong> The record category (<code>A</code>, <code>CNAME</code>, <code>TXT</code>, etc.).
-          </li>
-          <li>
-            <strong>Value / Target:</strong> The destination IP or alias hostname.
-          </li>
-          <li>
-            <strong>TTL (Time to Live):</strong> Number of seconds resolvers should cache the record
-            before querying again (e.g. <code>300</code> for 5 minutes, or Auto).
-          </li>
-        </ul>
 
-        <h3 className="text-base font-bold text-text mt-4">Example Configuration:</h3>
-        <CodeSnippet
-          lang="dns-zone"
-          code={`# Root domain pointed to verified edge hosting
-@              A      76.76.21.21             TTL 300
-
-# Subdomain aliased to cloud provider edge target
-www            CNAME  cname.vercel-dns.com.   TTL 300
-
-# SPF record authorizing transactional email sender
-@              TXT    "v=spf1 include:_spf.mx.cloudflare.net ~all" TTL 3600`}
-        />
+        <DnsArchitectureDiagram />
       </section>
 
-      {/* Section 5 */}
-      <section id="section-5" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 5 — Real-World Example: piyushprasad.in
+      {/* 6. Practical implementation */}
+      <section id="dns-6" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          6. Practical Implementation: DNS Record Types
         </h2>
         <p>
-          Examining the actual verified production configuration of this portfolio domain:
+          When you purchase a domain and open your DNS control panel, you will see a table where you add <strong>records</strong>. Here are the 6 records you need to know:
         </p>
-        <div className="border border-border bg-surface p-5 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="space-y-3 my-4">
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">A Record (Address)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Connects a domain directly to an <strong>IPv4 address</strong>.
+              <br />
+              <em>Example:</em> <code>piyushprasad.in → 76.76.21.21</code>
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">AAAA Record (IPv6 Address)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Connects a domain to a modern <strong>IPv6 address</strong>.
+              <br />
+              <em>Example:</em> <code>piyushprasad.in → 2600:1901:0:9d36::</code>
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">CNAME Record (Canonical Name)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Points one domain name to another domain name instead of a number.
+              <br />
+              <em>Example:</em> <code>www.piyushprasad.in → cname.vercel-dns.com</code>
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">MX Record (Mail Exchange)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Tells email services where to deliver incoming emails sent to your domain.
+              <br />
+              <em>Example:</em> <code>piyush@piyushprasad.in → mail.google.com</code>
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">TXT Record (Text Information)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Stores readable text used to prove domain ownership and prevent email spam (SPF and DKIM).
+              <br />
+              <em>Example:</em> <code>&quot;v=spf1 include:_spf.google.com ~all&quot;</code>
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">NS Record (Name Server)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Identifies which DNS servers manage your records (e.g., Cloudflare, Route 53, or GoDaddy).
+              <br />
+              <em>Example:</em> <code>ns1.vercel-dns.com</code>
+            </p>
+          </div>
+        </div>
+
+        {/* Collapsible Technical Details */}
+        <TechnicalDetails title="Technical Details: TTL & Diagnostic Tools">
+          <p>
+            <strong>TTL (Time To Live):</strong> Specifies how many seconds (e.g. <code>300</code> = 5 minutes) DNS resolvers should cache your record before asking the nameserver again. Setting a low TTL before migrations helps updates appear quickly.
+          </p>
+          <p>
+            You can verify DNS records directly from your terminal using the <code>nslookup</code> command:
+          </p>
+          <CodeSnippet
+            lang="bash"
+            code={`# Look up the IP address of any domain
+nslookup piyushprasad.in
+
+# Look up mail exchange records
+nslookup -type=mx piyushprasad.in`}
+          />
+        </TechnicalDetails>
+      </section>
+
+      {/* 7. Common mistakes */}
+      <section id="dns-7" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          7. Common Mistakes
+        </h2>
+        <div className="space-y-2 text-xs sm:text-sm">
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
             <div>
-              <span className="mono text-text-muted block">Registered Domain</span>
-              <span className="font-bold text-text">piyushprasad.in</span>
+              <strong>Expecting instant updates:</strong> When you change a DNS record, old records stay cached in intermediate resolvers until the TTL expires. Always allow a few minutes for changes to propagate.
             </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
             <div>
-              <span className="mono text-text-muted block">Hosting Platform</span>
-              <span className="font-bold text-accent">Vercel Global Edge Network</span>
+              <strong>Creating a CNAME on the root domain (@):</strong> DNS standards do not allow a CNAME on root domains if other records (like MX) exist. Use an A record or an ALIAS record instead.
             </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
             <div>
-              <span className="mono text-text-muted block">Root A Record (@)</span>
-              <span className="mono font-semibold text-text">76.76.21.21</span>
-            </div>
-            <div>
-              <span className="mono text-text-muted block">Subdomain CNAME (www)</span>
-              <span className="mono font-semibold text-text">cname.vercel-dns.com</span>
-            </div>
-            <div>
-              <span className="mono text-text-muted block">DNSSEC</span>
-              <span className="mono text-success font-semibold">Active &amp; Cryptographically Signed</span>
-            </div>
-            <div>
-              <span className="mono text-text-muted block">Staging Preview Subdomain</span>
-              <span className="mono text-text">test.piyushprasad.in</span>
+              <strong>Typos in the target IP address:</strong> Even a single wrong digit in an A record will prevent visitors from reaching your website. Always double-check with your hosting provider.
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 6 */}
-      <section id="section-6" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 6 — DNS Troubleshooting
+      {/* 8. Key takeaways */}
+      <section id="dns-8" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          8. Key Takeaways
         </h2>
-        <p>
-          DNS issues are among the most common root causes of web downtime. Here is how to diagnose
-          them systematically:
-        </p>
-        <ul className="list-disc pl-6 space-y-2 text-xs md:text-sm">
-          <li>
-            <strong>DNS Propagation Delays:</strong> When you change records, old records stay in
-            resolver caches until their TTL expires. Keep TTLs short (300 seconds) prior to a migration.
-          </li>
-          <li>
-            <strong>NXDOMAIN (Non-Existent Domain):</strong> The nameserver has no record for the
-            requested host. Verify spelling or check whether the record was added to the wrong zone.
-          </li>
-          <li>
-            <strong>Flushing Local Resolver Cache:</strong> Clear stale entries on your workstation:
-          </li>
-        </ul>
-        <CodeSnippet
-          lang="bash"
-          code={`# Windows: Flush local DNS cache
-ipconfig /flushdns
-
-# macOS: Flush directory service cache
-sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-
-# Linux (systemd-resolved): Flush resolver cache
-sudo resolvectl flush-caches`}
-        />
-        <p className="mt-3 text-xs md:text-sm">
-          Inspect authoritative resolution directly using <code>dig</code> or <code>nslookup</code>:
-        </p>
-        <CodeSnippet
-          lang="bash"
-          code={`# Query A record using Cloudflare Anycast resolver
-dig @1.1.1.1 piyushprasad.in A +noall +answer
-
-# Query specific nameservers directly to bypass ISP caching
-dig @ns1.vercel-dns.com piyushprasad.in A
-
-# Windows nslookup equivalent
-nslookup piyushprasad.in 8.8.8.8`}
-        />
-      </section>
-
-      {/* Section 7 */}
-      <section id="section-7" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 7 — Key Takeaways
-        </h2>
-        <div className="border-l-4 border-accent bg-surface p-5 space-y-2 shadow-2xs">
-          <ul className="list-disc pl-5 space-y-1.5 text-xs md:text-sm">
-            <li>DNS maps human names to numerical IP addresses via hierarchical delegation.</li>
-            <li>DNS queries operate over UDP 53; the actual website loads over TCP 443 (HTTPS).</li>
-            <li>A records point to IPv4 addresses; CNAME records point to other hostnames.</li>
-            <li>TTLs dictate caching duration across intermediate recursive resolvers.</li>
-            <li>Always verify authoritative records with <code>dig</code> before assuming application failure.</li>
-          </ul>
+        <div className="border border-accent/40 bg-accent/5 p-4 rounded-xs space-y-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>DNS translates human domain names into numerical IP addresses.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>DNS resolution (finding the address) is separate from loading the web files.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Use <strong>A records</strong> for IP addresses and <strong>CNAME records</strong> for aliases like <code>www</code>.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Keep your TTL reasonable (e.g. 300 seconds) so updates take effect smoothly.</span>
+          </div>
         </div>
       </section>
     </div>
@@ -705,490 +700,466 @@ nslookup piyushprasad.in 8.8.8.8`}
 }
 
 /* =========================================================================
-   ARTICLE 2: AWS CLOUD INFRASTRUCTURE CONTENT & TOC
+   ARTICLE 2: AWS EXPLAINED
 ========================================================================= */
-
-function AwsToc() {
-  const links = [
-    { href: "#aws-sec-1", title: "1. Introduction to AWS" },
-    { href: "#aws-sec-2", title: "2. Amazon EC2 Compute" },
-    { href: "#aws-sec-3", title: "3. Amazon S3 Storage" },
-    { href: "#aws-sec-4", title: "4. AWS Database Services (RDS)" },
-    { href: "#aws-sec-5", title: "5. Amazon VPC Networking" },
-    { href: "#aws-sec-6", title: "6. AWS Load Balancers (ALB)" },
-    { href: "#aws-sec-7", title: "7. How Everything Connects (Diagram)" },
-    { href: "#aws-sec-8", title: "8. Practical Deployment Workflow" },
-    { href: "#aws-sec-9", title: "9. Security Best Practices" },
-    { href: "#aws-sec-10", title: "10. Cost Awareness" },
-  ];
-
-  return (
-    <ul className="space-y-2 text-xs">
-      {links.map((l) => (
-        <li key={l.href}>
-          <a href={l.href} className="text-text-muted hover:text-accent transition-colors block py-0.5">
-            {l.title}
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function AwsCloudInfraContent() {
   return (
     <div className="space-y-8 text-sm text-text leading-relaxed">
-      {/* Section 1 */}
-      <section id="aws-sec-1" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 1 — Introduction to AWS
+      {/* 1. What is it? */}
+      <section id="aws-1" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          1. What is it?
         </h2>
         <p>
-          <strong>Amazon Web Services (AWS)</strong> provides on-demand cloud computing platforms and
-          APIs on a metered pay-as-you-go basis. Instead of ordering, racking, cabling, and maintaining
-          physical physical servers in a colocation facility, teams provision elastic computing power,
-          managed databases, and global networking programmatically in seconds.
+          <strong>Amazon Web Services (AWS)</strong> is the world&apos;s leading cloud computing platform.
+        </p>
+        <p>
+          In traditional computing, if you wanted to launch a website or business application, you had to buy expensive physical computer servers, set them up in an air-conditioned room, connect cables, and pay for 24/7 electricity.
+        </p>
+        <p>
+          With AWS, you rent computing power, storage, and databases over the internet on demand. You can launch a high-powered virtual server in 30 seconds and delete it when you no longer need it.
         </p>
       </section>
 
-      {/* Section 2 */}
-      <section id="aws-sec-2" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 2 — Amazon EC2 (Elastic Compute Cloud)
+      {/* 2. Why do we need it? */}
+      <section id="aws-2" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          2. Why do we need it?
         </h2>
         <p>
-          <strong>Amazon EC2</strong> provides resizable virtual servers (instances) running in AWS
-          data centers. Key concepts:
+          Cloud computing provides three huge benefits to developers and businesses:
         </p>
-        <ul className="list-disc pl-6 space-y-2 text-xs md:text-sm">
+        <ul className="list-disc pl-6 space-y-1.5 text-xs sm:text-sm">
           <li>
-            <strong>AMIs (Amazon Machine Images):</strong> Pre-configured OS templates (e.g. Ubuntu
-            24.04 LTS or Amazon Linux 2023).
+            <strong>Scalability:</strong> If your website goes viral and gets 100,000 visitors today, AWS can automatically add more servers to handle the traffic.
           </li>
           <li>
-            <strong>Instance Types:</strong> Categorized by CPU/RAM ratios (e.g. <code>t4g.micro</code>{" "}
-            for burstable low-cost dev, <code>c7g</code> for compute-intensive workloads).
+            <strong>Cost Efficiency:</strong> You only pay for what you use by the second. No expensive upfront hardware purchases.
           </li>
           <li>
-            <strong>EBS (Elastic Block Store):</strong> Network-attached persistent virtual block storage
-            drives attached to instances.
-          </li>
-          <li>
-            <strong>Security Groups:</strong> Virtual stateful firewalls controlling inbound and outbound
-            traffic.
-          </li>
-        </ul>
-        <CodeSnippet
-          lang="bash"
-          code={`# SSH authentication into an Ubuntu EC2 instance
-ssh -i ~/.ssh/piyush-aws-key.pem ubuntu@ec2-13-233-0-1.ap-south-1.compute.amazonaws.com
-
-# Update package repository and install production web stack
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y nginx nodejs npm docker.io`}
-        />
-      </section>
-
-      {/* Section 3 */}
-      <section id="aws-sec-3" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 3 — Amazon S3 (Simple Storage Service)
-        </h2>
-        <p>
-          <strong>Amazon S3</strong> is an object store offering 99.999999999% (11 9s) of durability.
-          Data is stored as objects inside named buckets. It is ideal for storing media uploads,
-          build artifacts, database backups, and hosting static assets.
-        </p>
-      </section>
-
-      {/* Section 4 */}
-      <section id="aws-sec-4" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 4 — AWS Database Services (Amazon RDS)
-        </h2>
-        <p>
-          <strong>Amazon RDS</strong> automates tedious relational database administration: OS
-          patching, automated continuous backups, multi-AZ synchronous replication for failover, and
-          point-in-time recovery.
-        </p>
-        <Callout type="security" title="Critical Production Security Rule">
-          Databases should never be exposed with public IP addresses (<code>PubliclyAccessible = false</code>).
-          Place RDS instances in isolated Private Database Subnets with Security Groups permitting
-          connections only from backend compute instances on port 5432 / 3306.
-        </Callout>
-      </section>
-
-      {/* Section 5 */}
-      <section id="aws-sec-5" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 5 — Amazon VPC (Virtual Private Cloud)
-        </h2>
-        <p>
-          A <strong>VPC</strong> is an isolated virtual network dedicated to your AWS account:
-        </p>
-        <ul className="list-disc pl-6 space-y-1.5 text-xs md:text-sm">
-          <li>
-            <strong>Subnets:</strong> CIDR segments carved from the VPC range (e.g. <code>10.0.1.0/24</code>).
-          </li>
-          <li>
-            <strong>Public Subnets:</strong> Route tables target an Internet Gateway (IGW) for direct
-            internet ingress (used for ALBs and bastion hosts).
-          </li>
-          <li>
-            <strong>Private Subnets:</strong> No route to IGW; instances talk to the internet through a
-            NAT Gateway for outbound updates only.
+            <strong>Reliability:</strong> AWS maintains secure data centers globally with redundant power, backup generators, and automatic hardware repairs.
           </li>
         </ul>
       </section>
 
-      {/* Section 6 */}
-      <section id="aws-sec-6" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 6 — AWS Application Load Balancers (ALB)
+      {/* 3. How does it work? */}
+      <section id="aws-3" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          3. How does it work? Core Services Explained
         </h2>
         <p>
-          An <strong>ALB</strong> operates at Layer 7 (HTTP/HTTPS). It terminates SSL certificates
-          provisioned via AWS ACM, inspects path headers (e.g. routing <code>/api/*</code> to one
-          service and <code>/*</code> to another), and executes periodic health check probes.
+          AWS has hundreds of services, but modern applications are built using five fundamental building blocks:
         </p>
-      </section>
 
-      {/* Section 7 */}
-      <section id="aws-sec-7" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 7 — How Everything Connects (Interactive Architecture)
-        </h2>
-        <p>
-          Below is a complete reference architecture showing how Route 53, ALB, EC2 in private
-          subnets, Amazon RDS, and Amazon S3 interconnect securely:
-        </p>
-        <Callout type="note" title="Reference Architecture Notice">
-          This diagram represents a scalable, enterprise-grade multi-AZ reference design for educational
-          learning, illustrating how production AWS services interconnect.
-        </Callout>
-
-        <div className="my-6">
-          <AwsArchitectureDiagram />
+        <div className="space-y-3 my-4">
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">1. EC2 (Your Cloud Computer)</span>
+            <p className="text-xs text-text-muted mt-1">
+              <strong>EC2 (Elastic Compute Cloud)</strong> is a virtual server running in AWS data centers. You choose the operating system (like Ubuntu) and run your web applications, APIs, and backend scripts.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">2. S3 (Your Cloud Storage)</span>
+            <p className="text-xs text-text-muted mt-1">
+              <strong>S3 (Simple Storage Service)</strong> is practically unlimited file storage. You store images, PDFs, user uploads, and backups in named containers called <em>buckets</em>.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">3. RDS (Your Managed Database)</span>
+            <p className="text-xs text-text-muted mt-1">
+              <strong>RDS (Relational Database Service)</strong> manages databases like PostgreSQL and MySQL. It automatically handles backups, security patches, and hardware maintenance so your user accounts and order data stay safe.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">4. VPC (Your Private Cloud Network)</span>
+            <p className="text-xs text-text-muted mt-1">
+              <strong>VPC (Virtual Private Cloud)</strong> is an isolated virtual network dedicated to your account. Think of it like a secure office building:
+            </p>
+            <ul className="list-disc pl-5 mt-1 text-xs text-text-muted space-y-0.5">
+              <li><strong>Public Subnet (The Front Lobby):</strong> Accessible from the public internet (used for load balancers).</li>
+              <li><strong>Private Subnet (Staff Only):</strong> Shielded away from internet access (where your EC2 servers and RDS databases live safely).</li>
+            </ul>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">5. Load Balancer (Traffic Distributor)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Distributes incoming visitor requests across multiple EC2 servers so no single server gets overloaded.
+            </p>
+          </div>
         </div>
+
+        <Callout type="note" title="Single-Server Simplicity">
+          A small or personal website does not require a load balancer or multiple servers! A single small EC2 instance running Ubuntu and Nginx can easily handle thousands of visitors each day.
+        </Callout>
       </section>
 
-      {/* Section 8 */}
-      <section id="aws-sec-8" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 8 — Practical AWS Deployment Workflow
+      {/* 4. Real-world example */}
+      <section id="aws-4" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          4. Real-World Example: An Online Store
         </h2>
-        <p>A structured approach to standing up this environment:</p>
-        <ol className="list-decimal pl-6 space-y-1.5 text-xs md:text-sm">
-          <li>Create VPC (<code>10.0.0.0/16</code>) with 2 public and 4 private subnets across 2 AZs.</li>
-          <li>Attach Internet Gateway to the VPC and configure public route tables (<code>0.0.0.0/0 → igw</code>).</li>
-          <li>Launch a NAT Gateway in Public Subnet AZ-a to enable private subnet egress.</li>
-          <li>Configure Security Groups: <code>sg-alb</code> (inbound 80/443), <code>sg-ec2</code> (inbound 3000 from <code>sg-alb</code>), <code>sg-rds</code> (inbound 5432 from <code>sg-ec2</code>).</li>
-          <li>Provision RDS PostgreSQL Multi-AZ cluster in private DB subnets.</li>
-          <li>Create an S3 bucket and attach a VPC Gateway Endpoint to the private route tables.</li>
-          <li>Launch EC2 instances in private app subnets using an Ubuntu 24.04 AMI.</li>
-          <li>Provision ALB across public subnets with an HTTPS listener and forward to target group.</li>
-          <li>Alias domain in Route 53 to the ALB DNS endpoint.</li>
+        <p>
+          Here is how all 5 services collaborate when a customer purchases an item on an online store:
+        </p>
+        <ol className="list-decimal pl-6 space-y-1.5 text-xs sm:text-sm">
+          <li>The customer opens <code>shop.example.com</code> in their browser.</li>
+          <li>The <strong>Load Balancer</strong> receives the request in the public subnet and forwards it to an active <strong>EC2 Server</strong> in the private subnet.</li>
+          <li>The <strong>EC2 Server</strong> queries the <strong>RDS Database</strong> to fetch customer account and order details.</li>
+          <li>The <strong>EC2 Server</strong> loads product photos stored in an <strong>S3 Bucket</strong>.</li>
+          <li>The final webpage is assembled and sent back to the customer&apos;s phone in milliseconds.</li>
         </ol>
       </section>
 
-      {/* Section 9 */}
-      <section id="aws-sec-9" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 9 — Security Best Practices
-        </h2>
-        <ul className="list-disc pl-6 space-y-1.5 text-xs md:text-sm">
-          <li>Enforce AWS IAM Least Privilege; never use root credentials for daily operations.</li>
-          <li>Encrypt all EBS volumes, RDS storage, and S3 buckets at rest using AWS KMS.</li>
-          <li>Use AWS SSM Session Manager instead of exposing port 22 directly to the internet.</li>
-          <li>Enable AWS CloudTrail and AWS Config for continuous infrastructure auditing.</li>
-        </ul>
-      </section>
-
-      {/* Section 10 */}
-      <section id="aws-sec-10" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 10 — Cost Awareness
+      {/* 5. Simple architecture diagram */}
+      <section id="aws-5" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          5. Simple Architecture Diagram
         </h2>
         <p>
-          Always set up an <strong>AWS Budget alert</strong> (e.g. at $10/month threshold). NAT
-          Gateways, ALBs, and multi-AZ RDS instances incur hourly charges regardless of traffic. For
-          learning labs, terminate or stop idle resources immediately after testing.
+          Press <strong>Play</strong> below to follow a visitor request through the Load Balancer, EC2 virtual server, RDS database, and S3 file storage:
         </p>
+
+        <AwsArchitectureDiagram />
+      </section>
+
+      {/* 6. Practical implementation */}
+      <section id="aws-6" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          6. Practical Implementation: Getting Started on AWS
+        </h2>
+        <p>
+          To launch your first cloud application on AWS, follow these standard steps:
+        </p>
+        <ol className="list-decimal pl-6 space-y-2 text-xs sm:text-sm">
+          <li>
+            <strong>Launch an EC2 Instance:</strong> In the AWS Console, choose Ubuntu 24.04 LTS and select the free-tier eligible <code>t4g.nano</code> or <code>t2.micro</code> instance size.
+          </li>
+          <li>
+            <strong>Download your Key Pair (.pem file):</strong> AWS creates a cryptographic key file so you can log into your server securely without needing a password.
+          </li>
+          <li>
+            <strong>Connect via SSH:</strong>
+            <CodeSnippet
+              lang="bash"
+              code={`# Connect to your new EC2 server from your terminal
+ssh -i ~/.ssh/my-aws-key.pem ubuntu@your-ec2-ip`}
+            />
+          </li>
+          <li>
+            <strong>Create an S3 Bucket:</strong> Create a bucket (e.g. <code>my-portfolio-assets-2026</code>) to upload photos and files.
+          </li>
+        </ol>
+
+        {/* Collapsible Technical Details */}
+        <TechnicalDetails title="Technical Details: Security Groups & IAM Roles">
+          <p>
+            <strong>Security Groups:</strong> Act as virtual firewalls for your EC2 instances. Only open port <code>80</code> (HTTP), port <code>443</code> (HTTPS), and port <code>22</code> (SSH from your IP address).
+          </p>
+          <p>
+            <strong>IAM Roles:</strong> Always attach an IAM role to your EC2 instance when it needs to access S3. Never hardcode AWS secret access keys inside your code.
+          </p>
+        </TechnicalDetails>
+      </section>
+
+      {/* 7. Common mistakes */}
+      <section id="aws-7" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          7. Common Mistakes
+        </h2>
+        <div className="space-y-2 text-xs sm:text-sm">
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Forgetting to terminate test resources:</strong> Load balancers, NAT Gateways, and databases charge by the hour. Stop or terminate learning instances when you finish testing.
+            </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Putting databases in the public subnet:</strong> Databases should never have public IP addresses. Keep RDS inside private subnets and only allow connections from EC2.
+            </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Committing AWS credentials to GitHub:</strong> Automated bots scan public repositories for leaked AWS keys. Use IAM roles and environment variables instead.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Key takeaways */}
+      <section id="aws-8" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          8. Key Takeaways
+        </h2>
+        <div className="border border-accent/40 bg-accent/5 p-4 rounded-xs space-y-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span><strong>EC2</strong> is your virtual server; <strong>S3</strong> stores files; <strong>RDS</strong> stores database records.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span><strong>VPC</strong> isolates your infrastructure; <strong>Load Balancer</strong> distributes visitor traffic.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Keep databases in private subnets shielded from direct public internet access.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Simple personal websites can start happily with a single affordable EC2 instance!</span>
+          </div>
+        </div>
       </section>
     </div>
   );
 }
 
 /* =========================================================================
-   ARTICLE 3: LINUX SERVER ADMIN CONTENT & TOC
+   ARTICLE 3: LINUX SERVER BASICS
 ========================================================================= */
-
-function LinuxToc() {
-  const links = [
-    { href: "#lnx-sec-1", title: "1. What is Linux Server Administration?" },
-    { href: "#lnx-sec-2", title: "2. Connecting via SSH" },
-    { href: "#lnx-sec-3", title: "3. Essential Linux Commands" },
-    { href: "#lnx-sec-4", title: "4. User & Permission Management" },
-    { href: "#lnx-sec-5", title: "5. Nginx Web Server Configuration" },
-    { href: "#lnx-sec-6", title: "6. Deployment Workflow (Diagram)" },
-    { href: "#lnx-sec-7", title: "7. Automated SSL with Certbot" },
-    { href: "#lnx-sec-8", title: "8. Monitoring & Troubleshooting" },
-    { href: "#lnx-sec-9", title: "9. Hardening & Security Best Practices" },
-  ];
-
-  return (
-    <ul className="space-y-2 text-xs">
-      {links.map((l) => (
-        <li key={l.href}>
-          <a href={l.href} className="text-text-muted hover:text-accent transition-colors block py-0.5">
-            {l.title}
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function LinuxAdminContent() {
   return (
     <div className="space-y-8 text-sm text-text leading-relaxed">
-      {/* Section 1 */}
-      <section id="lnx-sec-1" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 1 — What is Linux Server Administration?
+      {/* 1. What is it? */}
+      <section id="linux-1" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          1. What is it?
         </h2>
         <p>
-          Over 90% of global cloud infrastructure and public web servers run on Linux distributions
-          like Ubuntu, Debian, Red Hat, and Alpine. Linux server administration is the discipline of
-          configuring, operating, securing, and maintaining these headless operating systems to ensure
-          uninterrupted uptime, high throughput, and robust data protection.
+          <strong>Linux</strong> is a free, secure, and open-source operating system that powers over 90% of all cloud web servers and public websites across the world.
+        </p>
+        <p>
+          Unlike Windows or macOS on your laptop, a Linux server usually does not have a desktop screen, icons, or mouse pointer. It runs in &ldquo;headless&rdquo; mode and is controlled entirely using written text commands in a terminal window.
+        </p>
+        <p>
+          <strong>Ubuntu Server</strong> is the most popular Linux distribution for beginners and professionals because it is well-supported, reliable, and straightforward to manage.
         </p>
       </section>
 
-      {/* Section 2 */}
-      <section id="lnx-sec-2" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 2 — Connecting to a Linux Server via SSH
+      {/* 2. Why do we need it? */}
+      <section id="linux-2" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          2. Why do we need it?
         </h2>
         <p>
-          Secure Shell (SSH) is the cryptographic network protocol used to execute commands on remote
-          machines securely over an unsecured network.
+          Web servers need to run continuously 24 hours a day, 365 days a year without crashing, freezing, or requiring random restarts.
         </p>
-        <CodeSnippet
-          lang="bash"
-          code={`# Restrict permissions on your private key (required by OpenSSH)
-chmod 400 ~/.ssh/deployer_key.pem
-
-# Connect to Ubuntu cloud instance
-ssh -i ~/.ssh/deployer_key.pem ubuntu@your-server-ip
-
-# Test SSH connection with verbose debugging
-ssh -v -i ~/.ssh/deployer_key.pem ubuntu@your-server-ip`}
-        />
-      </section>
-
-      {/* Section 3 */}
-      <section id="lnx-sec-3" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 3 — Essential Linux Commands
-        </h2>
-        <p>Core command-line utilities used daily in cloud administration:</p>
-
-        <div className="overflow-x-auto border border-border bg-surface my-4">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-surface-muted mono font-semibold">
-                <th className="p-3">Command</th>
-                <th className="p-3">Description &amp; Flags</th>
-                <th className="p-3">Practical Example</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">df -h</td>
-                <td className="p-3">Inspect disk filesystem space in human-readable GB</td>
-                <td className="p-3 font-mono">df -h /</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">free -h</td>
-                <td className="p-3">Display total, used, and available RAM and Swap</td>
-                <td className="p-3 font-mono">free -m -t</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">systemctl</td>
-                <td className="p-3">Control systemd service units and daemons</td>
-                <td className="p-3 font-mono">sudo systemctl restart nginx</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">journalctl</td>
-                <td className="p-3">Query systemd journal logs with real-time tailing</td>
-                <td className="p-3 font-mono">journalctl -u nginx.service -f</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">grep -rn</td>
-                <td className="p-3">Search string recursively across directory with line numbers</td>
-                <td className="p-3 font-mono">grep -rn &ldquo;server_name&rdquo; /etc/nginx/</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-mono font-bold text-accent">top / htop</td>
-                <td className="p-3">Real-time dynamic view of running processes and CPU load</td>
-                <td className="p-3 font-mono">htop</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Section 4 */}
-      <section id="lnx-sec-4" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 4 — User and Permission Management
-        </h2>
-        <p>
-          Linux enforces multi-user security with Users, Groups, and Read/Write/Execute permissions:
-        </p>
-        <CodeSnippet
-          lang="bash"
-          code={`# Create an unprivileged deployment user
-sudo adduser deployer
-sudo usermod -aG sudo deployer
-
-# Grant ownership of web directory to deployer
-sudo chown -R deployer:www-data /var/www/html
-sudo chmod -R 755 /var/www/html`}
-        />
-      </section>
-
-      {/* Section 5 */}
-      <section id="lnx-sec-5" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 5 — Nginx Web Server &amp; Reverse Proxy
-        </h2>
-        <p>
-          Nginx is an event-driven, high-performance web server that terminates SSL and reverse
-          proxies requests to local app servers (Node.js, Python, or Go):
-        </p>
-        <CodeSnippet
-          lang="nginx"
-          code={`# /etc/nginx/sites-available/piyushprasad.in
-server {
-    listen 80;
-    server_name piyushprasad.in www.piyushprasad.in;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name piyushprasad.in www.piyushprasad.in;
-
-    ssl_certificate /etc/letsencrypt/live/piyushprasad.in/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/piyushprasad.in/privkey.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}`}
-        />
-        <CodeSnippet
-          lang="bash"
-          code={`# Test Nginx syntax and reload safely
-sudo nginx -t && sudo systemctl reload nginx`}
-        />
-      </section>
-
-      {/* Section 6 */}
-      <section id="lnx-sec-6" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 6 — Website Deployment Architecture
-        </h2>
-        <p>
-          The complete flow separating automated GitHub Actions deployment from incoming live web
-          visitor traffic:
-        </p>
-
-        <div className="my-6">
-          <LinuxArchitectureDiagram />
-        </div>
-      </section>
-
-      {/* Section 7 */}
-      <section id="lnx-sec-7" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 7 — SSL Certificates with Certbot &amp; Let&apos;s Encrypt
-        </h2>
-        <p>
-          Let&apos;s Encrypt provides free, automated 90-day TLS certificates using the ACME protocol.
-          Certbot automates certificate requests and Nginx configuration:
-        </p>
-        <CodeSnippet
-          lang="bash"
-          code={`# Install Certbot via Snap on Ubuntu
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-
-# Obtain and install SSL certificates for Nginx automatically
-sudo certbot --nginx -d piyushprasad.in -d www.piyushprasad.in
-
-# Verify that automatic renewal timers are active
-sudo certbot renew --dry-run`}
-        />
-      </section>
-
-      {/* Section 8 */}
-      <section id="lnx-sec-8" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 8 — Monitoring and Troubleshooting
-        </h2>
-        <p>When an application fails or returns a 502 Bad Gateway error:</p>
-        <CodeSnippet
-          lang="bash"
-          code={`# 1. Verify if the backend application is listening on port 3000
-sudo ss -tulpn | grep 3000
-
-# 2. Check Nginx error logs for upstream connect failures
-sudo tail -n 50 /var/log/nginx/error.log
-
-# 3. Check application logs via PM2 or systemd
-pm2 logs --lines 100
-# or
-journalctl -u webapp -n 50 --no-pager`}
-        />
-      </section>
-
-      {/* Section 9 */}
-      <section id="lnx-sec-9" className="space-y-4 scroll-mt-28">
-        <h2 className="text-2xl font-bold text-text border-b border-border pb-2">
-          Section 9 — Security Hardening Best Practices
-        </h2>
-        <ul className="list-disc pl-6 space-y-2 text-xs md:text-sm">
+        <ul className="list-disc pl-6 space-y-1.5 text-xs sm:text-sm">
           <li>
-            <strong>Disable Root SSH Password Login:</strong> In <code>/etc/ssh/sshd_config</code>,
-            set <code>PermitRootLogin no</code> and <code>PasswordAuthentication no</code>.
+            <strong>Rock-Solid Stability:</strong> Linux servers can run for years without needing to be rebooted.
           </li>
           <li>
-            <strong>Configure UFW Firewall:</strong>
-            <CodeSnippet
-              lang="bash"
-              code={`sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable`}
-            />
+            <strong>Security:</strong> Linux has a strict user permission system that protects system files from unauthorized changes.
           </li>
           <li>
-            <strong>Automatic Security Updates:</strong> Enable <code>unattended-upgrades</code> to
-            apply critical CVE security patches automatically without manual intervention.
+            <strong>Lightweight:</strong> Because there are no graphics or desktop windows, all CPU and memory power is reserved for serving your website fast.
           </li>
         </ul>
+      </section>
+
+      {/* 3. How does it work? */}
+      <section id="linux-3" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          3. How does it work? Core Concepts
+        </h2>
+        <p>Managing an Ubuntu server involves a few key technologies:</p>
+        <div className="space-y-3 my-4">
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">SSH (Secure Shell)</span>
+            <p className="text-xs text-text-muted mt-1">
+              A secure encrypted connection that lets you log into your remote server from your laptop terminal as if you were sitting right in front of it.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">Nginx (Web Server)</span>
+            <p className="text-xs text-text-muted mt-1">
+              High-speed software that listens for incoming website visitors on ports 80 and 443, and serves your website files or passes requests to your backend application.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">UFW (Firewall)</span>
+            <p className="text-xs text-text-muted mt-1">
+              The digital security guard on your server that only opens safe ports (like 443 for HTTPS and 22 for SSH) and blocks everything else.
+            </p>
+          </div>
+          <div className="border border-border bg-surface p-3.5 rounded-xs">
+            <span className="font-mono font-bold text-accent text-xs">SSL &amp; HTTPS</span>
+            <p className="text-xs text-text-muted mt-1">
+              Encrypts all communication between the visitor&apos;s browser and your server so passwords and data cannot be intercepted.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Real-world example */}
+      <section id="linux-4" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          4. Real-World Example: Deploying a Website
+        </h2>
+        <p>
+          In modern web engineering, website deployment and live visitor traffic are two separate streams that meet on the Linux server:
+        </p>
+        <ul className="list-disc pl-6 space-y-1.5 text-xs sm:text-sm">
+          <li>
+            <strong>Stream 1 (Deployment):</strong> Developer writes code on laptop → pushes commits to GitHub → Ubuntu server pulls updated code into <code>/var/www/website</code> → Nginx reloads.
+          </li>
+          <li>
+            <strong>Stream 2 (Visitor Traffic):</strong> Visitor enters domain in browser → DNS provides IP → request hits Nginx over HTTPS (port 443) → Nginx delivers the page.
+          </li>
+        </ul>
+      </section>
+
+      {/* 5. Simple architecture diagram */}
+      <section id="linux-5" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          5. Simple Architecture Diagram
+        </h2>
+        <p>
+          Press <strong>Play</strong> below to follow both the deployment process and the visitor request process:
+        </p>
+
+        <LinuxArchitectureDiagram />
+      </section>
+
+      {/* 6. Practical implementation */}
+      <section id="linux-6" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          6. Practical Implementation: Essential Commands
+        </h2>
+        <p>Here are the fundamental commands you need to manage your Ubuntu server:</p>
+
+        <div className="space-y-4 my-4">
+          <div>
+            <span className="mono text-xs font-bold text-text">1. Update the software package lists:</span>
+            <CodeSnippet lang="bash" code="sudo apt update" />
+            <p className="text-xs text-text-muted">Checks Ubuntu servers to see what software updates are available.</p>
+          </div>
+
+          <div>
+            <span className="mono text-xs font-bold text-text">2. Install the Nginx web server:</span>
+            <CodeSnippet lang="bash" code="sudo apt install -y nginx" />
+            <p className="text-xs text-text-muted">Installs Nginx so your server can start accepting website visitors.</p>
+          </div>
+
+          <div>
+            <span className="mono text-xs font-bold text-text">3. Verify that Nginx is running:</span>
+            <CodeSnippet lang="bash" code="sudo systemctl status nginx" />
+            <p className="text-xs text-text-muted">Shows whether Nginx is active, running, or has any errors.</p>
+          </div>
+
+          <div>
+            <span className="mono text-xs font-bold text-text">4. Check available hard drive disk space:</span>
+            <CodeSnippet lang="bash" code="df -h" />
+            <p className="text-xs text-text-muted">Displays hard drive usage in human-readable gigabytes (e.g. 15GB free).</p>
+          </div>
+
+          <div>
+            <span className="mono text-xs font-bold text-text">5. Check available RAM memory:</span>
+            <CodeSnippet lang="bash" code="free -h" />
+            <p className="text-xs text-text-muted">Displays how much RAM memory your applications are using.</p>
+          </div>
+
+          <div>
+            <span className="mono text-xs font-bold text-text">6. Configure the UFW firewall:</span>
+            <CodeSnippet
+              lang="bash"
+              code={`# Allow SSH so you do not lock yourself out
+sudo ufw allow 22
+
+# Allow standard web traffic
+sudo ufw allow 80
+sudo ufw allow 443
+
+# Turn on the firewall
+sudo ufw enable`}
+            />
+          </div>
+        </div>
+
+        {/* Collapsible Technical Details */}
+        <TechnicalDetails title="Technical Details: Nginx Configuration & Certbot SSL">
+          <p>
+            Nginx configuration files live in <code>/etc/nginx/sites-available/</code>. A minimal configuration to serve a static website looks like this:
+          </p>
+          <CodeSnippet
+            lang="nginx"
+            code={`server {
+    listen 80;
+    server_name piyushprasad.in www.piyushprasad.in;
+    root /var/www/website;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}`}
+          />
+          <p>
+            To enable free automated SSL certificates using Let&apos;s Encrypt:
+          </p>
+          <CodeSnippet
+            lang="bash"
+            code={`# Install Certbot and obtain HTTPS certificate
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d piyushprasad.in -d www.piyushprasad.in`}
+          />
+        </TechnicalDetails>
+      </section>
+
+      {/* 7. Common mistakes */}
+      <section id="linux-7" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          7. Common Mistakes
+        </h2>
+        <div className="space-y-2 text-xs sm:text-sm">
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Enabling the firewall without allowing SSH:</strong> If you run <code>sudo ufw enable</code> before running <code>sudo ufw allow 22</code>, you will be locked out of your server!
+            </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Running daily commands as the root user:</strong> Always log in as a standard user (like <code>ubuntu</code>) and use <code>sudo</code> only when administrator privileges are needed.
+            </div>
+          </div>
+          <div className="flex items-start gap-2 border border-rose-500/20 bg-rose-500/5 p-3 rounded-xs">
+            <XCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <strong>Loose permissions on SSH key files:</strong> OpenSSH will reject your key if other users on your laptop can read it. Run <code>chmod 400 ~/.ssh/my-key.pem</code>.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Key takeaways */}
+      <section id="linux-8" className="space-y-3 scroll-mt-28">
+        <h2 className="text-xl sm:text-2xl font-bold text-text border-b border-border pb-2">
+          8. Key Takeaways
+        </h2>
+        <div className="border border-accent/40 bg-accent/5 p-4 rounded-xs space-y-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Linux powers the modern cloud because it is reliable, lightweight, and secure.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Connect to your server using <strong>SSH</strong> and manage services using clear terminal commands.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span><strong>Nginx</strong> serves your website files and encrypts connections with free SSL certificates.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+            <span>Always keep your firewall active with only essential ports (22, 80, 443) open.</span>
+          </div>
+        </div>
       </section>
     </div>
   );
