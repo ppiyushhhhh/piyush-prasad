@@ -8,804 +8,596 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
-  Info,
-  Server,
   Globe,
+  Server,
   Laptop,
-  Database,
-  ShieldCheck,
-  ArrowRight,
   CheckCircle2,
+  HardDrive,
+  FileCode,
+  Gauge,
 } from "lucide-react";
 
-interface DnsNode {
-  id: string;
-  name: string;
-  subtitle: string;
-  type: "client" | "cache" | "resolver" | "root" | "tld" | "authoritative" | "hosting";
-  protocol: string;
-  port: string;
-  address: string;
-  description: string;
-  role: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
+interface DnsStep {
+  stepNumber: number;
+  activeNodeId: string;
+  sourceNodeId?: string;
+  targetNodeId?: string;
+  stage: "DNS Resolution" | "Website Request";
+  title: string;
+  whatIsHappening: string;
+  whyImportant: string;
+  realWorldExample: string;
 }
 
-const DNS_NODES: DnsNode[] = [
+const DNS_STEPS: DnsStep[] = [
   {
-    id: "visitor",
-    name: "1. Visitor & Browser",
-    subtitle: "Initiates domain request",
-    type: "client",
-    protocol: "HTTPS / OS API",
-    port: "User Space",
-    address: "Local Client",
-    role: "The web browser initiates resolution when user requests https://piyushprasad.in.",
-    description:
-      "When you type a domain in your address bar, the browser first inspects its internal memory cache (e.g. chrome://net-internals/#dns). If not found, it asks the local Operating System resolver.",
-    x: 40,
-    y: 70,
-    w: 180,
-    h: 84,
+    stepNumber: 1,
+    activeNodeId: "browser",
+    stage: "DNS Resolution",
+    title: "1. Visitor Enters Domain",
+    whatIsHappening:
+      'A visitor types "piyushprasad.in" into their web browser address bar and hits Enter. The browser checks if it already knows the numerical IP address.',
+    whyImportant:
+      "Computers cannot route traffic using letters or words. They need numerical IP addresses (like 76.76.21.21) to connect across the internet.",
+    realWorldExample:
+      'Like looking for a friend\'s name "Piyush" in your contacts because you do not have their 10-digit phone number memorized.',
   },
   {
-    id: "os-cache",
-    name: "2. OS DNS Cache",
-    subtitle: "Local resolver & hosts",
-    type: "cache",
-    protocol: "System Calls",
-    port: "Kernel / Service",
-    address: "127.0.0.1 / Systemd",
-    role: "Checks local OS DNS cache and /etc/hosts before querying external network.",
-    description:
-      "Operating systems (Windows DNS Client service, macOS mDNSResponder, or systemd-resolved) check recent cached responses. If cached and TTL is valid, resolution completes instantly without network traffic.",
-    x: 40,
-    y: 220,
-    w: 180,
-    h: 84,
+    stepNumber: 2,
+    activeNodeId: "resolver",
+    sourceNodeId: "browser",
+    targetNodeId: "resolver",
+    stage: "DNS Resolution",
+    title: "2. Browser Asks DNS Resolver",
+    whatIsHappening:
+      "Because the browser does not have the address in memory, it sends a query to the DNS Resolver (usually run by your ISP or a public provider like 1.1.1.1).",
+    whyImportant:
+      "The resolver acts as a helpful assistant that does the detective work of finding where the website is located on the global web.",
+    realWorldExample:
+      "Asking a hotel concierge for the directions to a specific store in a large city.",
   },
   {
-    id: "recursive",
-    name: "3. Recursive Resolver",
-    subtitle: "ISP / 1.1.1.1 / 8.8.8.8",
-    type: "resolver",
-    protocol: "DNS (UDP/TCP)",
-    port: "Port 53 / 853 (DoT)",
-    address: "1.1.1.1 / 8.8.8.8",
-    role: "Performs iterative queries across the global DNS hierarchy on the client's behalf.",
-    description:
-      "The recursive resolver acts as a digital librarian. When it does not have the answer in cache, it systematically traverses root, TLD, and authoritative nameservers to resolve the IP address.",
-    x: 290,
-    y: 145,
-    w: 200,
-    h: 94,
+    stepNumber: 3,
+    activeNodeId: "dnsServer",
+    sourceNodeId: "resolver",
+    targetNodeId: "dnsServer",
+    stage: "DNS Resolution",
+    title: "3. DNS Server Looks Up Record",
+    whatIsHappening:
+      "The resolver contacts the authoritative DNS nameserver for piyushprasad.in. The DNS server checks its DNS records table (the A Record) to find the server address.",
+    whyImportant:
+      "The authoritative DNS server holds the official master list of where every domain and subdomain should be routed.",
+    realWorldExample:
+      "Checking the official city directory to find the exact street address corresponding to a company name.",
   },
   {
-    id: "root-dns",
-    name: "4. Root DNS Server",
-    subtitle: "Root Zone (.)",
-    type: "root",
-    protocol: "DNS Anycast",
-    port: "Port 53",
-    address: "13 Global IP clusters (a-m)",
-    role: "Directs resolvers to the Top-Level Domain (TLD) servers for .in, .com, .org, etc.",
-    description:
-      "Managed by 12 independent organizations coordinated by IANA/ICANN. Root servers do not know the final website IP; they reply with a referral to the nameservers responsible for the .in TLD.",
-    x: 570,
-    y: 40,
-    w: 190,
-    h: 84,
+    stepNumber: 4,
+    activeNodeId: "ipAddress",
+    sourceNodeId: "dnsServer",
+    targetNodeId: "ipAddress",
+    stage: "DNS Resolution",
+    title: "4. DNS Returns Website IP",
+    whatIsHappening:
+      "The DNS server returns the IP address (e.g. 76.76.21.21) back to the resolver, which immediately hands it over to your browser.",
+    whyImportant:
+      "Now the browser has the exact destination coordinates it needs. DNS resolution is now complete!",
+    realWorldExample:
+      "The concierge gives you the exact address: 76 MG Road. You now know exactly where to travel.",
   },
   {
-    id: "tld-dns",
-    name: "5. TLD Nameserver",
-    subtitle: ".in Registry (NIXI)",
-    type: "tld",
-    protocol: "DNS Anycast",
-    port: "Port 53",
-    address: "Registry Nameservers",
-    role: "Stores delegation records (NS) for all registered domains ending in .in.",
-    description:
-      "Maintained by registry operators (such as the National Internet eXchange of India for .in). The TLD server replies with the authoritative nameservers configured at the domain registrar.",
-    x: 770,
-    y: 145,
-    w: 190,
-    h: 84,
+    stepNumber: 5,
+    activeNodeId: "hostingServer",
+    sourceNodeId: "browser",
+    targetNodeId: "hostingServer",
+    stage: "Website Request",
+    title: "5. Browser Connects to Hosting Server",
+    whatIsHappening:
+      "Now that the browser has the IP address, it bypasses DNS and connects directly to the Hosting Server over secure HTTPS (port 443) requesting the web page.",
+    whyImportant:
+      "DNS resolution is only for finding the address. The actual website files (HTML, CSS, images) come directly from the hosting server.",
+    realWorldExample:
+      "You drive straight to the store at 76 MG Road and ask the storekeeper for the catalog.",
   },
   {
-    id: "auth-dns",
-    name: "6. Authoritative DNS",
-    subtitle: "Vercel / Cloudflare NS",
-    type: "authoritative",
-    protocol: "DNS Anycast",
-    port: "Port 53",
-    address: "ns1.vercel-dns.com",
-    role: "Holds the official source-of-truth DNS zone file with A, AAAA, and CNAME records.",
-    description:
-      "This is where the domain owner manages DNS records. The authoritative nameserver reads the zone file for piyushprasad.in and responds with A = 76.76.21.21 and TTL = 300.",
-    x: 570,
-    y: 260,
-    w: 200,
-    h: 88,
-  },
-  {
-    id: "hosting",
-    name: "7. Website Hosting",
-    subtitle: "Vercel Global Edge",
-    type: "hosting",
-    protocol: "HTTPS / TLS 1.3",
-    port: "Port 443 (TCP)",
-    address: "76.76.21.21 (Anycast)",
-    role: "Terminates TLS handshake and delivers the website application payload.",
-    description:
-      "Once the browser obtains the IP address (76.76.21.21), the DNS phase is COMPLETE. The browser opens a TCP/TLS connection directly to this edge node to retrieve HTML, JS, and CSS.",
-    x: 290,
-    y: 460,
-    w: 210,
-    h: 96,
-  },
-  {
-    id: "website-response",
-    name: "8. Web Response",
-    subtitle: "HTTP 200 OK Delivered",
-    type: "client",
-    protocol: "HTTP/2 or HTTP/3",
-    port: "Browser DOM",
-    address: "Render Engine",
-    role: "Browser receives HTML bytes, parses the DOM, and renders the portfolio.",
-    description:
-      "The server returns the fully rendered webpage. The browser renders the interface and displays the secure lock icon in the address bar.",
-    x: 40,
-    y: 460,
-    w: 180,
-    h: 96,
-  },
-];
-
-const RESOLUTION_STEPS = [
-  {
-    step: 1,
-    title: "1. User Requests URL",
-    summary: "User enters https://piyushprasad.in in the browser.",
-    detail: "Browser checks internal cache; if expired or not found, it queries the local OS resolver.",
-    activeNodes: ["visitor", "os-cache"],
-    protocol: "Client Internal",
-  },
-  {
-    step: 2,
-    title: "2. Query to Recursive Resolver",
-    summary: "OS sends recursive DNS query to 1.1.1.1 / 8.8.8.8 over UDP 53.",
-    detail: "Recursive resolver checks its local cache. On a cache miss, it begins iterative resolution.",
-    activeNodes: ["os-cache", "recursive"],
-    protocol: "UDP 53 (DNS Query)",
-  },
-  {
-    step: 3,
-    title: "3. Root Server Referral",
-    summary: "Resolver queries Root DNS Server (.) for .in.",
-    detail: "Root nameserver responds: 'I don't know piyushprasad.in, but here are the .in TLD nameservers.'",
-    activeNodes: ["recursive", "root-dns"],
-    protocol: "UDP 53 (Root Referral)",
-  },
-  {
-    step: 4,
-    title: "4. TLD Server Referral",
-    summary: "Resolver queries .in TLD nameserver for piyushprasad.in.",
-    detail: "TLD server responds: 'Here are the authoritative nameservers for piyushprasad.in: ns1.vercel-dns.com.'",
-    activeNodes: ["recursive", "tld-dns"],
-    protocol: "UDP 53 (TLD Referral)",
-  },
-  {
-    step: 5,
-    title: "5. Authoritative Query & Answer",
-    summary: "Resolver queries Authoritative Nameserver (ns1.vercel-dns.com).",
-    detail: "Authoritative server answers with A Record: 76.76.21.21 (TTL 300 seconds).",
-    activeNodes: ["recursive", "auth-dns"],
-    protocol: "UDP 53 (Authoritative Answer)",
-  },
-  {
-    step: 6,
-    title: "6. Resolver Returns IP to Client",
-    summary: "Resolver caches the answer and returns 76.76.21.21 to the browser.",
-    detail: "DNS resolution is now complete! The browser now knows the exact server IP address.",
-    activeNodes: ["recursive", "visitor"],
-    protocol: "UDP 53 (DNS Response)",
-  },
-  {
-    step: 7,
-    title: "7. Direct HTTPS Connection",
-    summary: "Browser connects directly to hosting server (76.76.21.21:443).",
-    detail: "TCP three-way handshake + TLS 1.3 handshake. Browser issues HTTP GET / request.",
-    activeNodes: ["visitor", "hosting"],
-    protocol: "TCP 443 (TLS Handshake)",
-  },
-  {
-    step: 8,
-    title: "8. Website Response Rendered",
-    summary: "Hosting server streams HTTP 200 OK with HTML payload.",
-    detail: "The browser downloads website assets and renders the portfolio page.",
-    activeNodes: ["hosting", "website-response"],
-    protocol: "HTTPS (Web Response)",
+    stepNumber: 6,
+    activeNodeId: "websiteOpens",
+    sourceNodeId: "hostingServer",
+    targetNodeId: "websiteOpens",
+    stage: "Website Request",
+    title: "6. Website Appears in Browser",
+    whatIsHappening:
+      "The hosting server responds with the website HTML, CSS, and images. The browser renders the page, and the visitor sees piyushprasad.in live on their screen!",
+    whyImportant:
+      "The entire round-trip from entering the domain to viewing the live website usually happens in under 200 milliseconds.",
+    realWorldExample:
+      "The storekeeper hands you the catalog, and you begin reading it on your phone.",
   },
 ];
 
 export function DnsArchitectureDiagram() {
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [selectedNode, setSelectedNode] = useState<DnsNode>(DNS_NODES[0]);
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-play loop
+  const step = DNS_STEPS[currentStepIndex];
+
+  // Auto-play timer
   useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setCurrentStep((prev) => (prev + 1) % RESOLUTION_STEPS.length);
-      }, 2500);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPlaying]);
+    if (!isPlaying) return;
 
-  const activeStepData = RESOLUTION_STEPS[currentStep];
+    const delay = 3800 / playbackSpeed;
+    const timer = setTimeout(() => {
+      setCurrentStepIndex((prev) => (prev + 1) % DNS_STEPS.length);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [isPlaying, currentStepIndex, playbackSpeed]);
 
   const handleNext = () => {
     setIsPlaying(false);
-    setCurrentStep((prev) => (prev + 1) % RESOLUTION_STEPS.length);
+    setCurrentStepIndex((prev) => (prev + 1) % DNS_STEPS.length);
   };
 
   const handlePrev = () => {
     setIsPlaying(false);
-    setCurrentStep((prev) => (prev - 1 + RESOLUTION_STEPS.length) % RESOLUTION_STEPS.length);
+    setCurrentStepIndex((prev) => (prev - 1 + DNS_STEPS.length) % DNS_STEPS.length);
   };
 
-  const handleReset = () => {
-    setIsPlaying(false);
-    setCurrentStep(0);
+  const handleRestart = () => {
+    setCurrentStepIndex(0);
+    setIsPlaying(true);
+  };
+
+  const handleZoomIn = () => setZoomLevel((z) => Math.min(1.6, z + 0.15));
+  const handleZoomOut = () => setZoomLevel((z) => Math.max(0.7, z - 0.15));
+  const handleResetView = () => {
     setZoomLevel(1);
+    setPan({ x: 0, y: 0 });
   };
 
-  const handleZoomIn = () => setZoomLevel((z) => Math.min(1.4, z + 0.1));
-  const handleZoomOut = () => setZoomLevel((z) => Math.max(0.75, z - 0.1));
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  // Diagram Node Coordinates (viewBox 0 0 960 360)
+  const nodes = {
+    browser: { x: 50, y: 55, w: 170, h: 74, name: "Web Browser", sub: "Visitor's Device", icon: Laptop },
+    resolver: { x: 285, y: 55, w: 170, h: 74, name: "DNS Resolver", sub: "ISP / 1.1.1.1", icon: Globe },
+    dnsServer: { x: 520, y: 55, w: 170, h: 74, name: "DNS Nameserver", sub: "Holds A Records", icon: Server },
+    ipAddress: { x: 755, y: 55, w: 160, h: 74, name: "Website IP", sub: "e.g. 76.76.21.21", icon: HardDrive },
+    hostingServer: { x: 440, y: 220, w: 180, h: 76, name: "Hosting Server", sub: "Vercel / AWS / EC2", icon: Server },
+    websiteOpens: { x: 740, y: 220, w: 170, h: 76, name: "Website Opens!", sub: "Live in Browser", icon: CheckCircle2 },
+  };
 
   return (
-    <div className="border border-border bg-surface my-8 overflow-hidden shadow-xs">
-      {/* Header & Controls Toolbar */}
-      <div className="flex flex-wrap items-center justify-between border-b border-border bg-surface-muted/50 p-4 gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-text">
-              Interactive DNS Resolution Architecture
-            </h3>
+    <div className="my-8 overflow-hidden rounded-xs border border-border bg-surface shadow-xs">
+      {/* Top Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface-muted/60 px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-accent/10 border border-accent/30 text-accent">
+            <Globe className="h-4 w-4" />
           </div>
-          <p className="text-xs text-text-muted mt-0.5">
-            Step {activeStepData.step} of 8:{" "}
-            <span className="font-semibold text-accent">{activeStepData.title}</span>
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="mono text-xs font-bold uppercase tracking-wider text-text">
+                Live DNS Resolution Flow
+              </span>
+              <span
+                className={`mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border ${
+                  step.stage === "DNS Resolution"
+                    ? "border-sky-500/30 bg-sky-500/10 text-sky-700"
+                    : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
+                }`}
+              >
+                {step.stage}
+              </span>
+            </div>
+            <div className="mono text-[10px] text-text-muted">
+              Step {step.stepNumber} of {DNS_STEPS.length} &bull; {step.title}
+            </div>
+          </div>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Playback Controls & Speed */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Play/Pause Button */}
           <button
             type="button"
             onClick={() => setIsPlaying(!isPlaying)}
-            className="inline-flex items-center gap-1.5 border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-text hover:border-accent hover:text-accent cursor-pointer transition-colors"
+            className="inline-flex items-center gap-1.5 border border-accent bg-accent px-3 py-1.5 text-xs font-semibold text-text-on-accent transition-all hover:bg-accent-hover cursor-pointer shadow-2xs"
+            title={isPlaying ? "Pause animation" : "Play step-by-step animation"}
           >
-            {isPlaying ? (
-              <>
-                <Pause className="h-3.5 w-3.5 text-accent" />
-                <span>Pause</span>
-              </>
-            ) : (
-              <>
-                <Play className="h-3.5 w-3.5 text-accent" />
-                <span>Play DNS Flow</span>
-              </>
-            )}
+            {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+            <span>{isPlaying ? "Pause" : "Play"}</span>
           </button>
 
+          {/* Prev / Next */}
           <button
             type="button"
             onClick={handlePrev}
-            className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent cursor-pointer"
-            title="Previous Step"
+            className="flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent transition-colors cursor-pointer"
+            title="Previous step"
+            aria-label="Previous step"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-
           <button
             type="button"
             onClick={handleNext}
-            className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent cursor-pointer"
-            title="Next Step"
+            className="flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent transition-colors cursor-pointer"
+            title="Next step"
+            aria-label="Next step"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
 
+          {/* Restart */}
           <button
             type="button"
-            onClick={handleReset}
-            className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent cursor-pointer"
-            title="Reset to Start"
+            onClick={handleRestart}
+            className="flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent hover:text-accent transition-colors cursor-pointer"
+            title="Restart from Step 1"
+            aria-label="Restart flow"
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
 
-          <div className="h-4 w-px bg-border mx-1" />
-
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent cursor-pointer"
-            title="Zoom In"
-          >
-            <ZoomIn className="h-3.5 w-3.5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text hover:border-accent cursor-pointer"
-            title="Zoom Out"
-          >
-            <ZoomOut className="h-3.5 w-3.5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setZoomLevel(1)}
-            className="inline-flex items-center gap-1 border border-border bg-surface px-2 py-1 text-[11px] font-mono text-text hover:border-accent cursor-pointer"
-            title="Fit to Screen"
-          >
-            <Maximize2 className="h-3 w-3" />
-            <span>Fit</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Step Progress Ticker */}
-      <div className="grid grid-cols-4 sm:grid-cols-8 border-b border-border bg-background">
-        {RESOLUTION_STEPS.map((s, idx) => {
-          const isActive = idx === currentStep;
-          const isDone = idx < currentStep;
-          return (
-            <button
-              key={s.step}
-              type="button"
-              onClick={() => {
-                setIsPlaying(false);
-                setCurrentStep(idx);
-              }}
-              className={`p-2 text-left border-r border-border transition-all cursor-pointer ${
-                isActive
-                  ? "bg-accent/10 border-b-2 border-b-accent"
-                  : isDone
-                    ? "bg-surface text-text-muted hover:bg-surface-muted"
-                    : "bg-surface-muted/30 text-text-muted hover:bg-surface-muted"
-              }`}
-            >
-              <div className="flex items-center gap-1">
-                <span
-                  className={`mono text-[10px] font-bold ${
-                    isActive ? "text-accent" : isDone ? "text-success" : "text-text-muted"
-                  }`}
-                >
-                  0{s.step}
-                </span>
-                {isDone && <CheckCircle2 className="h-2.5 w-2.5 text-success ml-auto" />}
-              </div>
-              <div
-                className={`text-[10px] truncate ${
-                  isActive ? "font-semibold text-text" : "text-text-muted"
+          {/* Speed Selector */}
+          <div className="hidden sm:flex items-center border border-border bg-surface px-1 py-0.5 text-[10px] font-mono text-text">
+            <Gauge className="h-3 w-3 text-accent mr-1 ml-0.5" />
+            {[1, 1.5, 2].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setPlaybackSpeed(s)}
+                className={`px-1.5 py-0.5 font-bold transition-colors ${
+                  playbackSpeed === s ? "text-accent bg-accent/10" : "text-text-muted hover:text-text"
                 }`}
               >
-                {s.title.split(". ")[1]}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                {s}x
+              </button>
+            ))}
+          </div>
 
-      {/* Main Visual Canvas & Inspector Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-        {/* SVG Interactive Canvas */}
-        <div className="lg:col-span-8 p-4 overflow-x-auto bg-background/50 flex items-center justify-center">
-          <div
-            style={{
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: "center center",
-              transition: "transform 0.2s ease-out",
-            }}
-            className="w-full max-w-[1000px]"
-          >
-            <svg
-              viewBox="0 0 1000 600"
-              className="w-full h-auto select-none font-sans"
-              style={{ minWidth: "750px" }}
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1 border-l border-border pl-1.5 ml-1">
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="flex h-7 w-7 items-center justify-center border border-border bg-surface text-text hover:text-accent cursor-pointer"
+              title="Zoom in"
             >
-              <defs>
-                <marker
-                  id="dns-arrow"
-                  viewBox="0 0 10 10"
-                  refX="6"
-                  refY="5"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto-start-reverse"
-                >
-                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#1A4BFF" />
-                </marker>
-                <marker
-                  id="http-arrow"
-                  viewBox="0 0 10 10"
-                  refX="6"
-                  refY="5"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto-start-reverse"
-                >
-                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#16A34A" />
-                </marker>
-              </defs>
-
-              {/* Background grid */}
-              <pattern id="dns-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E5DF" strokeWidth="0.5" />
-              </pattern>
-              <rect width="1000" height="600" fill="url(#dns-grid)" opacity="0.4" />
-
-              {/* Zone Separation Boundaries */}
-              <rect
-                x="20"
-                y="20"
-                width="220"
-                height="560"
-                fill="none"
-                stroke="#E5E5DF"
-                strokeDasharray="4 4"
-                rx="8"
-              />
-              <text x="30" y="44" className="mono text-[10px] font-semibold fill-text-muted">
-                ZONE 1: CLIENT BOUNDARY
-              </text>
-
-              <rect
-                x="260"
-                y="20"
-                width="260"
-                height="340"
-                fill="none"
-                stroke="#E5E5DF"
-                strokeDasharray="4 4"
-                rx="8"
-              />
-              <text x="270" y="44" className="mono text-[10px] font-semibold fill-text-muted">
-                ZONE 2: RESOLVER (UDP 53)
-              </text>
-
-              <rect
-                x="540"
-                y="20"
-                width="440"
-                height="340"
-                fill="none"
-                stroke="#E5E5DF"
-                strokeDasharray="4 4"
-                rx="8"
-              />
-              <text x="550" y="44" className="mono text-[10px] font-semibold fill-text-muted">
-                ZONE 3: GLOBAL HIERARCHY
-              </text>
-
-              <rect
-                x="260"
-                y="390"
-                width="480"
-                height="190"
-                fill="none"
-                stroke="#16A34A"
-                strokeOpacity="0.3"
-                strokeDasharray="4 4"
-                rx="8"
-              />
-              <text x="270" y="414" className="mono text-[10px] font-bold fill-success">
-                ZONE 4: HOSTING RUNTIME (TCP 443 — NO DNS TRAFFIC)
-              </text>
-
-              {/* Connecting Lines */}
-              {/* Visitor <-> OS cache */}
-              <path
-                d="M 130 154 L 130 220"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                strokeDasharray={currentStep >= 1 ? "none" : "4 4"}
-                opacity={currentStep === 0 ? 1 : 0.4}
-              />
-
-              {/* OS Cache -> Recursive */}
-              <path
-                d="M 220 262 L 290 200"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                markerEnd="url(#dns-arrow)"
-                strokeDasharray={currentStep === 1 ? "4 4" : "none"}
-                opacity={currentStep === 1 || currentStep === 5 ? 1 : 0.3}
-              />
-
-              {/* Recursive <-> Root */}
-              <path
-                d="M 490 160 L 570 90"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                markerEnd="url(#dns-arrow)"
-                strokeDasharray={currentStep === 2 ? "4 4" : "none"}
-                opacity={currentStep === 2 ? 1 : 0.3}
-              />
-
-              {/* Recursive <-> TLD */}
-              <path
-                d="M 490 190 L 770 190"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                markerEnd="url(#dns-arrow)"
-                strokeDasharray={currentStep === 3 ? "4 4" : "none"}
-                opacity={currentStep === 3 ? 1 : 0.3}
-              />
-
-              {/* Recursive <-> Authoritative */}
-              <path
-                d="M 490 220 L 570 290"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                markerEnd="url(#dns-arrow)"
-                strokeDasharray={currentStep === 4 ? "4 4" : "none"}
-                opacity={currentStep === 4 ? 1 : 0.3}
-              />
-
-              {/* Recursive -> Visitor (Direct answer delivery) */}
-              <path
-                d="M 290 170 C 230 170, 220 120, 220 110"
-                stroke="#1A4BFF"
-                strokeWidth="2"
-                markerEnd="url(#dns-arrow)"
-                fill="none"
-                opacity={currentStep === 5 ? 1 : 0.3}
-              />
-
-              {/* HTTP Traffic: Visitor -> Hosting Server (Green Solid) */}
-              <path
-                d="M 130 154 C 130 400, 200 500, 290 500"
-                stroke="#16A34A"
-                strokeWidth="3"
-                markerEnd="url(#http-arrow)"
-                fill="none"
-                strokeDasharray={currentStep >= 6 ? "none" : "6 6"}
-                opacity={currentStep === 6 ? 1 : 0.35}
-              />
-
-              {/* HTTP Response: Hosting -> Website Response */}
-              <path
-                d="M 290 520 L 220 520"
-                stroke="#16A34A"
-                strokeWidth="3"
-                markerEnd="url(#http-arrow)"
-                fill="none"
-                opacity={currentStep === 7 ? 1 : 0.35}
-              />
-
-              {/* Render Nodes */}
-              {DNS_NODES.map((node) => {
-                const isSelected = selectedNode.id === node.id;
-                const isStepActive = activeStepData.activeNodes.includes(node.id);
-
-                return (
-                  <g
-                    key={node.id}
-                    onClick={() => setSelectedNode(node)}
-                    className="cursor-pointer transition-all"
-                  >
-                    {/* Shadow / Glow */}
-                    {isStepActive && (
-                      <rect
-                        x={node.x - 4}
-                        y={node.y - 4}
-                        width={node.w + 8}
-                        height={node.h + 8}
-                        rx="8"
-                        fill="none"
-                        stroke={node.type === "hosting" ? "#16A34A" : "#1A4BFF"}
-                        strokeWidth="2"
-                        className="animate-pulse"
-                      />
-                    )}
-
-                    {/* Node Card Box */}
-                    <rect
-                      x={node.x}
-                      y={node.y}
-                      width={node.w}
-                      height={node.h}
-                      rx="6"
-                      fill={
-                        isSelected
-                          ? "#FFFFFF"
-                          : isStepActive
-                            ? "#FFFFFF"
-                            : "#FAF9F6"
-                      }
-                      stroke={
-                        isSelected
-                          ? "#1A4BFF"
-                          : isStepActive
-                            ? node.type === "hosting"
-                              ? "#16A34A"
-                              : "#1A4BFF"
-                            : "#E5E5DF"
-                      }
-                      strokeWidth={isSelected ? "2" : "1"}
-                    />
-
-                    {/* Header bar in node */}
-                    <rect
-                      x={node.x}
-                      y={node.y}
-                      width={node.w}
-                      height="24"
-                      rx="6"
-                      fill={
-                        node.type === "hosting"
-                          ? "#F0FDF4"
-                          : isStepActive
-                            ? "#EEF2FF"
-                            : "#F3F3ED"
-                      }
-                    />
-
-                    {/* Node Title */}
-                    <text
-                      x={node.x + 10}
-                      y={node.y + 16}
-                      className="mono text-[11px] font-bold"
-                      fill={
-                        node.type === "hosting"
-                          ? "#16A34A"
-                          : isStepActive
-                            ? "#1A4BFF"
-                            : "#121316"
-                      }
-                    >
-                      {node.name}
-                    </text>
-
-                    {/* Node Subtitle */}
-                    <text
-                      x={node.x + 10}
-                      y={node.y + 42}
-                      className="text-[11px] font-medium"
-                      fill="#121316"
-                    >
-                      {node.subtitle}
-                    </text>
-
-                    {/* Node Port / Protocol Badge */}
-                    <rect
-                      x={node.x + 10}
-                      y={node.y + 54}
-                      width={node.w - 20}
-                      height="18"
-                      rx="3"
-                      fill="#FFFFFF"
-                      stroke="#E5E5DF"
-                      strokeWidth="0.8"
-                    />
-                    <text
-                      x={node.x + 16}
-                      y={node.y + 67}
-                      className="mono text-[9px] font-semibold"
-                      fill="#5A5C66"
-                    >
-                      {node.protocol} · {node.port}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-        </div>
-
-        {/* Technical Component Inspector Sidebar */}
-        <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-border bg-surface p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 text-accent" />
-              <h4 className="mono text-xs font-bold uppercase tracking-wider text-text">
-                Component Inspector
-              </h4>
-            </div>
-            <span className="mono text-[10px] px-2 py-0.5 border border-border bg-surface-muted text-accent">
-              CLICK ANY NODE
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <span className="mono text-[10px] uppercase text-text-muted">Selected Component</span>
-              <h3 className="text-sm font-bold text-text mt-0.5">{selectedNode.name}</h3>
-              <p className="text-xs text-accent font-medium">{selectedNode.subtitle}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 border border-border bg-surface-muted/40">
-                <span className="mono text-[9px] uppercase text-text-muted block">Protocol</span>
-                <span className="font-mono text-[11px] font-semibold text-text">
-                  {selectedNode.protocol}
-                </span>
-              </div>
-              <div className="p-2 border border-border bg-surface-muted/40">
-                <span className="mono text-[9px] uppercase text-text-muted block">Port / Layer</span>
-                <span className="font-mono text-[11px] font-semibold text-text">
-                  {selectedNode.port}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-2.5 border border-border bg-surface-muted/40 space-y-1">
-              <span className="mono text-[9px] uppercase text-text-muted block">Resolved Address</span>
-              <div className="mono text-xs font-bold text-accent">{selectedNode.address}</div>
-            </div>
-
-            <div className="space-y-1">
-              <span className="mono text-[10px] uppercase text-text-muted">Functional Role</span>
-              <p className="text-xs text-text leading-relaxed bg-background p-2.5 border border-border">
-                {selectedNode.role}
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <span className="mono text-[10px] uppercase text-text-muted">Technical Details</span>
-              <p className="text-xs text-text-muted leading-relaxed">
-                {selectedNode.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Current Step Callout */}
-          <div className="mt-4 pt-4 border-t border-border">
-            <span className="mono text-[10px] font-bold uppercase tracking-wider text-accent block mb-1">
-              Active Resolution State
-            </span>
-            <div className="border border-accent/20 bg-accent-soft p-3">
-              <div className="text-xs font-bold text-accent">{activeStepData.title}</div>
-              <p className="text-xs text-text mt-1">{activeStepData.summary}</p>
-              <p className="text-[11px] text-text-muted mt-1.5 font-mono">
-                {activeStepData.detail}
-              </p>
-            </div>
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="flex h-7 w-7 items-center justify-center border border-border bg-surface text-text hover:text-accent cursor-pointer"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleResetView}
+              className="flex h-7 w-7 items-center justify-center border border-border bg-surface text-text hover:text-accent cursor-pointer text-[10px] font-mono"
+              title="Reset view"
+            >
+              Fit
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Legend Footer */}
-      <div className="flex flex-wrap items-center justify-between border-t border-border bg-surface-muted/30 px-4 py-2.5 text-xs text-text-muted gap-3">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="h-0.5 w-6 bg-accent" />
-            <span className="font-mono text-[11px]">DNS Resolution Flow (UDP 53)</span>
+      {/* SVG Canvas Area */}
+      <div
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        className="relative h-[340px] sm:h-[380px] w-full overflow-hidden bg-[#FAFAF8] select-none cursor-grab active:cursor-grabbing"
+      >
+        <svg
+          viewBox="0 0 960 360"
+          className="h-full w-full transition-transform duration-100 ease-out"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})`,
+            transformOrigin: "center center",
+          }}
+        >
+          <defs>
+            {/* Arrowhead marker */}
+            <marker id="dns-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#0D9488" />
+            </marker>
+            <marker id="dns-arrow-inactive" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#CBD5E1" />
+            </marker>
+          </defs>
+
+          {/* Group 1 Background: DNS Resolution Zone (Top) */}
+          <rect
+            x="20"
+            y="20"
+            width="920"
+            height="145"
+            rx="6"
+            fill="#F0FDF4"
+            stroke="#BBF7D0"
+            strokeWidth="1.2"
+            strokeDasharray="4 4"
+          />
+          <text x="35" y="42" fill="#166534" fontSize="11" fontFamily="monospace" fontWeight="700">
+            PHASE 1: DNS RESOLUTION (Finding Where piyushprasad.in Lives)
+          </text>
+
+          {/* Group 2 Background: Direct Web Request Zone (Bottom) */}
+          <rect
+            x="20"
+            y="185"
+            width="920"
+            height="155"
+            rx="6"
+            fill="#F8FAFC"
+            stroke="#E2E8F0"
+            strokeWidth="1.2"
+            strokeDasharray="4 4"
+          />
+          <text x="35" y="206" fill="#334155" fontSize="11" fontFamily="monospace" fontWeight="700">
+            PHASE 2: HTTPS WEB TRAFFIC (Connecting to Server &amp; Loading Website)
+          </text>
+
+          {/* Connection Lines (Stage 1: Top) */}
+          {/* Browser -> Resolver */}
+          <line
+            x1={nodes.browser.x + nodes.browser.w}
+            y1={nodes.browser.y + nodes.browser.h / 2}
+            x2={nodes.resolver.x}
+            y2={nodes.resolver.y + nodes.resolver.h / 2}
+            stroke={currentStepIndex >= 1 ? "#0D9488" : "#CBD5E1"}
+            strokeWidth={currentStepIndex === 1 ? 2.5 : 1.5}
+            strokeDasharray={currentStepIndex === 1 ? "4 4" : undefined}
+            markerEnd={currentStepIndex >= 1 ? "url(#dns-arrow)" : "url(#dns-arrow-inactive)"}
+          />
+          {/* Resolver -> DNS Server */}
+          <line
+            x1={nodes.resolver.x + nodes.resolver.w}
+            y1={nodes.resolver.y + nodes.resolver.h / 2}
+            x2={nodes.dnsServer.x}
+            y2={nodes.dnsServer.y + nodes.dnsServer.h / 2}
+            stroke={currentStepIndex >= 2 ? "#0D9488" : "#CBD5E1"}
+            strokeWidth={currentStepIndex === 2 ? 2.5 : 1.5}
+            strokeDasharray={currentStepIndex === 2 ? "4 4" : undefined}
+            markerEnd={currentStepIndex >= 2 ? "url(#dns-arrow)" : "url(#dns-arrow-inactive)"}
+          />
+          {/* DNS Server -> IP Address */}
+          <line
+            x1={nodes.dnsServer.x + nodes.dnsServer.w}
+            y1={nodes.dnsServer.y + nodes.dnsServer.h / 2}
+            x2={nodes.ipAddress.x}
+            y2={nodes.ipAddress.y + nodes.ipAddress.h / 2}
+            stroke={currentStepIndex >= 3 ? "#0D9488" : "#CBD5E1"}
+            strokeWidth={currentStepIndex === 3 ? 2.5 : 1.5}
+            strokeDasharray={currentStepIndex === 3 ? "4 4" : undefined}
+            markerEnd={currentStepIndex >= 3 ? "url(#dns-arrow)" : "url(#dns-arrow-inactive)"}
+          />
+
+          {/* Connection Lines (Stage 2: Bottom) */}
+          {/* Browser -> Hosting Server (Direct connection curve) */}
+          <path
+            d={`M ${nodes.browser.x + nodes.browser.w / 2} ${nodes.browser.y + nodes.browser.h} 
+                C ${nodes.browser.x + nodes.browser.w / 2} 260, 360 260, ${nodes.hostingServer.x} ${nodes.hostingServer.y + nodes.hostingServer.h / 2}`}
+            fill="none"
+            stroke={currentStepIndex >= 4 ? "#0D9488" : "#CBD5E1"}
+            strokeWidth={currentStepIndex === 4 ? 2.5 : 1.5}
+            strokeDasharray={currentStepIndex === 4 ? "5 4" : undefined}
+            markerEnd={currentStepIndex >= 4 ? "url(#dns-arrow)" : "url(#dns-arrow-inactive)"}
+          />
+
+          {/* Hosting Server -> Website Opens */}
+          <line
+            x1={nodes.hostingServer.x + nodes.hostingServer.w}
+            y1={nodes.hostingServer.y + nodes.hostingServer.h / 2}
+            x2={nodes.websiteOpens.x}
+            y2={nodes.websiteOpens.y + nodes.websiteOpens.h / 2}
+            stroke={currentStepIndex >= 5 ? "#0D9488" : "#CBD5E1"}
+            strokeWidth={currentStepIndex === 5 ? 2.5 : 1.5}
+            strokeDasharray={currentStepIndex === 5 ? "4 4" : undefined}
+            markerEnd={currentStepIndex >= 5 ? "url(#dns-arrow)" : "url(#dns-arrow-inactive)"}
+          />
+
+          {/* Step Animated Indicators (Moving pulse along active path) */}
+          {currentStepIndex === 1 && (
+            <circle cx="250" cy="92" r="5" fill="#0D9488" className="animate-ping" />
+          )}
+          {currentStepIndex === 2 && (
+            <circle cx="488" cy="92" r="5" fill="#0D9488" className="animate-ping" />
+          )}
+          {currentStepIndex === 3 && (
+            <circle cx="720" cy="92" r="5" fill="#0D9488" className="animate-ping" />
+          )}
+          {currentStepIndex === 4 && (
+            <circle cx="340" cy="245" r="5" fill="#0D9488" className="animate-ping" />
+          )}
+          {currentStepIndex === 5 && (
+            <circle cx="680" cy="258" r="5" fill="#0D9488" className="animate-ping" />
+          )}
+
+          {/* Component Cards */}
+          {Object.entries(nodes).map(([key, n]) => {
+            const isActive = step.activeNodeId === key;
+            const isCompleted =
+              (key === "browser" && currentStepIndex >= 0) ||
+              (key === "resolver" && currentStepIndex >= 1) ||
+              (key === "dnsServer" && currentStepIndex >= 2) ||
+              (key === "ipAddress" && currentStepIndex >= 3) ||
+              (key === "hostingServer" && currentStepIndex >= 4) ||
+              (key === "websiteOpens" && currentStepIndex >= 5);
+
+            return (
+              <g
+                key={key}
+                className="cursor-pointer transition-all duration-200"
+                onClick={() => {
+                  const targetIdx = DNS_STEPS.findIndex((s) => s.activeNodeId === key);
+                  if (targetIdx !== -1) {
+                    setIsPlaying(false);
+                    setCurrentStepIndex(targetIdx);
+                  }
+                }}
+              >
+                {/* Node Box */}
+                <rect
+                  x={n.x}
+                  y={n.y}
+                  width={n.w}
+                  height={n.h}
+                  rx="6"
+                  fill={isActive ? "#FFFFFF" : isCompleted ? "#F8FAFC" : "#FFFFFF"}
+                  stroke={isActive ? "#0D9488" : isCompleted ? "#14B8A6" : "#E2E8F0"}
+                  strokeWidth={isActive ? 2.5 : 1.2}
+                  filter={isActive ? "drop-shadow(0 4px 6px rgba(13, 148, 136, 0.2))" : undefined}
+                />
+
+                {/* Status Dot */}
+                <circle
+                  cx={n.x + 16}
+                  cy={n.y + 22}
+                  r="4"
+                  fill={isActive ? "#0D9488" : isCompleted ? "#10B981" : "#94A3B8"}
+                />
+
+                {/* Node Name */}
+                <text
+                  x={n.x + 28}
+                  y={n.y + 26}
+                  fill="#0F172A"
+                  fontSize="12"
+                  fontWeight="700"
+                  fontFamily="system-ui, sans-serif"
+                >
+                  {n.name}
+                </text>
+
+                {/* Node Subtitle */}
+                <text
+                  x={n.x + 28}
+                  y={n.y + 45}
+                  fill="#64748B"
+                  fontSize="10"
+                  fontFamily="monospace"
+                >
+                  {n.sub}
+                </text>
+
+                {/* Active Indicator Tag */}
+                {isActive && (
+                  <rect
+                    x={n.x + n.w - 52}
+                    y={n.y + 8}
+                    width="44"
+                    height="16"
+                    rx="3"
+                    fill="#0D9488"
+                  />
+                )}
+                {isActive && (
+                  <text
+                    x={n.x + n.w - 30}
+                    y={n.y + 19}
+                    fill="#FFFFFF"
+                    fontSize="8"
+                    fontFamily="monospace"
+                    fontWeight="700"
+                    textAnchor="middle"
+                  >
+                    ACTIVE
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Step Progression Bar at Bottom of Canvas */}
+        <div className="absolute bottom-2 left-4 right-4 flex items-center justify-between text-[11px] font-mono text-text-muted bg-white/90 backdrop-blur-xs px-3 py-1.5 border border-border shadow-2xs">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-accent">STEP {step.stepNumber}:</span>
+            <span className="text-text font-medium">{step.title}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="h-1 w-6 bg-success rounded-full" />
-            <span className="font-mono text-[11px]">Direct Web Traffic (TCP 443 HTTPS)</span>
+          <div className="flex items-center gap-1">
+            {DNS_STEPS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  setIsPlaying(false);
+                  setCurrentStepIndex(i);
+                }}
+                className={`h-2 rounded-full transition-all cursor-pointer ${
+                  i === currentStepIndex
+                    ? "w-6 bg-accent"
+                    : i < currentStepIndex
+                    ? "w-2 bg-accent/40"
+                    : "w-2 bg-border"
+                }`}
+                title={`Go to step ${i + 1}`}
+              />
+            ))}
           </div>
         </div>
-        <div className="mono text-[11px] text-accent">
-          Example: <span className="font-bold">piyushprasad.in</span> → <span className="font-bold">76.76.21.21</span>
+      </div>
+
+      {/* Structured Explanation Panel (Requirement 8) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-t border-border bg-surface p-5 sm:p-6 gap-4 md:gap-0">
+        {/* Column 1: What is happening? */}
+        <div className="md:pr-5 space-y-1.5">
+          <div className="mono text-[10px] font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <span>WHAT IS HAPPENING?</span>
+          </div>
+          <p className="text-xs text-text leading-relaxed">
+            {step.whatIsHappening}
+          </p>
+        </div>
+
+        {/* Column 2: Why is this important? */}
+        <div className="md:px-5 space-y-1.5 pt-3 md:pt-0">
+          <div className="mono text-[10px] font-bold uppercase tracking-wider text-text-muted flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-text-muted" />
+            <span>WHY IS THIS IMPORTANT?</span>
+          </div>
+          <p className="text-xs text-text-muted leading-relaxed">
+            {step.whyImportant}
+          </p>
+        </div>
+
+        {/* Column 3: Real-world example */}
+        <div className="md:pl-5 space-y-1.5 pt-3 md:pt-0">
+          <div className="mono text-[10px] font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+            <span>REAL-WORLD ANALOGY</span>
+          </div>
+          <p className="text-xs text-text-muted leading-relaxed">
+            {step.realWorldExample}
+          </p>
         </div>
       </div>
     </div>
