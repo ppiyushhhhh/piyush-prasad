@@ -30,7 +30,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden border-b border-border bg-background pt-28 pb-16 md:pt-36 md:pb-24 scroll-mt-20"
+      className="relative overflow-hidden border-b border-border bg-background pt-16 pb-12 md:pt-20 md:pb-14 scroll-mt-20"
     >
       {/* Subtle Technical Engineering Blueprint Grid */}
       <div
@@ -100,7 +100,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.3 }}
-              className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground"
+              className="mt-4 md:mt-5 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground"
             >
               Specializing in AWS cloud infrastructure, Linux server administration, Docker
               containerization, automated CI/CD pipelines, Prometheus &amp; Grafana monitoring,
@@ -113,7 +113,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.4 }}
-              className="mt-8 flex flex-wrap items-center gap-4"
+              className="mt-6 flex flex-wrap items-center gap-4"
             >
               <a
                 href="#projects"
@@ -141,7 +141,7 @@ export function Hero() {
               initial="hidden"
               animate="show"
               transition={{ delay: 0.5 }}
-              className="mt-10 flex flex-wrap items-center gap-5 border-t border-border pt-6 text-xs text-text/80 font-medium"
+              className="mt-6 md:mt-8 flex flex-wrap items-center gap-5 border-t border-border pt-4 md:pt-5 text-xs text-text/80 font-medium"
             >
               <span className="mono text-[10px] text-muted-foreground uppercase tracking-wider">
                 CONNECT:

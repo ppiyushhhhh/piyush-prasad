@@ -37,11 +37,11 @@ export function GithubProjects() {
   return (
     <section
       id="projects"
-      className="relative border-b border-border bg-surface-muted py-20 md:py-28 scroll-mt-20 dark:bg-[#121316] dark:border-white/10"
+      className="relative border-b border-border bg-surface-muted py-12 md:py-16 scroll-mt-20 dark:bg-[#121316] dark:border-white/10"
     >
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         {/* Section Header - 12-Column Grid */}
-        <div className="mb-12 md:mb-16 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end">
+        <div className="mb-8 md:mb-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end">
           {/* Left Column (7 cols): Label line + Headline */}
           <div className="lg:col-span-7 flex flex-col justify-end">
             {/* Category Eyebrow / Number */}
@@ -118,7 +118,7 @@ export function GithubProjects() {
         </div>
 
         {/* "View All Projects" Prominent CTA Bar */}
-        <div className="mt-12 pt-8 border-t border-border/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-8 pt-6 border-t border-border/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <FolderGit2 className="h-4 w-4 text-cobalt" />
             <span>
