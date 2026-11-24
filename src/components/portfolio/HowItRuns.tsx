@@ -2,36 +2,36 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TECH_LOGO_REGISTRY } from "@/lib/tech-logo-registry";
 
 /**
- * "How it runs": clean and professional reference workflow.
+ * "How it runs": Full-height single-page architecture diagram.
  *
  * Sequence:
- * 1. Code push & security scan:
- *    Developer pushes to GitHub repository. GitHub Actions starts the pipeline and runs
- *    Trivy security scanning for CVE vulnerabilities in source and container images.
- * 2. AWS provisioning:
- *    Terraform provisions the AWS environment: isolated VPC & Subnets, Security Groups
- *    (firewall protecting EC2: Ingress 443 HTTPS, Ingress 22 SSH), and assigns the AWS IAM instance role.
- * 3. Application deployment:
- *    Protected by the Security Group, Ansible configures the host via SSH (port 22) and deploys
- *    the Docker Compose stack on the AWS EC2 Linux server named ubuntu-app-01 (Ubuntu Linux):
- *    Nginx, App, Database, Node Exporter, Prometheus, and Grafana. CloudWatch monitors host telemetry.
- * 4. Traffic, monitoring, reports & alerts:
- *    Users connect securely over HTTPS (port 443) through Nginx reverse proxy.
- *    Node Exporter streams system metrics to Prometheus, which feeds Grafana dashboards.
- *    Scheduled host cron jobs archive daily PDF reports in Amazon S3 and dispatch email reports
- *    and failure alerts to hello@piyushprasad.in.
+ * 1. Push & Security Scan:
+ *    Developer pushes code to GitHub repository → triggers GitHub Actions pipeline →
+ *    GitHub Actions runs Trivy security scanning for CVE vulnerabilities in source and container images.
+ * 2. AWS Provisioning:
+ *    Terraform provisions the AWS environment: isolated VPC, subnets, Security Groups
+ *    (firewall: Ingress 443 HTTPS, Ingress 22 SSH), and assigns the AWS IAM EC2 instance role.
+ * 3. Application Deployment:
+ *    Ansible configures the host via SSH (port 22) and deploys the Docker Compose stack to
+ *    the Ubuntu Linux EC2 server named ubuntu-app-01: Nginx, App, Database, Node Exporter, Prometheus, Grafana.
+ * 4. Traffic, Monitoring & Alerts:
+ *    Users connect over HTTPS (port 443) via Security Group into Nginx reverse proxy.
+ *    Node Exporter streams system metrics to Prometheus, which feeds Grafana visual dashboards.
+ *    Amazon CloudWatch receives host performance logs and metrics.
+ *    Host cron tasks archive daily PDF reports in Amazon S3 and dispatch email alerts to hello@piyushprasad.in.
  */
 
 export const HOW_IT_RUNS_TIMING = {
-  edgeDurationMs: 2000, // Steady, comfortable pace (2.0s per active connection)
-  stepPauseMs: 1400, // Calm pause between workflow steps
-  resumeAfterClickMs: 8000, // Auto-loop pause after manual tab interaction
+  edgeDurationMs: 1900, // Calm, steady pace along each active connector
+  stepPauseMs: 1200, // Brief pause between phases
+  loopPauseMs: 1600, // Pause before looping from end back to beginning
+  resumeAfterClickMs: 8000, // Auto-advance pause after user clicks
 } as const;
 
 const NARROW_PX = 760;
 
 // ---------------------------------------------------------------------------
-// Desktop SVG Topology: 1020 x 620
+// Topology Data: Spacious 1040 x 920 Canvas
 // ---------------------------------------------------------------------------
 type Node = {
   id: string;
@@ -43,28 +43,30 @@ type Node = {
   sub: string;
   logo?: string;
   fb: string;
-  steps: number[];
+  step: number;
   ref?: boolean;
   tip: string;
 };
 
 const NODES: Node[] = [
-  // Row 1: Source & CI/CD
-  { id: "dev", x: 24, y: 22, w: 200, h: 54, name: "Developer", sub: "git push feature/infra", fb: "DEV", steps: [0], tip: "Pushes verified code and configuration to GitHub" },
-  { id: "gh", x: 284, y: 22, w: 200, h: 54, name: "GitHub", sub: "repository · PR branch", logo: "github", fb: "GH", steps: [0], tip: "Central source repository and pull request automation" },
-  { id: "ci", x: 544, y: 22, w: 210, h: 54, name: "GitHub Actions", sub: "CI/CD workflow runner", logo: "githubactions", fb: "CI", steps: [0, 1, 2], tip: "Executes automated build, test, security audit, and deployment stages" },
-  { id: "trivy", x: 814, y: 22, w: 180, h: 54, name: "Trivy", sub: "security & CVE scan", logo: "trivy", fb: "TR", steps: [0], tip: "Scans repository dependencies and container images for vulnerabilities" },
+  // Tier 1: Source & CI/CD Pipeline (y: 24)
+  { id: "dev", x: 30, y: 24, w: 200, h: 56, name: "Developer", sub: "git push feature/infra", fb: "DEV", step: 0, tip: "Pushes verified code and configuration to GitHub" },
+  { id: "gh", x: 290, y: 24, w: 200, h: 56, name: "GitHub", sub: "repository · PR branch", logo: "github", fb: "GH", step: 0, tip: "Source repository and pull request automation" },
+  { id: "ci", x: 550, y: 24, w: 210, h: 56, name: "GitHub Actions", sub: "CI/CD workflow runner", logo: "githubactions", fb: "CI", step: 0, tip: "Executes automated build, test, security audit, and deployment stages" },
+  { id: "trivy", x: 820, y: 24, w: 190, h: 56, name: "Trivy", sub: "security & CVE scan", logo: "trivy", fb: "TR", step: 0, tip: "Scans repository dependencies and container images for vulnerabilities" },
 
-  // Row 2: Provisioning & Config Automation (External / Connected AWS Services)
-  { id: "ans", x: 154, y: 122, w: 180, h: 54, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", steps: [2], tip: "Executes server configuration and Docker Compose deployment via SSH port 22" },
-  { id: "tf", x: 434, y: 122, w: 180, h: 54, name: "Terraform", sub: "IaC · VPC & SG provision", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "Provisions isolated VPC, subnets, and security groups (Reference only)" },
-  { id: "iam", x: 714, y: 122, w: 180, h: 54, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", steps: [1], ref: true, tip: "Attaches IAM instance profile and access policies to the EC2 host (Reference only)" },
+  // Tier 2: AWS Infrastructure Provisioning & IAM (y: 160)
+  { id: "tf", x: 420, y: 160, w: 200, h: 56, name: "Terraform", sub: "IaC · AWS provisioner", logo: "terraform", fb: "TF", step: 1, ref: true, tip: "Provisions isolated VPC, subnets, and security groups (Reference only)" },
+  { id: "iam", x: 740, y: 160, w: 200, h: 56, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", step: 1, ref: true, tip: "Attaches IAM instance profile and access policies to the EC2 host (Reference only)" },
 
-  // Row 4: External Consumers, Cloud Telemetry Storage & Email Alerts
-  { id: "users", x: 37, y: 536, w: 190, h: 54, name: "Users", sub: "browser · HTTPS 443", fb: "WEB", steps: [3], tip: "Visitors reach the application securely over HTTPS via the Security Group and Nginx" },
-  { id: "cw", x: 284, y: 536, w: 210, h: 54, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", steps: [2, 3], ref: true, tip: "Amazon CloudWatch captures EC2 system metrics and host telemetry (Reference only)" },
-  { id: "s3", x: 534, y: 536, w: 200, h: 54, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", steps: [3], ref: true, tip: "Amazon S3 archives encrypted daily compliance and audit PDF reports (Reference only)" },
-  { id: "mail", x: 764, y: 536, w: 232, h: 54, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", steps: [3], tip: "Automated PDF reports and workflow failure alerts delivered to hello@piyushprasad.in" },
+  // Tier 3: Deployment Automation (y: 280)
+  { id: "ans", x: 140, y: 280, w: 210, h: 56, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", step: 2, tip: "Executes server configuration and Docker Compose deployment via SSH" },
+
+  // Tier 5: External Consumers, Cloud Telemetry Storage & Alerts (y: 770)
+  { id: "users", x: 34, y: 770, w: 200, h: 56, name: "Users", sub: "browser · HTTPS 443", fb: "WEB", step: 3, tip: "Visitors reach the application securely over HTTPS via the Security Group and Nginx" },
+  { id: "cw", x: 275, y: 770, w: 220, h: 56, name: "Amazon CloudWatch", sub: "host logs & telemetry", logo: "aws-cloudwatch", fb: "CW", step: 2, ref: true, tip: "Amazon CloudWatch captures EC2 system metrics and host telemetry (Reference only)" },
+  { id: "s3", x: 535, y: 770, w: 210, h: 56, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", step: 3, ref: true, tip: "Amazon S3 archives encrypted daily compliance and audit PDF reports (Reference only)" },
+  { id: "mail", x: 785, y: 770, w: 225, h: 56, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", step: 3, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in" },
 ];
 
 type Edge = {
@@ -79,72 +81,72 @@ type Edge = {
 };
 
 const EDGES: Edge[] = [
-  // Step 0: Code push & security scan (GitHub Actions runs Trivy)
-  { n: 1, step: 0, d: "M 224 49 H 284", len: 60, bx: 254, by: 49, tip: "Developer pushes code to GitHub" },
-  { n: 2, step: 0, d: "M 484 49 H 544", len: 60, bx: 514, by: 49, tip: "Push or pull request triggers GitHub Actions pipeline" },
-  { n: 3, step: 0, d: "M 754 49 H 814", len: 60, bx: 784, by: 49, tip: "GitHub Actions executes Trivy security scan", label: { x: 784, y: 35, t: "security scan" } },
+  // Phase 1: Push & CI Scan
+  { n: 1, step: 0, d: "M 230 52 H 290", len: 60, bx: 260, by: 52, tip: "Developer pushes code to GitHub" },
+  { n: 2, step: 0, d: "M 490 52 H 550", len: 60, bx: 520, by: 52, tip: "Push triggers GitHub Actions workflow pipeline" },
+  { n: 3, step: 0, d: "M 760 52 H 820", len: 60, bx: 790, by: 52, tip: "GitHub Actions executes Trivy security scan", label: { x: 790, y: 38, t: "security scan" } },
 
-  // Step 1: AWS provisioning (Terraform provisions VPC, Security Groups & IAM role)
-  { n: 4, step: 1, d: "M 649 76 V 99 H 524 V 122", len: 171, bx: 580, by: 99, tip: "Pipeline triggers Terraform plan and apply", label: { x: 580, y: 89, t: "plan · apply" } },
-  { n: 5, step: 1, d: "M 524 176 V 236", len: 60, bx: 524, by: 206, tip: "Terraform provisions AWS VPC, Subnets, and Security Groups", label: { x: 550, y: 209, t: "provision VPC & SG" } },
-  { n: 6, step: 1, d: "M 614 149 H 714", len: 100, bx: 664, by: 149, tip: "Terraform attaches AWS IAM instance profile to the EC2 server", label: { x: 664, y: 137, t: "instance role" } },
+  // Phase 2: AWS Provisioning
+  { n: 4, step: 1, d: "M 655 80 V 120 H 520 V 160", len: 215, bx: 587, by: 120, tip: "Pipeline triggers Terraform plan and apply", label: { x: 587, y: 108, t: "plan · apply" } },
+  { n: 5, step: 1, d: "M 620 188 H 740", len: 120, bx: 680, by: 188, tip: "Terraform attaches AWS IAM instance profile", label: { x: 680, y: 174, t: "instance role" } },
+  { n: 6, step: 1, d: "M 520 216 V 390", len: 174, bx: 520, by: 250, tip: "Terraform provisions AWS VPC and Security Group firewall", label: { x: 558, y: 254, t: "provision VPC & SG" } },
 
-  // Step 2: Application deployment (Ansible configures ubuntu-app-01 via SSH; CloudWatch monitors)
-  { n: 7, step: 2, d: "M 594 76 V 99 H 244 V 122", len: 396, bx: 419, by: 99, tip: "Pipeline triggers Ansible deployment playbook", label: { x: 419, y: 89, t: "SSH deploy" } },
-  { n: 8, step: 2, d: "M 244 176 V 236", len: 60, bx: 244, by: 206, tip: "Ansible configures ubuntu-app-01 and starts Docker Compose via SSH port 22", label: { x: 270, y: 209, t: "SSH port 22" } },
-  { n: 9, step: 2, d: "M 389 486 V 536", len: 50, bx: 389, by: 511, tip: "CloudWatch continuously captures host logs and system telemetry", label: { x: 415, y: 514, t: "logs · metrics" } },
+  // Phase 3: Application Deployment
+  { n: 7, step: 2, d: "M 575 80 V 120 H 245 V 280", len: 530, bx: 410, by: 120, tip: "Pipeline executes Ansible deployment playbook", label: { x: 410, y: 108, t: "trigger deploy" } },
+  { n: 8, step: 2, d: "M 245 336 V 390", len: 54, bx: 245, by: 363, tip: "Ansible configures ubuntu-app-01 via SSH port 22 and starts Docker Compose", label: { x: 282, y: 367, t: "SSH port 22" } },
+  { n: 9, step: 2, d: "M 385 690 V 770", len: 80, bx: 385, by: 730, tip: "CloudWatch continuously captures host logs and system telemetry", label: { x: 422, y: 734, t: "logs · metrics" } },
 
-  // Step 3: Traffic, monitoring, reports & alerts
-  { n: 10, step: 3, d: "M 132 536 V 374", len: 162, bx: 132, by: 511, tip: "Users connect over HTTPS via Security Group port 443 into Nginx", label: { x: 158, y: 514, t: "HTTPS 443" } },
-  { n: 11, step: 3, d: "M 210 425 H 236 M 392 425 H 418", len: 52, bx: 314, by: 425, tip: "Node Exporter streams metrics to Prometheus, which displays visual dashboards in Grafana", label: { x: 314, y: 412, t: "telemetry stream" } },
-  { n: 12, step: 3, d: "M 634 486 V 536", len: 50, bx: 634, by: 511, tip: "Host cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 660, y: 514, t: "archive PDF" } },
-  { n: 13, step: 3, d: "M 880 486 V 536", len: 50, bx: 880, by: 511, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in", label: { x: 906, y: 514, t: "SMTP alerts" } },
+  // Phase 4: Traffic, Monitoring & Alerts
+  { n: 10, step: 3, d: "M 134 770 V 542", len: 228, bx: 134, by: 730, tip: "Users connect over HTTPS via Security Group port 443 into Nginx", label: { x: 172, y: 734, t: "HTTPS 443" } },
+  { n: 11, step: 3, d: "M 219 614 H 245 M 410 614 H 436", len: 52, bx: 327, by: 614, tip: "Node Exporter streams metrics to Prometheus, which displays visual dashboards in Grafana", label: { x: 327, y: 601, t: "telemetry stream" } },
+  { n: 12, step: 3, d: "M 640 690 V 770", len: 80, bx: 640, by: 730, tip: "Host cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 678, y: 734, t: "archive PDF" } },
+  { n: 13, step: 3, d: "M 897 690 V 770", len: 80, bx: 897, by: 730, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in", label: { x: 938, y: 734, t: "dispatch alert" } },
 ];
 
 /**
  * Analytical coordinate calculation along active edge paths.
- * Moves smoothly and steadily along one connection at a time.
+ * Moves steadily and smoothly along one connection at a time.
  */
 function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
   const f = Math.max(0, Math.min(1, frac));
   switch (edge.n) {
     case 1:
-      return { x: 224 + f * 60, y: 49 };
+      return { x: 230 + f * 60, y: 52 };
     case 2:
-      return { x: 484 + f * 60, y: 49 };
+      return { x: 490 + f * 60, y: 52 };
     case 3:
-      return { x: 754 + f * 60, y: 49 };
+      return { x: 760 + f * 60, y: 52 };
     case 4: {
-      const dist = f * 171;
-      if (dist <= 23) return { x: 649, y: 76 + dist };
-      if (dist <= 148) return { x: 649 - (dist - 23), y: 99 };
-      return { x: 524, y: 99 + (dist - 148) };
+      const dist = f * 215;
+      if (dist <= 40) return { x: 655, y: 80 + dist };
+      if (dist <= 175) return { x: 655 - (dist - 40), y: 120 };
+      return { x: 520, y: 120 + (dist - 175) };
     }
     case 5:
-      return { x: 524, y: 176 + f * 60 };
+      return { x: 620 + f * 120, y: 188 };
     case 6:
-      return { x: 614 + f * 100, y: 149 };
+      return { x: 520, y: 216 + f * 174 };
     case 7: {
-      const dist = f * 396;
-      if (dist <= 23) return { x: 594, y: 76 + dist };
-      if (dist <= 373) return { x: 594 - (dist - 23), y: 99 };
-      return { x: 244, y: 99 + (dist - 373) };
+      const dist = f * 530;
+      if (dist <= 40) return { x: 575, y: 80 + dist };
+      if (dist <= 370) return { x: 575 - (dist - 40), y: 120 };
+      return { x: 245, y: 120 + (dist - 370) };
     }
     case 8:
-      return { x: 244, y: 176 + f * 60 };
+      return { x: 245, y: 336 + f * 54 };
     case 9:
-      return { x: 389, y: 486 + f * 50 };
+      return { x: 385, y: 690 + f * 80 };
     case 10:
-      return { x: 132, y: 536 - f * 162 };
+      return { x: 134, y: 770 - f * 228 };
     case 11: {
       const dist = f * 52;
-      if (dist <= 26) return { x: 210 + (dist / 26) * 26, y: 425 };
-      return { x: 392 + ((dist - 26) / 26) * 26, y: 425 };
+      if (dist <= 26) return { x: 219 + (dist / 26) * 26, y: 614 };
+      return { x: 410 + ((dist - 26) / 26) * 26, y: 614 };
     }
     case 12:
-      return { x: 634, y: 486 + f * 50 };
+      return { x: 640, y: 690 + f * 80 };
     case 13:
-      return { x: 880, y: 486 + f * 50 };
+      return { x: 897, y: 690 + f * 80 };
     default:
       return { x: edge.bx, y: edge.by };
   }
@@ -153,31 +155,33 @@ function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
 const STEPS = [
   {
     title: "Push & CI Scan",
-    text: "A developer pushes code to GitHub. GitHub Actions starts the pipeline and executes Trivy security scanning for CVE vulnerabilities in source and container images.",
+    text: "Developer pushes code to GitHub. GitHub Actions starts the workflow and runs Trivy to scan source and container images for CVE vulnerabilities.",
   },
   {
     title: "AWS Provisioning",
-    text: "Terraform provisions the AWS environment, creating the isolated VPC & Subnets, configuring Security Groups (ports 443 & 22), and attaching the AWS IAM EC2 instance role.",
+    text: "Terraform provisions the AWS environment: isolated VPC & Subnets, Security Groups (ports 443 & 22), and assigns the AWS IAM EC2 instance role.",
   },
   {
     title: "Application Deployment",
-    text: "Protected by the Security Group, Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and deploys Docker Compose: Nginx, App, Database, Node Exporter, Prometheus, and Grafana, while CloudWatch captures host logs.",
+    text: "Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and boots Docker Compose: Nginx, App, Database, Node Exporter, Prometheus, Grafana.",
   },
   {
     title: "Traffic, Monitoring & Alerts",
-    text: "Users reach the app over HTTPS through Security Group port 443 into Nginx. Node Exporter streams system metrics to Prometheus and Grafana dashboards. Scheduled cron jobs archive PDF reports in Amazon S3 and send alerts to hello@piyushprasad.in.",
+    text: "Users connect over HTTPS via Security Group port 443 into Nginx. Node Exporter streams metrics to Prometheus and Grafana. CloudWatch collects logs. S3 archives daily reports, and alerts are sent to hello@piyushprasad.in.",
   },
 ];
 
 type NarrowStep = {
   title: string;
-  externalServices?: { name: string; logo?: string; fb: string; ref?: boolean; sub?: string }[];
-  serverServices?: { name: string; logo?: string; fb: string; ref?: boolean; sub?: string }[];
+  desc: string;
+  externalServices?: { name: string; logo?: string; fb: string; ref?: boolean }[];
+  serverServices?: { name: string; logo?: string; fb: string; ref?: boolean }[];
 };
 
 const NARROW_STEPS: NarrowStep[] = [
   {
     title: "Push & CI Scan",
+    desc: "Developer pushes to GitHub. GitHub Actions runs Trivy security scans on code and images.",
     externalServices: [
       { name: "Developer (git push)", fb: "DEV" },
       { name: "GitHub (repository)", logo: "github", fb: "GH" },
@@ -187,15 +191,17 @@ const NARROW_STEPS: NarrowStep[] = [
   },
   {
     title: "AWS Provisioning",
+    desc: "Terraform provisions isolated VPC, subnets, Security Groups, and IAM EC2 instance role.",
     externalServices: [
       { name: "Terraform (IaC provisioner)", logo: "terraform", fb: "TF", ref: true },
       { name: "AWS VPC (isolated network)", logo: "aws-vpc", fb: "VPC", ref: true },
-      { name: "Security Group (firewall: 443, 22)", logo: "aws-vpc", fb: "SG", ref: true },
+      { name: "Security Group (ports 443, 22)", logo: "aws-vpc", fb: "SG", ref: true },
       { name: "AWS IAM (EC2 instance role)", logo: "aws-iam", fb: "IAM", ref: true },
     ],
   },
   {
     title: "Application Deployment",
+    desc: "Ansible configures ubuntu-app-01 via SSH and starts the Docker Compose stack.",
     externalServices: [
       { name: "Ansible (SSH deploy playbook)", logo: "ansible", fb: "AN" },
       { name: "Security Group (SSH port 22)", logo: "aws-vpc", fb: "SG", ref: true },
@@ -212,15 +218,17 @@ const NARROW_STEPS: NarrowStep[] = [
   },
   {
     title: "Traffic, Monitoring & Alerts",
+    desc: "Users connect via HTTPS 443. Metrics stream to Prometheus and Grafana. S3 archives reports and email alerts go to hello@piyushprasad.in.",
     externalServices: [
       { name: "Users (HTTPS port 443)", fb: "WEB" },
+      { name: "Amazon CloudWatch (logs & metrics)", logo: "aws-cloudwatch", fb: "CW", ref: true },
       { name: "Amazon S3 (archived PDF reports)", logo: "aws-s3", fb: "S3", ref: true },
       { name: "Email Alerts (hello@piyushprasad.in)", logo: "mail", fb: "@" },
     ],
     serverServices: [
       { name: "Nginx (TLS termination · 443)", logo: "nginx", fb: "NG" },
       { name: "Node Exporter → Prometheus → Grafana", logo: "prometheus", fb: "METRICS" },
-      { name: "Cron Automation (daily audit & PDF)", logo: "pdf", fb: "CRON" },
+      { name: "Host Cron (daily audit & PDF)", logo: "pdf", fb: "CRON" },
     ],
   },
 ];
@@ -228,7 +236,7 @@ const NARROW_STEPS: NarrowStep[] = [
 const logo = (key?: string) => (key ? TECH_LOGO_REGISTRY[key]?.src : undefined);
 
 // ---------------------------------------------------------------------------
-// SVG building blocks
+// SVG Building Blocks
 // ---------------------------------------------------------------------------
 function Tile({
   x,
@@ -306,6 +314,7 @@ export default function HowItRuns() {
   const elapsedRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
 
+  // Check reduced motion preference
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const apply = () => setReduced(mq.matches);
@@ -314,10 +323,11 @@ export default function HowItRuns() {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
+  // Observers for viewport visibility and container width
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.3 });
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.15 });
     io.observe(el);
     const ro = new ResizeObserver(([e]) => setNarrow(e.contentRect.width < NARROW_PX));
     ro.observe(el);
@@ -332,7 +342,7 @@ export default function HowItRuns() {
 
   const running = playing && visible && !hover && !tabHidden && !reduced;
 
-  // Steady animation loop: moves along active connectors one connection at a time, with a pause between steps
+  // Steady animation loop: advances smoothly along active connectors one by one, with a pause between phases
   useEffect(() => {
     if (!running) {
       lastTimeRef.current = null;
@@ -343,13 +353,15 @@ export default function HowItRuns() {
 
     const tick = (now: number) => {
       const stepEdges = EDGES.filter((e) => e.step === step);
-      const totalDuration =
-        stepEdges.length * HOW_IT_RUNS_TIMING.edgeDurationMs + HOW_IT_RUNS_TIMING.stepPauseMs;
+      const isLastStep = step === STEPS.length - 1;
+      const pauseDuration = isLastStep ? HOW_IT_RUNS_TIMING.loopPauseMs : HOW_IT_RUNS_TIMING.stepPauseMs;
+      const stepDuration = stepEdges.length * HOW_IT_RUNS_TIMING.edgeDurationMs + pauseDuration;
 
       if (lastTimeRef.current !== null) {
         const delta = Math.min(100, now - lastTimeRef.current);
         elapsedRef.current += delta;
-        if (elapsedRef.current >= totalDuration) {
+
+        if (elapsedRef.current >= stepDuration) {
           elapsedRef.current = 0;
           setStep((prev) => (prev + 1) % STEPS.length);
         }
@@ -365,6 +377,7 @@ export default function HowItRuns() {
     };
   }, [running, step]);
 
+  // Cleanup timer
   useEffect(
     () => () => {
       if (resumeTimer.current) clearTimeout(resumeTimer.current);
@@ -388,33 +401,31 @@ export default function HowItRuns() {
   const dim = (steps: number[]) => (isOn(steps) ? "" : "hir-dim");
   const animate = !reduced && visible && playing;
 
-  // Calculate moving packet along active step's edges, one connection at a time
+  // Calculate packet position strictly along the current active connector
   const stepEdges = EDGES.filter((e) => e.step === s);
   const edgeCount = stepEdges.length;
   const travelTime = edgeCount * HOW_IT_RUNS_TIMING.edgeDurationMs;
 
   let packetPos = { x: 0, y: 0 };
-  let activeEdgeNumber: number | null = null;
+  let currentActiveEdgeNumber: number | null = null;
 
   if (edgeCount > 0) {
     if (elapsedRef.current < travelTime) {
-      const edgeIdx = Math.floor(elapsedRef.current / HOW_IT_RUNS_TIMING.edgeDurationMs);
-      const currEdge = stepEdges[edgeIdx] || stepEdges[0];
-      activeEdgeNumber = currEdge.n;
-      const edgeFraction =
-        (elapsedRef.current % HOW_IT_RUNS_TIMING.edgeDurationMs) /
-        HOW_IT_RUNS_TIMING.edgeDurationMs;
-      packetPos = getPointOnEdge(currEdge, edgeFraction);
+      const idx = Math.floor(elapsedRef.current / HOW_IT_RUNS_TIMING.edgeDurationMs);
+      const currEdge = stepEdges[idx] || stepEdges[0];
+      currentActiveEdgeNumber = currEdge.n;
+      const frac = (elapsedRef.current % HOW_IT_RUNS_TIMING.edgeDurationMs) / HOW_IT_RUNS_TIMING.edgeDurationMs;
+      packetPos = getPointOnEdge(currEdge, frac);
     } else {
-      // Pause period between steps: rest calmly at the destination of the last connection
-      const lastEdge = stepEdges[edgeCount - 1];
-      activeEdgeNumber = lastEdge.n;
-      packetPos = getPointOnEdge(lastEdge, 1.0);
+      // Pause period between steps: packet rests calmly at the destination of the last connection in this phase
+      const last = stepEdges[edgeCount - 1];
+      currentActiveEdgeNumber = last.n;
+      packetPos = getPointOnEdge(last, 1.0);
     }
   }
 
   const ariaLabel =
-    "Reference workflow: developer pushes to GitHub, GitHub Actions runs Trivy security scanning, Terraform provisions the AWS environment including VPC, Security Groups, and AWS IAM instance role, Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and deploys the Docker Compose stack (Nginx, App, Database, Node Exporter, Prometheus, and Grafana), CloudWatch monitors host logs, Amazon S3 archives daily PDF reports, users connect over HTTPS, and cron jobs send reports and alerts to hello@piyushprasad.in.";
+    "Full architecture diagram: Developer pushes to GitHub, GitHub Actions runs Trivy scanning, Terraform provisions AWS VPC, subnets, Security Groups, and IAM role, Ansible configures ubuntu-app-01 (Ubuntu Linux) via SSH and starts Docker Compose (Nginx, App, Database, Node Exporter, Prometheus, Grafana), CloudWatch captures logs, Amazon S3 archives PDF reports, users connect over HTTPS, and email alerts go to hello@piyushprasad.in.";
 
   return (
     <section
@@ -423,16 +434,18 @@ export default function HowItRuns() {
       className="hir"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      aria-label="How it runs"
+      aria-label="How it runs architectural workflow"
     >
       <style>{CSS}</style>
 
+      {/* Header Bar */}
       <header className="hir-head">
         <div>
-          <p className="hir-eyebrow">Reference workflow</p>
+          <p className="hir-eyebrow">Production Architecture Workflow</p>
           <h3 className="hir-title">How it runs</h3>
         </div>
 
+        {/* Legend */}
         <div className="hir-legend" aria-hidden="true">
           <span>
             <i className="hir-key hir-key-solid" /> Used in my repos
@@ -442,8 +455,8 @@ export default function HowItRuns() {
           </span>
         </div>
 
+        {/* Play/Pause Button */}
         <div className="hir-controls">
-          {/* Play / Pause Toggle Button */}
           <button
             type="button"
             className="hir-btn"
@@ -471,14 +484,14 @@ export default function HowItRuns() {
       </header>
 
       {/* Step Tabs */}
-      <div className="hir-steps" role="tablist" aria-label="Workflow steps">
+      <div className="hir-steps" role="tablist" aria-label="Workflow phases">
         {STEPS.map((st, i) => (
           <button
             key={st.title}
             type="button"
             role="tab"
             aria-selected={i === s}
-            aria-label={`Step ${i + 1}: ${st.title}`}
+            aria-label={`Phase ${i + 1}: ${st.title}`}
             className={`hir-seg ${i < s ? "hir-seg-done" : ""} ${i === s ? "hir-seg-on" : ""}`}
             onClick={() => jump(i)}
           >
@@ -489,49 +502,27 @@ export default function HowItRuns() {
         ))}
       </div>
 
+      {/* Explanatory Caption */}
       <p className="hir-caption" aria-live="polite">
         {STEPS[s].text}
       </p>
 
+      {/* Mobile Layout */}
       {narrow ? (
-        <ol className="hir-list">
-          {NARROW_STEPS.map((st, i) => (
-            <li key={i} className={`hir-li ${i === s ? "hir-li-on" : ""}`}>
-              <div className="hir-li-head">
-                <span className="hir-li-n">{i + 1}</span>
-                <strong>{st.title}</strong>
-              </div>
-
-              {/* External Services */}
-              {st.externalServices && (
-                <div className="hir-chips mb-2.5">
-                  {st.externalServices.map((sv) => (
-                    <span
-                      key={sv.name}
-                      className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
-                    >
-                      {logo(sv.logo) ? (
-                        <img src={logo(sv.logo)} alt="" width={16} height={16} />
-                      ) : (
-                        <em>{sv.fb}</em>
-                      )}
-                      <span>{sv.name}</span>
-                    </span>
-                  ))}
+        <div className="hir-mobile-wrap">
+          <ol className="hir-list">
+            {NARROW_STEPS.map((st, i) => (
+              <li key={st.title} className={`hir-li ${i === s ? "hir-li-on" : ""}`}>
+                <div className="hir-li-head">
+                  <span className="hir-li-n">{i + 1}</span>
+                  <strong>{st.title}</strong>
                 </div>
-              )}
+                <p className="text-xs text-text-muted mb-3 leading-relaxed">{st.desc}</p>
 
-              {/* Server Group: ubuntu-app-01 */}
-              {st.serverServices && (
-                <div className="hir-mobile-server">
-                  <div className="hir-mobile-server-head">
-                    <img src={logo("ubuntu") || logo("aws-ec2")} alt="" width={15} height={15} />
-                    <span>
-                      Server: <strong>ubuntu-app-01</strong> (Ubuntu Linux)
-                    </span>
-                  </div>
-                  <div className="hir-chips">
-                    {st.serverServices.map((sv) => (
+                {/* External Services */}
+                {st.externalServices && (
+                  <div className="hir-chips mb-2.5">
+                    {st.externalServices.map((sv) => (
                       <span
                         key={sv.name}
                         className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
@@ -545,302 +536,313 @@ export default function HowItRuns() {
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ol>
+                )}
+
+                {/* Server Group: ubuntu-app-01 */}
+                {st.serverServices && (
+                  <div className="hir-mobile-server">
+                    <div className="hir-mobile-server-head">
+                      <img src={logo("ubuntu") || logo("aws-ec2")} alt="" width={15} height={15} />
+                      <span>
+                        Server: <strong>ubuntu-app-01</strong> (Ubuntu Linux)
+                      </span>
+                    </div>
+                    <div className="hir-chips">
+                      {st.serverServices.map((sv) => (
+                        <span
+                          key={sv.name}
+                          className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
+                        >
+                          {logo(sv.logo) ? (
+                            <img src={logo(sv.logo)} alt="" width={15} height={15} />
+                          ) : (
+                            <em>{sv.fb}</em>
+                          )}
+                          <span>{sv.name}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
       ) : (
-        <svg
-          className="hir-svg"
-          viewBox="0 0 1020 620"
-          role="img"
-          aria-label={ariaLabel}
-          preserveAspectRatio="xMidYMin meet"
-        >
-          <defs>
-            <marker
-              id="hir-ah"
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M0,0 L10,5 L0,10 z" className="hir-arrow" />
-            </marker>
-            <marker
-              id="hir-ah-active"
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M0,0 L10,5 L0,10 z" className="hir-arrow-active" />
-            </marker>
-            <filter id="hir-glow" x="-150%" y="-150%" width="400%" height="400%">
-              <feGaussianBlur stdDeviation="3.5" />
-            </filter>
-          </defs>
+        /* Full-Height Desktop SVG Architecture Canvas: Spacious 1040 x 920 */
+        <div className="hir-svg-container">
+          <svg
+            className="hir-svg"
+            viewBox="0 0 1040 920"
+            role="img"
+            aria-label={ariaLabel}
+            preserveAspectRatio="xMidYMin meet"
+          >
+            <defs>
+              <marker
+                id="hir-ah"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0,0 L10,5 L0,10 z" className="hir-arrow" />
+              </marker>
+              <marker
+                id="hir-ah-active"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0,0 L10,5 L0,10 z" className="hir-arrow-active" />
+              </marker>
+              <filter id="hir-glow" x="-150%" y="-150%" width="400%" height="400%">
+                <feGaussianBlur stdDeviation="3.5" />
+              </filter>
+            </defs>
 
-          {/* ============================================================= */}
-          {/* AWS EC2 Linux Server Boundary: ubuntu-app-01 (Ubuntu Linux)   */}
-          {/* ============================================================= */}
-          <g className={dim([1, 2, 3])}>
-            {/* Outer EC2 Server Container */}
-            <rect
-              x="24"
-              y="236"
-              width="972"
-              height="250"
-              rx="12"
-              className={`hir-server-boundary ${s === 2 || s === 3 ? "hir-server-boundary-on" : ""}`}
-            >
-              <title>AWS EC2 Linux Server: ubuntu-app-01 (Ubuntu Linux)</title>
-            </rect>
+            {/* ============================================================= */}
+            {/* CENTRAL AWS EC2 LINUX SERVER BOUNDARY: ubuntu-app-01          */}
+            {/* ============================================================= */}
+            <g className={dim([1, 2, 3])}>
+              {/* Outer Server Boundary Container */}
+              <rect
+                x="30"
+                y="390"
+                width="980"
+                height="300"
+                rx="14"
+                className={`hir-server-boundary ${s === 2 || s === 3 ? "hir-server-boundary-on" : ""}`}
+              >
+                <title>AWS EC2 Linux Server: ubuntu-app-01 (Ubuntu Linux)</title>
+              </rect>
 
-            {/* Server Header Bar */}
-            <g>
-              <Tile x={38} y={246} size={28} href={logo("ubuntu") || logo("aws-ec2")} fb="UB" />
-              <text x="74" y="262" className="hir-server-title" fontSize={13} fontWeight={700}>
+              {/* Server Header Bar */}
+              <Tile x={46} y={402} size={28} href={logo("ubuntu")} fb="UB" />
+              <text x="82" y="418" className="hir-server-title" fontSize={13.5} fontWeight={700}>
                 AWS EC2 Server: ubuntu-app-01
               </text>
-              <text x="74" y="278" className="hir-mono hir-muted" fontSize={9.5}>
+              <text x="82" y="434" className="hir-mono hir-muted" fontSize={9.5}>
                 Ubuntu Linux 22.04 LTS · Private Subnet (10.0.1.50) · ap-south-1
               </text>
 
               {/* Security Group Firewall Status Badge */}
-              <rect x="470" y="248" width="310" height="24" rx="6" className="hir-sg-badge" />
-              <text x="482" y="264" className="hir-mono hir-acc" fontSize={9.5} fontWeight={600}>
+              <rect x="520" y="404" width="330" height="26" rx="6" className="hir-sg-badge" />
+              <text x="532" y="421" className="hir-mono hir-acc" fontSize={9.5} fontWeight={600}>
                 Security Group: Ingress 443 (HTTPS) · Ingress 22 (SSH)
               </text>
 
-              {/* Reference Tag for AWS VPC / SG integration */}
-              <rect x="896" y="248" width="88" height="24" rx="5" className="hir-ref-pill" />
-              <text x="940" y="264" textAnchor="middle" className="hir-mono hir-muted" fontSize={9} fontWeight={600}>
+              {/* Reference Pill for VPC/SG */}
+              <rect x="914" y="404" width="84" height="26" rx="5" className="hir-ref-pill" />
+              <text x="956" y="421" textAnchor="middle" className="hir-mono hir-muted" fontSize={8.5} fontWeight={600}>
                 Reference only
               </text>
-            </g>
 
-            {/* Sub-container A: Docker Compose Stack (5 containers) */}
-            <g>
-              <rect x="40" y="294" width="554" height="178" rx="10" className="hir-block" />
-              <image
-                href={logo("docker")}
-                x="52"
-                y="304"
-                width="18"
-                height="18"
-                preserveAspectRatio="xMidYMid meet"
-              />
-              <text x="76" y="318" className="hir-name" fontSize={12} fontWeight={700}>
+              {/* Sub-container A: Docker Compose Stack */}
+              <rect x="44" y="452" width="576" height="224" rx="10" className="hir-block" />
+              <image href={logo("docker")} x="58" y="464" width="18" height="18" preserveAspectRatio="xMidYMid meet" />
+              <text x="82" y="478" className="hir-name" fontSize={12} fontWeight={700}>
                 Docker Compose Stack
               </text>
-              <text x="580" y="318" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
-                Protected by Security Group · 5 containers
+              <text x="606" y="478" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
+                6 containers protected by Security Group
               </text>
 
-              {/* App Tier: Nginx, App, Database */}
+              {/* Row 1: Core Web & App Containers */}
               {[
-                { x: 54, name: "Nginx", sub: "reverse proxy · TLS", logo: "nginx", fb: "NG" },
-                { x: 236, name: "App", sub: "React + Node.js API", logo: "nodejs", fb: "APP" },
-                { x: 418, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
+                { x: 54, name: "Nginx", sub: "reverse proxy · TLS :443", logo: "nginx", fb: "NG" },
+                { x: 245, name: "App", sub: "React + Node.js API", logo: "nodejs", fb: "APP" },
+                { x: 436, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
               ].map((c) => (
                 <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
-                  <rect x={c.x} y={328} width={156} height={54} rx={8} className="hir-chip" />
-                  <circle cx={c.x + 144} cy={340} r={2.5} className="hir-dot" />
-                  <Tile x={c.x + 8} y={338} size={26} href={logo(c.logo)} fb={c.fb} />
-                  <text x={c.x + 40} y={353} className="hir-name" fontSize={11.5} fontWeight={600}>
+                  <rect x={c.x} y={490} width={165} height={54} rx={8} className="hir-chip" />
+                  <circle cx={c.x + 153} cy={502} r={2.5} className="hir-dot" />
+                  <Tile x={c.x + 8} y={500} size={26} href={logo(c.logo)} fb={c.fb} />
+                  <text x={c.x + 40} y={515} className="hir-name" fontSize={11.5} fontWeight={600}>
                     {c.name}
                   </text>
-                  <text x={c.x + 40} y={369} className="hir-mono hir-muted" fontSize={8}>
+                  <text x={c.x + 40} y={531} className="hir-mono hir-muted" fontSize={8}>
                     {c.sub}
                   </text>
                 </g>
               ))}
 
-              {/* Observability Tier: Node Exporter -> Prometheus -> Grafana */}
+              {/* Row 2: Observability Pipeline (Node Exporter -> Prometheus -> Grafana) */}
               <g className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
                 {/* Node Exporter */}
-                <rect x="54" y="398" width="156" height="54" rx={8} className="hir-chip" />
-                <circle cx={200} cy={410} r={2.5} className="hir-dot" />
-                <Tile x={62} y={408} size={26} href={logo("linux")} fb="NODE" />
-                <text x={94} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="54" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={207} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={62} y={600} size={26} href={logo("linux")} fb="NODE" />
+                <text x={94} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Node Exporter
                 </text>
-                <text x={94} y={439} className="hir-mono hir-muted" fontSize={8}>
-                  host kernel metrics
+                <text x={94} y={631} className="hir-mono hir-muted" fontSize={8}>
+                  host kernel metrics :9100
                 </text>
 
-                {/* Direct stream arrow from Node Exporter to Prometheus */}
-                <path
-                  d="M 210 425 H 236"
-                  className="hir-internal-flow"
-                  markerEnd="url(#hir-ah-active)"
-                />
+                {/* Direct Stream arrow from Node Exporter to Prometheus */}
+                <path d="M 219 617 H 245" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
 
                 {/* Prometheus */}
-                <rect x="236" y="398" width="156" height="54" rx={8} className="hir-chip" />
-                <circle cx={382} cy={410} r={2.5} className="hir-dot" />
-                <Tile x={244} y={408} size={26} href={logo("prometheus")} fb="PROM" />
-                <text x={276} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="245" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={398} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={253} y={600} size={26} href={logo("prometheus")} fb="PROM" />
+                <text x={285} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Prometheus
                 </text>
-                <text x={276} y={439} className="hir-mono hir-muted" fontSize={8}>
-                  metrics collector
+                <text x={285} y={631} className="hir-mono hir-muted" fontSize={8}>
+                  metrics collector :9090
                 </text>
 
-                {/* Direct stream arrow from Prometheus to Grafana */}
-                <path
-                  d="M 392 425 H 418"
-                  className="hir-internal-flow"
-                  markerEnd="url(#hir-ah-active)"
-                />
+                {/* Direct Stream arrow from Prometheus to Grafana */}
+                <path d="M 410 617 H 436" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
 
                 {/* Grafana */}
-                <rect x="418" y="398" width="156" height="54" rx={8} className="hir-chip" />
-                <circle cx={564} cy={410} r={2.5} className="hir-dot" />
-                <Tile x={426} y={408} size={26} href={logo("grafana")} fb="GRAF" />
-                <text x={458} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="436" y="590" width="165" height="54" rx={8} className="hir-chip" />
+                <circle cx={589} cy={602} r={2.5} className="hir-dot" />
+                <Tile x={444} y={600} size={26} href={logo("grafana")} fb="GRAF" />
+                <text x={476} y={615} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Grafana
                 </text>
-                <text x={458} y={439} className="hir-mono hir-muted" fontSize={8}>
-                  visual dashboards
+                <text x={476} y={631} className="hir-mono hir-muted" fontSize={8}>
+                  visual dashboards :3001
                 </text>
               </g>
-            </g>
 
-            {/* Sub-container B: Host Cron Automation */}
-            <g>
-              <rect x="612" y="294" width="370" height="178" rx="10" className="hir-block" />
-              <text x="626" y="318" className="hir-name" fontSize={12} fontWeight={700}>
-                Automated Scheduled Tasks
+              {/* Sub-container B: Host Cron Automation Tasks */}
+              <rect x="636" y="452" width="360" height="224" rx="10" className="hir-block" />
+              <text x="652" y="478" className="hir-name" fontSize={12} fontWeight={700}>
+                Host Scheduled Tasks
               </text>
-              <text x="968" y="318" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
-                Isolated host crontab
+              <text x="982" y="478" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
+                Isolated crontab
               </text>
 
               {[
-                { y: 330, t: "Trivy audit → security report", logo: "trivy", fb: "TR" },
-                { y: 374, t: "PDF report → Amazon S3", logo: "pdf", fb: "PDF" },
-                { y: 418, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
+                { y: 494, t: "Trivy audit → security report", logo: "trivy", fb: "TR" },
+                { y: 552, t: "Daily PDF report → Amazon S3", logo: "pdf", fb: "PDF" },
+                { y: 610, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
               ].map((r) => (
                 <g key={r.t} className={isOn([3]) ? "hir-in" : "hir-off"}>
-                  <rect x={626} y={r.y} width={342} height={36} rx={7} className="hir-chip" />
-                  <Tile x={632} y={r.y + 5} size={26} href={logo(r.logo)} fb={r.fb} />
-                  <text x={666} y={r.y + 22} className="hir-mono hir-ink" fontSize={9.5}>
+                  <rect x={648} y={r.y} width={334} height={42} rx={7} className="hir-chip" />
+                  <Tile x={654} y={r.y + 8} size={26} href={logo(r.logo)} fb={r.fb} />
+                  <text x={688} y={r.y + 25} className="hir-mono hir-ink" fontSize={9.5}>
                     {r.t}
                   </text>
                 </g>
               ))}
             </g>
-          </g>
 
-          {/* ============================================================= */}
-          {/* Connector Lines & Flow Paths                                  */}
-          {/* ============================================================= */}
-          {EDGES.map((e) => {
-            const isStepActive = e.step === s && !reduced;
-            const isEdgeBeingTraversed = activeEdgeNumber === e.n && isStepActive;
+            {/* ============================================================= */}
+            {/* CONNECTOR PATHS & DIRECTIONAL FLOW ARROWS                     */}
+            {/* ============================================================= */}
+            {EDGES.map((e) => {
+              const isStepActive = isOn([e.step]);
+              const isEdgeBeingTraversed = currentActiveEdgeNumber === e.n && isStepActive;
 
-            return (
-              <g key={e.n} className={dim([e.step])}>
-                <path
-                  d={e.d}
-                  className={`hir-line ${isStepActive ? "hir-line-step" : ""} ${isEdgeBeingTraversed ? "hir-line-active" : ""}`}
-                  markerEnd={isStepActive ? "url(#hir-ah-active)" : "url(#hir-ah)"}
-                >
-                  <title>{e.tip}</title>
-                </path>
-                {e.label && (
-                  <text
-                    x={e.label.x}
-                    y={e.label.y}
-                    className={`hir-mono ${isStepActive ? "hir-label-active" : "hir-muted"}`}
-                    fontSize={9}
-                    fontWeight={isStepActive ? 700 : 500}
-                    textAnchor="middle"
+              return (
+                <g key={e.n} className={dim([e.step])}>
+                  <path
+                    d={e.d}
+                    className={`hir-line ${isStepActive ? "hir-line-step" : ""} ${isEdgeBeingTraversed ? "hir-line-active" : ""}`}
+                    markerEnd={isStepActive ? "url(#hir-ah-active)" : "url(#hir-ah)"}
                   >
-                    {e.label.t}
-                  </text>
+                    <title>{e.tip}</title>
+                  </path>
+                  {e.label && (
+                    <text
+                      x={e.label.x}
+                      y={e.label.y}
+                      className={`hir-mono ${isStepActive ? "hir-label-active" : "hir-muted"}`}
+                      fontSize={9}
+                      fontWeight={isStepActive ? 700 : 500}
+                      textAnchor="middle"
+                    >
+                      {e.label.t}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* ============================================================= */}
+            {/* EXTERNAL SERVICE NODES                                        */}
+            {/* ============================================================= */}
+            {NODES.map((n) => (
+              <g key={n.id} className={dim([n.step])}>
+                <rect
+                  x={n.x}
+                  y={n.y}
+                  width={n.w}
+                  height={n.h}
+                  rx={10}
+                  className={`hir-node ${n.ref ? "hir-node-ref" : ""} ${isOn([n.step]) && !reduced ? "hir-node-on" : ""}`}
+                >
+                  <title>{n.tip}</title>
+                </rect>
+                <Tile x={n.x + 10} y={n.y + 13} size={30} href={logo(n.logo)} fb={n.fb} />
+                <text x={n.x + 48} y={n.y + 27} className="hir-name" fontSize={12.5} fontWeight={600}>
+                  {n.name}
+                </text>
+                <text x={n.x + 48} y={n.y + 44} className="hir-mono hir-muted" fontSize={9}>
+                  {n.sub}
+                </text>
+
+                {n.ref && (
+                  <g>
+                    <rect
+                      x={n.x + n.w - 74}
+                      y={n.y + 8}
+                      width={66}
+                      height={16}
+                      rx={3}
+                      className="hir-ref-pill"
+                    />
+                    <text
+                      x={n.x + n.w - 41}
+                      y={n.y + 19}
+                      textAnchor="middle"
+                      className="hir-mono hir-muted"
+                      fontSize={7.5}
+                      fontWeight={600}
+                    >
+                      Reference only
+                    </text>
+                  </g>
                 )}
               </g>
-            );
-          })}
+            ))}
 
-          {/* External Service Nodes */}
-          {NODES.map((n) => (
-            <g key={n.id} className={dim(n.steps)}>
-              <rect
-                x={n.x}
-                y={n.y}
-                width={n.w}
-                height={n.h}
-                rx={10}
-                className={`hir-node ${n.ref ? "hir-node-ref" : ""} ${isOn(n.steps) && !reduced ? "hir-node-on" : ""}`}
-              >
-                <title>{n.tip}</title>
-              </rect>
-              <Tile x={n.x + 10} y={n.y + 12} size={30} href={logo(n.logo)} fb={n.fb} />
-              <text x={n.x + 48} y={n.y + 26} className="hir-name" fontSize={12.5} fontWeight={600}>
-                {n.name}
-              </text>
-              <text x={n.x + 48} y={n.y + 42} className="hir-mono hir-muted" fontSize={9}>
-                {n.sub}
-              </text>
-              {n.ref && (
-                <g>
-                  <rect
-                    x={n.x + n.w - 74}
-                    y={n.y + 8}
-                    width={66}
-                    height={16}
-                    rx={3}
-                    className="hir-ref-pill"
-                  />
-                  <text
-                    x={n.x + n.w - 41}
-                    y={n.y + 19}
-                    textAnchor="middle"
-                    className="hir-mono hir-muted"
-                    fontSize={7.5}
-                    fontWeight={600}
-                  >
-                    Reference only
-                  </text>
-                </g>
-              )}
-            </g>
-          ))}
+            {/* ============================================================= */}
+            {/* NUMBERED STEP BADGES                                          */}
+            {/* ============================================================= */}
+            {EDGES.map((e) => (
+              <Badge key={e.n} x={e.bx} y={e.by} n={e.n} on={isOn([e.step])} />
+            ))}
 
-          {/* Badges: placed at clean path coordinates */}
-          {EDGES.map((e) => (
-            <Badge key={e.n} x={e.bx} y={e.by} n={e.n} on={e.step === s && !reduced} />
-          ))}
-
-          {/* Animated Point: moves steadily along active edge, rests during pause */}
-          {animate && (
-            <g className="hir-packet">
-              <circle
-                cx={packetPos.x}
-                cy={packetPos.y}
-                r="10"
-                className="hir-packet-glow"
-                filter="url(#hir-glow)"
-                opacity="0.45"
-              />
-              <circle
-                cx={packetPos.x}
-                cy={packetPos.y}
-                r="4.5"
-                className="hir-packet-dot"
-              />
-            </g>
-          )}
-        </svg>
+            {/* ============================================================= */}
+            {/* SEQUENTIAL ANIMATED PACKET DOT                                */}
+            {/* ============================================================= */}
+            {animate && (
+              <g className="hir-packet">
+                <circle
+                  cx={packetPos.x}
+                  cy={packetPos.y}
+                  r="10"
+                  className="hir-packet-glow"
+                  filter="url(#hir-glow)"
+                  opacity="0.45"
+                />
+                <circle cx={packetPos.x} cy={packetPos.y} r="4.5" className="hir-packet-dot" />
+              </g>
+            )}
+          </svg>
+        </div>
       )}
     </section>
   );
@@ -853,7 +855,7 @@ const CSS = `
   --hir-text:var(--foreground,#121316); --hir-muted:var(--muted-foreground,#5A5C66);
   --hir-border:var(--border,#E5E5DF); --hir-acc:var(--accent-teal,#0F766E); --hir-acc-soft:#E4F2F0;
   --hir-ok:#16A34A; --hir-on:#FFFFFF; --hir-line-inactive:#64748B;
-  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:20px 20px 14px;
+  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:22px 22px 18px;
   color:var(--hir-text); width:100%; box-sizing:border-box;
   scroll-margin-top:calc(var(--site-header-h,60px) + 12px);
 }
@@ -874,16 +876,21 @@ const CSS = `
 .hir-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--hir-border);background:var(--hir-surf);color:var(--hir-text);cursor:pointer;transition:all .15s ease}
 .hir-btn:hover{background:var(--hir-soft-bg)}
 .hir-btn:focus-visible,.hir-seg:focus-visible{outline:2px solid var(--hir-acc);outline-offset:2px}
-.hir-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 12px}
+
+/* Steps bar */
+.hir-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 10px}
 .hir-seg{border:0;padding:0;background:none;cursor:pointer;text-align:left;color:var(--hir-muted)}
-.hir-seg::before{content:"";display:block;height:5px;border-radius:3px;background:var(--hir-border);margin-bottom:8px}
+.hir-seg::before{content:"";display:block;height:4px;border-radius:2px;background:var(--hir-border);margin-bottom:6px}
 .hir-seg-done::before{background:var(--hir-acc);opacity:.45}
 .hir-seg-on::before{background:var(--hir-acc)}
 .hir-seg-label{font:500 11.5px system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.hir-seg-label b{font:600 10.5px ui-monospace,Menlo,monospace;color:var(--hir-acc);margin-right:4px}
+.hir-seg-label b{font:600 10px ui-monospace,Menlo,monospace;color:var(--hir-acc);margin-right:4px}
 .hir-seg-on .hir-seg-label{color:var(--hir-text);font-weight:600}
-.hir-caption{margin:0 0 10px;min-height:22px;font-size:13px;line-height:1.5;color:var(--hir-muted)}
-.hir-svg{display:block;width:100%;height:auto;max-height:calc(100dvh - var(--hir-chrome,230px))}
+.hir-caption{margin:0 0 14px;min-height:22px;font-size:12.5px;line-height:1.5;color:var(--hir-muted)}
+
+/* SVG Container: Spacious & Natural Vertical Scroll */
+.hir-svg-container{width:100%;overflow-x:auto}
+.hir-svg{display:block;width:100%;height:auto;min-width:760px}
 .hir-mono{font-family:ui-monospace,Menlo,monospace}
 .hir-name{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
 .hir-server-title{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
@@ -926,12 +933,13 @@ const CSS = `
 .hir-in{animation:hir-in .45s both}
 @keyframes hir-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* Mobile list */
+/* Mobile layout */
+.hir-mobile-wrap{margin-top:10px}
 .hir-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .hir-li{border:1px solid var(--hir-border);border-radius:12px;padding:12px 14px;background:var(--hir-surf);position:relative}
 .hir-li:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font:700 13px ui-monospace,monospace;color:var(--hir-acc);background:var(--hir-bg);line-height:1;padding:1px 4px;z-index:1}
 .hir-li-on{border-color:var(--hir-acc);background:var(--hir-acc-soft)}
-.hir-li-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+.hir-li-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
 .hir-li-n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 11px system-ui;border:1.5px solid var(--hir-acc);color:var(--hir-acc);background:var(--hir-bg)}
 .hir-li-on .hir-li-n{background:var(--hir-acc);color:var(--hir-on)}
 .hir-chips{display:flex;flex-wrap:wrap;gap:8px}
