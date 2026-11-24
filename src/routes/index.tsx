@@ -4,7 +4,6 @@ import { Hero } from "@/components/portfolio/Hero";
 import { GithubProjects } from "@/components/portfolio/GithubProjects";
 import { SkillsGrid } from "@/components/portfolio/SkillsGrid";
 import { ExperienceTimeline } from "@/components/portfolio/ExperienceTimeline";
-import { BlogSection } from "@/components/portfolio/BlogSection";
 import { Certifications } from "@/components/portfolio/Certifications";
 import { ContactSection } from "@/components/portfolio/ContactSection";
 import { Footer } from "@/components/portfolio/Footer";
@@ -65,7 +64,6 @@ function PortfolioPage() {
         <GithubProjects />
         <SkillsGrid />
         <ExperienceTimeline />
-        <BlogSection />
         <Certifications />
         <ContactSection />
       </main>
