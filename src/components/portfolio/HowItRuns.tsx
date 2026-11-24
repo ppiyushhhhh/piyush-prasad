@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TECH_LOGO_REGISTRY } from "@/lib/tech-logo-registry";
 
 /**
- * "How it runs": Simplified, clear architectural workflow.
+ * "How it runs": Simplified, professional architecture diagram with zero overlaps.
  *
  * Logical Data & Deployment Flows:
  * 1. Developer → GitHub → GitHub Actions → Trivy security scan.
@@ -56,17 +56,19 @@ const NODES: Node[] = [
   // Tier 4: External Users & Cloud Destinations (y: 730)
   { id: "users", x: 30, y: 730, w: 180, h: 56, name: "Users", sub: "browser clients · HTTPS", fb: "WEB", step: 3, tip: "Visitors access the web application securely over HTTPS (port 443)" },
   { id: "s3", x: 260, y: 730, w: 200, h: 56, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", step: 3, ref: true, tip: "Amazon S3 bucket stores encrypted daily compliance and audit PDF reports (Reference only)" },
-  { id: "cw", x: 510, y: 730, w: 230, h: 56, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", step: 3, ref: true, tip: "CloudWatch captures EC2 system metrics and operational host logs (Reference only)" },
-  { id: "mail", x: 790, y: 730, w: 220, h: 56, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", step: 3, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in" },
+  { id: "cw", x: 520, y: 730, w: 240, h: 56, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", step: 3, ref: true, tip: "CloudWatch captures EC2 system metrics and operational host logs (Reference only)" },
+  { id: "mail", x: 800, y: 730, w: 210, h: 56, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", step: 3, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in" },
 ];
 
 type Edge = {
-  id: string;
+  n: number;
   step: number;
   d: string;
   len: number;
+  bx: number;
+  by: number;
   tip: string;
-  label: { x: number; y: number; t: string };
+  label: { x: number; y: number; t: string; w?: number };
 };
 
 const EDGES: Edge[] = [
@@ -74,152 +76,186 @@ const EDGES: Edge[] = [
   // Phase 1: Code & Security Scan
   // -------------------------------------------------------------------------
   {
-    id: "e1",
+    n: 1,
     step: 0,
     d: "M 210 52 H 270",
     len: 60,
+    bx: 240,
+    by: 52,
     tip: "Developer pushes code commits to GitHub repository",
-    label: { x: 240, y: 38, t: "git push" },
+    label: { x: 240, y: 32, t: "git push", w: 54 },
   },
   {
-    id: "e2",
+    n: 2,
     step: 0,
     d: "M 450 52 H 520",
     len: 70,
+    bx: 485,
+    by: 52,
     tip: "Push / PR webhook triggers GitHub Actions CI/CD workflow",
-    label: { x: 485, y: 38, t: "trigger CI" },
+    label: { x: 485, y: 32, t: "trigger CI", w: 60 },
   },
   {
-    id: "e3",
+    n: 3,
     step: 0,
     d: "M 740 52 H 820",
     len: 80,
+    bx: 780,
+    by: 52,
     tip: "GitHub Actions executes Trivy security and vulnerability scan",
-    label: { x: 780, y: 38, t: "security scan" },
+    label: { x: 780, y: 32, t: "security scan", w: 76 },
   },
 
   // -------------------------------------------------------------------------
   // Phase 2: AWS Provisioning
   // -------------------------------------------------------------------------
   {
-    id: "e4",
+    n: 4,
     step: 1,
     d: "M 620 80 V 150",
     len: 70,
+    bx: 620,
+    by: 115,
     tip: "GitHub Actions executes Terraform plan and apply",
-    label: { x: 672, y: 115, t: "plan & apply" },
+    label: { x: 678, y: 115, t: "plan & apply", w: 74 },
   },
   {
-    id: "e5",
+    n: 5,
     step: 1,
     d: "M 650 178 H 730",
     len: 80,
+    bx: 690,
+    by: 178,
     tip: "Terraform provisions AWS VPC, Subnet, and IAM instance role",
-    label: { x: 690, y: 166, t: "provision & attach" },
+    label: { x: 690, y: 158, t: "provision & attach", w: 104 },
   },
   {
-    id: "e6",
+    n: 6,
     step: 1,
     d: "M 550 206 V 270",
     len: 64,
+    bx: 550,
+    by: 238,
     tip: "Terraform provisions ubuntu-app-01 EC2 host and attaches Security Group",
-    label: { x: 630, y: 238, t: "provisions EC2 & SG" },
+    label: { x: 636, y: 238, t: "provisions EC2 & SG", w: 118 },
   },
 
   // -------------------------------------------------------------------------
   // Phase 3: Application Deployment
   // -------------------------------------------------------------------------
   {
-    id: "e7",
+    n: 7,
     step: 2,
     d: "M 560 80 V 112 H 215 V 150",
     len: 415,
+    bx: 430,
+    by: 112,
     tip: "GitHub Actions triggers Ansible deployment playbook",
-    label: { x: 380, y: 102, t: "trigger deploy" },
+    label: { x: 330, y: 112, t: "trigger deploy", w: 82 },
   },
   {
-    id: "e8",
+    n: 8,
     step: 2,
     d: "M 215 206 V 270",
     len: 64,
+    bx: 215,
+    by: 238,
     tip: "Ansible configures ubuntu-app-01 via SSH (port 22) and deploys containers",
-    label: { x: 272, y: 238, t: "SSH port 22" },
+    label: { x: 278, y: 238, t: "SSH port 22", w: 72 },
   },
 
   // -------------------------------------------------------------------------
   // Phase 4: Traffic, Telemetry & Alerts
   // -------------------------------------------------------------------------
   {
-    id: "e9",
+    n: 9,
     step: 3,
-    d: "M 120 730 V 695 H 42 V 397 H 70",
-    len: 444,
+    d: "M 120 730 V 695 H 42 V 400 H 70",
+    len: 442,
+    bx: 120,
+    by: 712,
     tip: "Users connect securely over HTTPS via Security Group port 443 into Nginx",
-    label: { x: 120, y: 714, t: "HTTPS 443" },
+    label: { x: 120, y: 694, t: "HTTPS 443", w: 66 },
   },
   {
-    id: "e10",
+    n: 10,
     step: 3,
-    d: "M 235 397 H 275",
+    d: "M 235 400 H 275",
     len: 40,
+    bx: 255,
+    by: 400,
     tip: "Nginx terminates TLS and reverse proxies HTTP requests to the App",
-    label: { x: 255, y: 386, t: "proxy" },
+    label: { x: 255, y: 382, t: "proxy", w: 42 },
   },
   {
-    id: "e11",
+    n: 11,
     step: 3,
-    d: "M 440 397 H 480",
+    d: "M 440 400 H 480",
     len: 40,
+    bx: 460,
+    by: 400,
     tip: "App handles business logic and queries database collections",
-    label: { x: 460, y: 386, t: "queries" },
+    label: { x: 460, y: 382, t: "queries", w: 48 },
   },
   {
-    id: "e12",
+    n: 12,
     step: 3,
-    d: "M 235 537 H 275",
+    d: "M 235 530 H 275",
     len: 40,
+    bx: 255,
+    by: 530,
     tip: "Node Exporter exposes host kernel telemetry scraped by Prometheus on port 9100",
-    label: { x: 255, y: 526, t: "scrape :9100" },
+    label: { x: 255, y: 512, t: "scrape :9100", w: 82 },
   },
   {
-    id: "e13",
+    n: 13,
     step: 3,
-    d: "M 440 537 H 480",
+    d: "M 440 530 H 480",
     len: 40,
+    bx: 460,
+    by: 530,
     tip: "Prometheus metrics feed visual dashboards in Grafana on port 3001",
-    label: { x: 460, y: 526, t: "dashboards" },
+    label: { x: 460, y: 512, t: "dashboards", w: 72 },
   },
   {
-    id: "e14",
+    n: 14,
     step: 3,
-    d: "M 828 424 V 455",
-    len: 31,
+    d: "M 915 454 V 500",
+    len: 46,
+    bx: 915,
+    by: 477,
     tip: "Isolated host crontab executes daily compliance and security report script",
-    label: { x: 885, y: 440, t: "runs script" },
+    label: { x: 960, y: 477, t: "triggers", w: 50 },
   },
   {
-    id: "e15",
+    n: 15,
     step: 3,
-    d: "M 676 482 H 360 V 730",
-    len: 564,
+    d: "M 845 554 V 686 H 360 V 730",
+    len: 736,
+    bx: 360,
+    by: 708,
     tip: "Generated PDF report is encrypted and archived in Amazon S3",
-    label: { x: 360, y: 712, t: "archive PDF" },
+    label: { x: 360, y: 686, t: "archive PDF", w: 74 },
   },
   {
-    id: "e16",
+    n: 16,
     step: 3,
-    d: "M 625 599 V 730",
-    len: 131,
+    d: "M 742 554 V 730",
+    len: 176,
+    bx: 742,
+    by: 686,
     tip: "CloudWatch Agent on EC2 streams host logs and metrics to Amazon CloudWatch",
-    label: { x: 695, y: 712, t: "logs & metrics" },
+    label: { x: 676, y: 686, t: "host telemetry", w: 88 },
   },
   {
-    id: "e17",
+    n: 17,
     step: 3,
-    d: "M 900 509 V 730",
-    len: 221,
+    d: "M 915 554 V 730",
+    len: 176,
+    bx: 915,
+    by: 686,
     tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in",
-    label: { x: 900, y: 712, t: "email alerts" },
+    label: { x: 968, y: 686, t: "email alerts", w: 72 },
   },
 ];
 
@@ -228,58 +264,59 @@ const EDGES: Edge[] = [
  */
 function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
   const f = Math.max(0, Math.min(1, frac));
-  switch (edge.id) {
-    case "e1":
+  switch (edge.n) {
+    case 1:
       return { x: 210 + f * 60, y: 52 };
-    case "e2":
+    case 2:
       return { x: 450 + f * 70, y: 52 };
-    case "e3":
+    case 3:
       return { x: 740 + f * 80, y: 52 };
-    case "e4":
+    case 4:
       return { x: 620, y: 80 + f * 70 };
-    case "e5":
+    case 5:
       return { x: 650 + f * 80, y: 178 };
-    case "e6":
+    case 6:
       return { x: 550, y: 206 + f * 64 };
-    case "e7": {
+    case 7: {
       // M 560 80 V 112 H 215 V 150 (32 + 345 + 38 = 415)
       const dist = f * 415;
       if (dist <= 32) return { x: 560, y: 80 + dist };
       if (dist <= 377) return { x: 560 - (dist - 32), y: 112 };
       return { x: 215, y: 112 + (dist - 377) };
     }
-    case "e8":
+    case 8:
       return { x: 215, y: 206 + f * 64 };
-    case "e9": {
-      // M 120 730 V 695 H 42 V 397 H 70 (35 + 78 + 298 + 28 = 439)
-      const dist = f * 439;
+    case 9: {
+      // M 120 730 V 695 H 42 V 400 H 70 (35 + 78 + 295 + 28 = 436)
+      const dist = f * 436;
       if (dist <= 35) return { x: 120, y: 730 - dist };
       if (dist <= 113) return { x: 120 - (dist - 35), y: 695 };
-      if (dist <= 411) return { x: 42, y: 695 - (dist - 113) };
-      return { x: 42 + (dist - 411), y: 397 };
+      if (dist <= 408) return { x: 42, y: 695 - (dist - 113) };
+      return { x: 42 + (dist - 408), y: 400 };
     }
-    case "e10":
-      return { x: 235 + f * 40, y: 397 };
-    case "e11":
-      return { x: 440 + f * 40, y: 397 };
-    case "e12":
-      return { x: 235 + f * 40, y: 537 };
-    case "e13":
-      return { x: 440 + f * 40, y: 537 };
-    case "e14":
-      return { x: 828, y: 424 + f * 31 };
-    case "e15": {
-      // M 676 482 H 360 V 730 (316 + 248 = 564)
-      const dist = f * 564;
-      if (dist <= 316) return { x: 676 - dist, y: 482 };
-      return { x: 360, y: 482 + (dist - 316) };
+    case 10:
+      return { x: 235 + f * 40, y: 400 };
+    case 11:
+      return { x: 440 + f * 40, y: 400 };
+    case 12:
+      return { x: 235 + f * 40, y: 530 };
+    case 13:
+      return { x: 440 + f * 40, y: 530 };
+    case 14:
+      return { x: 915, y: 454 + f * 46 };
+    case 15: {
+      // M 845 554 V 686 H 360 V 730 (132 + 485 + 44 = 661)
+      const dist = f * 661;
+      if (dist <= 132) return { x: 845, y: 554 + dist };
+      if (dist <= 617) return { x: 845 - (dist - 132), y: 686 };
+      return { x: 360, y: 686 + (dist - 617) };
     }
-    case "e16":
-      return { x: 625, y: 599 + f * 131 };
-    case "e17":
-      return { x: 900, y: 509 + f * 221 };
+    case 16:
+      return { x: 742, y: 554 + f * 176 };
+    case 17:
+      return { x: 915, y: 554 + f * 176 };
     default:
-      return { x: 0, y: 0 };
+      return { x: edge.bx, y: edge.by };
   }
 }
 
@@ -418,6 +455,17 @@ function Tile({
   );
 }
 
+function Badge({ x, y, n, on }: { x: number; y: number; n: number; on: boolean }) {
+  return (
+    <g className={on ? "hir-badge hir-badge-on" : "hir-badge"}>
+      <circle cx={x} cy={y} r={10} />
+      <text x={x} y={y + 3.5} textAnchor="middle">
+        {n}
+      </text>
+    </g>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
@@ -528,19 +576,19 @@ export default function HowItRuns() {
   const travelTime = edgeCount * HOW_IT_RUNS_TIMING.edgeDurationMs;
 
   let packetPos = { x: 0, y: 0 };
-  let currentActiveEdgeId: string | null = null;
+  let currentActiveEdgeNumber: number | null = null;
 
   if (edgeCount > 0) {
     if (elapsedRef.current < travelTime) {
       const idx = Math.floor(elapsedRef.current / HOW_IT_RUNS_TIMING.edgeDurationMs);
       const currEdge = stepEdges[idx] || stepEdges[0];
-      currentActiveEdgeId = currEdge.id;
+      currentActiveEdgeNumber = currEdge.n;
       const frac = (elapsedRef.current % HOW_IT_RUNS_TIMING.edgeDurationMs) / HOW_IT_RUNS_TIMING.edgeDurationMs;
       packetPos = getPointOnEdge(currEdge, frac);
     } else {
       // Pause period between steps: packet rests at the destination of the last active connection
       const last = stepEdges[edgeCount - 1];
-      currentActiveEdgeId = last.id;
+      currentActiveEdgeNumber = last.n;
       packetPos = getPointOnEdge(last, 1.0);
     }
   }
@@ -728,7 +776,27 @@ export default function HowItRuns() {
             </defs>
 
             {/* ============================================================= */}
-            {/* CENTRAL AWS EC2 LINUX SERVER BOUNDARY: ubuntu-app-01          */}
+            {/* 1. CONNECTOR LINES (Rendered first so they run BEHIND cards)   */}
+            {/* ============================================================= */}
+            {EDGES.map((e) => {
+              const isStepActive = isOn([e.step]);
+              const isEdgeBeingTraversed = currentActiveEdgeNumber === e.n && isStepActive;
+
+              return (
+                <g key={e.n} className={dim([e.step])}>
+                  <path
+                    d={e.d}
+                    className={`hir-line ${isStepActive ? "hir-line-step" : ""} ${isEdgeBeingTraversed ? "hir-line-active" : ""}`}
+                    markerEnd={isStepActive ? "url(#hir-ah-active)" : "url(#hir-ah)"}
+                  >
+                    <title>{e.tip}</title>
+                  </path>
+                </g>
+              );
+            })}
+
+            {/* ============================================================= */}
+            {/* 2. CENTRAL AWS EC2 SERVER BOUNDARY: ubuntu-app-01             */}
             {/* ============================================================= */}
             <g className={dim([1, 2, 3])}>
               {/* Outer Server Boundary Container */}
@@ -767,11 +835,11 @@ export default function HowItRuns() {
               {/* Sub-container A: Docker Compose Stack (Web, App, DB, Monitoring) */}
               <rect x="54" y="330" width="590" height="310" rx="10" className="hir-block" />
               <image href={logo("docker")} x="68" y="342" width="18" height="18" preserveAspectRatio="xMidYMid meet" />
-              <text x="92" y="356" className="hir-name" fontSize={12} fontWeight={700}>
+              <text x="92" y="354" className="hir-name" fontSize={12} fontWeight={700}>
                 Docker Compose Stack
               </text>
-              <text x="630" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
-                6 containers protected by Security Group
+              <text x="92" y="368" className="hir-mono hir-muted" fontSize={8.5}>
+                6 containerized microservices protected by host Security Group
               </text>
 
               {/* Row 1: Core Web & Application Pipeline */}
@@ -781,13 +849,13 @@ export default function HowItRuns() {
                 { x: 480, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
               ].map((c) => (
                 <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
-                  <rect x={c.x} y={370} width={165} height={54} rx={8} className="hir-chip" />
-                  <circle cx={c.x + 153} cy={382} r={2.5} className="hir-dot" />
-                  <Tile x={c.x + 8} y={380} size={26} href={logo(c.logo)} fb={c.fb} />
-                  <text x={c.x + 40} y={395} className="hir-name" fontSize={11.5} fontWeight={600}>
+                  <rect x={c.x} y={373} width={165} height={54} rx={8} className="hir-chip" />
+                  <circle cx={c.x + 153} cy={385} r={2.5} className="hir-dot" />
+                  <Tile x={c.x + 8} y={383} size={26} href={logo(c.logo)} fb={c.fb} />
+                  <text x={c.x + 40} y={398} className="hir-name" fontSize={11.5} fontWeight={600}>
                     {c.name}
                   </text>
-                  <text x={c.x + 40} y={411} className="hir-mono hir-muted" fontSize={8}>
+                  <text x={c.x + 40} y={414} className="hir-mono hir-muted" fontSize={8}>
                     {c.sub}
                   </text>
                 </g>
@@ -796,119 +864,87 @@ export default function HowItRuns() {
               {/* Row 2: Observability Pipeline (Node Exporter -> Prometheus -> Grafana) */}
               <g className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
                 {/* Node Exporter */}
-                <rect x="70" y="510" width={165} height={54} rx={8} className="hir-chip" />
-                <circle cx={223} cy={522} r={2.5} className="hir-dot" />
-                <Tile x={78} y={520} size={26} href={logo("linux")} fb="NODE" />
-                <text x={110} y={535} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="70" y="503" width={165} height={54} rx={8} className="hir-chip" />
+                <circle cx={223} cy={515} r={2.5} className="hir-dot" />
+                <Tile x={78} y={513} size={26} href={logo("linux")} fb="NODE" />
+                <text x={110} y={528} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Node Exporter
                 </text>
-                <text x={110} y={551} className="hir-mono hir-muted" fontSize={8}>
+                <text x={110} y={544} className="hir-mono hir-muted" fontSize={8}>
                   host kernel telemetry :9100
                 </text>
 
                 {/* Prometheus */}
-                <rect x="275" y="510" width={165} height={54} rx={8} className="hir-chip" />
-                <circle cx={428} cy={522} r={2.5} className="hir-dot" />
-                <Tile x={283} y={520} size={26} href={logo("prometheus")} fb="PROM" />
-                <text x={315} y={535} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="275" y="503" width={165} height={54} rx={8} className="hir-chip" />
+                <circle cx={428} cy={515} r={2.5} className="hir-dot" />
+                <Tile x={283} y={513} size={26} href={logo("prometheus")} fb="PROM" />
+                <text x={315} y={528} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Prometheus
                 </text>
-                <text x={315} y={551} className="hir-mono hir-muted" fontSize={8}>
+                <text x={315} y={544} className="hir-mono hir-muted" fontSize={8}>
                   metrics collector :9090
                 </text>
 
                 {/* Grafana */}
-                <rect x="480" y="510" width={150} height={54} rx={8} className="hir-chip" />
-                <circle cx={618} cy={522} r={2.5} className="hir-dot" />
-                <Tile x={488} y={520} size={26} href={logo("grafana")} fb="GRAF" />
-                <text x={520} y={535} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="480" y="503" width={150} height={54} rx={8} className="hir-chip" />
+                <circle cx={618} cy={515} r={2.5} className="hir-dot" />
+                <Tile x={488} y={513} size={26} href={logo("grafana")} fb="GRAF" />
+                <text x={520} y={528} className="hir-name" fontSize={11.5} fontWeight={600}>
                   Grafana
                 </text>
-                <text x={520} y={551} className="hir-mono hir-muted" fontSize={8}>
+                <text x={520} y={544} className="hir-mono hir-muted" fontSize={8}>
                   visual dashboards :3001
                 </text>
               </g>
 
               {/* Sub-container B: Host Services & Scheduled Automation */}
               <rect x="660" y="330" width="336" height="310" rx="10" className="hir-block" />
-              <text x="676" y="356" className="hir-name" fontSize={12} fontWeight={700}>
+              <text x="676" y="354" className="hir-name" fontSize={12} fontWeight={700}>
                 Host Daemons & Scheduled Tasks
               </text>
-              <text x="982" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
-                systemd & isolated crontab
+              <text x="676" y="368" className="hir-mono hir-muted" fontSize={8.5}>
+                systemd service & isolated crontab execution
               </text>
+
+              {/* Host Scheduled Task 1: Cron Job */}
+              <g className={isOn([3]) ? "hir-in" : "hir-off"}>
+                <rect x="835" y="400" width="145" height="54" rx={8} className="hir-chip" />
+                <Tile x={843} y={410} size={26} href={logo("linux")} fb="CRON" />
+                <text x={875} y={424} className="hir-name" fontSize={11} fontWeight={600}>
+                  Scheduled Job
+                </text>
+                <text x={875} y={440} className="hir-mono hir-muted" fontSize={8}>
+                  daily cron trigger
+                </text>
+              </g>
+
+              {/* Host Scheduled Task 2: PDF Report Generator */}
+              <g className={isOn([3]) ? "hir-in" : "hir-off"}>
+                <rect x="835" y="500" width="145" height="54" rx={8} className="hir-chip" />
+                <Tile x={843} y={510} size={26} href={logo("pdf")} fb="PDF" />
+                <text x={875} y={524} className="hir-name" fontSize={11} fontWeight={600}>
+                  PDF Generator
+                </text>
+                <text x={875} y={540} className="hir-mono hir-muted" fontSize={8}>
+                  compliance audit
+                </text>
+              </g>
 
               {/* Host Daemon: CloudWatch Agent */}
               <g className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
-                <rect x="676" y="370" width="304" height="54" rx={8} className="hir-chip" />
-                <Tile x={684} y={380} size={26} href={logo("aws-cloudwatch")} fb="CW" />
-                <text x={718} y={395} className="hir-name" fontSize={11.5} fontWeight={600}>
+                <rect x="670" y="500" width="145" height="54" rx={8} className="hir-chip" />
+                <Tile x={678} y={510} size={26} href={logo("aws-cloudwatch")} fb="CW" />
+                <text x={710} y={524} className="hir-name" fontSize={11} fontWeight={600}>
                   CloudWatch Agent
                 </text>
-                <text x={718} y={411} className="hir-mono hir-muted" fontSize={8}>
-                  EC2 host metrics & system logs daemon
-                </text>
-              </g>
-
-              {/* Scheduled Task: Daily Report Trigger */}
-              <g className={isOn([3]) ? "hir-in" : "hir-off"}>
-                <rect x="676" y="455" width="304" height="54" rx={8} className="hir-chip" />
-                <Tile x={684} y={465} size={26} href={logo("pdf")} fb="PDF" />
-                <text x={718} y={480} className="hir-name" fontSize={11.5} fontWeight={600}>
-                  PDF Report Generator
-                </text>
-                <text x={718} y={496} className="hir-mono hir-muted" fontSize={8}>
-                  compliance & security audit report
-                </text>
-              </g>
-
-              {/* Scheduled Task: Host Cron */}
-              <g className={isOn([3]) ? "hir-in" : "hir-off"}>
-                <rect x="676" y="545" width="304" height="54" rx={8} className="hir-chip" />
-                <Tile x={684} y={555} size={26} href={logo("linux")} fb="CRON" />
-                <text x={718} y={570} className="hir-name" fontSize={11.5} fontWeight={600}>
-                  Scheduled Report Job
-                </text>
-                <text x={718} y={586} className="hir-mono hir-muted" fontSize={8}>
-                  isolated host crontab · daily automated trigger
+                <text x={710} y={540} className="hir-mono hir-muted" fontSize={8}>
+                  host telemetry
                 </text>
               </g>
             </g>
 
             {/* ============================================================= */}
-            {/* CONNECTOR PATHS & DIRECTIONAL ARROWS                          */}
-            {/* ============================================================= */}
-            {EDGES.map((e) => {
-              const isStepActive = isOn([e.step]);
-              const isEdgeBeingTraversed = currentActiveEdgeId === e.id && isStepActive;
-
-              return (
-                <g key={e.id} className={dim([e.step])}>
-                  <path
-                    d={e.d}
-                    className={`hir-line ${isStepActive ? "hir-line-step" : ""} ${isEdgeBeingTraversed ? "hir-line-active" : ""}`}
-                    markerEnd={isStepActive ? "url(#hir-ah-active)" : "url(#hir-ah)"}
-                  >
-                    <title>{e.tip}</title>
-                  </path>
-                  {e.label && (
-                    <text
-                      x={e.label.x}
-                      y={e.label.y}
-                      className={`hir-mono ${isStepActive ? "hir-label-active" : "hir-muted"}`}
-                      fontSize={9}
-                      fontWeight={isStepActive ? 700 : 500}
-                      textAnchor="middle"
-                    >
-                      {e.label.t}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-
-            {/* ============================================================= */}
-            {/* EXTERNAL SERVICE NODES                                        */}
+            {/* 3. EXTERNAL SERVICE NODES                                      */}
             {/* ============================================================= */}
             {NODES.map((n) => (
               <g key={n.id} className={dim([n.step])}>
@@ -956,7 +992,44 @@ export default function HowItRuns() {
             ))}
 
             {/* ============================================================= */}
-            {/* SEQUENTIAL ANIMATED PACKET DOT                                */}
+            {/* 4. CONNECTOR LABELS (With background pill to prevent line bleed) */}
+            {/* ============================================================= */}
+            {EDGES.map((e) => {
+              const isStepActive = isOn([e.step]);
+              const pillW = e.label.w || 64;
+              return (
+                <g key={`lbl-${e.n}`} className={dim([e.step])}>
+                  <rect
+                    x={e.label.x - pillW / 2}
+                    y={e.label.y - 8}
+                    width={pillW}
+                    height={16}
+                    rx={4}
+                    className="hir-label-bg"
+                  />
+                  <text
+                    x={e.label.x}
+                    y={e.label.y + 3.5}
+                    className={`hir-mono ${isStepActive ? "hir-label-active" : "hir-muted"}`}
+                    fontSize={8.5}
+                    fontWeight={isStepActive ? 700 : 600}
+                    textAnchor="middle"
+                  >
+                    {e.label.t}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* ============================================================= */}
+            {/* 5. NUMBERED CONNECTOR BADGES                                  */}
+            {/* ============================================================= */}
+            {EDGES.map((e) => (
+              <Badge key={`bdg-${e.n}`} x={e.bx} y={e.by} n={e.n} on={isOn([e.step])} />
+            ))}
+
+            {/* ============================================================= */}
+            {/* 6. SEQUENTIAL ANIMATED PACKET DOT                             */}
             {/* ============================================================= */}
             {animate && packetPos.x > 0 && (
               <g className="hir-packet">
@@ -1048,7 +1121,14 @@ const CSS = `
 .hir-line-active{stroke:var(--hir-acc);stroke-width:3;stroke-dasharray:none;opacity:1}
 .hir-arrow{fill:var(--hir-line-inactive);transition:fill .3s}
 .hir-arrow-active{fill:var(--hir-acc)}
+.hir-label-bg{fill:var(--hir-bg);stroke:var(--hir-border);stroke-width:.75}
 .hir-label-active{fill:var(--hir-acc)}
+
+/* Badges */
+.hir-badge circle{fill:var(--hir-bg);stroke:var(--hir-line-inactive);stroke-width:1.5;transition:fill .3s,stroke .3s}
+.hir-badge text{font:700 9px ui-monospace,monospace;fill:var(--hir-muted);transition:fill .3s}
+.hir-badge-on circle{fill:var(--hir-acc);stroke:var(--hir-acc)}
+.hir-badge-on text{fill:var(--hir-on,#FFFFFF)}
 
 /* Animation */
 .hir-dim{opacity:.38;transition:opacity .35s ease}
