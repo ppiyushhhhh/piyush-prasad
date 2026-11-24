@@ -4,12 +4,15 @@ import { TECH_LOGO_REGISTRY } from "@/lib/tech-logo-registry";
 /**
  * "How it runs": a full-width reference workflow, source -> CI -> IaC -> AWS -> users.
  *
- * Geometry rule: every node, line, arrowhead, badge and packet lives in ONE SVG
- * coordinate system and every line is a straight or L-shaped path that starts and
- * ends exactly on a node border. Nothing is measured at runtime, so nothing drifts.
- * Under NARROW_PX the diagram is replaced by a compact 4-step list (same services).
- *
- * Solid node = used in my repositories. Dashed node = reference only (not in my repos).
+ * Sequence:
+ * 1. GitHub Actions runs Trivy security scanning on source and container images.
+ * 2. Terraform provisions the AWS environment: isolated VPC, Security Groups, and AWS IAM instance role.
+ * 3. Protected by the VPC and Security Group, Ansible configures the EC2 host via SSH and deploys
+ *    the Docker Compose stack: Nginx, App, Database, Prometheus (collecting metrics), and Grafana
+ *    (displaying dashboards), while CloudWatch captures host logs and metrics.
+ * 4. Users reach the app over HTTPS through the Security Group and Nginx reverse proxy.
+ *    Scheduled cron jobs archive daily PDF reports in Amazon S3 and dispatch email reports
+ *    and failure alerts to hello@piyushprasad.in.
  */
 
 export const HOW_IT_RUNS_TIMING = {
@@ -19,11 +22,11 @@ export const HOW_IT_RUNS_TIMING = {
 
 const NARROW_PX = 760;
 
-export const SPEEDS = [0.5, 1, 1.5, 2] as const;
+export const SPEEDS = [1, 2] as const;
 export type Speed = (typeof SPEEDS)[number];
 
 // ---------------------------------------------------------------------------
-// Data
+// Data & Layout (Expanded viewBox: 1000 x 648, 210px nodes, high-contrast connectors)
 // ---------------------------------------------------------------------------
 type Node = {
   id: string;
@@ -34,36 +37,36 @@ type Node = {
   name: string;
   sub: string;
   logo?: string;
-  fb: string; // monogram when no logo exists
-  steps: number[]; // steps (0-based) in which the node is "active"
-  ref?: boolean; // reference only (dashed)
+  fb: string;
+  steps: number[];
+  ref?: boolean;
   tip: string;
 };
 
-const W = 190;
-const H = 64;
-const COL = [24, 278, 532, 786]; // node lefts, 64px gaps
-const ROW1 = 24;
-const ROW2 = 152;
-const ROW4 = 584;
+const W = 210;
+const H = 62;
+const COL = [20, 270, 520, 770]; // node lefts: 40px channels, 960px width
+const ROW1 = 20;
+const ROW2 = 142;
+const ROW4 = 574;
 
 const NODES: Node[] = [
   // Row 1: Source & CI
-  { id: "dev", x: COL[0], y: ROW1, w: W, h: H, name: "Developer", sub: "git push", fb: "DEV", steps: [0], tip: "Pushes code to the repository" },
-  { id: "gh", x: COL[1], y: ROW1, w: W, h: H, name: "GitHub", sub: "repository", logo: "github", fb: "GH", steps: [0], tip: "Source code and pull requests" },
-  { id: "ci", x: COL[2], y: ROW1, w: W, h: H, name: "GitHub Actions", sub: "CI/CD pipeline", logo: "githubactions", fb: "CI", steps: [0, 1, 2], tip: "Builds, tests and starts every deployment" },
-  { id: "trivy", x: COL[3], y: ROW1, w: W, h: H, name: "Trivy", sub: "vulnerability scan", logo: "trivy", fb: "TR", steps: [0], tip: "Scans the code and container images for known vulnerabilities" },
+  { id: "dev", x: COL[0], y: ROW1, w: W, h: H, name: "Developer", sub: "git push", fb: "DEV", steps: [0], tip: "Pushes code and features to the Git repository" },
+  { id: "gh", x: COL[1], y: ROW1, w: W, h: H, name: "GitHub", sub: "repository", logo: "github", fb: "GH", steps: [0], tip: "Source repository and pull request automation" },
+  { id: "ci", x: COL[2], y: ROW1, w: W, h: H, name: "GitHub Actions", sub: "CI/CD pipeline", logo: "githubactions", fb: "CI", steps: [0, 1, 2], tip: "Builds, tests, and triggers security scans and deployments" },
+  { id: "trivy", x: COL[3], y: ROW1, w: W, h: H, name: "Trivy", sub: "security scanner", logo: "trivy", fb: "TR", steps: [0], tip: "GitHub Actions runs Trivy scanning for CVE vulnerabilities in code and container images" },
 
   // Row 2: Deployment & IaC
-  { id: "ans", x: COL[1], y: ROW2, w: W, h: H, name: "Ansible", sub: "configure + deploy", logo: "ansible", fb: "AN", steps: [2], tip: "ansible-playbook configures the server and deploys the app over SSH" },
-  { id: "tf", x: COL[2], y: ROW2, w: W, h: H, name: "Terraform", sub: "reference · IaC", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "plan / apply provisions AWS cloud infrastructure as code (reference step)" },
-  { id: "iam", x: COL[3], y: ROW2, w: W, h: H, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", steps: [1], ref: true, tip: "Configures IAM instance profile, security policies, and least-privilege credentials during provisioning (reference step)" },
+  { id: "ans", x: COL[1], y: ROW2, w: W, h: H, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", steps: [2], tip: "ansible-playbook configures the server and deploys the app through Security Group SSH (port 22)" },
+  { id: "tf", x: COL[2], y: ROW2, w: W, h: H, name: "Terraform", sub: "IaC · VPC & SG", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "Terraform provisions the AWS environment: isolated VPC, subnets, and Security Groups (reference step)" },
+  { id: "iam", x: COL[3], y: ROW2, w: W, h: H, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", steps: [1], ref: true, tip: "Assigns the IAM instance profile and security policies to the EC2 host during provisioning (reference step)" },
 
   // Row 4: Consumers, Observability, Storage & Alerts
-  { id: "users", x: COL[0], y: ROW4, w: W, h: H, name: "Users", sub: "browser · HTTPS", fb: "WEB", steps: [3], tip: "Visitors reach the application securely over HTTPS via Nginx" },
-  { id: "cw", x: COL[1], y: ROW4, w: W, h: H, name: "CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", steps: [2, 3], ref: true, tip: "Amazon CloudWatch monitors EC2 host metrics, container performance, and system logs (reference step)" },
-  { id: "s3", x: COL[2], y: ROW4, w: W, h: H, name: "Amazon S3", sub: "archived PDF reports", logo: "aws-s3", fb: "S3", steps: [3], ref: true, tip: "Amazon S3 stores encrypted daily PDF security & audit report archives (reference step)" },
-  { id: "mail", x: COL[3], y: ROW4, w: W, h: H, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", steps: [3], tip: "Automated PDF reports and workflow failure alerts dispatched to hello@piyushprasad.in" },
+  { id: "users", x: COL[0], y: ROW4, w: W, h: H, name: "Users", sub: "browser · HTTPS", fb: "WEB", steps: [3], tip: "Visitors reach the application securely over HTTPS through the Security Group and Nginx" },
+  { id: "cw", x: COL[1], y: ROW4, w: W, h: H, name: "CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", steps: [2, 3], ref: true, tip: "Amazon CloudWatch monitors EC2 host performance metrics, container telemetry, and system logs (reference step)" },
+  { id: "s3", x: COL[2], y: ROW4, w: W, h: H, name: "Amazon S3", sub: "archived PDF reports", logo: "aws-s3", fb: "S3", steps: [3], ref: true, tip: "Amazon S3 stores encrypted daily PDF security and audit report archives (reference step)" },
+  { id: "mail", x: COL[3], y: ROW4, w: W, h: H, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", steps: [3], tip: "Automated PDF reports and workflow failure alerts dispatched directly to hello@piyushprasad.in" },
 ];
 
 type Edge = {
@@ -78,25 +81,25 @@ type Edge = {
 };
 
 const EDGES: Edge[] = [
-  // Step 0: Push & CI
-  { n: 1, step: 0, d: "M214 56 H278", len: 64, bx: 246, by: 56, tip: "git push to the repository" },
-  { n: 2, step: 0, d: "M468 56 H532", len: 64, bx: 500, by: 56, tip: "A push or pull request triggers the CI pipeline" },
-  { n: 3, step: 0, d: "M722 56 H786", len: 64, bx: 754, by: 56, tip: "Security scan of the code and container images" },
+  // Step 0: Push & CI (GitHub Actions runs Trivy security scanning)
+  { n: 1, step: 0, d: "M230 51 H270", len: 40, bx: 250, by: 51, tip: "Developer pushes code to GitHub" },
+  { n: 2, step: 0, d: "M480 51 H520", len: 40, bx: 500, by: 51, tip: "Push or pull request triggers GitHub Actions pipeline" },
+  { n: 3, step: 0, d: "M730 51 H770", len: 40, bx: 750, by: 51, tip: "GitHub Actions runs Trivy security scan on code and container images", label: { x: 750, y: 38, t: "security scan" } },
 
-  // Step 1: Provision (Terraform + AWS IAM)
-  { n: 4, step: 1, d: "M627 88 V152", len: 64, bx: 627, by: 120, tip: "Pipeline runs terraform plan and apply", label: { x: 643, y: 124, t: "plan · apply" } },
-  { n: 5, step: 1, d: "M627 216 V280", len: 64, bx: 627, by: 248, tip: "Terraform creates the AWS EC2 environment", label: { x: 643, y: 252, t: "provision" } },
-  { n: 6, step: 1, d: "M722 184 H786", len: 64, bx: 754, by: 184, tip: "Terraform attaches AWS IAM instance role and security policies", label: { x: 730, y: 172, t: "instance role" } },
+  // Step 1: Provision (Terraform provisions AWS environment: VPC, Security Group, and IAM role)
+  { n: 4, step: 1, d: "M625 82 V142", len: 60, bx: 625, by: 112, tip: "Pipeline executes terraform plan and apply", label: { x: 645, y: 116, t: "plan · apply" } },
+  { n: 5, step: 1, d: "M625 204 V264", len: 60, bx: 625, by: 234, tip: "Terraform provisions AWS VPC, Subnets, and Security Groups", label: { x: 645, y: 238, t: "provision VPC & SG" } },
+  { n: 6, step: 1, d: "M730 173 H770", len: 40, bx: 750, by: 173, tip: "Terraform attaches AWS IAM EC2 instance role and security policies", label: { x: 750, y: 158, t: "instance role" } },
 
-  // Step 2: Configure & deploy (Ansible + Docker + CloudWatch)
-  { n: 7, step: 2, d: "M577 88 V120 H373 V152", len: 268, bx: 475, by: 120, tip: "Pipeline connects to Ansible over SSH", label: { x: 420, y: 114, t: "SSH deploy" } },
-  { n: 8, step: 2, d: "M373 216 V280", len: 64, bx: 373, by: 248, tip: "ansible-playbook deploys to the EC2 host", label: { x: 389, y: 252, t: "playbook" } },
-  { n: 9, step: 2, d: "M373 520 V584", len: 64, bx: 373, by: 552, tip: "EC2 daemon streams host metrics and container logs to CloudWatch", label: { x: 389, y: 556, t: "logs · metrics" } },
+  // Step 2: Configure & deploy (Protected by VPC/SG, Ansible deploys via SSH; CloudWatch monitors)
+  { n: 7, step: 2, d: "M570 82 V112 H375 V142", len: 255, bx: 472, by: 112, tip: "Pipeline triggers Ansible deployment over SSH", label: { x: 422, y: 104, t: "SSH deploy" } },
+  { n: 8, step: 2, d: "M375 204 V264", len: 60, bx: 375, by: 234, tip: "Ansible configures EC2 host and starts containers via Security Group port 22", label: { x: 395, y: 238, t: "SG port 22" } },
+  { n: 9, step: 2, d: "M375 518 V574", len: 56, bx: 375, by: 546, tip: "CloudWatch continuously monitors EC2 host logs and system metrics", label: { x: 395, y: 550, t: "logs · metrics" } },
 
-  // Step 3: Serve & report (Users + Nginx + S3 + Email)
-  { n: 10, step: 3, d: "M119 584 V456", len: 128, bx: 119, by: 552, tip: "Users reach Nginx reverse proxy over HTTPS", label: { x: 135, y: 556, t: "HTTPS" } },
-  { n: 11, step: 3, d: "M627 520 V584", len: 64, bx: 627, by: 552, tip: "Cron job archives generated PDF reports to Amazon S3", label: { x: 643, y: 556, t: "archive · S3" } },
-  { n: 12, step: 3, d: "M881 500 V584", len: 84, bx: 881, by: 552, tip: "Automated PDF reports and workflow alerts sent to hello@piyushprasad.in", label: { x: 897, y: 556, t: "SMTP alerts" } },
+  // Step 3: Serve & report (Users connect over HTTPS; S3 archives; Email alerts sent)
+  { n: 10, step: 3, d: "M125 574 V442", len: 132, bx: 125, by: 546, tip: "Users reach app via Security Group port 443 into Nginx reverse proxy", label: { x: 145, y: 550, t: "SG port 443" } },
+  { n: 11, step: 3, d: "M625 518 V574", len: 56, bx: 625, by: 546, tip: "Cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 645, y: 550, t: "archive · S3" } },
+  { n: 12, step: 3, d: "M875 500 V574", len: 74, bx: 875, by: 546, tip: "Automated PDF reports and workflow alerts sent to hello@piyushprasad.in", label: { x: 895, y: 550, t: "SMTP alerts" } },
 ];
 
 /**
@@ -106,34 +109,34 @@ const EDGES: Edge[] = [
 function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
   const f = Math.max(0, Math.min(1, frac));
   switch (edge.n) {
-    case 1: // M214 56 H278
-      return { x: 214 + f * 64, y: 56 };
-    case 2: // M468 56 H532
-      return { x: 468 + f * 64, y: 56 };
-    case 3: // M722 56 H786
-      return { x: 722 + f * 64, y: 56 };
-    case 4: // M627 88 V152
-      return { x: 627, y: 88 + f * 64 };
-    case 5: // M627 216 V280
-      return { x: 627, y: 216 + f * 64 };
-    case 6: // M722 184 H786
-      return { x: 722 + f * 64, y: 184 };
-    case 7: { // M577 88 V120 H373 V152 (len: 32 + 204 + 32 = 268)
-      const d = f * 268;
-      if (d <= 32) return { x: 577, y: 88 + d };
-      if (d <= 236) return { x: 577 - (d - 32), y: 120 };
-      return { x: 373, y: 120 + (d - 236) };
+    case 1: // M230 51 H270
+      return { x: 230 + f * 40, y: 51 };
+    case 2: // M480 51 H520
+      return { x: 480 + f * 40, y: 51 };
+    case 3: // M730 51 H770
+      return { x: 730 + f * 40, y: 51 };
+    case 4: // M625 82 V142
+      return { x: 625, y: 82 + f * 60 };
+    case 5: // M625 204 V264
+      return { x: 625, y: 204 + f * 60 };
+    case 6: // M730 173 H770
+      return { x: 730 + f * 40, y: 173 };
+    case 7: { // M570 82 V112 H375 V142 (30 + 195 + 30 = 255)
+      const d = f * 255;
+      if (d <= 30) return { x: 570, y: 82 + d };
+      if (d <= 225) return { x: 570 - (d - 30), y: 112 };
+      return { x: 375, y: 112 + (d - 225) };
     }
-    case 8: // M373 216 V280
-      return { x: 373, y: 216 + f * 64 };
-    case 9: // M373 520 V584
-      return { x: 373, y: 520 + f * 64 };
-    case 10: // M119 584 V456 (travels upwards from users into Nginx)
-      return { x: 119, y: 584 - f * 128 };
-    case 11: // M627 520 V584
-      return { x: 627, y: 520 + f * 64 };
-    case 12: // M881 500 V584
-      return { x: 881, y: 500 + f * 84 };
+    case 8: // M375 204 V264
+      return { x: 375, y: 204 + f * 60 };
+    case 9: // M375 518 V574
+      return { x: 375, y: 518 + f * 56 };
+    case 10: // M125 574 V442 (upwards from users into Nginx)
+      return { x: 125, y: 574 - f * 132 };
+    case 11: // M625 518 V574
+      return { x: 625, y: 518 + f * 56 };
+    case 12: // M875 500 V574
+      return { x: 875, y: 500 + f * 74 };
     default:
       return { x: edge.bx, y: edge.by };
   }
@@ -142,19 +145,19 @@ function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
 const STEPS = [
   {
     title: "Push & CI",
-    text: "A developer pushes code. GitHub Actions starts the pipeline and Trivy scans code and images for vulnerabilities.",
+    text: "A developer pushes code to GitHub. GitHub Actions starts the pipeline and executes Trivy security scanning on code and container images.",
   },
   {
     title: "Provision",
-    text: "The pipeline triggers Terraform to provision the AWS EC2 host and configure the AWS IAM instance role.",
+    text: "Terraform provisions the AWS environment, creating the isolated VPC, configuring Security Groups, and assigning the AWS IAM instance role.",
   },
   {
     title: "Configure & deploy",
-    text: "Ansible configures the server and deploys the app; Docker Compose boots containers while CloudWatch monitors host logs and metrics.",
+    text: "Protected by the Security Group, Ansible deploys containers via SSH; Docker Compose boots Nginx, App, Database, Prometheus (collecting metrics), and Grafana (displaying dashboards), while CloudWatch captures host telemetry.",
   },
   {
     title: "Serve & report",
-    text: "Users reach the app over HTTPS. Cron jobs run security scans, archive PDF reports in Amazon S3, and dispatch email alerts to hello@piyushprasad.in.",
+    text: "Users reach the app over HTTPS through the Security Group and Nginx. Cron jobs archive PDF reports in Amazon S3 and dispatch alerts to hello@piyushprasad.in.",
   },
 ];
 
@@ -172,28 +175,32 @@ const NARROW_STEPS: {
       { name: "Developer", fb: "DEV" },
       { name: "GitHub", logo: "github", fb: "GH" },
       { name: "GitHub Actions", logo: "githubactions", fb: "CI" },
-      { name: "Trivy", logo: "trivy", fb: "TR" },
+      { name: "Trivy (security scan)", logo: "trivy", fb: "TR" },
     ],
   },
   {
     services: [
-      { name: "Terraform", logo: "terraform", fb: "TF", ref: true },
-      { name: "AWS IAM (instance role)", logo: "aws-iam", fb: "IAM", ref: true },
+      { name: "Terraform (IaC)", logo: "terraform", fb: "TF", ref: true },
+      { name: "AWS IAM (EC2 instance role)", logo: "aws-iam", fb: "IAM", ref: true },
+      { name: "VPC & Security Group", logo: "aws-vpc", fb: "VPC", ref: true },
       { name: "AWS (EC2 host)", logo: "aws-ec2", fb: "EC2" },
     ],
   },
   {
     services: [
-      { name: "Ansible", logo: "ansible", fb: "AN" },
+      { name: "Ansible (SSH deploy)", logo: "ansible", fb: "AN" },
+      { name: "Security Group (Port 22)", logo: "aws-vpc", fb: "SG", ref: true },
       { name: "EC2 host", logo: "aws-ec2", fb: "EC2" },
+      { name: "Docker Compose (App · DB)", logo: "docker", fb: "DK" },
+      { name: "Prometheus (collects metrics)", logo: "prometheus", fb: "PROM" },
+      { name: "Grafana (displays dashboards)", logo: "grafana", fb: "GRAF" },
       { name: "CloudWatch (logs & metrics)", logo: "aws-cloudwatch", fb: "CW", ref: true },
-      { name: "Docker Compose", logo: "docker", fb: "DK" },
-      { name: "Nginx · App · DB", logo: "nginx", fb: "NG" },
     ],
   },
   {
     services: [
-      { name: "Users · HTTPS", fb: "WEB" },
+      { name: "Users · HTTPS (Port 443)", fb: "WEB" },
+      { name: "Nginx reverse proxy", logo: "nginx", fb: "NG" },
       { name: "Cron automation", fb: "CRON" },
       { name: "Amazon S3 (PDF archive)", logo: "aws-s3", fb: "S3", ref: true },
       { name: "Email → hello@piyushprasad.in", logo: "mail", fb: "@" },
@@ -206,14 +213,14 @@ const logo = (key?: string) => (key ? TECH_LOGO_REGISTRY[key]?.src : undefined);
 // ---------------------------------------------------------------------------
 // SVG pieces
 // ---------------------------------------------------------------------------
-function Tile({ x, y, size = 28, href, fb }: { x: number; y: number; size?: number; href?: string; fb: string }) {
+function Tile({ x, y, size = 30, href, fb }: { x: number; y: number; size?: number; href?: string; fb: string }) {
   return (
     <g>
       <rect x={x} y={y} width={size} height={size} rx={7} className={href ? "hir-tile hir-tile-img" : "hir-tile"} />
       {href ? (
-        <image href={href} x={x + 5} y={y + 5} width={size - 10} height={size - 10} preserveAspectRatio="xMidYMid meet" />
+        <image href={href} x={x + 4.5} y={y + 4.5} width={size - 9} height={size - 9} preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <text x={x + size / 2} y={y + size / 2 + 3} textAnchor="middle" className="hir-mono hir-ink" fontSize={fb.length > 2 ? 8 : 9.5} fontWeight={700}>
+        <text x={x + size / 2} y={y + size / 2 + 3.5} textAnchor="middle" className="hir-mono hir-ink" fontSize={fb.length > 2 ? 8.5 : 10} fontWeight={700}>
           {fb}
         </text>
       )}
@@ -224,8 +231,8 @@ function Tile({ x, y, size = 28, href, fb }: { x: number; y: number; size?: numb
 function Badge({ x, y, n, on }: { x: number; y: number; n: number; on: boolean }) {
   return (
     <g className={on ? "hir-badge hir-badge-on" : "hir-badge"}>
-      <circle cx={x} cy={y} r={10} />
-      <text x={x} y={y + 3.8} textAnchor="middle">
+      <circle cx={x} cy={y} r={11} />
+      <text x={x} y={y + 4} textAnchor="middle">
         {n}
       </text>
     </g>
@@ -238,7 +245,7 @@ function Badge({ x, y, n, on }: { x: number; y: number; n: number; on: boolean }
 export default function HowItRuns() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState<Speed>(1.5);
+  const [speed, setSpeed] = useState<Speed>(1); // Default to 1x
   const [progressRatio, setProgressRatio] = useState(0);
   const [visible, setVisible] = useState(false);
   const [hover, setHover] = useState(false);
@@ -250,7 +257,7 @@ export default function HowItRuns() {
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const elapsedRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
-  const speedRef = useRef<Speed>(1.5);
+  const speedRef = useRef<Speed>(1);
   speedRef.current = speed;
 
   useEffect(() => {
@@ -354,7 +361,7 @@ export default function HowItRuns() {
   const packetPos = getPointOnEdge(activeEdge, edgeFrac);
 
   const ariaLabel =
-    "Reference workflow: a developer pushes to GitHub, GitHub Actions runs Trivy and Terraform, provisioning an EC2 host with an AWS IAM instance role, Ansible deploys Docker containers, CloudWatch monitors EC2 host logs and metrics, Amazon S3 stores archived PDF reports, users reach the app over HTTPS, and cron jobs send automated reports and alerts to hello@piyushprasad.in.";
+    "Reference workflow: developer pushes to GitHub, GitHub Actions runs Trivy security scanning, Terraform provisions the AWS environment including VPC, Security Groups, and AWS IAM EC2 instance role, Ansible deploys Docker containers—including Prometheus for metrics collection and Grafana for dashboards—to the protected EC2 host, CloudWatch monitors host logs, Amazon S3 archives PDF reports, users connect over HTTPS, and cron jobs send reports and alerts to hello@piyushprasad.in.";
 
   return (
     <section
@@ -383,7 +390,7 @@ export default function HowItRuns() {
         </div>
 
         <div className="hir-controls">
-          {/* Compact Speed Selector */}
+          {/* Compact Speed Selector: strictly 1x and 2x */}
           <div className="hir-speed-group" role="group" aria-label="Animation speed">
             {SPEEDS.map((rate) => (
               <button
@@ -469,100 +476,156 @@ export default function HowItRuns() {
           ))}
         </ol>
       ) : (
-        <svg className="hir-svg" viewBox="0 0 1000 664" role="img" aria-label={ariaLabel} preserveAspectRatio="xMidYMin meet">
+        <svg className="hir-svg" viewBox="0 0 1000 648" role="img" aria-label={ariaLabel} preserveAspectRatio="xMidYMin meet">
           <defs>
-            <marker id="hir-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id="hir-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" className="hir-arrow" />
             </marker>
+            <marker id="hir-ah-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" className="hir-arrow-active" />
+            </marker>
             <filter id="hir-glow" x="-150%" y="-150%" width="400%" height="400%">
-              <feGaussianBlur stdDeviation="3" />
+              <feGaussianBlur stdDeviation="3.5" />
             </filter>
           </defs>
 
-          {/* AWS group: EC2 host running Docker Compose & Cron automation */}
+          {/* AWS VPC & Security Group environment protecting the EC2 host */}
           <g className={dim([1, 2, 3])}>
-            <rect x="24" y="280" width="952" height="240" rx="14" className={`hir-group ${s === 1 || s === 2 ? "hir-group-on" : ""}`}>
-              <title>AWS environment (EC2 host)</title>
+            {/* Outer VPC container */}
+            <rect x="20" y="264" width="960" height="254" rx="14" className={`hir-group ${s === 1 || s === 2 ? "hir-group-on" : ""}`}>
+              <title>AWS environment (VPC, Security Group & EC2 host)</title>
             </rect>
-            <Tile x={40} y={290} size={26} href={logo("aws")} fb="AWS" />
-            <text x="74" y="308" className="hir-name">
-              AWS · EC2 host
-            </text>
-            <text x="960" y="308" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              Ubuntu · ap-south-1
+            <Tile x={34} y={274} size={28} href={logo("aws-vpc") || logo("aws")} fb="VPC" />
+            <text x="70" y="293" className="hir-name" fontSize={13}>
+              AWS · VPC &amp; Security Group
             </text>
 
-            {/* Docker Compose block */}
-            <rect x="64" y="330" width="560" height="170" rx="10" className="hir-block" />
-            <image href={logo("docker")} x="80" y="341" width="20" height="20" preserveAspectRatio="xMidYMid meet" />
-            <text x="108" y="356" className="hir-name" fontSize={12}>
+            {/* Ingress Firewall Badge */}
+            <rect x="282" y="277" width="280" height="22" rx="6" className="hir-sg-badge" />
+            <text x="292" y="292" className="hir-mono hir-muted" fontSize={9.5}>
+              Firewall: Ingress 443 (HTTPS) · Ingress 22 (SSH)
+            </text>
+
+            <text x="964" y="292" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+              EC2 host · Ubuntu · ap-south-1 (10.0.0.0/16)
+            </text>
+
+            {/* Docker Compose block: App + Observability (Prometheus & Grafana) */}
+            <rect x="36" y="316" width="584" height="186" rx="10" className="hir-block" />
+            <image href={logo("docker")} x="52" y="327" width="20" height="20" preserveAspectRatio="xMidYMid meet" />
+            <text x="80" y="342" className="hir-name" fontSize={12.5}>
               Docker Compose
             </text>
-            <text x="608" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              3 containers
+            <text x="606" y="342" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+              Protected by Security Group · 5 containers
             </text>
+
+            {/* Row 1 of Docker Compose: Core App Containers */}
             {[
-              { x: 84, name: "Nginx", sub: "reverse proxy · TLS", logo: "nginx", fb: "NG" },
-              { x: 268, name: "App", sub: "React + Node API", logo: "nodejs", fb: "APP" },
-              { x: 452, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
+              { x: 50, name: "Nginx", sub: "reverse proxy · TLS", logo: "nginx", fb: "NG" },
+              { x: 242, name: "App", sub: "React + Node API", logo: "nodejs", fb: "APP" },
+              { x: 434, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
             ].map((c, i) => (
-              <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 150}ms` }}>
-                <rect x={c.x} y={392} width={164} height={64} rx={9} className="hir-chip" />
-                <circle cx={c.x + 152} cy={404} r={3} className="hir-dot" />
-                <Tile x={c.x + 10} y={404} size={28} href={logo(c.logo)} fb={c.fb} />
-                <text x={c.x + 46} y={425} className="hir-name" fontSize={12}>
+              <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 120}ms` }}>
+                <rect x={c.x} y={356} width={172} height={64} rx={8} className="hir-chip" />
+                <circle cx={c.x + 160} cy={368} r={3} className="hir-dot" />
+                <Tile x={c.x + 8} y={368} size={28} href={logo(c.logo)} fb={c.fb} />
+                <text x={c.x + 44} y={387} className="hir-name" fontSize={12}>
                   {c.name}
                 </text>
-                <text x={c.x + 46} y={440} className="hir-mono hir-muted" fontSize={8.5}>
+                <text x={c.x + 44} y={404} className="hir-mono hir-muted" fontSize={8.5}>
                   {c.sub}
                 </text>
               </g>
             ))}
 
+            {/* Row 2 of Docker Compose: Observability Stack (Prometheus collects metrics -> Grafana displays dashboards) */}
+            <g className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: "360ms" }}>
+              {/* Prometheus Container */}
+              <rect x="50" y="430" width="236" height="58" rx={8} className="hir-chip" />
+              <circle cx="274" cy="442" r={3} className="hir-dot" />
+              <Tile x={58} y={444} size={30} href={logo("prometheus")} fb="PROM" />
+              <text x={96} y={456} className="hir-name" fontSize={12}>
+                Prometheus
+              </text>
+              <text x={96} y={473} className="hir-mono hir-muted" fontSize={8.5}>
+                collects host &amp; app metrics
+              </text>
+
+              {/* Direct flow arrow from Prometheus to Grafana */}
+              <path d="M286 459 H358" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
+              <text x="322" y="452" textAnchor="middle" className="hir-mono hir-acc" fontSize={8.5} fontWeight={700}>
+                metrics
+              </text>
+              <text x="322" y="470" textAnchor="middle" className="hir-mono hir-muted" fontSize={7.5}>
+                stream
+              </text>
+
+              {/* Grafana Container */}
+              <rect x="370" y="430" width="236" height="58" rx={8} className="hir-chip" />
+              <circle cx="594" cy="442" r={3} className="hir-dot" />
+              <Tile x={378} y={444} size={30} href={logo("grafana")} fb="GRAF" />
+              <text x={416} y={456} className="hir-name" fontSize={12}>
+                Grafana
+              </text>
+              <text x={416} y={473} className="hir-mono hir-muted" fontSize={8.5}>
+                displays visual dashboards
+              </text>
+            </g>
+
             {/* Cron automation block */}
-            <rect x="648" y="330" width="288" height="170" rx="10" className="hir-block" />
-            <text x="664" y="356" className="hir-name" fontSize={12}>
+            <rect x="636" y="316" width="324" height="186" rx="10" className="hir-block" />
+            <text x="652" y="342" className="hir-name" fontSize={12.5}>
               Cron automation
             </text>
-            <text x="920" y="356" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              scheduled
+            <text x="944" y="342" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
+              Isolated host schedule
             </text>
             {[
-              { y: 372, t: "Trivy scan → report", logo: "trivy", fb: "TR" },
-              { y: 410, t: "PDF report → S3 archive", logo: "pdf", fb: "PDF" },
-              { y: 448, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
+              { y: 366, t: "Trivy scan → security report", logo: "trivy", fb: "TR" },
+              { y: 408, t: "PDF report → Amazon S3", logo: "pdf", fb: "PDF" },
+              { y: 450, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
             ].map((r, i) => (
               <g key={r.t} className={s === 3 || reduced ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 150}ms` }}>
-                <rect x={664} y={r.y} width={256} height={32} rx={8} className="hir-chip" />
-                <Tile x={670} y={r.y + 4} size={24} href={logo(r.logo)} fb={r.fb} />
-                <text x={702} y={r.y + 20} className="hir-mono hir-ink" fontSize={9.5}>
+                <rect x={652} y={r.y} width={292} height={34} rx={8} className="hir-chip" />
+                <Tile x={658} y={r.y + 4} size={26} href={logo(r.logo)} fb={r.fb} />
+                <text x={692} y={r.y + 21} className="hir-mono hir-ink" fontSize={10}>
                   {r.t}
                 </text>
               </g>
             ))}
           </g>
 
-          {/* Lines: ONE dashed path per connection with speed-synced stroke-dash animation */}
-          {EDGES.map((e) => (
-            <g key={e.n} className={dim([e.step])}>
-              <path
-                d={e.d}
-                className={`hir-line ${animate ? "hir-flow" : ""}`}
-                markerEnd="url(#hir-ah)"
-                style={{
-                  animationDuration: `${12 / speed}s`,
-                  animationPlayState: running ? "running" : "paused",
-                }}
-              >
-                <title>{e.tip}</title>
-              </path>
-              {e.label && (
-                <text x={e.label.x} y={e.label.y} className="hir-mono hir-muted" fontSize={9.5}>
-                  {e.label.t}
-                </text>
-              )}
-            </g>
-          ))}
+          {/* High-Contrast Connector Lines: clearly visible inactive topology, vibrantly highlighted active step */}
+          {EDGES.map((e) => {
+            const active = e.step === s && !reduced;
+            return (
+              <g key={e.n} className={dim([e.step])}>
+                <path
+                  d={e.d}
+                  className={`hir-line ${active ? "hir-line-active" : ""} ${animate && active ? "hir-flow" : ""}`}
+                  markerEnd={active ? "url(#hir-ah-active)" : "url(#hir-ah)"}
+                  style={{
+                    animationDuration: `${12 / speed}s`,
+                    animationPlayState: running ? "running" : "paused",
+                  }}
+                >
+                  <title>{e.tip}</title>
+                </path>
+                {e.label && (
+                  <text
+                    x={e.label.x}
+                    y={e.label.y}
+                    className={`hir-mono ${active ? "hir-label-active" : "hir-muted"}`}
+                    fontSize={9.5}
+                    fontWeight={active ? 600 : 500}
+                  >
+                    {e.label.t}
+                  </text>
+                )}
+              </g>
+            );
+          })}
 
           {/* Nodes */}
           {NODES.map((n) => (
@@ -577,17 +640,17 @@ export default function HowItRuns() {
               >
                 <title>{n.tip}</title>
               </rect>
-              <Tile x={n.x + 12} y={n.y + 18} size={28} href={logo(n.logo)} fb={n.fb} />
-              <text x={n.x + 48} y={n.y + 30} className="hir-name">
+              <Tile x={n.x + 12} y={n.y + 16} size={30} href={logo(n.logo)} fb={n.fb} />
+              <text x={n.x + 50} y={n.y + 29} className="hir-name" fontSize={13}>
                 {n.name}
               </text>
-              <text x={n.x + 48} y={n.y + 46} className="hir-mono hir-muted" fontSize={9}>
+              <text x={n.x + 50} y={n.y + 46} className="hir-mono hir-muted" fontSize={9.5}>
                 {n.sub}
               </text>
             </g>
           ))}
 
-          {/* Badges: ON their own line, away from arrowheads */}
+          {/* Badges: ON their own line, away from arrowheads and node borders */}
           {EDGES.map((e) => (
             <Badge key={e.n} x={e.bx} y={e.by} n={e.n} on={e.step === s && !reduced} />
           ))}
@@ -598,15 +661,15 @@ export default function HowItRuns() {
               <circle
                 cx={packetPos.x}
                 cy={packetPos.y}
-                r="9"
+                r="10"
                 className="hir-packet-glow"
                 filter="url(#hir-glow)"
-                opacity="0.45"
+                opacity="0.5"
               />
               <circle
                 cx={packetPos.x}
                 cy={packetPos.y}
-                r="4"
+                r="4.5"
                 className="hir-packet-dot"
               />
             </g>
@@ -623,8 +686,8 @@ const CSS = `
   --hir-bg:var(--card,#FFFFFF); --hir-surf:var(--background,#FAF9F6); --hir-soft-bg:var(--surface-muted,#F3F3ED);
   --hir-text:var(--foreground,#121316); --hir-muted:var(--muted-foreground,#5A5C66);
   --hir-border:var(--border,#E5E5DF); --hir-acc:var(--accent-teal,#0F766E); --hir-acc-soft:#E4F2F0;
-  --hir-ok:#16A34A; --hir-on:#FFFFFF;
-  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:24px 24px 16px;
+  --hir-ok:#16A34A; --hir-on:#FFFFFF; --hir-line-inactive:#64748B;
+  background:var(--hir-bg); border:1px solid var(--hir-border); border-radius:14px; padding:20px 20px 14px;
   color:var(--hir-text); width:100%; box-sizing:border-box;
   scroll-margin-top:calc(var(--site-header-h,60px) + 12px);
 }
@@ -632,7 +695,7 @@ const CSS = `
   --hir-bg:var(--card,#121316); --hir-surf:var(--background,#0E0F12); --hir-soft-bg:var(--surface-muted,#1A1B20);
   --hir-text:var(--foreground,#EDEDED); --hir-muted:var(--muted-foreground,#9E9E9E);
   --hir-border:var(--border,#262626); --hir-acc:var(--accent-teal,#2DD4BF); --hir-acc-soft:#0F2A27;
-  --hir-ok:#22C55E; --hir-on:#0B1412;
+  --hir-ok:#22C55E; --hir-on:#0B1412; --hir-line-inactive:#94A3B8;
 }
 .hir-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;justify-content:space-between}
 .hir-head>div:first-child{flex:1 1 auto}
@@ -643,7 +706,7 @@ const CSS = `
 .hir-key-ref{border-style:dashed;border-color:var(--hir-muted)}
 .hir-controls{display:inline-flex;align-items:center;gap:8px}
 .hir-speed-group{display:inline-flex;align-items:center;background:var(--hir-surf);border:1px solid var(--hir-border);border-radius:8px;padding:2px;gap:2px}
-.hir-speed-btn{border:0;background:none;font:600 10.5px/1 ui-monospace,Menlo,monospace;color:var(--hir-muted);padding:5px 8px;border-radius:6px;cursor:pointer;transition:all .15s ease}
+.hir-speed-btn{border:0;background:none;font:600 11px/1 ui-monospace,Menlo,monospace;color:var(--hir-muted);padding:5px 9px;border-radius:6px;cursor:pointer;transition:all .15s ease}
 .hir-speed-btn:hover{color:var(--hir-text);background:var(--hir-soft-bg)}
 .hir-speed-btn-on{background:var(--hir-bg);color:var(--hir-acc);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .hir-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--hir-border);background:var(--hir-surf);color:var(--hir-text);cursor:pointer;transition:all .15s ease}
@@ -658,11 +721,13 @@ const CSS = `
 .hir-seg-label b{font:600 10.5px ui-monospace,Menlo,monospace;color:var(--hir-acc);margin-right:4px}
 .hir-seg-on .hir-seg-label{color:var(--hir-text);font-weight:600}
 .hir-caption{margin:0 0 8px;min-height:22px;font-size:13px;line-height:1.5;color:var(--hir-muted)}
-.hir-svg{display:block;width:100%;height:auto;max-height:calc(100dvh - var(--hir-chrome,250px))}
+.hir-svg{display:block;width:100%;height:auto;max-height:calc(100dvh - var(--hir-chrome,230px))}
 .hir-mono{font-family:ui-monospace,Menlo,monospace}
-.hir-name{font:600 12.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
+.hir-name{font:600 13px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
 .hir-muted{fill:var(--hir-muted)}
 .hir-ink{fill:var(--hir-text)}
+.hir-acc{fill:var(--hir-acc)}
+.hir-label-active{fill:var(--hir-acc)}
 .hir-node{fill:var(--hir-surf);stroke:var(--hir-border);transition:stroke .3s}
 .hir-node-on{stroke:var(--hir-acc)}
 .hir-node-ref{stroke-dasharray:5 4;stroke:var(--hir-muted)}
@@ -670,19 +735,28 @@ const CSS = `
 .hir-tile-img{fill:#FFFFFF}
 .hir-group{fill:var(--hir-soft-bg);stroke:var(--hir-border);transition:fill .4s,stroke .4s}
 .hir-group-on{fill:var(--hir-acc-soft);stroke:var(--hir-acc);stroke-width:1.5}
+.hir-sg-badge{fill:var(--hir-bg);stroke:var(--hir-border);stroke-dasharray:3 2}
 .hir-block{fill:var(--hir-bg);stroke:var(--hir-border);stroke-dasharray:3 3}
 .hir-chip{fill:var(--hir-surf);stroke:var(--hir-acc)}
 .hir-dot{fill:var(--hir-ok)}
-.hir-line{fill:none;stroke:var(--hir-acc);stroke-width:1.75;stroke-dasharray:6 4}
-.hir-arrow{fill:var(--hir-acc)}
-.hir-badge circle{fill:var(--hir-bg);stroke:var(--hir-acc);stroke-width:1.5;transition:fill .3s}
-.hir-badge text{font:700 11px system-ui,sans-serif;fill:var(--hir-acc)}
-.hir-badge-on circle{fill:var(--hir-acc)}
+
+/* High-contrast connector lines */
+.hir-line{fill:none;stroke:var(--hir-line-inactive);stroke-width:2.25;stroke-dasharray:6 4;opacity:.75;transition:stroke .3s,stroke-width .3s,opacity .3s}
+.hir-line-active{stroke:var(--hir-acc);stroke-width:2.75;opacity:1}
+.hir-arrow{fill:var(--hir-line-inactive);transition:fill .3s}
+.hir-arrow-active{fill:var(--hir-acc)}
+.hir-internal-flow{fill:none;stroke:var(--hir-acc);stroke-width:2;stroke-dasharray:4 3}
+
+/* Badges */
+.hir-badge circle{fill:var(--hir-bg);stroke:var(--hir-line-inactive);stroke-width:1.75;transition:fill .3s,stroke .3s}
+.hir-badge text{font:700 11px system-ui,sans-serif;fill:var(--hir-text);transition:fill .3s}
+.hir-badge-on circle{fill:var(--hir-acc);stroke:var(--hir-acc);stroke-width:2}
 .hir-badge-on text{fill:var(--hir-on)}
-.hir-dim{opacity:.55}
+
+.hir-dim{opacity:.65}
 .hir g{transition:opacity .35s}
 .hir-packet-glow{fill:var(--hir-acc)}
-.hir-packet-dot{fill:var(--hir-acc);stroke:#FFFFFF;stroke-width:1}
+.hir-packet-dot{fill:var(--hir-acc);stroke:#FFFFFF;stroke-width:1.5}
 .hir-flow{animation:hir-dash 12s linear infinite}
 @keyframes hir-dash{to{stroke-dashoffset:-120}}
 .hir-off{opacity:.3}
@@ -700,7 +774,7 @@ const CSS = `
 .hir-chip-html em{font:700 9px ui-monospace,monospace;font-style:normal;color:var(--hir-muted)}
 .hir-chip-ref{border-style:dashed}
 @media (max-width:760px){
-  .hir{padding:18px 16px 12px}
+  .hir{padding:16px 14px 10px}
   .hir-head{gap:12px}
   .hir-steps{grid-template-columns:repeat(4,1fr);gap:6px}
   .hir-seg-label{display:none}
