@@ -2,31 +2,36 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TECH_LOGO_REGISTRY } from "@/lib/tech-logo-registry";
 
 /**
- * "How it runs": a full-width reference workflow, source -> CI -> IaC -> AWS -> users.
+ * "How it runs": clean and professional reference workflow.
  *
  * Sequence:
- * 1. GitHub Actions runs Trivy security scanning on source and container images.
- * 2. Terraform provisions the AWS environment: isolated VPC, Security Groups, and AWS IAM instance role.
- * 3. Protected by the VPC and Security Group, Ansible configures the EC2 host via SSH and deploys
- *    the Docker Compose stack: Nginx, App, Database, Prometheus (collecting metrics), and Grafana
- *    (displaying dashboards), while CloudWatch captures host logs and metrics.
- * 4. Users reach the app over HTTPS through the Security Group and Nginx reverse proxy.
- *    Scheduled cron jobs archive daily PDF reports in Amazon S3 and dispatch email reports
+ * 1. Code push & security scan:
+ *    Developer pushes to GitHub repository. GitHub Actions starts the pipeline and runs
+ *    Trivy security scanning for CVE vulnerabilities in source and container images.
+ * 2. AWS provisioning:
+ *    Terraform provisions the AWS environment: isolated VPC & Subnets, Security Groups
+ *    (firewall protecting EC2: Ingress 443 HTTPS, Ingress 22 SSH), and assigns the AWS IAM instance role.
+ * 3. Application deployment:
+ *    Protected by the Security Group, Ansible configures the host via SSH (port 22) and deploys
+ *    the Docker Compose stack on the AWS EC2 Linux server named ubuntu-app-01 (Ubuntu Linux):
+ *    Nginx, App, Database, Node Exporter, Prometheus, and Grafana. CloudWatch monitors host telemetry.
+ * 4. Traffic, monitoring, reports & alerts:
+ *    Users connect securely over HTTPS (port 443) through Nginx reverse proxy.
+ *    Node Exporter streams system metrics to Prometheus, which feeds Grafana dashboards.
+ *    Scheduled host cron jobs archive daily PDF reports in Amazon S3 and dispatch email reports
  *    and failure alerts to hello@piyushprasad.in.
  */
 
 export const HOW_IT_RUNS_TIMING = {
-  stepMs: 3600, // base time per step (4 steps)
-  resumeAfterClickMs: 8000, // auto-loop pause after a manual click
+  edgeDurationMs: 2000, // Steady, comfortable pace (2.0s per active connection)
+  stepPauseMs: 1400, // Calm pause between workflow steps
+  resumeAfterClickMs: 8000, // Auto-loop pause after manual tab interaction
 } as const;
 
 const NARROW_PX = 760;
 
-export const SPEEDS = [1, 2] as const;
-export type Speed = (typeof SPEEDS)[number];
-
 // ---------------------------------------------------------------------------
-// Data & Layout (Expanded viewBox: 1000 x 648, 210px nodes, high-contrast connectors)
+// Desktop SVG Topology: 1020 x 620
 // ---------------------------------------------------------------------------
 type Node = {
   id: string;
@@ -43,30 +48,23 @@ type Node = {
   tip: string;
 };
 
-const W = 210;
-const H = 62;
-const COL = [20, 270, 520, 770]; // node lefts: 40px channels, 960px width
-const ROW1 = 20;
-const ROW2 = 142;
-const ROW4 = 574;
-
 const NODES: Node[] = [
-  // Row 1: Source & CI
-  { id: "dev", x: COL[0], y: ROW1, w: W, h: H, name: "Developer", sub: "git push", fb: "DEV", steps: [0], tip: "Pushes code and features to the Git repository" },
-  { id: "gh", x: COL[1], y: ROW1, w: W, h: H, name: "GitHub", sub: "repository", logo: "github", fb: "GH", steps: [0], tip: "Source repository and pull request automation" },
-  { id: "ci", x: COL[2], y: ROW1, w: W, h: H, name: "GitHub Actions", sub: "CI/CD pipeline", logo: "githubactions", fb: "CI", steps: [0, 1, 2], tip: "Builds, tests, and triggers security scans and deployments" },
-  { id: "trivy", x: COL[3], y: ROW1, w: W, h: H, name: "Trivy", sub: "security scanner", logo: "trivy", fb: "TR", steps: [0], tip: "GitHub Actions runs Trivy scanning for CVE vulnerabilities in code and container images" },
+  // Row 1: Source & CI/CD
+  { id: "dev", x: 24, y: 22, w: 200, h: 54, name: "Developer", sub: "git push feature/infra", fb: "DEV", steps: [0], tip: "Pushes verified code and configuration to GitHub" },
+  { id: "gh", x: 284, y: 22, w: 200, h: 54, name: "GitHub", sub: "repository · PR branch", logo: "github", fb: "GH", steps: [0], tip: "Central source repository and pull request automation" },
+  { id: "ci", x: 544, y: 22, w: 210, h: 54, name: "GitHub Actions", sub: "CI/CD workflow runner", logo: "githubactions", fb: "CI", steps: [0, 1, 2], tip: "Executes automated build, test, security audit, and deployment stages" },
+  { id: "trivy", x: 814, y: 22, w: 180, h: 54, name: "Trivy", sub: "security & CVE scan", logo: "trivy", fb: "TR", steps: [0], tip: "Scans repository dependencies and container images for vulnerabilities" },
 
-  // Row 2: Deployment & IaC
-  { id: "ans", x: COL[1], y: ROW2, w: W, h: H, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", steps: [2], tip: "ansible-playbook configures the server and deploys the app through Security Group SSH (port 22)" },
-  { id: "tf", x: COL[2], y: ROW2, w: W, h: H, name: "Terraform", sub: "IaC · VPC & SG", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "Terraform provisions the AWS environment: isolated VPC, subnets, and Security Groups (reference step)" },
-  { id: "iam", x: COL[3], y: ROW2, w: W, h: H, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", steps: [1], ref: true, tip: "Assigns the IAM instance profile and security policies to the EC2 host during provisioning (reference step)" },
+  // Row 2: Provisioning & Config Automation (External / Connected AWS Services)
+  { id: "ans", x: 154, y: 122, w: 180, h: 54, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", steps: [2], tip: "Executes server configuration and Docker Compose deployment via SSH port 22" },
+  { id: "tf", x: 434, y: 122, w: 180, h: 54, name: "Terraform", sub: "IaC · VPC & SG provision", logo: "terraform", fb: "TF", steps: [1], ref: true, tip: "Provisions isolated VPC, subnets, and security groups (Reference only)" },
+  { id: "iam", x: 714, y: 122, w: 180, h: 54, name: "AWS IAM", sub: "EC2 instance role", logo: "aws-iam", fb: "IAM", steps: [1], ref: true, tip: "Attaches IAM instance profile and access policies to the EC2 host (Reference only)" },
 
-  // Row 4: Consumers, Observability, Storage & Alerts
-  { id: "users", x: COL[0], y: ROW4, w: W, h: H, name: "Users", sub: "browser · HTTPS", fb: "WEB", steps: [3], tip: "Visitors reach the application securely over HTTPS through the Security Group and Nginx" },
-  { id: "cw", x: COL[1], y: ROW4, w: W, h: H, name: "CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", steps: [2, 3], ref: true, tip: "Amazon CloudWatch monitors EC2 host performance metrics, container telemetry, and system logs (reference step)" },
-  { id: "s3", x: COL[2], y: ROW4, w: W, h: H, name: "Amazon S3", sub: "archived PDF reports", logo: "aws-s3", fb: "S3", steps: [3], ref: true, tip: "Amazon S3 stores encrypted daily PDF security and audit report archives (reference step)" },
-  { id: "mail", x: COL[3], y: ROW4, w: W, h: H, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", steps: [3], tip: "Automated PDF reports and workflow failure alerts dispatched directly to hello@piyushprasad.in" },
+  // Row 4: External Consumers, Cloud Telemetry Storage & Email Alerts
+  { id: "users", x: 37, y: 536, w: 190, h: 54, name: "Users", sub: "browser · HTTPS 443", fb: "WEB", steps: [3], tip: "Visitors reach the application securely over HTTPS via the Security Group and Nginx" },
+  { id: "cw", x: 284, y: 536, w: 210, h: 54, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", steps: [2, 3], ref: true, tip: "Amazon CloudWatch captures EC2 system metrics and host telemetry (Reference only)" },
+  { id: "s3", x: 534, y: 536, w: 200, h: 54, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", steps: [3], ref: true, tip: "Amazon S3 archives encrypted daily compliance and audit PDF reports (Reference only)" },
+  { id: "mail", x: 764, y: 536, w: 232, h: 54, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", steps: [3], tip: "Automated PDF reports and workflow failure alerts delivered to hello@piyushprasad.in" },
 ];
 
 type Edge = {
@@ -81,62 +79,72 @@ type Edge = {
 };
 
 const EDGES: Edge[] = [
-  // Step 0: Push & CI (GitHub Actions runs Trivy security scanning)
-  { n: 1, step: 0, d: "M230 51 H270", len: 40, bx: 250, by: 51, tip: "Developer pushes code to GitHub" },
-  { n: 2, step: 0, d: "M480 51 H520", len: 40, bx: 500, by: 51, tip: "Push or pull request triggers GitHub Actions pipeline" },
-  { n: 3, step: 0, d: "M730 51 H770", len: 40, bx: 750, by: 51, tip: "GitHub Actions runs Trivy security scan on code and container images", label: { x: 750, y: 38, t: "security scan" } },
+  // Step 0: Code push & security scan (GitHub Actions runs Trivy)
+  { n: 1, step: 0, d: "M 224 49 H 284", len: 60, bx: 254, by: 49, tip: "Developer pushes code to GitHub" },
+  { n: 2, step: 0, d: "M 484 49 H 544", len: 60, bx: 514, by: 49, tip: "Push or pull request triggers GitHub Actions pipeline" },
+  { n: 3, step: 0, d: "M 754 49 H 814", len: 60, bx: 784, by: 49, tip: "GitHub Actions executes Trivy security scan", label: { x: 784, y: 35, t: "security scan" } },
 
-  // Step 1: Provision (Terraform provisions AWS environment: VPC, Security Group, and IAM role)
-  { n: 4, step: 1, d: "M625 82 V142", len: 60, bx: 625, by: 112, tip: "Pipeline executes terraform plan and apply", label: { x: 645, y: 116, t: "plan · apply" } },
-  { n: 5, step: 1, d: "M625 204 V264", len: 60, bx: 625, by: 234, tip: "Terraform provisions AWS VPC, Subnets, and Security Groups", label: { x: 645, y: 238, t: "provision VPC & SG" } },
-  { n: 6, step: 1, d: "M730 173 H770", len: 40, bx: 750, by: 173, tip: "Terraform attaches AWS IAM EC2 instance role and security policies", label: { x: 750, y: 158, t: "instance role" } },
+  // Step 1: AWS provisioning (Terraform provisions VPC, Security Groups & IAM role)
+  { n: 4, step: 1, d: "M 649 76 V 99 H 524 V 122", len: 171, bx: 580, by: 99, tip: "Pipeline triggers Terraform plan and apply", label: { x: 580, y: 89, t: "plan · apply" } },
+  { n: 5, step: 1, d: "M 524 176 V 236", len: 60, bx: 524, by: 206, tip: "Terraform provisions AWS VPC, Subnets, and Security Groups", label: { x: 550, y: 209, t: "provision VPC & SG" } },
+  { n: 6, step: 1, d: "M 614 149 H 714", len: 100, bx: 664, by: 149, tip: "Terraform attaches AWS IAM instance profile to the EC2 server", label: { x: 664, y: 137, t: "instance role" } },
 
-  // Step 2: Configure & deploy (Protected by VPC/SG, Ansible deploys via SSH; CloudWatch monitors)
-  { n: 7, step: 2, d: "M570 82 V112 H375 V142", len: 255, bx: 472, by: 112, tip: "Pipeline triggers Ansible deployment over SSH", label: { x: 422, y: 104, t: "SSH deploy" } },
-  { n: 8, step: 2, d: "M375 204 V264", len: 60, bx: 375, by: 234, tip: "Ansible configures EC2 host and starts containers via Security Group port 22", label: { x: 395, y: 238, t: "SG port 22" } },
-  { n: 9, step: 2, d: "M375 518 V574", len: 56, bx: 375, by: 546, tip: "CloudWatch continuously monitors EC2 host logs and system metrics", label: { x: 395, y: 550, t: "logs · metrics" } },
+  // Step 2: Application deployment (Ansible configures ubuntu-app-01 via SSH; CloudWatch monitors)
+  { n: 7, step: 2, d: "M 594 76 V 99 H 244 V 122", len: 396, bx: 419, by: 99, tip: "Pipeline triggers Ansible deployment playbook", label: { x: 419, y: 89, t: "SSH deploy" } },
+  { n: 8, step: 2, d: "M 244 176 V 236", len: 60, bx: 244, by: 206, tip: "Ansible configures ubuntu-app-01 and starts Docker Compose via SSH port 22", label: { x: 270, y: 209, t: "SSH port 22" } },
+  { n: 9, step: 2, d: "M 389 486 V 536", len: 50, bx: 389, by: 511, tip: "CloudWatch continuously captures host logs and system telemetry", label: { x: 415, y: 514, t: "logs · metrics" } },
 
-  // Step 3: Serve & report (Users connect over HTTPS; S3 archives; Email alerts sent)
-  { n: 10, step: 3, d: "M125 574 V442", len: 132, bx: 125, by: 546, tip: "Users reach app via Security Group port 443 into Nginx reverse proxy", label: { x: 145, y: 550, t: "SG port 443" } },
-  { n: 11, step: 3, d: "M625 518 V574", len: 56, bx: 625, by: 546, tip: "Cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 645, y: 550, t: "archive · S3" } },
-  { n: 12, step: 3, d: "M875 500 V574", len: 74, bx: 875, by: 546, tip: "Automated PDF reports and workflow alerts sent to hello@piyushprasad.in", label: { x: 895, y: 550, t: "SMTP alerts" } },
+  // Step 3: Traffic, monitoring, reports & alerts
+  { n: 10, step: 3, d: "M 132 536 V 374", len: 162, bx: 132, by: 511, tip: "Users connect over HTTPS via Security Group port 443 into Nginx", label: { x: 158, y: 514, t: "HTTPS 443" } },
+  { n: 11, step: 3, d: "M 210 425 H 236 M 392 425 H 418", len: 52, bx: 314, by: 425, tip: "Node Exporter streams metrics to Prometheus, which displays visual dashboards in Grafana", label: { x: 314, y: 412, t: "telemetry stream" } },
+  { n: 12, step: 3, d: "M 634 486 V 536", len: 50, bx: 634, by: 511, tip: "Host cron job encrypts and archives daily PDF reports in Amazon S3", label: { x: 660, y: 514, t: "archive PDF" } },
+  { n: 13, step: 3, d: "M 880 486 V 536", len: 50, bx: 880, by: 511, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in", label: { x: 906, y: 514, t: "SMTP alerts" } },
 ];
 
 /**
- * Exact analytical coordinate computation along every edge path.
- * Guarantees zero DOM reads, zero frame lag, and instant freeze/resume.
+ * Analytical coordinate calculation along active edge paths.
+ * Moves smoothly and steadily along one connection at a time.
  */
 function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
   const f = Math.max(0, Math.min(1, frac));
   switch (edge.n) {
-    case 1: // M230 51 H270
-      return { x: 230 + f * 40, y: 51 };
-    case 2: // M480 51 H520
-      return { x: 480 + f * 40, y: 51 };
-    case 3: // M730 51 H770
-      return { x: 730 + f * 40, y: 51 };
-    case 4: // M625 82 V142
-      return { x: 625, y: 82 + f * 60 };
-    case 5: // M625 204 V264
-      return { x: 625, y: 204 + f * 60 };
-    case 6: // M730 173 H770
-      return { x: 730 + f * 40, y: 173 };
-    case 7: { // M570 82 V112 H375 V142 (30 + 195 + 30 = 255)
-      const d = f * 255;
-      if (d <= 30) return { x: 570, y: 82 + d };
-      if (d <= 225) return { x: 570 - (d - 30), y: 112 };
-      return { x: 375, y: 112 + (d - 225) };
+    case 1:
+      return { x: 224 + f * 60, y: 49 };
+    case 2:
+      return { x: 484 + f * 60, y: 49 };
+    case 3:
+      return { x: 754 + f * 60, y: 49 };
+    case 4: {
+      const dist = f * 171;
+      if (dist <= 23) return { x: 649, y: 76 + dist };
+      if (dist <= 148) return { x: 649 - (dist - 23), y: 99 };
+      return { x: 524, y: 99 + (dist - 148) };
     }
-    case 8: // M375 204 V264
-      return { x: 375, y: 204 + f * 60 };
-    case 9: // M375 518 V574
-      return { x: 375, y: 518 + f * 56 };
-    case 10: // M125 574 V442 (upwards from users into Nginx)
-      return { x: 125, y: 574 - f * 132 };
-    case 11: // M625 518 V574
-      return { x: 625, y: 518 + f * 56 };
-    case 12: // M875 500 V574
-      return { x: 875, y: 500 + f * 74 };
+    case 5:
+      return { x: 524, y: 176 + f * 60 };
+    case 6:
+      return { x: 614 + f * 100, y: 149 };
+    case 7: {
+      const dist = f * 396;
+      if (dist <= 23) return { x: 594, y: 76 + dist };
+      if (dist <= 373) return { x: 594 - (dist - 23), y: 99 };
+      return { x: 244, y: 99 + (dist - 373) };
+    }
+    case 8:
+      return { x: 244, y: 176 + f * 60 };
+    case 9:
+      return { x: 389, y: 486 + f * 50 };
+    case 10:
+      return { x: 132, y: 536 - f * 162 };
+    case 11: {
+      const dist = f * 52;
+      if (dist <= 26) return { x: 210 + (dist / 26) * 26, y: 425 };
+      return { x: 392 + ((dist - 26) / 26) * 26, y: 425 };
+    }
+    case 12:
+      return { x: 634, y: 486 + f * 50 };
+    case 13:
+      return { x: 880, y: 486 + f * 50 };
     default:
       return { x: edge.bx, y: edge.by };
   }
@@ -144,66 +152,75 @@ function getPointOnEdge(edge: Edge, frac: number): { x: number; y: number } {
 
 const STEPS = [
   {
-    title: "Push & CI",
-    text: "A developer pushes code to GitHub. GitHub Actions starts the pipeline and executes Trivy security scanning on code and container images.",
+    title: "Push & CI Scan",
+    text: "A developer pushes code to GitHub. GitHub Actions starts the pipeline and executes Trivy security scanning for CVE vulnerabilities in source and container images.",
   },
   {
-    title: "Provision",
-    text: "Terraform provisions the AWS environment, creating the isolated VPC, configuring Security Groups, and assigning the AWS IAM instance role.",
+    title: "AWS Provisioning",
+    text: "Terraform provisions the AWS environment, creating the isolated VPC & Subnets, configuring Security Groups (ports 443 & 22), and attaching the AWS IAM EC2 instance role.",
   },
   {
-    title: "Configure & deploy",
-    text: "Protected by the Security Group, Ansible deploys containers via SSH; Docker Compose boots Nginx, App, Database, Prometheus (collecting metrics), and Grafana (displaying dashboards), while CloudWatch captures host telemetry.",
+    title: "Application Deployment",
+    text: "Protected by the Security Group, Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and deploys Docker Compose: Nginx, App, Database, Node Exporter, Prometheus, and Grafana, while CloudWatch captures host logs.",
   },
   {
-    title: "Serve & report",
-    text: "Users reach the app over HTTPS through the Security Group and Nginx. Cron jobs archive PDF reports in Amazon S3 and dispatch alerts to hello@piyushprasad.in.",
+    title: "Traffic, Monitoring & Alerts",
+    text: "Users reach the app over HTTPS through Security Group port 443 into Nginx. Node Exporter streams system metrics to Prometheus and Grafana dashboards. Scheduled cron jobs archive PDF reports in Amazon S3 and send alerts to hello@piyushprasad.in.",
   },
 ];
 
-const NARROW_STEPS: {
-  services: {
-    name: string;
-    logo?: string;
-    fb: string;
-    ref?: boolean;
-    sub?: string;
-  }[];
-}[] = [
+type NarrowStep = {
+  title: string;
+  externalServices?: { name: string; logo?: string; fb: string; ref?: boolean; sub?: string }[];
+  serverServices?: { name: string; logo?: string; fb: string; ref?: boolean; sub?: string }[];
+};
+
+const NARROW_STEPS: NarrowStep[] = [
   {
-    services: [
-      { name: "Developer", fb: "DEV" },
-      { name: "GitHub", logo: "github", fb: "GH" },
-      { name: "GitHub Actions", logo: "githubactions", fb: "CI" },
-      { name: "Trivy (security scan)", logo: "trivy", fb: "TR" },
+    title: "Push & CI Scan",
+    externalServices: [
+      { name: "Developer (git push)", fb: "DEV" },
+      { name: "GitHub (repository)", logo: "github", fb: "GH" },
+      { name: "GitHub Actions (CI/CD)", logo: "githubactions", fb: "CI" },
+      { name: "Trivy (security & CVE scan)", logo: "trivy", fb: "TR" },
     ],
   },
   {
-    services: [
-      { name: "Terraform (IaC)", logo: "terraform", fb: "TF", ref: true },
+    title: "AWS Provisioning",
+    externalServices: [
+      { name: "Terraform (IaC provisioner)", logo: "terraform", fb: "TF", ref: true },
+      { name: "AWS VPC (isolated network)", logo: "aws-vpc", fb: "VPC", ref: true },
+      { name: "Security Group (firewall: 443, 22)", logo: "aws-vpc", fb: "SG", ref: true },
       { name: "AWS IAM (EC2 instance role)", logo: "aws-iam", fb: "IAM", ref: true },
-      { name: "VPC & Security Group", logo: "aws-vpc", fb: "VPC", ref: true },
-      { name: "AWS (EC2 host)", logo: "aws-ec2", fb: "EC2" },
     ],
   },
   {
-    services: [
-      { name: "Ansible (SSH deploy)", logo: "ansible", fb: "AN" },
-      { name: "Security Group (Port 22)", logo: "aws-vpc", fb: "SG", ref: true },
-      { name: "EC2 host", logo: "aws-ec2", fb: "EC2" },
-      { name: "Docker Compose (App · DB)", logo: "docker", fb: "DK" },
-      { name: "Prometheus (collects metrics)", logo: "prometheus", fb: "PROM" },
-      { name: "Grafana (displays dashboards)", logo: "grafana", fb: "GRAF" },
-      { name: "CloudWatch (logs & metrics)", logo: "aws-cloudwatch", fb: "CW", ref: true },
+    title: "Application Deployment",
+    externalServices: [
+      { name: "Ansible (SSH deploy playbook)", logo: "ansible", fb: "AN" },
+      { name: "Security Group (SSH port 22)", logo: "aws-vpc", fb: "SG", ref: true },
+      { name: "CloudWatch (host logs & metrics)", logo: "aws-cloudwatch", fb: "CW", ref: true },
+    ],
+    serverServices: [
+      { name: "Nginx (reverse proxy · TLS)", logo: "nginx", fb: "NG" },
+      { name: "App (React + Node.js API)", logo: "nodejs", fb: "APP" },
+      { name: "Database (MongoDB / SQLite)", logo: "mongodb", fb: "DB" },
+      { name: "Node Exporter (host metrics)", logo: "linux", fb: "NODE" },
+      { name: "Prometheus (metrics collector)", logo: "prometheus", fb: "PROM" },
+      { name: "Grafana (visual dashboards)", logo: "grafana", fb: "GRAF" },
     ],
   },
   {
-    services: [
-      { name: "Users · HTTPS (Port 443)", fb: "WEB" },
-      { name: "Nginx reverse proxy", logo: "nginx", fb: "NG" },
-      { name: "Cron automation", fb: "CRON" },
-      { name: "Amazon S3 (PDF archive)", logo: "aws-s3", fb: "S3", ref: true },
-      { name: "Email → hello@piyushprasad.in", logo: "mail", fb: "@" },
+    title: "Traffic, Monitoring & Alerts",
+    externalServices: [
+      { name: "Users (HTTPS port 443)", fb: "WEB" },
+      { name: "Amazon S3 (archived PDF reports)", logo: "aws-s3", fb: "S3", ref: true },
+      { name: "Email Alerts (hello@piyushprasad.in)", logo: "mail", fb: "@" },
+    ],
+    serverServices: [
+      { name: "Nginx (TLS termination · 443)", logo: "nginx", fb: "NG" },
+      { name: "Node Exporter → Prometheus → Grafana", logo: "prometheus", fb: "METRICS" },
+      { name: "Cron Automation (daily audit & PDF)", logo: "pdf", fb: "CRON" },
     ],
   },
 ];
@@ -211,16 +228,49 @@ const NARROW_STEPS: {
 const logo = (key?: string) => (key ? TECH_LOGO_REGISTRY[key]?.src : undefined);
 
 // ---------------------------------------------------------------------------
-// SVG pieces
+// SVG building blocks
 // ---------------------------------------------------------------------------
-function Tile({ x, y, size = 30, href, fb }: { x: number; y: number; size?: number; href?: string; fb: string }) {
+function Tile({
+  x,
+  y,
+  size = 30,
+  href,
+  fb,
+}: {
+  x: number;
+  y: number;
+  size?: number;
+  href?: string;
+  fb: string;
+}) {
   return (
     <g>
-      <rect x={x} y={y} width={size} height={size} rx={7} className={href ? "hir-tile hir-tile-img" : "hir-tile"} />
+      <rect
+        x={x}
+        y={y}
+        width={size}
+        height={size}
+        rx={7}
+        className={href ? "hir-tile hir-tile-img" : "hir-tile"}
+      />
       {href ? (
-        <image href={href} x={x + 4.5} y={y + 4.5} width={size - 9} height={size - 9} preserveAspectRatio="xMidYMid meet" />
+        <image
+          href={href}
+          x={x + 4.5}
+          y={y + 4.5}
+          width={size - 9}
+          height={size - 9}
+          preserveAspectRatio="xMidYMid meet"
+        />
       ) : (
-        <text x={x + size / 2} y={y + size / 2 + 3.5} textAnchor="middle" className="hir-mono hir-ink" fontSize={fb.length > 2 ? 8.5 : 10} fontWeight={700}>
+        <text
+          x={x + size / 2}
+          y={y + size / 2 + 3.5}
+          textAnchor="middle"
+          className="hir-mono hir-ink"
+          fontSize={fb.length > 3 ? 8 : fb.length > 2 ? 8.5 : 10}
+          fontWeight={700}
+        >
           {fb}
         </text>
       )}
@@ -240,13 +290,11 @@ function Badge({ x, y, n, on }: { x: number; y: number; n: number; on: boolean }
 }
 
 // ---------------------------------------------------------------------------
-// Component
+// Main Component
 // ---------------------------------------------------------------------------
 export default function HowItRuns() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState<Speed>(1); // Default to 1x
-  const [progressRatio, setProgressRatio] = useState(0);
   const [visible, setVisible] = useState(false);
   const [hover, setHover] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -257,8 +305,6 @@ export default function HowItRuns() {
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const elapsedRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
-  const speedRef = useRef<Speed>(1);
-  speedRef.current = speed;
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -286,7 +332,7 @@ export default function HowItRuns() {
 
   const running = playing && visible && !hover && !tabHidden && !reduced;
 
-  // Continuous animation loop that keeps dots, connectors, and steps in exact sync
+  // Steady animation loop: moves along active connectors one connection at a time, with a pause between steps
   useEffect(() => {
     if (!running) {
       lastTimeRef.current = null;
@@ -296,14 +342,17 @@ export default function HowItRuns() {
     let rafId: number;
 
     const tick = (now: number) => {
+      const stepEdges = EDGES.filter((e) => e.step === step);
+      const totalDuration =
+        stepEdges.length * HOW_IT_RUNS_TIMING.edgeDurationMs + HOW_IT_RUNS_TIMING.stepPauseMs;
+
       if (lastTimeRef.current !== null) {
-        const delta = Math.min(100, now - lastTimeRef.current) * speedRef.current;
+        const delta = Math.min(100, now - lastTimeRef.current);
         elapsedRef.current += delta;
-        if (elapsedRef.current >= HOW_IT_RUNS_TIMING.stepMs) {
-          elapsedRef.current %= HOW_IT_RUNS_TIMING.stepMs;
+        if (elapsedRef.current >= totalDuration) {
+          elapsedRef.current = 0;
           setStep((prev) => (prev + 1) % STEPS.length);
         }
-        setProgressRatio(elapsedRef.current / HOW_IT_RUNS_TIMING.stepMs);
       }
       lastTimeRef.current = now;
       rafId = requestAnimationFrame(tick);
@@ -314,7 +363,7 @@ export default function HowItRuns() {
       cancelAnimationFrame(rafId);
       lastTimeRef.current = null;
     };
-  }, [running]);
+  }, [running, step]);
 
   useEffect(
     () => () => {
@@ -326,7 +375,6 @@ export default function HowItRuns() {
   const jump = useCallback((i: number) => {
     setStep(i);
     elapsedRef.current = 0;
-    setProgressRatio(0);
     setPlaying(false);
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
     resumeTimer.current = setTimeout(() => {
@@ -340,28 +388,33 @@ export default function HowItRuns() {
   const dim = (steps: number[]) => (isOn(steps) ? "" : "hir-dim");
   const animate = !reduced && visible && playing;
 
-  // Calculate moving packet position along the active step's edges
+  // Calculate moving packet along active step's edges, one connection at a time
   const stepEdges = EDGES.filter((e) => e.step === s);
-  const totalLength = stepEdges.reduce((sum, e) => sum + e.len, 0);
-  const currentDist = progressRatio * totalLength;
+  const edgeCount = stepEdges.length;
+  const travelTime = edgeCount * HOW_IT_RUNS_TIMING.edgeDurationMs;
 
-  let activeEdge = stepEdges[0] || EDGES[0];
-  let edgeFrac = 0;
-  let accumulated = 0;
+  let packetPos = { x: 0, y: 0 };
+  let activeEdgeNumber: number | null = null;
 
-  for (const edge of stepEdges) {
-    if (currentDist <= accumulated + edge.len || edge === stepEdges[stepEdges.length - 1]) {
-      activeEdge = edge;
-      edgeFrac = edge.len > 0 ? (currentDist - accumulated) / edge.len : 0;
-      break;
+  if (edgeCount > 0) {
+    if (elapsedRef.current < travelTime) {
+      const edgeIdx = Math.floor(elapsedRef.current / HOW_IT_RUNS_TIMING.edgeDurationMs);
+      const currEdge = stepEdges[edgeIdx] || stepEdges[0];
+      activeEdgeNumber = currEdge.n;
+      const edgeFraction =
+        (elapsedRef.current % HOW_IT_RUNS_TIMING.edgeDurationMs) /
+        HOW_IT_RUNS_TIMING.edgeDurationMs;
+      packetPos = getPointOnEdge(currEdge, edgeFraction);
+    } else {
+      // Pause period between steps: rest calmly at the destination of the last connection
+      const lastEdge = stepEdges[edgeCount - 1];
+      activeEdgeNumber = lastEdge.n;
+      packetPos = getPointOnEdge(lastEdge, 1.0);
     }
-    accumulated += edge.len;
   }
 
-  const packetPos = getPointOnEdge(activeEdge, edgeFrac);
-
   const ariaLabel =
-    "Reference workflow: developer pushes to GitHub, GitHub Actions runs Trivy security scanning, Terraform provisions the AWS environment including VPC, Security Groups, and AWS IAM EC2 instance role, Ansible deploys Docker containers—including Prometheus for metrics collection and Grafana for dashboards—to the protected EC2 host, CloudWatch monitors host logs, Amazon S3 archives PDF reports, users connect over HTTPS, and cron jobs send reports and alerts to hello@piyushprasad.in.";
+    "Reference workflow: developer pushes to GitHub, GitHub Actions runs Trivy security scanning, Terraform provisions the AWS environment including VPC, Security Groups, and AWS IAM instance role, Ansible configures the AWS EC2 server ubuntu-app-01 (Ubuntu Linux) via SSH and deploys the Docker Compose stack (Nginx, App, Database, Node Exporter, Prometheus, and Grafana), CloudWatch monitors host logs, Amazon S3 archives daily PDF reports, users connect over HTTPS, and cron jobs send reports and alerts to hello@piyushprasad.in.";
 
   return (
     <section
@@ -390,22 +443,6 @@ export default function HowItRuns() {
         </div>
 
         <div className="hir-controls">
-          {/* Compact Speed Selector: strictly 1x and 2x */}
-          <div className="hir-speed-group" role="group" aria-label="Animation speed">
-            {SPEEDS.map((rate) => (
-              <button
-                key={rate}
-                type="button"
-                className={`hir-speed-btn ${speed === rate ? "hir-speed-btn-on" : ""}`}
-                aria-pressed={speed === rate}
-                aria-label={`${rate}x speed`}
-                onClick={() => setSpeed(rate)}
-              >
-                {rate}×
-              </button>
-            ))}
-          </div>
-
           {/* Play / Pause Toggle Button */}
           <button
             type="button"
@@ -433,7 +470,7 @@ export default function HowItRuns() {
         </div>
       </header>
 
-      {/* Step Tabs with progress sync */}
+      {/* Step Tabs */}
       <div className="hir-steps" role="tablist" aria-label="Workflow steps">
         {STEPS.map((st, i) => (
           <button
@@ -462,26 +499,86 @@ export default function HowItRuns() {
             <li key={i} className={`hir-li ${i === s ? "hir-li-on" : ""}`}>
               <div className="hir-li-head">
                 <span className="hir-li-n">{i + 1}</span>
-                <strong>{STEPS[i].title}</strong>
+                <strong>{st.title}</strong>
               </div>
-              <div className="hir-chips">
-                {st.services.map((sv) => (
-                  <span key={sv.name} className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}>
-                    {logo(sv.logo) ? <img src={logo(sv.logo)} alt="" width={16} height={16} /> : <em>{sv.fb}</em>}
-                    {sv.name}
-                  </span>
-                ))}
-              </div>
+
+              {/* External Services */}
+              {st.externalServices && (
+                <div className="hir-chips mb-2.5">
+                  {st.externalServices.map((sv) => (
+                    <span
+                      key={sv.name}
+                      className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
+                    >
+                      {logo(sv.logo) ? (
+                        <img src={logo(sv.logo)} alt="" width={16} height={16} />
+                      ) : (
+                        <em>{sv.fb}</em>
+                      )}
+                      <span>{sv.name}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Server Group: ubuntu-app-01 */}
+              {st.serverServices && (
+                <div className="hir-mobile-server">
+                  <div className="hir-mobile-server-head">
+                    <img src={logo("ubuntu") || logo("aws-ec2")} alt="" width={15} height={15} />
+                    <span>
+                      Server: <strong>ubuntu-app-01</strong> (Ubuntu Linux)
+                    </span>
+                  </div>
+                  <div className="hir-chips">
+                    {st.serverServices.map((sv) => (
+                      <span
+                        key={sv.name}
+                        className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
+                      >
+                        {logo(sv.logo) ? (
+                          <img src={logo(sv.logo)} alt="" width={15} height={15} />
+                        ) : (
+                          <em>{sv.fb}</em>
+                        )}
+                        <span>{sv.name}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </li>
           ))}
         </ol>
       ) : (
-        <svg className="hir-svg" viewBox="0 0 1000 648" role="img" aria-label={ariaLabel} preserveAspectRatio="xMidYMin meet">
+        <svg
+          className="hir-svg"
+          viewBox="0 0 1020 620"
+          role="img"
+          aria-label={ariaLabel}
+          preserveAspectRatio="xMidYMin meet"
+        >
           <defs>
-            <marker id="hir-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <marker
+              id="hir-ah"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
               <path d="M0,0 L10,5 L0,10 z" className="hir-arrow" />
             </marker>
-            <marker id="hir-ah-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <marker
+              id="hir-ah-active"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
               <path d="M0,0 L10,5 L0,10 z" className="hir-arrow-active" />
             </marker>
             <filter id="hir-glow" x="-150%" y="-150%" width="400%" height="400%">
@@ -489,126 +586,172 @@ export default function HowItRuns() {
             </filter>
           </defs>
 
-          {/* AWS VPC & Security Group environment protecting the EC2 host */}
+          {/* ============================================================= */}
+          {/* AWS EC2 Linux Server Boundary: ubuntu-app-01 (Ubuntu Linux)   */}
+          {/* ============================================================= */}
           <g className={dim([1, 2, 3])}>
-            {/* Outer VPC container */}
-            <rect x="20" y="264" width="960" height="254" rx="14" className={`hir-group ${s === 1 || s === 2 ? "hir-group-on" : ""}`}>
-              <title>AWS environment (VPC, Security Group & EC2 host)</title>
+            {/* Outer EC2 Server Container */}
+            <rect
+              x="24"
+              y="236"
+              width="972"
+              height="250"
+              rx="12"
+              className={`hir-server-boundary ${s === 2 || s === 3 ? "hir-server-boundary-on" : ""}`}
+            >
+              <title>AWS EC2 Linux Server: ubuntu-app-01 (Ubuntu Linux)</title>
             </rect>
-            <Tile x={34} y={274} size={28} href={logo("aws-vpc") || logo("aws")} fb="VPC" />
-            <text x="70" y="293" className="hir-name" fontSize={13}>
-              AWS · VPC &amp; Security Group
-            </text>
 
-            {/* Ingress Firewall Badge */}
-            <rect x="282" y="277" width="280" height="22" rx="6" className="hir-sg-badge" />
-            <text x="292" y="292" className="hir-mono hir-muted" fontSize={9.5}>
-              Firewall: Ingress 443 (HTTPS) · Ingress 22 (SSH)
-            </text>
-
-            <text x="964" y="292" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              EC2 host · Ubuntu · ap-south-1 (10.0.0.0/16)
-            </text>
-
-            {/* Docker Compose block: App + Observability (Prometheus & Grafana) */}
-            <rect x="36" y="316" width="584" height="186" rx="10" className="hir-block" />
-            <image href={logo("docker")} x="52" y="327" width="20" height="20" preserveAspectRatio="xMidYMid meet" />
-            <text x="80" y="342" className="hir-name" fontSize={12.5}>
-              Docker Compose
-            </text>
-            <text x="606" y="342" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              Protected by Security Group · 5 containers
-            </text>
-
-            {/* Row 1 of Docker Compose: Core App Containers */}
-            {[
-              { x: 50, name: "Nginx", sub: "reverse proxy · TLS", logo: "nginx", fb: "NG" },
-              { x: 242, name: "App", sub: "React + Node API", logo: "nodejs", fb: "APP" },
-              { x: 434, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
-            ].map((c, i) => (
-              <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 120}ms` }}>
-                <rect x={c.x} y={356} width={172} height={64} rx={8} className="hir-chip" />
-                <circle cx={c.x + 160} cy={368} r={3} className="hir-dot" />
-                <Tile x={c.x + 8} y={368} size={28} href={logo(c.logo)} fb={c.fb} />
-                <text x={c.x + 44} y={387} className="hir-name" fontSize={12}>
-                  {c.name}
-                </text>
-                <text x={c.x + 44} y={404} className="hir-mono hir-muted" fontSize={8.5}>
-                  {c.sub}
-                </text>
-              </g>
-            ))}
-
-            {/* Row 2 of Docker Compose: Observability Stack (Prometheus collects metrics -> Grafana displays dashboards) */}
-            <g className={isOn([2, 3]) ? "hir-in" : "hir-off"} style={{ animationDelay: "360ms" }}>
-              {/* Prometheus Container */}
-              <rect x="50" y="430" width="236" height="58" rx={8} className="hir-chip" />
-              <circle cx="274" cy="442" r={3} className="hir-dot" />
-              <Tile x={58} y={444} size={30} href={logo("prometheus")} fb="PROM" />
-              <text x={96} y={456} className="hir-name" fontSize={12}>
-                Prometheus
+            {/* Server Header Bar */}
+            <g>
+              <Tile x={38} y={246} size={28} href={logo("ubuntu") || logo("aws-ec2")} fb="UB" />
+              <text x="74" y="262" className="hir-server-title" fontSize={13} fontWeight={700}>
+                AWS EC2 Server: ubuntu-app-01
               </text>
-              <text x={96} y={473} className="hir-mono hir-muted" fontSize={8.5}>
-                collects host &amp; app metrics
+              <text x="74" y="278" className="hir-mono hir-muted" fontSize={9.5}>
+                Ubuntu Linux 22.04 LTS · Private Subnet (10.0.1.50) · ap-south-1
               </text>
 
-              {/* Direct flow arrow from Prometheus to Grafana */}
-              <path d="M286 459 H358" className="hir-internal-flow" markerEnd="url(#hir-ah-active)" />
-              <text x="322" y="452" textAnchor="middle" className="hir-mono hir-acc" fontSize={8.5} fontWeight={700}>
-                metrics
-              </text>
-              <text x="322" y="470" textAnchor="middle" className="hir-mono hir-muted" fontSize={7.5}>
-                stream
+              {/* Security Group Firewall Status Badge */}
+              <rect x="470" y="248" width="310" height="24" rx="6" className="hir-sg-badge" />
+              <text x="482" y="264" className="hir-mono hir-acc" fontSize={9.5} fontWeight={600}>
+                Security Group: Ingress 443 (HTTPS) · Ingress 22 (SSH)
               </text>
 
-              {/* Grafana Container */}
-              <rect x="370" y="430" width="236" height="58" rx={8} className="hir-chip" />
-              <circle cx="594" cy="442" r={3} className="hir-dot" />
-              <Tile x={378} y={444} size={30} href={logo("grafana")} fb="GRAF" />
-              <text x={416} y={456} className="hir-name" fontSize={12}>
-                Grafana
-              </text>
-              <text x={416} y={473} className="hir-mono hir-muted" fontSize={8.5}>
-                displays visual dashboards
+              {/* Reference Tag for AWS VPC / SG integration */}
+              <rect x="896" y="248" width="88" height="24" rx="5" className="hir-ref-pill" />
+              <text x="940" y="264" textAnchor="middle" className="hir-mono hir-muted" fontSize={9} fontWeight={600}>
+                Reference only
               </text>
             </g>
 
-            {/* Cron automation block */}
-            <rect x="636" y="316" width="324" height="186" rx="10" className="hir-block" />
-            <text x="652" y="342" className="hir-name" fontSize={12.5}>
-              Cron automation
-            </text>
-            <text x="944" y="342" textAnchor="end" className="hir-mono hir-muted" fontSize={10}>
-              Isolated host schedule
-            </text>
-            {[
-              { y: 366, t: "Trivy scan → security report", logo: "trivy", fb: "TR" },
-              { y: 408, t: "PDF report → Amazon S3", logo: "pdf", fb: "PDF" },
-              { y: 450, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
-            ].map((r, i) => (
-              <g key={r.t} className={s === 3 || reduced ? "hir-in" : "hir-off"} style={{ animationDelay: `${i * 150}ms` }}>
-                <rect x={652} y={r.y} width={292} height={34} rx={8} className="hir-chip" />
-                <Tile x={658} y={r.y + 4} size={26} href={logo(r.logo)} fb={r.fb} />
-                <text x={692} y={r.y + 21} className="hir-mono hir-ink" fontSize={10}>
-                  {r.t}
+            {/* Sub-container A: Docker Compose Stack (5 containers) */}
+            <g>
+              <rect x="40" y="294" width="554" height="178" rx="10" className="hir-block" />
+              <image
+                href={logo("docker")}
+                x="52"
+                y="304"
+                width="18"
+                height="18"
+                preserveAspectRatio="xMidYMid meet"
+              />
+              <text x="76" y="318" className="hir-name" fontSize={12} fontWeight={700}>
+                Docker Compose Stack
+              </text>
+              <text x="580" y="318" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
+                Protected by Security Group · 5 containers
+              </text>
+
+              {/* App Tier: Nginx, App, Database */}
+              {[
+                { x: 54, name: "Nginx", sub: "reverse proxy · TLS", logo: "nginx", fb: "NG" },
+                { x: 236, name: "App", sub: "React + Node.js API", logo: "nodejs", fb: "APP" },
+                { x: 418, name: "Database", sub: "MongoDB / SQLite", logo: "mongodb", fb: "DB" },
+              ].map((c) => (
+                <g key={c.name} className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
+                  <rect x={c.x} y={328} width={156} height={54} rx={8} className="hir-chip" />
+                  <circle cx={c.x + 144} cy={340} r={2.5} className="hir-dot" />
+                  <Tile x={c.x + 8} y={338} size={26} href={logo(c.logo)} fb={c.fb} />
+                  <text x={c.x + 40} y={353} className="hir-name" fontSize={11.5} fontWeight={600}>
+                    {c.name}
+                  </text>
+                  <text x={c.x + 40} y={369} className="hir-mono hir-muted" fontSize={8}>
+                    {c.sub}
+                  </text>
+                </g>
+              ))}
+
+              {/* Observability Tier: Node Exporter -> Prometheus -> Grafana */}
+              <g className={isOn([2, 3]) ? "hir-in" : "hir-off"}>
+                {/* Node Exporter */}
+                <rect x="54" y="398" width="156" height="54" rx={8} className="hir-chip" />
+                <circle cx={200} cy={410} r={2.5} className="hir-dot" />
+                <Tile x={62} y={408} size={26} href={logo("linux")} fb="NODE" />
+                <text x={94} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                  Node Exporter
+                </text>
+                <text x={94} y={439} className="hir-mono hir-muted" fontSize={8}>
+                  host kernel metrics
+                </text>
+
+                {/* Direct stream arrow from Node Exporter to Prometheus */}
+                <path
+                  d="M 210 425 H 236"
+                  className="hir-internal-flow"
+                  markerEnd="url(#hir-ah-active)"
+                />
+
+                {/* Prometheus */}
+                <rect x="236" y="398" width="156" height="54" rx={8} className="hir-chip" />
+                <circle cx={382} cy={410} r={2.5} className="hir-dot" />
+                <Tile x={244} y={408} size={26} href={logo("prometheus")} fb="PROM" />
+                <text x={276} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                  Prometheus
+                </text>
+                <text x={276} y={439} className="hir-mono hir-muted" fontSize={8}>
+                  metrics collector
+                </text>
+
+                {/* Direct stream arrow from Prometheus to Grafana */}
+                <path
+                  d="M 392 425 H 418"
+                  className="hir-internal-flow"
+                  markerEnd="url(#hir-ah-active)"
+                />
+
+                {/* Grafana */}
+                <rect x="418" y="398" width="156" height="54" rx={8} className="hir-chip" />
+                <circle cx={564} cy={410} r={2.5} className="hir-dot" />
+                <Tile x={426} y={408} size={26} href={logo("grafana")} fb="GRAF" />
+                <text x={458} y={423} className="hir-name" fontSize={11.5} fontWeight={600}>
+                  Grafana
+                </text>
+                <text x={458} y={439} className="hir-mono hir-muted" fontSize={8}>
+                  visual dashboards
                 </text>
               </g>
-            ))}
+            </g>
+
+            {/* Sub-container B: Host Cron Automation */}
+            <g>
+              <rect x="612" y="294" width="370" height="178" rx="10" className="hir-block" />
+              <text x="626" y="318" className="hir-name" fontSize={12} fontWeight={700}>
+                Automated Scheduled Tasks
+              </text>
+              <text x="968" y="318" textAnchor="end" className="hir-mono hir-muted" fontSize={9.5}>
+                Isolated host crontab
+              </text>
+
+              {[
+                { y: 330, t: "Trivy audit → security report", logo: "trivy", fb: "TR" },
+                { y: 374, t: "PDF report → Amazon S3", logo: "pdf", fb: "PDF" },
+                { y: 418, t: "Alerts → hello@piyushprasad.in", logo: "mail", fb: "@" },
+              ].map((r) => (
+                <g key={r.t} className={isOn([3]) ? "hir-in" : "hir-off"}>
+                  <rect x={626} y={r.y} width={342} height={36} rx={7} className="hir-chip" />
+                  <Tile x={632} y={r.y + 5} size={26} href={logo(r.logo)} fb={r.fb} />
+                  <text x={666} y={r.y + 22} className="hir-mono hir-ink" fontSize={9.5}>
+                    {r.t}
+                  </text>
+                </g>
+              ))}
+            </g>
           </g>
 
-          {/* High-Contrast Connector Lines: clearly visible inactive topology, vibrantly highlighted active step */}
+          {/* ============================================================= */}
+          {/* Connector Lines & Flow Paths                                  */}
+          {/* ============================================================= */}
           {EDGES.map((e) => {
-            const active = e.step === s && !reduced;
+            const isStepActive = e.step === s && !reduced;
+            const isEdgeBeingTraversed = activeEdgeNumber === e.n && isStepActive;
+
             return (
               <g key={e.n} className={dim([e.step])}>
                 <path
                   d={e.d}
-                  className={`hir-line ${active ? "hir-line-active" : ""} ${animate && active ? "hir-flow" : ""}`}
-                  markerEnd={active ? "url(#hir-ah-active)" : "url(#hir-ah)"}
-                  style={{
-                    animationDuration: `${12 / speed}s`,
-                    animationPlayState: running ? "running" : "paused",
-                  }}
+                  className={`hir-line ${isStepActive ? "hir-line-step" : ""} ${isEdgeBeingTraversed ? "hir-line-active" : ""}`}
+                  markerEnd={isStepActive ? "url(#hir-ah-active)" : "url(#hir-ah)"}
                 >
                   <title>{e.tip}</title>
                 </path>
@@ -616,9 +759,10 @@ export default function HowItRuns() {
                   <text
                     x={e.label.x}
                     y={e.label.y}
-                    className={`hir-mono ${active ? "hir-label-active" : "hir-muted"}`}
-                    fontSize={9.5}
-                    fontWeight={active ? 600 : 500}
+                    className={`hir-mono ${isStepActive ? "hir-label-active" : "hir-muted"}`}
+                    fontSize={9}
+                    fontWeight={isStepActive ? 700 : 500}
+                    textAnchor="middle"
                   >
                     {e.label.t}
                   </text>
@@ -627,7 +771,7 @@ export default function HowItRuns() {
             );
           })}
 
-          {/* Nodes */}
+          {/* External Service Nodes */}
           {NODES.map((n) => (
             <g key={n.id} className={dim(n.steps)}>
               <rect
@@ -635,27 +779,49 @@ export default function HowItRuns() {
                 y={n.y}
                 width={n.w}
                 height={n.h}
-                rx={11}
+                rx={10}
                 className={`hir-node ${n.ref ? "hir-node-ref" : ""} ${isOn(n.steps) && !reduced ? "hir-node-on" : ""}`}
               >
                 <title>{n.tip}</title>
               </rect>
-              <Tile x={n.x + 12} y={n.y + 16} size={30} href={logo(n.logo)} fb={n.fb} />
-              <text x={n.x + 50} y={n.y + 29} className="hir-name" fontSize={13}>
+              <Tile x={n.x + 10} y={n.y + 12} size={30} href={logo(n.logo)} fb={n.fb} />
+              <text x={n.x + 48} y={n.y + 26} className="hir-name" fontSize={12.5} fontWeight={600}>
                 {n.name}
               </text>
-              <text x={n.x + 50} y={n.y + 46} className="hir-mono hir-muted" fontSize={9.5}>
+              <text x={n.x + 48} y={n.y + 42} className="hir-mono hir-muted" fontSize={9}>
                 {n.sub}
               </text>
+              {n.ref && (
+                <g>
+                  <rect
+                    x={n.x + n.w - 74}
+                    y={n.y + 8}
+                    width={66}
+                    height={16}
+                    rx={3}
+                    className="hir-ref-pill"
+                  />
+                  <text
+                    x={n.x + n.w - 41}
+                    y={n.y + 19}
+                    textAnchor="middle"
+                    className="hir-mono hir-muted"
+                    fontSize={7.5}
+                    fontWeight={600}
+                  >
+                    Reference only
+                  </text>
+                </g>
+              )}
             </g>
           ))}
 
-          {/* Badges: ON their own line, away from arrowheads and node borders */}
+          {/* Badges: placed at clean path coordinates */}
           {EDGES.map((e) => (
             <Badge key={e.n} x={e.bx} y={e.by} n={e.n} on={e.step === s && !reduced} />
           ))}
 
-          {/* Moving packet dot: smoothly moves along active edges in lockstep with speed */}
+          {/* Animated Point: moves steadily along active edge, rests during pause */}
           {animate && (
             <g className="hir-packet">
               <circle
@@ -664,7 +830,7 @@ export default function HowItRuns() {
                 r="10"
                 className="hir-packet-glow"
                 filter="url(#hir-glow)"
-                opacity="0.5"
+                opacity="0.45"
               />
               <circle
                 cx={packetPos.x}
@@ -704,14 +870,10 @@ const CSS = `
 .hir-legend{display:flex;gap:16px;align-items:center;font:500 11px ui-monospace,Menlo,monospace;color:var(--hir-muted);padding-top:4px}
 .hir-key{display:inline-block;width:18px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1.5px solid var(--hir-acc)}
 .hir-key-ref{border-style:dashed;border-color:var(--hir-muted)}
-.hir-controls{display:inline-flex;align-items:center;gap:8px}
-.hir-speed-group{display:inline-flex;align-items:center;background:var(--hir-surf);border:1px solid var(--hir-border);border-radius:8px;padding:2px;gap:2px}
-.hir-speed-btn{border:0;background:none;font:600 11px/1 ui-monospace,Menlo,monospace;color:var(--hir-muted);padding:5px 9px;border-radius:6px;cursor:pointer;transition:all .15s ease}
-.hir-speed-btn:hover{color:var(--hir-text);background:var(--hir-soft-bg)}
-.hir-speed-btn-on{background:var(--hir-bg);color:var(--hir-acc);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.hir-controls{display:inline-flex;align-items:center}
 .hir-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--hir-border);background:var(--hir-surf);color:var(--hir-text);cursor:pointer;transition:all .15s ease}
 .hir-btn:hover{background:var(--hir-soft-bg)}
-.hir-btn:focus-visible,.hir-seg:focus-visible,.hir-speed-btn:focus-visible{outline:2px solid var(--hir-acc);outline-offset:2px}
+.hir-btn:focus-visible,.hir-seg:focus-visible{outline:2px solid var(--hir-acc);outline-offset:2px}
 .hir-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 12px}
 .hir-seg{border:0;padding:0;background:none;cursor:pointer;text-align:left;color:var(--hir-muted)}
 .hir-seg::before{content:"";display:block;height:5px;border-radius:3px;background:var(--hir-border);margin-bottom:8px}
@@ -720,10 +882,11 @@ const CSS = `
 .hir-seg-label{font:500 11.5px system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .hir-seg-label b{font:600 10.5px ui-monospace,Menlo,monospace;color:var(--hir-acc);margin-right:4px}
 .hir-seg-on .hir-seg-label{color:var(--hir-text);font-weight:600}
-.hir-caption{margin:0 0 8px;min-height:22px;font-size:13px;line-height:1.5;color:var(--hir-muted)}
+.hir-caption{margin:0 0 10px;min-height:22px;font-size:13px;line-height:1.5;color:var(--hir-muted)}
 .hir-svg{display:block;width:100%;height:auto;max-height:calc(100dvh - var(--hir-chrome,230px))}
 .hir-mono{font-family:ui-monospace,Menlo,monospace}
-.hir-name{font:600 13px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
+.hir-name{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
+.hir-server-title{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:var(--hir-text)}
 .hir-muted{fill:var(--hir-muted)}
 .hir-ink{fill:var(--hir-text)}
 .hir-acc{fill:var(--hir-acc)}
@@ -733,19 +896,21 @@ const CSS = `
 .hir-node-ref{stroke-dasharray:5 4;stroke:var(--hir-muted)}
 .hir-tile{fill:var(--hir-bg);stroke:var(--hir-border)}
 .hir-tile-img{fill:#FFFFFF}
-.hir-group{fill:var(--hir-soft-bg);stroke:var(--hir-border);transition:fill .4s,stroke .4s}
-.hir-group-on{fill:var(--hir-acc-soft);stroke:var(--hir-acc);stroke-width:1.5}
+.hir-server-boundary{fill:var(--hir-soft-bg);stroke:var(--hir-border);transition:fill .4s,stroke .4s}
+.hir-server-boundary-on{fill:var(--hir-acc-soft);stroke:var(--hir-acc);stroke-width:1.5}
 .hir-sg-badge{fill:var(--hir-bg);stroke:var(--hir-border);stroke-dasharray:3 2}
+.hir-ref-pill{fill:var(--hir-bg);stroke:var(--hir-border);stroke-dasharray:2 2}
 .hir-block{fill:var(--hir-bg);stroke:var(--hir-border);stroke-dasharray:3 3}
 .hir-chip{fill:var(--hir-surf);stroke:var(--hir-acc)}
 .hir-dot{fill:var(--hir-ok)}
 
 /* High-contrast connector lines */
-.hir-line{fill:none;stroke:var(--hir-line-inactive);stroke-width:2.25;stroke-dasharray:6 4;opacity:.75;transition:stroke .3s,stroke-width .3s,opacity .3s}
-.hir-line-active{stroke:var(--hir-acc);stroke-width:2.75;opacity:1}
+.hir-line{fill:none;stroke:var(--hir-line-inactive);stroke-width:2;stroke-dasharray:6 4;opacity:.7;transition:stroke .3s,stroke-width .3s,opacity .3s}
+.hir-line-step{stroke:var(--hir-acc);stroke-width:2.25;opacity:.9}
+.hir-line-active{stroke:var(--hir-acc);stroke-width:3;stroke-dasharray:none;opacity:1}
 .hir-arrow{fill:var(--hir-line-inactive);transition:fill .3s}
 .hir-arrow-active{fill:var(--hir-acc)}
-.hir-internal-flow{fill:none;stroke:var(--hir-acc);stroke-width:2;stroke-dasharray:4 3}
+.hir-internal-flow{fill:none;stroke:var(--hir-acc);stroke-width:1.75;stroke-dasharray:4 3}
 
 /* Badges */
 .hir-badge circle{fill:var(--hir-bg);stroke:var(--hir-line-inactive);stroke-width:1.75;transition:fill .3s,stroke .3s}
@@ -757,12 +922,12 @@ const CSS = `
 .hir g{transition:opacity .35s}
 .hir-packet-glow{fill:var(--hir-acc)}
 .hir-packet-dot{fill:var(--hir-acc);stroke:#FFFFFF;stroke-width:1.5}
-.hir-flow{animation:hir-dash 12s linear infinite}
-@keyframes hir-dash{to{stroke-dashoffset:-120}}
 .hir-off{opacity:.3}
 .hir-in{animation:hir-in .45s both}
 @keyframes hir-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.hir-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+
+/* Mobile list */
+.hir-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .hir-li{border:1px solid var(--hir-border);border-radius:12px;padding:12px 14px;background:var(--hir-surf);position:relative}
 .hir-li:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font:700 13px ui-monospace,monospace;color:var(--hir-acc);background:var(--hir-bg);line-height:1;padding:1px 4px;z-index:1}
 .hir-li-on{border-color:var(--hir-acc);background:var(--hir-acc-soft)}
@@ -773,6 +938,9 @@ const CSS = `
 .hir-chip-html{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hir-border);background:var(--hir-bg);border-radius:8px;padding:5px 9px;font:500 12px system-ui,sans-serif}
 .hir-chip-html em{font:700 9px ui-monospace,monospace;font-style:normal;color:var(--hir-muted)}
 .hir-chip-ref{border-style:dashed}
+.hir-mobile-server{border:1px dashed var(--hir-acc);background:var(--hir-bg);border-radius:8px;padding:8px 10px;margin-top:6px}
+.hir-mobile-server-head{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--hir-acc);margin-bottom:8px;font-family:ui-monospace,Menlo,monospace}
+
 @media (max-width:760px){
   .hir{padding:16px 14px 10px}
   .hir-head{gap:12px}
