@@ -14,9 +14,7 @@ import {
   ShieldCheck,
   Check,
   Copy,
-  Server,
   Cpu,
-  Cloud,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -310,69 +308,6 @@ export function Footer() {
                     </div>
                   </div>
                   <ArrowUpRight className="h-3.5 w-3.5 text-accent transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </a>
-
-                {/* DNS Architecture Article Card */}
-                <a
-                  href="/blog/dns-explained"
-                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <Server className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        DNS Explained: Domains to Websites
-                      </div>
-                      <div className="mono text-[10px] text-muted-foreground">
-                        Interactive resolution architecture &amp; records
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-                </a>
-
-                {/* AWS Cloud Infrastructure Guide Card */}
-                <a
-                  href="/blog/aws-cloud-infrastructure-guide"
-                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <Cloud className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        AWS Cloud Infrastructure Guide
-                      </div>
-                      <div className="mono text-[10px] text-muted-foreground">
-                        VPC, multi-AZ, ALB &amp; RDS topology
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-                </a>
-
-                {/* Linux Server Administration Card */}
-                <a
-                  href="/blog/linux-server-administration"
-                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <Terminal className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        Linux Server Administration
-                      </div>
-                      <div className="mono text-[10px] text-muted-foreground">
-                        Hardening, automated CI/CD &amp; telemetry
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
                 </a>
 
                 {/* Architecture Explorer Card */}
