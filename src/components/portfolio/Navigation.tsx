@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, Search, BookOpen } from "lucide-react";
+import { Github, FileText, Menu, X, Search } from "lucide-react";
 import { isStaging } from "@/lib/staging.guard";
 
 interface NavItem {
@@ -11,14 +11,13 @@ interface NavItem {
   isExternalPage?: boolean;
 }
 
-const SECTION_IDS = ["hero", "skills", "experience", "projects", "blog", "certifications", "contact"];
+const SECTION_IDS = ["hero", "projects", "skills", "experience", "certifications", "contact"];
 
 const NAV_ITEMS: NavItem[] = [
   { id: "hero", label: "Home", href: "/#hero" },
+  { id: "projects", label: "Projects", href: "/#projects" },
   { id: "skills", label: "Skills", href: "/#skills" },
   { id: "experience", label: "Experience", href: "/#experience" },
-  { id: "projects", label: "Engineering Projects", href: "/#projects" },
-  { id: "blog", label: "Blog", href: "/blog", isExternalPage: true },
   { id: "certifications", label: "Certifications", href: "/#certifications" },
   { id: "contact", label: "Contact", href: "/#contact" },
 ];
@@ -45,10 +44,30 @@ export function Navigation() {
   // Initial hash sync on home page mount / hash change
   useEffect(() => {
     if (!isHome || typeof window === "undefined") return;
-    const hash = window.location.hash.replace(/^#/, "");
-    if (hash && SECTION_IDS.includes(hash)) {
-      setActiveSection(hash);
-    }
+
+    const scrollToHash = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash && SECTION_IDS.includes(hash)) {
+        setActiveSection(hash);
+        const el = document.getElementById(hash);
+        if (el) {
+          const headerOffset = 80;
+          const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = Math.max(0, elementPosition - headerOffset);
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }
+    };
+
+    const timer = setTimeout(scrollToHash, 60);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("hashchange", scrollToHash);
+    };
   }, [isHome]);
 
   useEffect(() => {
@@ -124,14 +143,15 @@ export function Navigation() {
   }, [isHome, isGithub, isProjects]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+
     if (item.isExternalPage) return;
 
     if (isHome) {
       e.preventDefault();
       setActiveSection(item.id);
-      if (mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
 
       const el = document.getElementById(item.id);
       if (el) {
