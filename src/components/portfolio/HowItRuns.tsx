@@ -37,7 +37,6 @@ type Node = {
   logo?: string;
   fb: string;
   step: number;
-  ref?: boolean;
   tip: string;
 };
 
@@ -50,13 +49,13 @@ const NODES: Node[] = [
 
   // Tier 2: Infrastructure Provisioning & Deployment Automation (y: 150)
   { id: "ans", x: 120, y: 150, w: 190, h: 56, name: "Ansible", sub: "SSH deploy · playbook", logo: "ansible", fb: "AN", step: 2, tip: "Configures the Ubuntu EC2 host via SSH and deploys the container stack" },
-  { id: "tf", x: 450, y: 150, w: 200, h: 56, name: "Terraform", sub: "IaC AWS provisioner", logo: "terraform", fb: "TF", step: 1, ref: true, tip: "Provisions VPC, subnets, Security Groups, IAM role, and EC2 (Reference only)" },
-  { id: "aws_infra", x: 730, y: 150, w: 280, h: 56, name: "AWS VPC, Subnet & IAM", sub: "isolated network · EC2 role", logo: "aws-vpc", fb: "AWS", step: 1, ref: true, tip: "Isolated VPC network, security firewall, and IAM instance role (Reference only)" },
+  { id: "tf", x: 450, y: 150, w: 200, h: 56, name: "Terraform", sub: "IaC AWS provisioner", logo: "terraform", fb: "TF", step: 1, tip: "Provisions VPC, subnets, Security Groups, IAM role, and EC2" },
+  { id: "aws_infra", x: 730, y: 150, w: 280, h: 56, name: "AWS VPC, Subnet & IAM", sub: "isolated network · EC2 role", logo: "aws-vpc", fb: "AWS", step: 1, tip: "Isolated VPC network, security firewall, and IAM instance role" },
 
   // Tier 4: External Users & Cloud Destinations (y: 730)
   { id: "users", x: 30, y: 730, w: 180, h: 56, name: "Users", sub: "browser clients · HTTPS", fb: "WEB", step: 3, tip: "Visitors access the web application securely over HTTPS (port 443)" },
-  { id: "s3", x: 260, y: 730, w: 200, h: 56, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", step: 3, ref: true, tip: "Amazon S3 bucket stores encrypted daily compliance and audit PDF reports (Reference only)" },
-  { id: "cw", x: 520, y: 730, w: 240, h: 56, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", step: 3, ref: true, tip: "CloudWatch captures EC2 system metrics and operational host logs (Reference only)" },
+  { id: "s3", x: 260, y: 730, w: 200, h: 56, name: "Amazon S3", sub: "encrypted PDF archive", logo: "aws-s3", fb: "S3", step: 3, tip: "Amazon S3 bucket stores encrypted daily compliance and audit PDF reports" },
+  { id: "cw", x: 520, y: 730, w: 240, h: 56, name: "Amazon CloudWatch", sub: "host logs & metrics", logo: "aws-cloudwatch", fb: "CW", step: 3, tip: "CloudWatch captures EC2 system metrics and operational host logs" },
   { id: "mail", x: 800, y: 730, w: 210, h: 56, name: "Email Alerts", sub: "hello@piyushprasad.in", logo: "mail", fb: "@", step: 3, tip: "Automated PDF reports and workflow alerts dispatched to hello@piyushprasad.in" },
 ];
 
@@ -342,8 +341,8 @@ const STEPS = [
 type NarrowStep = {
   title: string;
   desc: string;
-  externalServices?: { name: string; logo?: string; fb: string; ref?: boolean }[];
-  serverServices?: { name: string; logo?: string; fb: string; ref?: boolean }[];
+  externalServices?: { name: string; logo?: string; fb: string }[];
+  serverServices?: { name: string; logo?: string; fb: string }[];
 };
 
 const NARROW_STEPS: NarrowStep[] = [
@@ -361,10 +360,10 @@ const NARROW_STEPS: NarrowStep[] = [
     title: "AWS Provisioning",
     desc: "Terraform provisions isolated AWS VPC, subnets, Security Groups, IAM role, and the EC2 server.",
     externalServices: [
-      { name: "Terraform (IaC provisioner)", logo: "terraform", fb: "TF", ref: true },
-      { name: "AWS VPC & Subnets", logo: "aws-vpc", fb: "VPC", ref: true },
-      { name: "Security Group (ports 443, 22)", logo: "aws-vpc", fb: "SG", ref: true },
-      { name: "AWS IAM (EC2 instance role)", logo: "aws-iam", fb: "IAM", ref: true },
+      { name: "Terraform (IaC provisioner)", logo: "terraform", fb: "TF" },
+      { name: "AWS VPC & Subnets", logo: "aws-vpc", fb: "VPC" },
+      { name: "Security Group (ports 443, 22)", logo: "aws-vpc", fb: "SG" },
+      { name: "AWS IAM (EC2 instance role)", logo: "aws-iam", fb: "IAM" },
     ],
   },
   {
@@ -372,7 +371,7 @@ const NARROW_STEPS: NarrowStep[] = [
     desc: "GitHub Actions runs Ansible over SSH (port 22) to configure ubuntu-app-01 and launch Docker Compose.",
     externalServices: [
       { name: "Ansible (SSH deploy playbook)", logo: "ansible", fb: "AN" },
-      { name: "Security Group (SSH port 22)", logo: "aws-vpc", fb: "SG", ref: true },
+      { name: "Security Group (SSH port 22)", logo: "aws-vpc", fb: "SG" },
     ],
     serverServices: [
       { name: "Docker Compose Stack", logo: "docker", fb: "DC" },
@@ -384,8 +383,8 @@ const NARROW_STEPS: NarrowStep[] = [
     desc: "Users connect via HTTPS 443. Metrics feed Prometheus & Grafana. CloudWatch Agent logs host metrics. S3 archives reports and email alerts go to hello@piyushprasad.in.",
     externalServices: [
       { name: "Users (HTTPS port 443)", fb: "WEB" },
-      { name: "Amazon S3 (archived PDF reports)", logo: "aws-s3", fb: "S3", ref: true },
-      { name: "Amazon CloudWatch (host logs & metrics)", logo: "aws-cloudwatch", fb: "CW", ref: true },
+      { name: "Amazon S3 (archived PDF reports)", logo: "aws-s3", fb: "S3" },
+      { name: "Amazon CloudWatch (host logs & metrics)", logo: "aws-cloudwatch", fb: "CW" },
       { name: "Email Alerts (hello@piyushprasad.in)", logo: "mail", fb: "@" },
     ],
     serverServices: [
@@ -614,16 +613,6 @@ export default function HowItRuns() {
           <h3 className="hir-title">How it runs</h3>
         </div>
 
-        {/* Legend */}
-        <div className="hir-legend" aria-hidden="true">
-          <span>
-            <i className="hir-key hir-key-solid" /> Used in my repos
-          </span>
-          <span>
-            <i className="hir-key hir-key-ref" /> Reference only
-          </span>
-        </div>
-
         {/* Play/Pause Button */}
         <div className="hir-controls">
           <button
@@ -694,7 +683,7 @@ export default function HowItRuns() {
                     {st.externalServices.map((sv) => (
                       <span
                         key={sv.name}
-                        className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
+                        className="hir-chip-html"
                       >
                         {logo(sv.logo) ? (
                           <img src={logo(sv.logo)} alt="" width={15} height={15} />
@@ -720,7 +709,7 @@ export default function HowItRuns() {
                       {st.serverServices.map((sv) => (
                         <span
                           key={sv.name}
-                          className={`hir-chip-html ${sv.ref ? "hir-chip-ref" : ""}`}
+                          className="hir-chip-html"
                         >
                           {logo(sv.logo) ? (
                             <img src={logo(sv.logo)} alt="" width={15} height={15} />
@@ -824,12 +813,6 @@ export default function HowItRuns() {
               <rect x="520" y="284" width="340" height="26" rx="6" className="hir-sg-badge" />
               <text x="532" y="301" className="hir-mono hir-acc" fontSize={9.5} fontWeight={600}>
                 Security Group Firewall: Ingress 443 (HTTPS) · Ingress 22 (SSH)
-              </text>
-
-              {/* Reference Pill for VPC/SG */}
-              <rect x="914" y="284" width="84" height="26" rx="5" className="hir-ref-pill" />
-              <text x="956" y="301" textAnchor="middle" className="hir-mono hir-muted" fontSize={8.5} fontWeight={600}>
-                Reference only
               </text>
 
               {/* Sub-container A: Docker Compose Stack (Web, App, DB, Monitoring) */}
@@ -954,7 +937,7 @@ export default function HowItRuns() {
                   width={n.w}
                   height={n.h}
                   rx={10}
-                  className={`hir-node ${n.ref ? "hir-node-ref" : ""} ${isOn([n.step]) && !reduced ? "hir-node-on" : ""}`}
+                  className={`hir-node ${isOn([n.step]) && !reduced ? "hir-node-on" : ""}`}
                 >
                   <title>{n.tip}</title>
                 </rect>
@@ -965,29 +948,6 @@ export default function HowItRuns() {
                 <text x={n.x + 48} y={n.y + 44} className="hir-mono hir-muted" fontSize={9}>
                   {n.sub}
                 </text>
-
-                {n.ref && (
-                  <g>
-                    <rect
-                      x={n.x + n.w - 78}
-                      y={n.y + 6}
-                      width={70}
-                      height={16}
-                      rx={4}
-                      className="hir-ref-pill"
-                    />
-                    <text
-                      x={n.x + n.w - 43}
-                      y={n.y + 17}
-                      textAnchor="middle"
-                      className="hir-mono hir-muted"
-                      fontSize={7.5}
-                      fontWeight={600}
-                    >
-                      Reference only
-                    </text>
-                  </g>
-                )}
               </g>
             ))}
 
