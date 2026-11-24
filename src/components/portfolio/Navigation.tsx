@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { GITHUB } from "@/lib/site";
-import { Github, FileText, Menu, X, Search, Sun, Moon } from "lucide-react";
+import { Github, FileText, Menu, X, Search } from "lucide-react";
 import { isStaging } from "@/lib/staging.guard";
-import { getResolvedTheme, toggleTheme } from "@/lib/theme";
 
 interface NavItem {
   id: string;
@@ -27,21 +26,6 @@ export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    setResolvedTheme(getResolvedTheme());
-    const onThemeChanged = (e: Event) => {
-      const customEvent = e as CustomEvent<{ theme: string; resolved: "light" | "dark" }>;
-      if (customEvent.detail?.resolved) {
-        setResolvedTheme(customEvent.detail.resolved);
-      } else {
-        setResolvedTheme(getResolvedTheme());
-      }
-    };
-    window.addEventListener("theme-changed", onThemeChanged);
-    return () => window.removeEventListener("theme-changed", onThemeChanged);
-  }, []);
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/" || pathname === "";
@@ -60,10 +44,30 @@ export function Navigation() {
   // Initial hash sync on home page mount / hash change
   useEffect(() => {
     if (!isHome || typeof window === "undefined") return;
-    const hash = window.location.hash.replace(/^#/, "");
-    if (hash && SECTION_IDS.includes(hash)) {
-      setActiveSection(hash);
-    }
+
+    const scrollToHash = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash && SECTION_IDS.includes(hash)) {
+        setActiveSection(hash);
+        const el = document.getElementById(hash);
+        if (el) {
+          const headerOffset = 80;
+          const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = Math.max(0, elementPosition - headerOffset);
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }
+    };
+
+    const timer = setTimeout(scrollToHash, 60);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("hashchange", scrollToHash);
+    };
   }, [isHome]);
 
   useEffect(() => {
@@ -139,14 +143,15 @@ export function Navigation() {
   }, [isHome, isGithub, isProjects]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+
     if (item.isExternalPage) return;
 
     if (isHome) {
       e.preventDefault();
       setActiveSection(item.id);
-      if (mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
 
       const el = document.getElementById(item.id);
       if (el) {
@@ -311,21 +316,6 @@ export function Navigation() {
               <Github className="h-4 w-4" />
             </a>
 
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex h-8 w-8 items-center justify-center border border-border bg-surface text-text/80 transition-all hover:border-accent hover:text-accent cursor-pointer"
-              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-4 w-4 text-highlight" />
-              ) : (
-                <Moon className="h-4 w-4 text-accent" />
-              )}
-            </button>
-
             {/* Resume Button */}
             <a
               href="/resume"
@@ -346,21 +336,6 @@ export function Navigation() {
               aria-label="Open search palette"
             >
               <Search className="h-4 w-4 text-accent" />
-            </button>
-
-            {/* Mobile Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex h-9 w-9 items-center justify-center border border-border bg-surface text-text transition-colors hover:border-accent hover:text-accent cursor-pointer"
-              title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              aria-label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-4 w-4 text-highlight" />
-              ) : (
-                <Moon className="h-4 w-4 text-accent" />
-              )}
             </button>
 
             <a

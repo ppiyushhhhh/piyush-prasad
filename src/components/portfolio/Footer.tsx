@@ -16,6 +16,7 @@ import {
   Copy,
   Server,
   Cpu,
+  Cloud,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,7 +33,8 @@ const SECTION_LINKS: SectionLink[] = [
   { num: "03", label: "Technical Skills", href: "/#skills" },
   { num: "04", label: "Experience Journey", href: "/#experience" },
   { num: "05", label: "Credentials & Education", href: "/#certifications" },
-  { num: "06", label: "Get In Touch", href: "/#contact" },
+  { num: "06", label: "Technical Blog", href: "/blog" },
+  { num: "07", label: "Get In Touch", href: "/#contact" },
 ];
 
 export function Footer() {
@@ -284,6 +286,95 @@ export function Footer() {
               </div>
 
               <div className="space-y-2.5">
+                {/* Technical Blog & Learning Center Hub Card */}
+                <a
+                  href="/blog"
+                  className="group flex items-center justify-between border border-accent/40 bg-accent/5 p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-accent/40 text-accent">
+                      <BookOpen className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-text group-hover:text-accent transition-colors">
+                          Technical Blog &amp; Learning Center
+                        </span>
+                        <span className="mono text-[8px] font-bold px-1.5 py-0.2 border border-accent/30 bg-accent/10 text-accent uppercase">
+                          Hub
+                        </span>
+                      </div>
+                      <div className="mono text-[10px] text-muted-foreground">
+                        Tutorials, architectures &amp; engineering guides
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-accent transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </a>
+
+                {/* DNS Architecture Article Card */}
+                <a
+                  href="/blog/dns-explained"
+                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
+                      <Server className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
+                        DNS Explained: Domains to Websites
+                      </div>
+                      <div className="mono text-[10px] text-muted-foreground">
+                        Interactive resolution architecture &amp; records
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+                </a>
+
+                {/* AWS Cloud Infrastructure Guide Card */}
+                <a
+                  href="/blog/aws-cloud-infrastructure-guide"
+                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
+                      <Cloud className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
+                        AWS Cloud Infrastructure Guide
+                      </div>
+                      <div className="mono text-[10px] text-muted-foreground">
+                        VPC, multi-AZ, ALB &amp; RDS topology
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+                </a>
+
+                {/* Linux Server Administration Card */}
+                <a
+                  href="/blog/linux-server-administration"
+                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
+                      <Terminal className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
+                        Linux Server Administration
+                      </div>
+                      <div className="mono text-[10px] text-muted-foreground">
+                        Hardening, automated CI/CD &amp; telemetry
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+                </a>
+
                 {/* Architecture Explorer Card */}
                 <a
                   href="/architecture"
@@ -298,7 +389,7 @@ export function Footer() {
                         Interactive Architecture Explorer
                       </div>
                       <div className="mono text-[10px] text-muted-foreground">
-                        Cloud topologies, data flow &amp; security
+                        Live deployment topology &amp; flow inspection
                       </div>
                     </div>
                   </div>
@@ -322,48 +413,6 @@ export function Footer() {
                       </div>
                       <div className="mono text-[10px] text-muted-foreground">
                         Web viewer &amp; printable PDF
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-                </a>
-
-                {/* Pipeline Guide Card */}
-                <a
-                  href="/guides/devsecops-pipeline"
-                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        DevSecOps Pipeline Guide
-                      </div>
-                      <div className="mono text-[10px] text-muted-foreground">
-                        Trivy, Docker &amp; CI/CD security
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-                </a>
-
-                {/* Tools Ecosystem Card */}
-                <a
-                  href="/guides/devsecops-tools"
-                  className="group flex items-center justify-between border border-border bg-surface p-3 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-accent"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-xs bg-surface border border-border text-accent">
-                      <Terminal className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
-                        DevSecOps Tools Ecosystem
-                      </div>
-                      <div className="mono text-[10px] text-muted-foreground">
-                        Tooling stack &amp; architectures
                       </div>
                     </div>
                   </div>

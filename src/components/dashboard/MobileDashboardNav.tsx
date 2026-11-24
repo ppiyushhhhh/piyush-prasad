@@ -4,6 +4,7 @@ import {
   Activity,
   Award,
   BarChart3,
+  BookOpen,
   Bot,
   FileText,
   Gauge,
@@ -91,6 +92,15 @@ const DASHBOARD_NAV_MODULES: NavModule[] = [
     description: "Engineering projects, case studies, deployments & architecture data",
     badge: "Case Studies",
     keywords: ["projects", "case study", "portfolio", "architecture", "diagram"],
+  },
+  {
+    to: "/dashboard/blog",
+    label: "Technical Blog",
+    icon: BookOpen,
+    category: "Pipelines",
+    description: "Publish tutorials, cloud architecture articles & learning guides",
+    badge: "CMS",
+    keywords: ["blog", "articles", "tutorials", "guides", "publishing", "cms"],
   },
   {
     to: "/dashboard/architectures",
