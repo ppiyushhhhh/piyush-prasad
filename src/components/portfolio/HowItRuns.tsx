@@ -1034,7 +1034,6 @@ const CSS = `
 .hir-title{margin:0;font-size:20px;font-weight:700;line-height:1.2;color:var(--hir-text)}
 .hir-legend{display:flex;gap:16px;align-items:center;font:500 11px ui-monospace,Menlo,monospace;color:var(--hir-muted);padding-top:4px}
 .hir-key{display:inline-block;width:18px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1.5px solid var(--hir-acc)}
-.hir-key-ref{border-style:dashed;border-color:var(--hir-muted)}
 .hir-controls{display:inline-flex;align-items:center}
 .hir-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--hir-border);background:var(--hir-surf);color:var(--hir-text);cursor:pointer;transition:all .15s ease}
 .hir-btn:hover{background:var(--hir-soft-bg)}
@@ -1063,9 +1062,7 @@ const CSS = `
 
 /* Nodes & Server Boundary */
 .hir-node{fill:var(--hir-bg);stroke:var(--hir-border);stroke-width:1.25;transition:all .3s ease}
-.hir-node-ref{stroke-dasharray:4 3}
 .hir-node-on{stroke:var(--hir-acc);stroke-width:1.75;filter:drop-shadow(0 2px 6px rgba(15,118,110,.12))}
-.hir-ref-pill{fill:var(--hir-soft-bg);stroke:var(--hir-border);stroke-width:1;stroke-dasharray:3 2}
 .hir-server-boundary{fill:var(--hir-surf);stroke:var(--hir-border);stroke-width:1.5;transition:stroke .3s}
 .hir-server-boundary-on{stroke:var(--hir-acc);stroke-width:2}
 .hir-sg-badge{fill:var(--hir-acc-soft);stroke:var(--hir-acc);stroke-width:1}
@@ -1108,7 +1105,6 @@ const CSS = `
 .hir-chips{display:flex;flex-wrap:wrap;gap:6px}
 .hir-chip-html{display:inline-flex;align-items:center;gap:6px;background:var(--hir-bg);border:1px solid var(--hir-border);padding:4px 8px;border-radius:7px;font-size:11px;color:var(--hir-text)}
 .hir-chip-html em{font-style:normal;font-weight:700;font-size:10px;font-family:ui-monospace,monospace;color:var(--hir-muted)}
-.hir-chip-ref{border-style:dashed}
 .hir-mobile-server{margin-top:8px;padding:10px;border-radius:9px;background:var(--hir-soft-bg);border:1px solid var(--hir-border)}
 .hir-mobile-server-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11.5px;color:var(--hir-text)}
 

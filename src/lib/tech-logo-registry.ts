@@ -36,6 +36,7 @@ export const TECH_LOGO_REGISTRY: Record<string, TechLogo> = {
   "aws-eventbridge": { src: "/tech-logos/aws/eventbridge.svg", label: "Amazon EventBridge", brandColor: "#FF4F8B" },
   "aws-elb": { src: "/tech-logos/aws/elb.svg", label: "Elastic Load Balancing", brandColor: "#A166FF" },
   "aws-ecs": { src: "/tech-logos/aws/ecs.svg", label: "Amazon ECS", brandColor: "#FF9900" },
+  "aws-ecr": { src: "/tech-logos/aws/ecs.svg", label: "Amazon ECR", brandColor: "#FF9900" },
   "aws-eks": { src: "/tech-logos/aws/eks.svg", label: "Amazon EKS", brandColor: "#FF9900" },
   aws: { src: "/tech-logos/aws.svg", label: "Amazon Web Services", brandColor: "#232F3E" },
 
